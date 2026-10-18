@@ -1,5 +1,7 @@
 # Backlog des fonctionnalités
 
+> **En bref (version simple)** : la liste de toutes les fonctionnalités prévues, avec leur version, leur importance et ce dont elles dépendent. Pour une présentation plus simple, voir la [feuille de route](ROADMAP.md).
+
 Priorités : **P1** indispensable pour la version visée · **P2** important · **P3** bonus.
 Statut : ✅ fait · ⬜ à faire. Les dépendances renvoient aux identifiants.
 

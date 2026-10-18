@@ -1,5 +1,7 @@
 # Conception du jeu
 
+> **En bref (version simple)** : on se déplace, on utilise des objets, on discute. Pas de monnaie ni de course aux points : les petits objectifs servent seulement à découvrir le lieu. Pour la prise en main, voir le [guide du joueur](GUIDE_DU_JOUEUR.md).
+
 ## Expérience recherchée
 
 Un nouvel arrivant doit comprendre en moins d’une minute **où il est**, **comment bouger**,

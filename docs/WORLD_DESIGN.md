@@ -1,5 +1,9 @@
 # Conception du monde
 
+> **En bref (version simple)** : le monde est un grand bâtiment communautaire, le Hub, entouré d’un jardin. Chaque salle est décrite dans un fichier de données facile à lire (JSON) : une grille de sol, des murs, des zones et des objets placés. De nouveaux étages et salles s’ajouteront au fil des versions.
+
+![Vue d’ensemble du Hub](images/hub-vue-ensemble.jpg)
+
 ## 1. Principe : un complexe communautaire, pas une ville vide
 
 Le cœur de MalinosLand est un **bâtiment principal** (le Hub) entouré d’un jardin, qui s’étend

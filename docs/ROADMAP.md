@@ -1,56 +1,179 @@
 # Feuille de route
 
-Développement progressif : chaque version est utilisable et montrable. Les versions évolueront selon
-les retours des Malinos. Légende : ✅ fait · 🔶 partiel · ⬜ à faire.
+Cette page explique **où va MalinosLand**, étape par étape. Chaque version ajoute quelque chose de
+concret et reste jouable : on ne construit pas tout d’un coup.
 
-## v0.1 — Prototype jouable (branche `feature/initial-prototype`)
+```mermaid
+flowchart LR
+    A["✅ v0.1<br/>Prototype<br/><i>se promener</i>"] --> B["🔜 v0.2<br/>Multijoueur<br/><i>se retrouver</i>"]
+    B --> C["⏳ v0.3<br/>Chez soi<br/><i>son logement</i>"]
+    C --> D["⏳ v0.4<br/>Expansion<br/><i>étages, galerie</i>"]
+    D --> E["⏳ v0.5<br/>Vie communautaire<br/><i>événements, jeux</i>"]
+    E --> F["⏳ v1.0<br/>Version stable"]
+```
+
+**Légende :** ✅ terminé · 🔶 en cours · 🔜 prochaine étape · ⏳ prévu plus tard.
+
+> **Pourquoi cet ordre ?** Il faut d’abord un monde agréable (0.1), puis pouvoir s’y retrouver à
+> plusieurs (0.2). Les logements (0.3) ont besoin des comptes, la galerie et les étages (0.4) ont
+> besoin des logements et de la modération, et les événements (0.5) ont besoin de monde !
+
+---
+
+## ✅ Version 0.1 — Le prototype : « se promener »
+
+**En une phrase :** on découvre le Hub, on crée son personnage et on utilise les objets.
+
+![Le Hub en v0.1](images/hub-vue-ensemble.jpg)
+
+**Ce que tu peux faire :**
+
+- créer et modifier ton avatar (silhouette, coiffure, couleurs, accessoires) ;
+- te promener à la souris ou au clavier dans le hall, le coworking, la salle de conférence, le
+  salon, le jardin et la terrasse ;
+- parler à Malo, t’asseoir, prendre un café, appeler l’ascenseur, lire les panneaux ;
+- suivre les 8 objectifs « Premiers pas », écrire dans le chat, envoyer des émotes.
+
+**Ses limites (normales pour un prototype) :**
+
+- pas de compte : ton personnage est enregistré dans ton navigateur ;
+- pas de vrai multijoueur en ligne (seulement une démonstration entre onglets du même navigateur) ;
+- le jeu n’est pas encore mis en ligne : il faut le lancer sur son ordinateur.
+
+**Reste à faire :** mesurer la fluidité sur de vrais ordinateurs (vieux portable, PC récent…).
+Tu peux aider : voir [TESTING.md](TESTING.md#protocole-de-mesure-manuel).
+
+---
+
+## 🔜 Version 0.2 — Le multijoueur : « se retrouver »
+
+**En une phrase :** on se connecte avec un compte et on voit les autres Malinos bouger et parler
+en direct.
+
+**Pour les joueurs :**
+
+- connexion simple (lien reçu par e-mail, ou compte GitHub / Discord) ;
+- ton avatar et ton pseudo sont sauvegardés et te suivent sur tous tes appareils ;
+- tu vois qui est en ligne, tu croises les autres dans le Hub ;
+- chat de proximité (les gens autour de toi) et chat général (tout le monde) ;
+- tu peux **signaler** ou **masquer** quelqu’un qui dérange ;
+- le jeu est **en ligne** : une simple adresse à ouvrir, rien à installer.
+
+**Ce qu’il faut construire :** les comptes, un serveur temps réel, la mise en ligne gratuite,
+des limites anti-spam et un système qui protège les quotas gratuits.
+
+**Point important — la gratuité :** les services en ligne gratuits ont des limites. Si un jour
+trop de monde joue en même temps, le jeu **ralentira ou mettra les gens en file d’attente**, mais
+il ne coûtera **jamais** d’argent. Explications : [FREE_INFRASTRUCTURE.md](FREE_INFRASTRUCTURE.md).
+
+---
+
+## ⏳ Version 0.3 — Les espaces personnels : « chez soi »
+
+**En une phrase :** chaque Malino reçoit son propre logement dans la Tour communautaire.
+
+**Pour les joueurs :**
+
+- un logement **privé par défaut** ;
+- tu choisis qui peut entrer : **personne**, **sur invitation** ou **tout le monde** ;
+- tu peux inviter des amis et retirer un accès à tout moment ;
+- un **éditeur de décoration** simple : choisir un meuble, le poser sur une grille, le tourner,
+  le supprimer, enregistrer — sans aucune connaissance technique ;
+- un catalogue de meubles partagé (bureaux, plantes, étagères, ordinateurs…).
+
+**Sécurité :** les droits d’entrée sont vérifiés par le serveur, pas seulement par le jeu : impossible
+de forcer la porte d’un logement privé.
+
+---
+
+## ⏳ Version 0.4 — L’expansion : « le monde s’agrandit »
+
+**En une phrase :** de nouveaux étages, un ascenseur qui fonctionne et la **Galerie des Malinos**.
+
+![La galerie, encore fermée en v0.1](images/conference-et-galerie.jpg)
+
+**Pour les joueurs :**
+
+- l’**ascenseur** mène aux étages de la tour (chargés seulement quand on y va : la tour peut
+  accueillir des centaines de logements sans ralentir le jeu) ;
+- la **Galerie des Malinos** : un musée de vos créations (sites, applis, projets IA, dépôts GitHub).
+  On s’approche d’une œuvre, on lit sa fiche, on ouvre le lien ;
+- un **annuaire** pour trouver un membre et découvrir ses espaces publics ;
+- de nouvelles salles proposées par la communauté.
+
+**Sécurité :** les projets exposés sont **vérifiés avant publication** et les liens sont sécurisés.
+
+---
+
+## ⏳ Version 0.5 — La vie communautaire
+
+**En une phrase :** des choses à faire ensemble.
+
+- **Événements** dans la salle de conférence (présentations, démos), avec un lien vers un outil de
+  visio gratuit externe ;
+- **expositions temporaires** dans la galerie (projets du mois, créations IA…) ;
+- **défis créatifs** (construction, développement) ;
+- premiers **mini-jeux** sur la borne d’arcade, ajoutés comme des modules indépendants.
+
+---
+
+## ⏳ Version 1.0 — L’univers communautaire stable
+
+**En une phrase :** un monde complet, sûr et durable.
+
+- espaces personnels aboutis et outils de contribution faciles ;
+- modération solide (rôles de modérateurs, signalements, suspensions) ;
+- documentation complète, performances et sécurité vérifiées ;
+- infrastructure toujours **100 % gratuite** et maîtrisée.
+
+---
+
+## Comment la feuille de route évolue
+
+La feuille de route n’est pas figée : **elle bouge selon vos retours.**
+
+- 💡 Une idée ? Ouvre une [issue « Idée »](https://github.com/Rogue06/MalinosLand/issues/new/choose).
+- 👍 Tu aimes une idée existante ? Ajoute une réaction 👍 : ça aide à fixer les priorités.
+- 📋 La liste détaillée des fonctionnalités, avec leurs priorités et dépendances, est dans
+  [FEATURE_BACKLOG.md](FEATURE_BACKLOG.md).
+- 🧭 Les choix importants sont expliqués dans [DECISIONS.md](DECISIONS.md).
+
+## Suivi détaillé (pour les contributeurs)
+
+<details>
+<summary>Cliquer pour voir la liste détaillée des tâches par version</summary>
+
+### v0.1 — branche `feature/initial-prototype`
 
 - ✅ Application web (Vite + TypeScript + Phaser 4 + Preact)
-- ✅ Carte isométrique originale : le Hub (hall, coworking, conférence, salon, galerie fermée, jardin, terrasse, chantier)
-- ✅ Espaces intérieurs visibles (murs du fond hauts, cloisons basses)
-- ✅ Personnage contrôlable, 6 styles prêts à porter + personnalisation simple
-- ✅ Déplacement souris (A*) et clavier (ZQSD / WASD / flèches), collisions, caméra qui suit, zoom
-- ✅ Mobilier et décorations (≈ 40 types d’objets procéduraux)
-- ✅ Interactions réelles : dialogues, panneaux, ascenseur, café, miroir, sièges
-- ✅ Interface légère : zone, objectifs « Premiers pas », mini-carte, chat, émotes
-- ✅ Zones futures identifiables (« bientôt » : galerie v0.4, tour v0.3, étages)
-- ✅ Fonctionnement 100 % local ; démo multi-onglets via BroadcastChannel
-- ✅ Documentation, tests unitaires, test de bout en bout, CI GitHub Actions
-- ⬜ Tests de performance sur machines réelles représentatives (voir TESTING.md)
+- ✅ Carte isométrique originale du Hub (8 zones dont 2 « bientôt »)
+- ✅ Avatar personnalisable, déplacements souris/clavier, collisions, caméra, zoom
+- ✅ ≈ 40 objets procéduraux, interactions réelles, objectifs, chat, émotes
+- ✅ Démo multi-onglets locale, réglages de qualité
+- ✅ Documentation, tests automatiques, test complet dans le navigateur, CI
+- ⬜ Mesures de performance sur machines réelles
 
-## v0.2 — Première expérience multijoueur
+### v0.2
 
-- ⬜ Inscription / connexion (Supabase Auth : lien magique, GitHub, Discord) + protection anti-robots (Turnstile)
-- ⬜ Comptes, profils simples, sauvegarde de l’avatar
-- ⬜ Présence en ligne, synchronisation des déplacements (Worker + Durable Object)
-- ⬜ Chat local et général avec limites, modération minimale (signaler, masquer)
-- ⬜ Déploiement gratuit (Cloudflare Pages) — **après validation du responsable**
-- ⬜ Plafond de joueurs par zone, file d’attente, compteurs de quotas
-- ⬜ Tests réseau (charge simulée)
+- ⬜ Comptes (Supabase Auth) + anti-robots (Turnstile)
+- ⬜ Serveur temps réel (Cloudflare Worker + Durable Object) et transport réseau associé
+- ⬜ Présence, synchronisation des déplacements, chat local/général
+- ⬜ Signaler / masquer, suppression de compte (RGPD)
+- ⬜ Compteurs de quotas et dégradation contrôlée, plafond par salle, file d’attente
+- ⬜ Mise en ligne gratuite (Cloudflare Pages) — **après validation du responsable**
 
-## v0.3 — Espaces personnels
+### v0.3
 
-- ⬜ Attribution d’un logement dans la Tour communautaire
-- ⬜ Modes d’accès : privé (défaut), sur invitation, public — contrôlés côté serveur
-- ⬜ Invitations et retrait immédiat d’accès
-- ⬜ Premier éditeur de décoration (grille, rotation, suppression), catalogue d’objets partagé
-- ⬜ Sauvegarde persistante des dispositions (JSON versionné compact)
+- ⬜ Logements, modes d’accès vérifiés côté serveur, invitations
+- ⬜ Éditeur de décoration, catalogue partagé, sauvegarde des dispositions
 
-## v0.4 — Expansion communautaire
+### v0.4
 
-- ⬜ Étages additionnels chargés à la demande, ascenseur fonctionnel
-- ⬜ Galerie des Malinos (fiches projets modérées, liens externes sécurisés)
-- ⬜ Annuaire des membres et de leurs espaces publics
-- ⬜ Nouvelles salles, outils d’administration, validation des contenus
+- ⬜ Étages chargés à la demande, ascenseur fonctionnel
+- ⬜ Galerie (soumission, modération, fiches), annuaire, outils d’administration
 
-## v0.5 — Vie communautaire
+### v0.5
 
-- ⬜ Événements (salle de conférence + lien visio externe)
-- ⬜ Expositions temporaires, défis créatifs
-- ⬜ Premiers mini-jeux (modules indépendants, borne d’arcade)
+- ⬜ Événements, expositions, défis, mini-jeux modulaires
 
-## v1.0 — Univers communautaire stable
-
-- ⬜ Monde extensible, espaces personnels aboutis, outils de contribution
-- ⬜ Modération robuste, galerie, événements
-- ⬜ Documentation complète, infrastructure gratuite maîtrisée, performances et sécurité validées
+</details>

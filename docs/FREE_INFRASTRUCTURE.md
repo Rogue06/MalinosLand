@@ -1,5 +1,7 @@
 # Infrastructure gratuite
 
+> **En bref (version simple)** : aujourd’hui le jeu ne coûte rien car il n’utilise aucun serveur. Pour le multijoueur (v0.2), on prévoit des services **gratuits** qui, en cas de trop forte affluence, **bloquent** au lieu de **facturer**. Si la limite approche, le jeu ralentit ou fait patienter les joueurs : il reste toujours gratuit.
+
 > **Règle absolue : aucune dépense obligatoire, jamais.** Aucun service ne doit pouvoir facturer
 > automatiquement. Aucun compte ne doit être relié à une carte bancaire sans validation explicite
 > du responsable du projet.

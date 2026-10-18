@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { QUESTS } from '../../content/quests';
 import { loadWorld } from '../../content/world';
-import { project, screenInputToWorld, unproject, type Vec2 } from '../../core/iso';
+import { project, screenInputToWorld, unproject, type Facing, type Vec2 } from '../../core/iso';
 import { facesCamera } from '../../core/rotation';
 import { CHAT_MAX_LENGTH, sanitizeText } from '../../core/text';
 import { NetworkClient, type RemotePeer } from '../../multiplayer/NetworkClient';
@@ -596,6 +596,16 @@ export class WorldScene extends Phaser.Scene {
       pos: () => ({ ...this.player.pos }),
       seated: () => this.player.seat !== null,
       walkTo: (x: number, y: number) => this.player.walkTo({ x, y }),
+      teleport: (x: number, y: number, facing?: Facing) => {
+        if (!this.world.grid.isWalkable(Math.floor(x), Math.floor(y))) return false;
+        this.player.standUp();
+        this.player.cancel();
+        this.player.pos = { x, y };
+        if (facing) this.player.facing = facing;
+        const p = project(x, y);
+        this.cameras.main.centerOn(p.x, p.y - 30);
+        return true;
+      },
       use: (id: string) => {
         const obj = this.world.getObject(id);
         if (obj) this.useObject(obj);
@@ -605,6 +615,10 @@ export class WorldScene extends Phaser.Scene {
         const obj = this.world.objects.find((o) => o.type === type);
         if (obj) this.useObject(obj);
         return !!obj;
+      },
+      zoom: (z: number) => {
+        this.userZoom = Phaser.Math.Clamp(z, 0.4, 2.4);
+        this.updateZoom();
       },
       peers: () => this.remotes.size,
       fps: () => Math.round(this.game.loop.actualFps),

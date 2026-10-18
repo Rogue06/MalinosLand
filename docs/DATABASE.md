@@ -1,5 +1,7 @@
 # Base de données (prévue à partir de la v0.2)
 
+> **En bref (version simple)** : en v0.1, ton personnage est enregistré dans ton navigateur. À partir de la v0.2, une base de données gratuite gardera les comptes, avatars, logements et projets de la galerie. Les règles d’accès (qui peut entrer dans quel logement) seront appliquées **dans la base elle-même**, pour qu’on ne puisse pas tricher.
+
 > **v0.1 : aucune base de données.** Le profil, les réglages et la progression sont dans le
 > `localStorage` du navigateur (`src/services/`), versionnés (`{ v, data }`) et validés à la lecture.
 

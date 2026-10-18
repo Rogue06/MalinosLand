@@ -45,6 +45,7 @@ npm run check        # types + lint + tests + build — doit passer avant tout c
 npm test             # tests unitaires seulement
 npm run build && npm run preview   # build de prod sur http://localhost:4173
 npm run test:e2e     # test de bout en bout (avec preview lancé), captures dans screenshots/
+npm run docs:screenshots   # régénère docs/images/ (avec preview lancé)
 ```
 
 Chromium pour Playwright : variable `CHROMIUM_PATH` si le navigateur n’est pas trouvé.
@@ -78,6 +79,13 @@ Règles de dépendance (vérifiées en partie par ESLint) :
   entrée dans `src/content/catalog.ts` + dessin dans `src/game/art/objects.ts` + placement dans une
   carte. Les tests vérifient la cohérence.
 - Toute carte est validée (`validateMap`) et testée (accessibilité des zones et des objets).
+
+## Documentation
+
+Projet communautaire : la documentation s’adresse aussi à des non-développeurs. Écrire **en
+français, simplement**, avec un résumé « En bref » en tête des documents techniques, et des
+captures d’écran (`docs/images/`, générées par `npm run docs:screenshots`) quand c’est utile.
+Les mots techniques sont expliqués dans `docs/GLOSSAIRE.md`.
 
 ## Après chaque tâche importante
 

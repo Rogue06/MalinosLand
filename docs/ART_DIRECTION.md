@@ -1,5 +1,7 @@
 # Direction artistique
 
+> **En bref (version simple)** : un style « petits cubes » (voxel) en vue de trois quarts, chaleureux et coloré. Tout est dessiné par le code, ce qui rend le jeu très léger et permet à chacun de proposer de nouveaux objets.
+
 ## 1. Analyse de la référence (DEKODE)
 
 Points étudiés dans les captures fournies :
@@ -36,6 +38,14 @@ Ce que **nous ne reprenons pas** : graphismes, personnages, marques, interface, 
 | Bois miel          | `#c98f5a`             |
 | Brique             | `#b5694a`             |
 | Enduit             | `#e6dccb`             |
+
+### Avatars et accessoires
+
+![Les 8 coiffures avec un casque, vues sous 4 angles](images/avatars-coiffures-casque.jpg)
+
+Les accessoires portés sur la tête (casque…) s’appuient sur le volume de chaque coiffure
+(`HAIR_BOUNDS` dans `src/game/art/characters.ts`) pour ne jamais passer à travers les cheveux.
+Un test automatique le vérifie pour chaque coiffure : si tu en ajoutes une, déclare son volume.
 
 ### Proportions
 

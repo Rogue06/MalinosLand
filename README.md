@@ -1,74 +1,124 @@
+<div align="center">
+
 # MalinosLand
 
 **Le monde virtuel gratuit, open source et communautaire des Malinos.**
 
-MalinosLand est un univers isométrique accessible depuis un simple navigateur, construit
-progressivement par et pour les Malinos, une communauté de passionnés d’intelligence artificielle.
-Pas d’abonnement, pas de monnaie à acheter : du partage, de la convivialité et un monde qui
-grandit avec ses habitants.
+![Vue d’ensemble du Hub de MalinosLand](docs/images/hub-vue-ensemble.jpg)
 
-> **État actuel : version 0.1 (prototype jouable, local).** Le jeu fonctionne entièrement dans le
-> navigateur, sans serveur ni compte. Le multijoueur en ligne arrive en v0.2
-> (voir [la feuille de route](docs/ROADMAP.md)).
+</div>
 
-## Démarrer en local
+## C’est quoi, MalinosLand ?
 
-Prérequis : [Node.js](https://nodejs.org) 20 ou plus récent (22 recommandé) et Git.
+MalinosLand est un **petit monde en 3D isométrique** (vu de trois quarts, comme une maquette),
+qu’on visite directement **dans son navigateur**, sans rien installer.
 
-```bash
-git clone https://github.com/Rogue06/MalinosLand.git
-cd MalinosLand
-npm install
-npm run dev
-```
+Il est fait pour la communauté des **Malinos**, des passionnés d’intelligence artificielle. On y
+crée son personnage, on se promène dans un grand bâtiment communautaire, on discute, et, au fil
+des versions, on pourra y montrer ses projets, avoir son propre logement et participer à des
+événements.
 
-Ouvre ensuite **http://localhost:5173** dans ton navigateur, crée ton personnage et entre dans le Hub.
+Trois promesses :
 
-| Commande           | Rôle                                                              |
-| ------------------ | ----------------------------------------------------------------- |
-| `npm run dev`      | Serveur de développement avec rechargement automatique            |
-| `npm run build`    | Vérification des types + build de production dans `dist/`         |
-| `npm run preview`  | Sert le build de production sur http://localhost:4173             |
-| `npm test`         | Tests unitaires (Vitest)                                          |
-| `npm run lint`     | Analyse statique (ESLint)                                         |
-| `npm run check`    | Types + lint + tests + build : à lancer avant chaque pull request |
-| `npm run test:e2e` | Test de bout en bout dans Chromium (nécessite `npm run preview`)  |
+- 🆓 **Gratuit pour toujours** : pas d’abonnement, rien à acheter, aucune publicité.
+- 🤝 **Construit ensemble** : le code est public, chacun peut proposer des idées ou des améliorations.
+- 🪶 **Léger** : pensé pour fonctionner sur des ordinateurs modestes.
 
-Outil pour les graphistes : avec `npm run dev`, la page **http://localhost:5173/art-preview.html**
-affiche tous les objets, murs, sols et avatars générés.
+> **Où en est-on ?** La **version 0.1** est un **prototype** : on peut se promener, personnaliser
+> son avatar et utiliser les objets, mais **on est encore seul** (pas de vrai multijoueur en ligne).
+> Le multijoueur arrive en **version 0.2**. Voir la [feuille de route](docs/ROADMAP.md).
 
-## Ce que contient la v0.1
+## En images
 
-- Le **Hub** en vue isométrique : hall d’accueil, espace coworking, salle de conférence, salon
-  détente, galerie (bientôt), jardin, terrasse et chantier de la future tour communautaire.
-- Un **avatar personnalisable** (silhouette, peau, coiffure, couleurs, accessoires).
-- Déplacement **au clic** (recherche de chemin) ou au **clavier** (ZQSD, WASD, flèches), collisions.
-- **Interactions** : robot d’accueil Malo, panneaux, ascenseur, café, miroir, borne d’arcade,
-  sièges, canapés et bancs où s’asseoir.
-- **Objectifs « Premiers pas »** pour découvrir le Hub, **chat** avec bulles et **émotes**.
-- **Démo multijoueur locale** : ouvre le jeu dans plusieurs onglets du même navigateur pour voir
-  les avatars se croiser (aucune donnée ne quitte l’ordinateur).
-- Réglages de **qualité graphique**, limite d’images par seconde, réduction des animations.
+|                              Créer son personnage                               |                 Discuter avec Malo, le robot d’accueil                 |
+| :-----------------------------------------------------------------------------: | :--------------------------------------------------------------------: |
+| ![Écran de création du personnage](docs/images/accueil-creation-personnage.jpg) | ![Dialogue avec Malo dans le hall](docs/images/hall-dialogue-malo.jpg) |
+|                           **Travailler au coworking**                           |                  **S’asseoir au salon avec un café**                   |
+|                 ![Espace coworking](docs/images/coworking.jpg)                  |           ![Salon détente](docs/images/salon-assis-cafe.jpg)           |
 
-## Documentation
+Plus d’images et toutes les commandes dans le [guide du joueur](docs/GUIDE_DU_JOUEUR.md).
 
-| Document                                               | Contenu                                        |
-| ------------------------------------------------------ | ---------------------------------------------- |
-| [Vision du projet](docs/PROJECT_VISION.md)             | Pourquoi MalinosLand, pour qui, principes      |
-| [Architecture](docs/ARCHITECTURE.md)                   | Choix techniques, modules, flux de données     |
-| [Feuille de route](docs/ROADMAP.md)                    | Versions 0.1 → 1.0                             |
-| [Contribuer](docs/CONTRIBUTING.md)                     | Rejoindre le développement                     |
-| [Infrastructure gratuite](docs/FREE_INFRASTRUCTURE.md) | Fournisseurs, quotas, garde-fous anti-facture  |
-| [Sécurité](docs/SECURITY.md)                           | Protection des joueurs, signalement de failles |
-| [Reprise de session](docs/SESSION_HANDOFF.md)          | Où en est le travail, quoi faire ensuite       |
+## La feuille de route en un coup d’œil
 
-Toute la documentation est dans [`docs/`](docs/).
+| Version                       | En une phrase                                                          | État               |
+| ----------------------------- | ---------------------------------------------------------------------- | ------------------ |
+| **0.1** — Prototype           | On visite le Hub, on crée son avatar, on utilise les objets.           | ✅ **Fait**        |
+| **0.2** — Multijoueur         | On se connecte avec un compte et on voit les autres Malinos en direct. | 🔜 Prochaine étape |
+| **0.3** — Chez soi            | Chacun reçoit un logement à décorer et choisit qui peut entrer.        | ⏳ Prévu           |
+| **0.4** — Le monde s’agrandit | Étages, ascenseur, Galerie des projets, annuaire des membres.          | ⏳ Prévu           |
+| **0.5** — Vie communautaire   | Événements, expositions, défis, mini-jeux.                             | ⏳ Prévu           |
+| **1.0** — Version stable      | Un monde complet, sûr, bien modéré, toujours gratuit.                  | ⏳ Objectif        |
 
-## Contribuer
+Le détail de chaque étape, expliqué simplement : [docs/ROADMAP.md](docs/ROADMAP.md).
 
-Toutes les contributions passent par une branche dédiée et une pull request relue avant fusion :
-la branche `main` est protégée. Lis le [guide de contribution](docs/CONTRIBUTING.md) pour commencer.
+## Essayer le jeu
+
+Pour l’instant, le jeu n’est pas encore en ligne : il faut le lancer sur son ordinateur.
+
+1. Installe [Node.js](https://nodejs.org) (version 20 ou plus récente) et [Git](https://git-scm.com).
+2. Ouvre un terminal et tape :
+
+   ```bash
+   git clone https://github.com/Rogue06/MalinosLand.git
+   cd MalinosLand
+   npm install
+   npm run dev
+   ```
+
+3. Ouvre **http://localhost:5173** dans ton navigateur, crée ton personnage… et bonne visite !
+
+> Astuce : ouvre le jeu dans **deux onglets** du même navigateur pour voir deux personnages se
+> croiser (c’est une démonstration locale, rien ne passe par Internet).
+
+## Participer
+
+Tout le monde peut aider, même sans savoir programmer :
+
+| Tu es…                   | Tu peux…                                                                                                                              |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| 🎮 **Joueur ou curieux** | Tester le jeu, signaler un bug, proposer une idée ([ouvrir une « issue »](https://github.com/Rogue06/MalinosLand/issues/new/choose)). |
+| 🎨 **Créatif**           | Proposer un objet, une décoration, une salle, des textes ou des astuces IA.                                                           |
+| 💻 **Développeur**       | Corriger un bug, ajouter une fonctionnalité, améliorer les performances.                                                              |
+
+👉 Commence par le [guide de contribution](docs/CONTRIBUTING.md) ; les mots techniques sont
+expliqués dans le [glossaire](docs/GLOSSAIRE.md).
+
+**Règle importante :** personne ne modifie directement la version principale (`main`). Chaque
+proposition passe par une **pull request** (une demande de modification) qui est relue et validée
+par le responsable du projet avant d’être ajoutée.
+
+## Toute la documentation
+
+Le [plan de la documentation](docs/README.md) t’indique quoi lire selon ton profil.
+
+| Document                                               | Pour qui      | Contenu                                        |
+| ------------------------------------------------------ | ------------- | ---------------------------------------------- |
+| [Guide du joueur](docs/GUIDE_DU_JOUEUR.md)             | Tout le monde | Commandes, lieux, objectifs, réglages          |
+| [Feuille de route](docs/ROADMAP.md)                    | Tout le monde | Les prochaines versions, expliquées simplement |
+| [Vision du projet](docs/PROJECT_VISION.md)             | Tout le monde | Pourquoi MalinosLand existe, nos principes     |
+| [Contribuer](docs/CONTRIBUTING.md)                     | Contributeurs | Comment proposer une modification, pas à pas   |
+| [Glossaire](docs/GLOSSAIRE.md)                         | Débutants     | Les mots techniques expliqués                  |
+| [Architecture](docs/ARCHITECTURE.md)                   | Développeurs  | Comment le code est organisé                   |
+| [Infrastructure gratuite](docs/FREE_INFRASTRUCTURE.md) | Développeurs  | Comment rester 100 % gratuit                   |
+
+## Pour les développeurs
+
+| Commande                               | Rôle                                                                                     |
+| -------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `npm run dev`                          | Lance le jeu en mode développement (http://localhost:5173)                               |
+| `npm run check`                        | Vérifie tout : types, style, tests, compilation — **à lancer avant chaque pull request** |
+| `npm test`                             | Tests automatiques                                                                       |
+| `npm run build` puis `npm run preview` | Version de production sur http://localhost:4173                                          |
+| `npm run test:e2e`                     | Test complet dans un vrai navigateur (avec `preview` lancé)                              |
+| `npm run docs:screenshots`             | Régénère les captures de la documentation (avec `preview` lancé)                         |
+
+Galerie de tous les graphismes : `npm run dev` puis http://localhost:5173/art-preview.html.
+
+Stack : TypeScript, [Phaser 4](https://phaser.io) (moteur de jeu), [Preact](https://preactjs.com)
+(interface), [Vite](https://vite.dev). Tous les graphismes sont dessinés par le code : aucune image
+à télécharger.
 
 ## Licence
 
-Code sous licence [MIT](LICENSE). Les graphismes sont générés par le code et suivent la même licence.
+Code sous licence [MIT](LICENSE) (proposition en attente de validation). Les graphismes, générés par
+le code, suivent la même licence.

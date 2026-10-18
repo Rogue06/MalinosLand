@@ -1,5 +1,7 @@
 # Architecture
 
+> **En bref (version simple)** : le jeu est écrit en TypeScript. Le moteur **Phaser** affiche le monde, **Preact** affiche les menus et le chat, et la « logique » (déplacements, collisions, règles) est rangée à part pour être testée facilement. Le contenu (salles, objets, textes) est séparé du code du moteur, pour que chacun puisse en ajouter sans tout comprendre.
+
 > Dernière mise à jour : v0.1 (prototype local). Les décisions détaillées et leurs motivations sont
 > dans [DECISIONS.md](DECISIONS.md).
 

@@ -1,5 +1,7 @@
 # Réseau temps réel
 
+> **En bref (version simple)** : pour que les joueurs se voient bouger, chaque jeu envoie régulièrement sa position. On envoie le moins possible (seulement quand on bouge, et seulement aux joueurs de la même salle) pour rester rapide et gratuit. En v0.1, cela fonctionne déjà entre onglets d’un même navigateur ; en v0.2, un serveur relaiera les messages en ligne.
+
 ## 1. État actuel (v0.1)
 
 - `src/multiplayer/Transport.ts` : interface `Transport` + deux implémentations :

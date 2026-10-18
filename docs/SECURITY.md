@@ -1,5 +1,7 @@
 # Sécurité et protection des joueurs
 
+> **En bref (version simple)** : on protège les joueurs contre les messages piégés, le spam et les liens dangereux. Aucune donnée n’est envoyée en v0.1. Pour les versions en ligne, toutes les permissions seront vérifiées par le serveur, et des outils de modération (signaler, masquer, expulser) arriveront progressivement.
+
 ## 1. Signaler une vulnérabilité
 
 **Ne publie pas de faille dans une issue publique.** Utilise la fonction « Report a vulnerability »

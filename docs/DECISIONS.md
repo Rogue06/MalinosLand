@@ -1,5 +1,7 @@
 # Journal des décisions d’architecture
 
+> **En bref (version simple)** : ce journal explique **pourquoi** chaque grand choix a été fait (moteur, graphismes, hébergement, licence…), pour que tout le monde comprenne et puisse en discuter.
+
 Format : contexte → décision → conséquences. Une décision peut être remplacée par une nouvelle
 entrée (ne pas réécrire l’historique). **Les décisions marquées « à valider » attendent l’accord du
 responsable du projet.**

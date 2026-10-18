@@ -1,5 +1,7 @@
 # Stratégie de tests
 
+> **En bref (version simple)** : des tests automatiques vérifient à chaque modification que le jeu marche toujours (déplacements, collisions, salles accessibles, réseau…). Un test complet joue aussi au jeu dans un vrai navigateur. Il reste à mesurer la fluidité sur de vrais ordinateurs : toute aide est bienvenue !
+
 ## Commandes
 
 | Commande                           | Contenu                                                                     |
@@ -11,6 +13,7 @@
 | `npm run build`                    | Types + build de production                                                 |
 | `npm run check`                    | Tout ce qui précède (hors format) — à lancer avant chaque PR                |
 | `npm run test:e2e [url] [dossier]` | Test de bout en bout dans Chromium sur le build servi par `npm run preview` |
+| `npm run docs:screenshots [url]`   | Régénère les captures de `docs/images/` (avec `npm run preview` lancé)      |
 
 Le test de bout en bout utilise `playwright-core` (sans téléchargement de navigateur) : il cherche
 Chromium dans `/opt/pw-browsers/chromium` ou dans la variable `CHROMIUM_PATH`
