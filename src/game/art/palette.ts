@@ -1,0 +1,31 @@
+/**
+ * Palette de MalinosLand. Identité originale : bleu nuit, turquoise « tech »,
+ * corail chaleureux, bois miel. Voir docs/ART_DIRECTION.md.
+ */
+export const PALETTE = {
+  night: '#141a2b',
+  ink: '#1f2740',
+  slate: '#3a4466',
+  slateLight: '#566189',
+  teal: '#22b5a6',
+  tealLight: '#5fe3d0',
+  coral: '#ff7a59',
+  sun: '#ffc857',
+  violet: '#7b6cf6',
+  cream: '#efe6d8',
+  plaster: '#e6dccb',
+  brick: '#b5694a',
+  wood: '#c98f5a',
+  woodDark: '#8a5a36',
+  woodLight: '#e0b07c',
+  metal: '#9aa3b5',
+  metalDark: '#5b6478',
+  white: '#f7f5f0',
+  screen: '#10213a',
+  leaf: '#4fa35a',
+  leafDark: '#2f7a45',
+  leafLight: '#7cc96a',
+  pot: '#d9825b',
+  grass: '#7cb95a',
+  water: '#5cc6e8',
+} as const;
