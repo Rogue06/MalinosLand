@@ -121,15 +121,11 @@ function buildAvatar(a: AvatarAppearance, facing: Facing, pose: AvatarPose): Iso
   }
   B(-0.135, -0.125, hz, 0.27, 0.25, 0.28, skin, face);
   drawHair(B, a.hair, hairC, hz);
-  if (a.accessory === 2) {
-    B(-0.15, -0.03, hz + 0.08, 0.04, 0.1, 0.14, P.ink);
-    B(0.11, -0.03, hz + 0.08, 0.04, 0.1, 0.14, P.ink);
-    B(-0.15, -0.02, hz + 0.3, 0.3, 0.06, 0.04, P.ink);
-  }
+  if (a.accessory === 2) drawHeadphones(B, a.hair, hz);
   return b;
 }
 
-type BoxFn = (
+export type BoxFn = (
   x: number,
   y: number,
   z: number,
@@ -140,7 +136,38 @@ type BoxFn = (
   decals?: Decal[],
 ) => void;
 
-function drawHair(B: BoxFn, style: number, c: string, hz: number): void {
+/**
+ * Volume extérieur de chaque coiffure (demi-largeur en x, sommet au-dessus de
+ * la base de la tête). Les accessoires portés sur la tête s'appuient dessus
+ * pour ne jamais passer « à travers » les cheveux.
+ */
+export const HAIR_BOUNDS: ReadonlyArray<{ halfWidth: number; top: number }> = [
+  { halfWidth: 0.145, top: 0.31 }, // court
+  { halfWidth: 0.15, top: 0.32 }, // long
+  { halfWidth: 0.145, top: 0.31 }, // chignon (le chignon est derrière l'arceau)
+  { halfWidth: 0.17, top: 0.35 }, // boucles
+  { halfWidth: 0.14, top: 0.29 }, // rasé
+  { halfWidth: 0.15, top: 0.32 }, // casquette
+  { halfWidth: 0.145, top: 0.31 }, // queue de cheval
+  { halfWidth: 0.135, top: 0.28 }, // aucun
+];
+
+/** Casque audio : écouteurs et arceau posés à l'extérieur de la coiffure. */
+function drawHeadphones(B: BoxFn, hairStyle: number, hz: number): void {
+  const { halfWidth: hw, top } = HAIR_BOUNDS[hairStyle] ?? HAIR_BOUNDS[0]!;
+  const cup = 0.045;
+  const band = 0.03;
+  const bandTop = hz + top;
+  // Écouteurs à hauteur des oreilles, juste à l'extérieur des cheveux.
+  B(-hw - cup, -0.05, hz + 0.07, cup, 0.12, 0.15, P.ink);
+  B(hw, -0.05, hz + 0.07, cup, 0.12, 0.15, P.ink);
+  // Montants et arceau, légèrement en avant du sommet (devant un chignon).
+  B(-hw - band, 0.075, hz + 0.2, band, 0.04, bandTop - (hz + 0.2), P.ink);
+  B(hw, 0.075, hz + 0.2, band, 0.04, bandTop - (hz + 0.2), P.ink);
+  B(-hw - band, 0.075, bandTop, (hw + band) * 2, 0.04, 0.035, P.ink);
+}
+
+export function drawHair(B: BoxFn, style: number, c: string, hz: number): void {
   const top = hz + 0.28;
   switch (style) {
     case 0: // court

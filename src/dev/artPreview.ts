@@ -3,7 +3,7 @@
  * générés. Lancer `npm run dev` puis ouvrir /art-preview.html.
  */
 import { CATALOG } from '../content/catalog';
-import { AVATAR_PRESETS } from '../content/avatars';
+import { AVATAR_PRESETS, DEFAULT_APPEARANCE, HAIR_STYLES } from '../content/avatars';
 import { FLOOR_TYPES, WALL_TYPES } from '../world/types';
 import type { Rotation } from '../core/rotation';
 import { IsoBuilder } from '../game/art/iso3d';
@@ -58,6 +58,20 @@ const avatars = section('Avatars');
 for (const preset of AVATAR_PRESETS) {
   card(avatars, preset.name, [renderAvatarSheet(preset.look, 2).canvas]);
 }
+
+// Chaque coiffure avec un casque : vérifie que les accessoires ne traversent pas les cheveux.
+const hairs = section('Coiffures avec casque (4 orientations)');
+HAIR_STYLES.forEach((name, hair) => {
+  const sheet = renderAvatarSheet({ ...DEFAULT_APPEARANCE, hair, hairColor: 7, accessory: 2 }, 2);
+  const crop = document.createElement('canvas');
+  crop.width = sheet.frameW;
+  crop.height = sheet.frameH * 4;
+  // Première colonne de la feuille : pose immobile pour les 4 orientations.
+  crop
+    .getContext('2d')!
+    .drawImage(sheet.canvas, 0, 0, sheet.frameW, crop.height, 0, 0, sheet.frameW, crop.height);
+  card(hairs, name, [crop]);
+});
 
 const walls = section('Murs et décors');
 for (const type of WALL_TYPES) {
