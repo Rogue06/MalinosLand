@@ -42,9 +42,9 @@ Statut : ✅ fait · ⬜ à faire. Les dépendances renvoient aux identifiants.
 | F33 | Build Phaser allégé (modules inutilisés retirés)                                     | 0.2+    | P2   | —         | ⬜     |
 | F34 | Cycle jour/nuit léger basé sur l’heure réelle                                        | 0.3+    | P3   | —         | ⬜     |
 | F35 | Boîte à idées et borne à bugs dans le jeu                                            | 0.2     | P2   | F09       | ✅     |
-| F36 | Statut « absent » automatique (onglet caché)                                         | 0.2     | P2   | F10       | 🔶     |
-| F37 | Sons : arrivée d’un message (anti-spam), mentions @pseudo                            | 0.2     | P2   | F06       | 🔶     |
-| F38 | Ambiance sonore selon le lieu (oiseaux dehors…)                                      | 0.2+    | P3   | —         | 🔶     |
+| F36 | Statut « absent » automatique (onglet caché)                                         | 0.2     | P2   | F10       | ✅     |
+| F37 | Sons : arrivée d’un message (anti-spam), mentions @pseudo                            | 0.2     | P2   | F06       | ✅     |
+| F38 | Ambiance sonore selon le lieu (oiseaux dehors…)                                      | 0.2+    | P3   | —         | ✅     |
 | F39 | Vêtements personnalisés, plus de choix de tenues (demande du responsable, plus tard) | 0.3+    | P3   | F02       | ⬜     |
 | F40 | Téléportation rapide depuis la mini-carte (écartée pour l’instant)                   | —       | P3   | —         | ⬜     |
 

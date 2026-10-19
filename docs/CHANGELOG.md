@@ -5,6 +5,20 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (confort)
+
+- **Statut « absent » 💤** : après 20 s sur un autre onglet, ton avatar devient pâle avec 💤 chez
+  les autres (et « absent » dans la liste des joueurs). Il redevient normal dès ton retour.
+- **Sons discrets**, générés par le jeu (aucun fichier audio) : petit « pop » à l’arrivée d’un
+  message, **pas pour quelqu’un qui inonde le chat** (un son au plus toutes les 2,5 s, et un joueur
+  qui envoie plus de 4 messages en 10 s ne fait plus de bruit pendant 1 minute).
+- **Mentions @pseudo** : un message qui te mentionne est surligné en jaune et fait un petit
+  carillon (au plus un toutes les 15 s par joueur). Onglet caché : le titre affiche le nombre de
+  mentions non lues.
+- **Ambiance sonore selon le lieu** : vent et oiseaux dehors (jardin, terrasse, chantier),
+  cliquetis de claviers au coworking. Coupée quand l’onglet est caché.
+- Réglages : sons, ambiance et volume.
+
 ### Corrigé (assis de dos)
 
 - Personnage assis de dos : il passe maintenant devant l’assise mais derrière le dossier (et

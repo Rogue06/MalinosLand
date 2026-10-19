@@ -90,6 +90,37 @@ try {
     'Bob reçoit le message de chat d’Alice',
   );
 
+  // Mention : Bob écrit « @Alice » → ligne mise en avant chez Alice.
+  await bob.keyboard.press('Enter');
+  await bob.keyboard.type('Coucou @Alice, tu viens ?');
+  await bob.keyboard.press('Enter');
+  check(
+    await poll(alice, () =>
+      [...document.querySelectorAll('.chat-log .msg.mention')].some((m) =>
+        m.textContent.includes('@Alice'),
+      ),
+    ),
+    'une mention @Alice est mise en avant chez Alice',
+  );
+
+  // Statut « absent » : l'onglet d'Alice est caché plus de 20 s → Bob la voit absente.
+  await alice.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  check(
+    await poll(bob, () => (window.__malinosDebug.state().peersPos ?? []).some((p) => p.away)),
+    'onglet caché depuis 20 s : les autres voient le statut « absent »',
+  );
+  await alice.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  check(
+    await poll(bob, () => (window.__malinosDebug.state().peersPos ?? []).every((p) => !p.away)),
+    'retour sur l’onglet : le statut « absent » disparaît',
+  );
+
   // Masquer : Alice masque Bob depuis la liste des joueurs ; elle ne voit plus ses messages.
   await alice.click('.presence-chip');
   await alice.getByRole('button', { name: 'Masquer', exact: true }).click();

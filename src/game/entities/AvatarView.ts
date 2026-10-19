@@ -29,6 +29,8 @@ export class AvatarView {
   /** Hauteur d'assise si l'avatar est assis, sinon null. */
   seatHeight: number | null = null;
   private nameVisible = true;
+  private baseName: string;
+  private away = false;
   /** Joueur masqué par le joueur local : rien n'est affiché. */
   private hidden = false;
 
@@ -39,6 +41,7 @@ export class AvatarView {
     name: string,
     isSelf: boolean,
   ) {
+    this.baseName = name;
     const info = textures.avatar(look);
     this.shadow = scene.add.ellipse(0, 0, 26, 12, 0x140f1e, 0.28);
     this.sprite = scene.add.sprite(0, 0, info.key, frameName('py', 'idle'));
@@ -61,7 +64,15 @@ export class AvatarView {
     const info = this.textures.avatar(look);
     this.sprite.setTexture(info.key, this.sprite.frame.name);
     this.sprite.setOrigin(info.originX, info.originY);
-    this.label.setText(name);
+    this.baseName = name;
+    this.label.setText(this.away ? `${name} 💤` : name);
+  }
+
+  /** Statut « absent » : nom suivi de 💤 et avatar estompé. */
+  setAway(away: boolean): void {
+    this.away = away;
+    this.label.setText(away ? `${this.baseName} 💤` : this.baseName);
+    this.sprite.setAlpha(away ? 0.55 : 1);
   }
 
   setNameVisible(visible: boolean): void {

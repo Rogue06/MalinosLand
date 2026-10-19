@@ -46,12 +46,16 @@ export type NetMessage =
        * qu'une nouvelle connexion vient du même onglet et peut remplacer l'ancienne.
        */
       k?: string;
+      /** Absent (onglet caché depuis un moment) au moment de se présenter. */
+      a?: true;
     } & PeerState)
   | ({ t: 'state'; id: string } & PeerState)
   | { t: 'chat'; id: string; room: string; scope: ChatScope; text: string }
   | { t: 'emote'; id: string; room: string; e: Emote }
   | { t: 'look'; id: string; name: string; look: AvatarAppearance; v?: true }
   | { t: 'bye'; id: string }
+  /** Statut « absent » (onglet caché) : activé ou désactivé. */
+  | { t: 'away'; id: string; on: boolean }
   // Messages émis uniquement par le serveur temps réel :
   | { t: 'rate'; ms: number }
   | { t: 'notice'; code: NoticeCode };
@@ -115,6 +119,7 @@ export function decodeMessage(raw: unknown): NetMessage | null {
         ...st,
         ...(data.v === true ? { v: true as const } : {}),
         ...(typeof data.k === 'string' && KEY_RE.test(data.k) ? { k: data.k } : {}),
+        ...(data.a === true ? { a: true as const } : {}),
       };
     }
     case 'state': {
@@ -145,6 +150,8 @@ export function decodeMessage(raw: unknown): NetMessage | null {
     }
     case 'bye':
       return { t: 'bye', id };
+    case 'away':
+      return { t: 'away', id, on: data.on === true };
     default:
       return null;
   }

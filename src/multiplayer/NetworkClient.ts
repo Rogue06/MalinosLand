@@ -19,6 +19,8 @@ export interface RemotePeer extends PeerState {
   lastSeen: number;
   /** Connecté à son compte (garanti par le serveur temps réel). */
   verified: boolean;
+  /** Absent : son onglet est caché depuis un moment. */
+  away: boolean;
 }
 
 export interface NetworkEvents extends Record<string, unknown> {
@@ -26,6 +28,7 @@ export interface NetworkEvents extends Record<string, unknown> {
   update: RemotePeer;
   leave: { id: string };
   look: RemotePeer;
+  away: RemotePeer;
   chat: { peer: RemotePeer; text: string; scope: ChatScope };
   emote: { peer: RemotePeer; emote: Emote };
   /** Avis du serveur (salle pleine, maintenance…). */
@@ -69,6 +72,7 @@ export class NetworkClient {
   /** Intervalle minimal imposé par le serveur (quota), en ms. */
   private serverInterval = 0;
   private readonly sessionKey: string | undefined;
+  private away = false;
   /** Dernière demande de présentation envoyée, par pair inconnu. */
   private helloRequests = new Map<string, number>();
   bytesSent = 0;
@@ -153,6 +157,13 @@ export class NetworkClient {
     this.prune(t);
   }
 
+  /** Statut « absent » du joueur local (onglet caché depuis un moment). */
+  setAway(on: boolean): void {
+    if (this.away === on) return;
+    this.away = on;
+    this.send({ t: 'away', id: this.selfId, on });
+  }
+
   updateLook(name: string, look: AvatarAppearance): void {
     this.self.name = name;
     this.self.look = look;
@@ -197,6 +208,7 @@ export class NetworkClient {
       reply,
       ...this.self.state,
       ...(this.sessionKey ? { k: this.sessionKey } : {}),
+      ...(this.away ? { a: true as const } : {}),
     });
     // Le « hello » contient déjà l'état : inutile de le renvoyer aussitôt.
     this.lastSent = { ...this.self.state };
@@ -236,8 +248,8 @@ export class NetworkClient {
     const peer = this.peers.get(msg.id);
     switch (msg.t) {
       case 'hello': {
-        const { t: _t, reply, v, ...rest } = msg;
-        const next: RemotePeer = { ...rest, lastSeen: t, verified: v === true };
+        const { t: _t, reply, v, k: _k, a, ...rest } = msg;
+        const next: RemotePeer = { ...rest, lastSeen: t, verified: v === true, away: a === true };
         const isNew = !peer;
         this.helloRequests.delete(msg.id);
         this.peers.set(msg.id, next);
@@ -261,6 +273,13 @@ export class NetworkClient {
           lastSeen: t,
         });
         this.events.emit('update', peer);
+        break;
+      }
+      case 'away': {
+        if (!peer) return;
+        peer.away = msg.on;
+        peer.lastSeen = t;
+        this.events.emit('away', peer);
         break;
       }
       case 'look': {

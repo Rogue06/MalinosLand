@@ -200,3 +200,18 @@ caméra) dans `src/game/art/objects.ts`. Les sièges sont rendus en deux images 
 place entre les deux (+0,25) ; de face, il reste devant tout le siège (+1).
 **Conséquences.** Une texture de plus par siège et orientation (faible). Tout nouveau siège doit
 marquer son dossier avec `backrest()` dans son dessin.
+
+## DEC-019 — Sons générés, anti-spam sonore et statut « absent » (20/10/2026)
+
+**Contexte.** Le responsable a validé : un son discret à l’arrivée d’un message (mais pas pour
+quelqu’un qui inonde le chat), un son par mention @pseudo, un statut « absent » automatique quand
+l’onglet est caché et une ambiance sonore selon le lieu.
+**Décision.** Tous les sons sont **générés en code** avec Web Audio (`src/services/audio.ts`) :
+aucun fichier audio, aucune dépendance, rien à télécharger. La règle anti-spam est une logique
+pure et testée (`src/core/soundGate.ts`). Le statut « absent » passe par un nouveau message du
+protocole, `away` (`on: true/false`), et un champ `a` dans `hello` ; le serveur ne relaie qu’un
+vrai changement. Le joueur passe « absent » après 20 s d’onglet caché (pas de clignotement pour un
+simple coup d’œil ailleurs).
+**Conséquences.** Le navigateur n’autorise le son qu’après un premier clic ou une touche : le
+jeu « débloque » l’audio à ce moment-là. Les anciens clients ignorent simplement `away`. Réglages
+ajoutés : sons, ambiance, volume.
