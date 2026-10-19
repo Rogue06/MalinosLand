@@ -1,0 +1,27 @@
+name: 🐛 Bug
+description: Quelque chose ne fonctionne pas comme prévu
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: Que se passe-t-il ?
+      description: Décris le problème et ce que tu attendais.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Étapes pour reproduire
+      placeholder: "1. Aller dans le salon\n2. Cliquer sur…\n3. …"
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Navigateur et système
+      placeholder: Firefox 131 / Windows 11, qualité « normale »
+  - type: textarea
+    id: extra
+    attributes:
+      label: Captures ou messages d’erreur (console)

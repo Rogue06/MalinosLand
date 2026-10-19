@@ -1,0 +1,1242 @@
+{
+  "formatVersion": 1,
+  "id": "hub",
+  "name": "Le Hub — rez-de-chaussée",
+  "width": 34,
+  "height": 30,
+  "spawn": {
+    "x": 12.9,
+    "y": 21.5,
+    "facing": "ny"
+  },
+  "legend": {
+    "g": {
+      "floor": "grass"
+    },
+    "p": {
+      "floor": "path"
+    },
+    "d": {
+      "floor": "deck"
+    },
+    "s": {
+      "floor": "dirt"
+    },
+    "w": {
+      "floor": "wood"
+    },
+    "l": {
+      "floor": "lounge"
+    },
+    "h": {
+      "floor": "hall"
+    },
+    "c": {
+      "floor": "carpet"
+    },
+    "a": {
+      "floor": "gallery"
+    },
+    "#": {
+      "wall": "tall",
+      "floor": "hall"
+    },
+    "B": {
+      "wall": "brick",
+      "floor": "wood"
+    },
+    "=": {
+      "wall": "low",
+      "floor": "hall"
+    }
+  },
+  "tiles": [
+    "BBBBBBBBBBBBB#############gggggggg",
+    "Bwwwwwwwwwww=cccccccccccc=gggggggg",
+    "Bwwwwwwwwwww=cccccccccccc=gggggggg",
+    "Bwwwwwwwwwww=cccccccccccc=gddddddg",
+    "Bwwwwwwwwwww=cccccccccccc=gddddddg",
+    "Bwwwwwwwwwww=cccccccccccc=gddddddg",
+    "Bwwwwwwwwwww=cccccccccccc=gddddddg",
+    "Bwwwwwwwwwww=cccccccccccc=gddddddg",
+    "Bwwwwwwwwwww=cccccccccccc=gddddddg",
+    "B========hhhh==hh=========gddddddg",
+    "#llllll=hhhhhhhhh=aaaaaaa=gddddddg",
+    "#llllll=hhhhhhhhh=aaaaaaa=gddddddg",
+    "#llllll=hhhhhhhhh=aaaaaaa=gggppggg",
+    "#llllllhhhhhhhhhhhaaaaaaa=gggppggg",
+    "#llllllhhhhhhhhhhhaaaaaaa=gggppggg",
+    "#llllllhhhhhhhhhh=aaaaaaa=gggppggg",
+    "#llllll=hhhhhhhhh=aaaaaaa=gggppggg",
+    "#llllll=hhhhhhhhh=aaaaaaa=gggppggg",
+    "#llllll=hhhhhhhhh=aaaaaaa=gggppggg",
+    "============hh============gggppggg",
+    "ggggggggggggppgggggggggggggggppggg",
+    "ggggggggggggppgggggggggggggggppggg",
+    "ggppppppppppppppppppppppppppppppgg",
+    "ggggggggggggppgggppppggggggggggggg",
+    "ggggggggggggppgggppppggggggggggggg",
+    "gssssssssgggppgggppppggggggggggggg",
+    "gssssssssgggppgggppppggggggggggggg",
+    "gssssssssgggppgggggggggggggggggggg",
+    "gssssssssgggppgggggggggggggggggggg",
+    "gggggggggggggggggggggggggggggggggg"
+  ],
+  "zones": [
+    {
+      "id": "coworking",
+      "name": "Espace coworking",
+      "rect": {
+        "x": 1,
+        "y": 1,
+        "w": 11,
+        "h": 8
+      },
+      "status": "open",
+      "description": "Des postes de travail pour coder, créer et s’entraider."
+    },
+    {
+      "id": "conference",
+      "name": "Salle de conférence",
+      "rect": {
+        "x": 13,
+        "y": 1,
+        "w": 12,
+        "h": 8
+      },
+      "status": "open",
+      "description": "Présentations et événements communautaires (programmation à partir de la v0.5)."
+    },
+    {
+      "id": "lounge",
+      "name": "Salon détente",
+      "rect": {
+        "x": 1,
+        "y": 10,
+        "w": 6,
+        "h": 9
+      },
+      "status": "open",
+      "description": "Café, canapés et discussions informelles."
+    },
+    {
+      "id": "hall",
+      "name": "Hall d’accueil",
+      "rect": {
+        "x": 7,
+        "y": 9,
+        "w": 10,
+        "h": 11
+      },
+      "status": "open",
+      "description": "Le point de rencontre de tous les Malinos."
+    },
+    {
+      "id": "gallery",
+      "name": "Galerie des Malinos",
+      "rect": {
+        "x": 17,
+        "y": 10,
+        "w": 8,
+        "h": 9
+      },
+      "status": "soon",
+      "plannedFor": "v0.4",
+      "description": "Le musée des créations de la communauté."
+    },
+    {
+      "id": "terrace",
+      "name": "Terrasse",
+      "rect": {
+        "x": 26,
+        "y": 2,
+        "w": 8,
+        "h": 10
+      },
+      "status": "open",
+      "description": "Un coin au soleil pour souffler entre deux sessions."
+    },
+    {
+      "id": "site",
+      "name": "Chantier de la Tour communautaire",
+      "rect": {
+        "x": 0,
+        "y": 24,
+        "w": 10,
+        "h": 6
+      },
+      "status": "soon",
+      "plannedFor": "v0.3",
+      "description": "Les futurs logements des Malinos."
+    },
+    {
+      "id": "garden",
+      "name": "Jardin communautaire",
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "w": 34,
+        "h": 30
+      },
+      "status": "open",
+      "description": "Le jardin qui entoure le Hub."
+    }
+  ],
+  "objects": [
+    {
+      "type": "elevator",
+      "x": 11,
+      "y": 9,
+      "id": "elevator"
+    },
+    {
+      "type": "reception_desk",
+      "x": 13,
+      "y": 11,
+      "rot": 0
+    },
+    {
+      "type": "robot",
+      "x": 11,
+      "y": 15,
+      "id": "malo",
+      "interaction": {
+        "kind": "dialog",
+        "label": "Parler à Malo",
+        "speaker": "Malo",
+        "quest": "talk_guide",
+        "lines": [
+          "Bip bip ! Bienvenue au Hub de MalinosLand ! Je suis Malo, le robot d’accueil.",
+          "Ici, tout est gratuit, open source et construit par la communauté des Malinos.",
+          "Pour te déplacer : clique sur le sol, ou utilise ZQSD / WASD / les flèches.",
+          "Approche-toi d’un objet et appuie sur E (ou clique dessus) pour interagir.",
+          "Le coworking est au fond à gauche, la salle de conférence au fond à droite, le salon à gauche.",
+          "Ta liste d’objectifs « Premiers pas » est en haut à droite. Bonne visite !"
+        ]
+      },
+      "label": "Malo"
+    },
+    {
+      "type": "board_welcome",
+      "x": 15,
+      "y": 17,
+      "id": "welcome-board"
+    },
+    {
+      "type": "board_roadmap",
+      "x": 9,
+      "y": 11,
+      "id": "roadmap-board"
+    },
+    {
+      "type": "rug_logo",
+      "x": 11,
+      "y": 12
+    },
+    {
+      "type": "plant_big",
+      "x": 8,
+      "y": 10
+    },
+    {
+      "type": "plant_big",
+      "x": 16,
+      "y": 10
+    },
+    {
+      "type": "plant",
+      "x": 8,
+      "y": 18
+    },
+    {
+      "type": "plant",
+      "x": 16,
+      "y": 18
+    },
+    {
+      "type": "lamp_floor",
+      "x": 16,
+      "y": 15
+    },
+    {
+      "type": "sign_soon",
+      "x": 16,
+      "y": 12,
+      "id": "gallery-sign",
+      "interaction": {
+        "kind": "dialog",
+        "label": "Lire le panneau",
+        "speaker": "Galerie des Malinos",
+        "lines": [
+          "La Galerie des Malinos ouvrira ses portes en version 0.4.",
+          "Chaque membre pourra y exposer ses créations : sites, applications, projets IA, dépôts GitHub…",
+          "Les liens seront vérifiés et modérés avant d’être exposés."
+        ]
+      }
+    },
+    {
+      "type": "doormat",
+      "x": 12,
+      "y": 18
+    },
+    {
+      "type": "desk_pc",
+      "x": 2,
+      "y": 2,
+      "id": "desk-2-2",
+      "variant": 1,
+      "interaction": {
+        "kind": "panel",
+        "label": "Lire l’astuce IA du jour",
+        "panel": "tips"
+      }
+    },
+    {
+      "type": "chair",
+      "x": 2,
+      "y": 3,
+      "rot": 2
+    },
+    {
+      "type": "chair",
+      "x": 3,
+      "y": 3,
+      "rot": 2
+    },
+    {
+      "type": "desk_pc",
+      "x": 6,
+      "y": 2,
+      "id": "desk-6-2",
+      "variant": 2
+    },
+    {
+      "type": "chair",
+      "x": 6,
+      "y": 3,
+      "rot": 2
+    },
+    {
+      "type": "chair",
+      "x": 7,
+      "y": 3,
+      "rot": 2
+    },
+    {
+      "type": "desk_pc",
+      "x": 2,
+      "y": 5,
+      "id": "desk-2-5",
+      "variant": 1
+    },
+    {
+      "type": "chair",
+      "x": 2,
+      "y": 6,
+      "rot": 2
+    },
+    {
+      "type": "chair",
+      "x": 3,
+      "y": 6,
+      "rot": 2
+    },
+    {
+      "type": "desk_pc",
+      "x": 6,
+      "y": 5,
+      "id": "desk-6-5",
+      "variant": 2
+    },
+    {
+      "type": "chair",
+      "x": 6,
+      "y": 6,
+      "rot": 2
+    },
+    {
+      "type": "chair",
+      "x": 7,
+      "y": 6,
+      "rot": 2
+    },
+    {
+      "type": "bookshelf",
+      "x": 9,
+      "y": 1,
+      "id": "shelf-cw-1"
+    },
+    {
+      "type": "bookshelf",
+      "x": 10,
+      "y": 1,
+      "id": "shelf-cw-2",
+      "variant": 1
+    },
+    {
+      "type": "bookshelf",
+      "x": 11,
+      "y": 1,
+      "id": "shelf-cw-3",
+      "variant": 2
+    },
+    {
+      "type": "plant_big",
+      "x": 1,
+      "y": 1
+    },
+    {
+      "type": "plant",
+      "x": 11,
+      "y": 8
+    },
+    {
+      "type": "plant",
+      "x": 1,
+      "y": 8
+    },
+    {
+      "type": "round_table",
+      "x": 9,
+      "y": 5
+    },
+    {
+      "type": "chair",
+      "x": 9,
+      "y": 6,
+      "rot": 2
+    },
+    {
+      "type": "chair",
+      "x": 10,
+      "y": 5,
+      "rot": 3
+    },
+    {
+      "type": "chair",
+      "x": 9,
+      "y": 4,
+      "rot": 0
+    },
+    {
+      "type": "lamp_floor",
+      "x": 5,
+      "y": 1
+    },
+    {
+      "type": "stage",
+      "x": 19,
+      "y": 1,
+      "id": "stage"
+    },
+    {
+      "type": "conf_chair",
+      "x": 15,
+      "y": 4,
+      "rot": 2
+    },
+    {
+      "type": "conf_chair",
+      "x": 16,
+      "y": 4,
+      "rot": 2
+    },
+    {
+      "type": "conf_chair",
+      "x": 17,
+      "y": 4,
+      "rot": 2
+    },
+    {
+      "type": "conf_chair",
+      "x": 18,
+      "y": 4,
+      "rot": 2
+    },
+    {
+      "type": "conf_chair",
+      "x": 21,
+      "y": 4,
+      "rot": 2
+    },
+    {
+      "type": "conf_chair",
+      "x": 22,
+      "y": 4,
+      "rot": 2
+    },
+    {
+      "type": "conf_chair",
+      "x": 23,
+      "y": 4,
+      "rot": 2
+    },
+    {
+      "type": "conf_chair",
+      "x": 15,
+      "y": 6,
+      "rot": 2
+    },
+    {
+      "type": "conf_chair",
+      "x": 16,
+      "y": 6,
+      "rot": 2
+    },
+    {
+      "type": "conf_chair",
+      "x": 17,
+      "y": 6,
+      "rot": 2
+    },
+    {
+      "type": "conf_chair",
+      "x": 18,
+      "y": 6,
+      "rot": 2
+    },
+    {
+      "type": "conf_chair",
+      "x": 21,
+      "y": 6,
+      "rot": 2
+    },
+    {
+      "type": "conf_chair",
+      "x": 22,
+      "y": 6,
+      "rot": 2
+    },
+    {
+      "type": "conf_chair",
+      "x": 23,
+      "y": 6,
+      "rot": 2
+    },
+    {
+      "type": "plant_big",
+      "x": 13,
+      "y": 1
+    },
+    {
+      "type": "plant_big",
+      "x": 24,
+      "y": 1
+    },
+    {
+      "type": "plant",
+      "x": 24,
+      "y": 8
+    },
+    {
+      "type": "plant",
+      "x": 13,
+      "y": 8
+    },
+    {
+      "type": "lamp_floor",
+      "x": 24,
+      "y": 4
+    },
+    {
+      "type": "coffee_bar",
+      "x": 1,
+      "y": 10,
+      "id": "coffee"
+    },
+    {
+      "type": "bookshelf",
+      "x": 4,
+      "y": 10,
+      "id": "shelf-lounge-1"
+    },
+    {
+      "type": "bookshelf",
+      "x": 5,
+      "y": 10,
+      "id": "shelf-lounge-2",
+      "variant": 2
+    },
+    {
+      "type": "arcade",
+      "x": 6,
+      "y": 10,
+      "id": "arcade"
+    },
+    {
+      "type": "rug",
+      "x": 2,
+      "y": 13
+    },
+    {
+      "type": "sofa",
+      "x": 1,
+      "y": 13,
+      "rot": 1
+    },
+    {
+      "type": "coffee_table",
+      "x": 3,
+      "y": 13
+    },
+    {
+      "type": "armchair",
+      "x": 5,
+      "y": 13,
+      "rot": 3
+    },
+    {
+      "type": "armchair",
+      "x": 5,
+      "y": 14,
+      "rot": 3
+    },
+    {
+      "type": "sofa",
+      "x": 2,
+      "y": 16,
+      "rot": 2
+    },
+    {
+      "type": "mirror",
+      "x": 1,
+      "y": 17,
+      "id": "mirror",
+      "rot": 1
+    },
+    {
+      "type": "plant_big",
+      "x": 6,
+      "y": 18
+    },
+    {
+      "type": "lamp_floor",
+      "x": 1,
+      "y": 12
+    },
+    {
+      "type": "plant",
+      "x": 6,
+      "y": 16
+    },
+    {
+      "type": "rope_barrier",
+      "x": 17,
+      "y": 13,
+      "rot": 1
+    },
+    {
+      "type": "rope_barrier",
+      "x": 17,
+      "y": 14,
+      "rot": 1
+    },
+    {
+      "type": "pedestal",
+      "x": 20,
+      "y": 12,
+      "variant": 0
+    },
+    {
+      "type": "pedestal",
+      "x": 22,
+      "y": 12,
+      "variant": 1
+    },
+    {
+      "type": "pedestal",
+      "x": 20,
+      "y": 15,
+      "variant": 2
+    },
+    {
+      "type": "pedestal",
+      "x": 22,
+      "y": 15,
+      "variant": 0
+    },
+    {
+      "type": "gallery_panel",
+      "x": 19,
+      "y": 10,
+      "variant": 0
+    },
+    {
+      "type": "gallery_panel",
+      "x": 21,
+      "y": 10,
+      "variant": 1
+    },
+    {
+      "type": "gallery_panel",
+      "x": 23,
+      "y": 10,
+      "variant": 2
+    },
+    {
+      "type": "plant",
+      "x": 24,
+      "y": 18
+    },
+    {
+      "type": "plant",
+      "x": 18,
+      "y": 18
+    },
+    {
+      "type": "sign_hub",
+      "x": 14,
+      "y": 20,
+      "id": "hub-sign"
+    },
+    {
+      "type": "lamp_post",
+      "x": 11,
+      "y": 21
+    },
+    {
+      "type": "lamp_post",
+      "x": 14,
+      "y": 23
+    },
+    {
+      "type": "lamp_post",
+      "x": 11,
+      "y": 26
+    },
+    {
+      "type": "lamp_post",
+      "x": 21,
+      "y": 21
+    },
+    {
+      "type": "lamp_post",
+      "x": 28,
+      "y": 21
+    },
+    {
+      "type": "flowerbed",
+      "x": 2,
+      "y": 20
+    },
+    {
+      "type": "flowerbed",
+      "x": 5,
+      "y": 20
+    },
+    {
+      "type": "flowerbed",
+      "x": 8,
+      "y": 20
+    },
+    {
+      "type": "flowerbed",
+      "x": 16,
+      "y": 20
+    },
+    {
+      "type": "flowerbed",
+      "x": 19,
+      "y": 20
+    },
+    {
+      "type": "flowerbed",
+      "x": 22,
+      "y": 20
+    },
+    {
+      "type": "fountain",
+      "x": 18,
+      "y": 24,
+      "id": "fountain"
+    },
+    {
+      "type": "bench",
+      "x": 15,
+      "y": 24,
+      "rot": 1
+    },
+    {
+      "type": "bench",
+      "x": 22,
+      "y": 24,
+      "rot": 3
+    },
+    {
+      "type": "bench",
+      "x": 18,
+      "y": 27,
+      "rot": 2
+    },
+    {
+      "type": "bench",
+      "x": 5,
+      "y": 23,
+      "rot": 0
+    },
+    {
+      "type": "tree",
+      "x": 27,
+      "y": 1,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 30,
+      "y": 1,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 33,
+      "y": 4,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 33,
+      "y": 9,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 26,
+      "y": 13,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 32,
+      "y": 14,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 33,
+      "y": 18,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 26,
+      "y": 18,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 24,
+      "y": 27,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 27,
+      "y": 25,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 31,
+      "y": 26,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 16,
+      "y": 28,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 21,
+      "y": 28,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 10,
+      "y": 28,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 1,
+      "y": 21,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 33,
+      "y": 23,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 33,
+      "y": 28,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 29,
+      "y": 28,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 24,
+      "y": 23,
+      "variant": 2
+    },
+    {
+      "type": "bush",
+      "x": 26,
+      "y": 0
+    },
+    {
+      "type": "bush",
+      "x": 32,
+      "y": 0
+    },
+    {
+      "type": "bush",
+      "x": 26,
+      "y": 9
+    },
+    {
+      "type": "bush",
+      "x": 32,
+      "y": 12
+    },
+    {
+      "type": "bush",
+      "x": 26,
+      "y": 23
+    },
+    {
+      "type": "bush",
+      "x": 15,
+      "y": 27
+    },
+    {
+      "type": "bush",
+      "x": 22,
+      "y": 26
+    },
+    {
+      "type": "bush",
+      "x": 11,
+      "y": 24
+    },
+    {
+      "type": "bush",
+      "x": 33,
+      "y": 13
+    },
+    {
+      "type": "parasol_table",
+      "x": 28,
+      "y": 5
+    },
+    {
+      "type": "parasol_table",
+      "x": 31,
+      "y": 5
+    },
+    {
+      "type": "parasol_table",
+      "x": 28,
+      "y": 9
+    },
+    {
+      "type": "chair",
+      "x": 28,
+      "y": 6,
+      "rot": 2
+    },
+    {
+      "type": "chair",
+      "x": 29,
+      "y": 5,
+      "rot": 3
+    },
+    {
+      "type": "chair",
+      "x": 31,
+      "y": 6,
+      "rot": 2
+    },
+    {
+      "type": "chair",
+      "x": 30,
+      "y": 5,
+      "rot": 1
+    },
+    {
+      "type": "chair",
+      "x": 28,
+      "y": 10,
+      "rot": 2
+    },
+    {
+      "type": "chair",
+      "x": 29,
+      "y": 9,
+      "rot": 3
+    },
+    {
+      "type": "deck_chair",
+      "x": 32,
+      "y": 8,
+      "rot": 3
+    },
+    {
+      "type": "deck_chair",
+      "x": 32,
+      "y": 9,
+      "rot": 3
+    },
+    {
+      "type": "deck_chair",
+      "x": 32,
+      "y": 10,
+      "rot": 3
+    },
+    {
+      "type": "plant",
+      "x": 27,
+      "y": 3
+    },
+    {
+      "type": "plant",
+      "x": 32,
+      "y": 3
+    },
+    {
+      "type": "lamp_post",
+      "x": 27,
+      "y": 11
+    },
+    {
+      "type": "fence",
+      "x": 1,
+      "y": 24
+    },
+    {
+      "type": "fence",
+      "x": 2,
+      "y": 24
+    },
+    {
+      "type": "fence",
+      "x": 3,
+      "y": 24
+    },
+    {
+      "type": "fence",
+      "x": 4,
+      "y": 24
+    },
+    {
+      "type": "fence",
+      "x": 5,
+      "y": 24
+    },
+    {
+      "type": "fence",
+      "x": 6,
+      "y": 24
+    },
+    {
+      "type": "fence",
+      "x": 7,
+      "y": 24
+    },
+    {
+      "type": "fence",
+      "x": 8,
+      "y": 24
+    },
+    {
+      "type": "fence",
+      "x": 9,
+      "y": 25,
+      "rot": 1
+    },
+    {
+      "type": "fence",
+      "x": 9,
+      "y": 26,
+      "rot": 1
+    },
+    {
+      "type": "fence",
+      "x": 9,
+      "y": 27,
+      "rot": 1
+    },
+    {
+      "type": "fence",
+      "x": 9,
+      "y": 28,
+      "rot": 1
+    },
+    {
+      "type": "scaffold",
+      "x": 2,
+      "y": 25
+    },
+    {
+      "type": "scaffold",
+      "x": 5,
+      "y": 26
+    },
+    {
+      "type": "cone",
+      "x": 8,
+      "y": 25
+    },
+    {
+      "type": "cone",
+      "x": 1,
+      "y": 28
+    },
+    {
+      "type": "cone",
+      "x": 7,
+      "y": 28
+    },
+    {
+      "type": "sign_site",
+      "x": 10,
+      "y": 23,
+      "id": "site-sign"
+    }
+  ],
+  "wallDecor": [
+    {
+      "type": "window",
+      "x": 2,
+      "y": 0,
+      "side": "py"
+    },
+    {
+      "type": "window",
+      "x": 3,
+      "y": 0,
+      "side": "py"
+    },
+    {
+      "type": "window",
+      "x": 6,
+      "y": 0,
+      "side": "py"
+    },
+    {
+      "type": "window",
+      "x": 7,
+      "y": 0,
+      "side": "py"
+    },
+    {
+      "type": "poster",
+      "x": 4,
+      "y": 0,
+      "side": "py",
+      "variant": 0
+    },
+    {
+      "type": "clock",
+      "x": 8,
+      "y": 0,
+      "side": "py"
+    },
+    {
+      "type": "whiteboard",
+      "x": 0,
+      "y": 3,
+      "side": "px"
+    },
+    {
+      "type": "window",
+      "x": 0,
+      "y": 6,
+      "side": "px"
+    },
+    {
+      "type": "window",
+      "x": 0,
+      "y": 7,
+      "side": "px"
+    },
+    {
+      "type": "poster",
+      "x": 0,
+      "y": 5,
+      "side": "px",
+      "variant": 1
+    },
+    {
+      "type": "screen_wall",
+      "x": 21,
+      "y": 0,
+      "side": "py"
+    },
+    {
+      "type": "logo_neon",
+      "x": 16,
+      "y": 0,
+      "side": "py"
+    },
+    {
+      "type": "poster",
+      "x": 23,
+      "y": 0,
+      "side": "py",
+      "variant": 2
+    },
+    {
+      "type": "window",
+      "x": 17,
+      "y": 0,
+      "side": "py"
+    },
+    {
+      "type": "window",
+      "x": 14,
+      "y": 0,
+      "side": "py"
+    },
+    {
+      "type": "window",
+      "x": 0,
+      "y": 12,
+      "side": "px"
+    },
+    {
+      "type": "window",
+      "x": 0,
+      "y": 13,
+      "side": "px"
+    },
+    {
+      "type": "poster",
+      "x": 0,
+      "y": 15,
+      "side": "px",
+      "variant": 2
+    },
+    {
+      "type": "window",
+      "x": 0,
+      "y": 16,
+      "side": "px"
+    },
+    {
+      "type": "clock",
+      "x": 0,
+      "y": 11,
+      "side": "px"
+    }
+  ]
+}

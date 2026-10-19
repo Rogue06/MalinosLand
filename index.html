@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- CSP -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="MalinosLand — monde virtuel gratuit, open source et communautaire des Malinos."
+    />
+    <meta name="theme-color" content="#141a2b" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <title>MalinosLand</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: #141a2b;
+        overflow: hidden;
+      }
+      #boot {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        color: #9fb2da;
+        font:
+          600 16px system-ui,
+          sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="game"></div>
+    <div id="ui"></div>
+    <div id="boot">Chargement de MalinosLand…</div>
+    <noscript>MalinosLand a besoin de JavaScript pour fonctionner.</noscript>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

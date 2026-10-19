@@ -1,0 +1,22 @@
+name: 💡 Idée de fonctionnalité
+description: Proposer une nouvelle fonctionnalité pour MalinosLand
+labels: [idée]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: L’idée
+      description: Qu’est-ce que cela apporterait aux Malinos ?
+    validations:
+      required: true
+  - type: textarea
+    id: how
+    attributes:
+      label: Comment l’imagines-tu ?
+  - type: checkboxes
+    id: free
+    attributes:
+      label: Contraintes du projet
+      options:
+        - label: L’idée ne nécessite aucun service payant
+          required: true

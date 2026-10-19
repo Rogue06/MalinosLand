@@ -1,0 +1,25 @@
+name: 🎨 Contenu (objet, décor, salle, texte)
+description: Proposer un nouvel objet, une décoration, une salle ou des textes
+labels: [contenu]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Type de contenu
+      options: [Objet / meuble, Décor mural, Salle ou zone, Astuce IA / textes, Autre]
+    validations:
+      required: true
+  - type: textarea
+    id: desc
+    attributes:
+      label: Description
+      description: Où le placer, à quoi il sert, interactions éventuelles. Un croquis aide beaucoup !
+    validations:
+      required: true
+  - type: checkboxes
+    id: license
+    attributes:
+      label: Licence
+      options:
+        - label: Le contenu est original ou sous licence libre compatible (crédits fournis)
+          required: true
