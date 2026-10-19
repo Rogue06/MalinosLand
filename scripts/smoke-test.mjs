@@ -216,6 +216,25 @@ try {
     .evaluate(() => window.__malinosDebug?.state())
     .catch((e) => `indisponible (${e.message})`);
   fail(`état au moment de l’échec : ${JSON.stringify(state)}`);
+  const dom = await page
+    .evaluate(() => {
+      const describe = (sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return `${sel}: absent`;
+        const r = el.getBoundingClientRect();
+        const cs = getComputedStyle(el);
+        return `${sel}: ${Math.round(r.width)}×${Math.round(r.height)} display=${cs.display} visibility=${cs.visibility} opacity=${cs.opacity} animation=${cs.animationName}`;
+      };
+      return [
+        describe('.modal-backdrop'),
+        describe('.modal'),
+        describe('.hud'),
+        `hud: ${[...(document.querySelector('.hud')?.children ?? [])].map((c) => c.className).join(' | ')}`,
+        `reduced-motion=${matchMedia('(prefers-reduced-motion: reduce)').matches}`,
+      ].join(' ; ');
+    })
+    .catch((e) => `indisponible (${e.message})`);
+  fail(`DOM au moment de l’échec : ${dom}`);
   await page.screenshot({ path: `${outDir}/erreur.png` }).catch(() => {});
 }
 notice(`Durée totale : ${((Date.now() - started) / 1000).toFixed(1)} s`);
