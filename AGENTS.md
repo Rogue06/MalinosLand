@@ -66,7 +66,14 @@ npm run format              # mise en forme Prettier
 npm run build && npm run preview   # version de production sur http://localhost:4173
 npm run test:e2e            # test de bout en bout dans Chrome (avec « preview » lancé)
 npm run docs:screenshots    # régénère docs/images/ (avec « preview » lancé)
+npm run server:install      # dépendances du serveur temps réel (dossier server/)
+npm run server:dev          # serveur temps réel local (Wrangler) sur ws://localhost:8787/ws
+npm --prefix server run test:integration   # tests du serveur dans le vrai moteur Cloudflare
+npm run test:online         # deux joueurs en ligne (serveur + build avec VITE_REALTIME_URL)
 ```
+
+Le jeu se connecte au serveur seulement si `VITE_REALTIME_URL` est défini (copier `.env.example`
+en `.env.local`) ; sinon il reste en mode hors ligne / démo entre onglets.
 
 Navigateur du test e2e : variable `CHROMIUM_PATH` (ex. `/usr/bin/google-chrome`,
 `C:\Program Files\Google\Chrome\Application\chrome.exe`,
@@ -83,11 +90,14 @@ src/multiplayer/ protocole, transports (hors ligne, BroadcastChannel, serveur), 
 src/services/    stockage local versionné : profil, réglages, progression
 src/ui/          interface Preact (HUD, panneaux, accueil)
 src/state.ts     pont jeu ↔ interface (stores + commandes)
+server/          serveur temps réel : Cloudflare Worker + Durable Object (paquet npm séparé)
 ```
 
 Règles de dépendance (en partie vérifiées par ESLint) : `core/` et `world/` n’importent ni Phaser,
 ni Preact, ni le DOM ; `ui/` ne connaît pas Phaser (elle lit `state.ts` et émet des `commands`) ;
-`game/` ne connaît pas Preact ; le réseau passe par l’interface `Transport`.
+`game/` ne connaît pas Preact ; le réseau passe par l’interface `Transport`. Le serveur réutilise
+le protocole `src/multiplayer/protocol.ts` (une seule définition des messages) et garde sa logique
+dans `server/src/hub.ts`, pure et testée.
 
 ## 6. Conventions
 

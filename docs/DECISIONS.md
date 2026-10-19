@@ -102,3 +102,23 @@ démarrage (`.claude/hooks/session-start.sh`) installe les dépendances dans les
 Claude Code ; `.gitattributes` uniformise les fins de ligne entre Windows, macOS et Linux.
 **Conséquences.** Une seule copie des règles à maintenir ; aucune information importante ne dépend
 d’une conversation ou d’un ordinateur. Guide humain : `docs/REPRENDRE_LE_PROJET.md`.
+
+## DEC-013 — Serveur temps réel : paquet `server/`, une instance, logique pure (19/10/2026)
+
+**Contexte.** v0.2 : relier les joueurs en direct sur l’hébergement validé (DEC-006), sans compte
+nécessaire pour développer et tester.
+**Décision.**
+
+- Le serveur est un **paquet npm séparé** (`server/`) : Wrangler (≈ 235 Mo installé) et les types
+  Cloudflare ne sont installés que par ceux qui travaillent sur le serveur (`npm run server:install`).
+- **Un seul Durable Object** (« monde-1 ») avec l’API d’hibernation des WebSockets : simple, pas de
+  coût quand personne ne parle ; filtrage par salle à l’intérieur ; 40 joueurs maximum par salle.
+- Les règles vivent dans **`server/src/hub.ts`**, sans dépendance à Cloudflare, et réutilisent le
+  protocole du client : une seule définition des messages, testée par Vitest.
+- **Budget quotidien** compté par le serveur lui-même (70 % du quota gratuit), indépendant des
+  tableaux de bord du fournisseur.
+- La **CSP est générée au build** (`vite.config.ts`) : `connect-src` autorise l’adresse définie par
+  `VITE_REALTIME_URL`, sans l’ouvrir à toutes les adresses.
+  **Conséquences.** Tests possibles en local et dans la CI sans aucun compte. Passage à plusieurs
+  instances (une par groupe de salles) si un jour 40 joueurs par salle ou le débit d’une instance
+  ne suffisent plus. Pas encore d’authentification : à ajouter avec les comptes Supabase.

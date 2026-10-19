@@ -1,38 +1,62 @@
 import { defineConfig } from 'vitest/config';
-import type { Plugin } from 'vite';
+import { loadEnv, type Plugin } from 'vite';
 
 /**
- * Content-Security-Policy injectée uniquement dans le build de production
- * (le serveur de dev de Vite a besoin de scripts inline pour le HMR).
- * Les en-têtes équivalents pour l'hébergement sont dans public/_headers.
+ * Content-Security-Policy, générée au build :
+ * - balise <meta> dans index.html (le serveur de dev de Vite a besoin de scripts inline : la CSP
+ *   n'est donc appliquée qu'en production) ;
+ * - fichier `_headers` pour l'hébergeur (format Cloudflare Pages), avec les autres en-têtes de
+ *   sécurité.
+ * Si VITE_REALTIME_URL est défini, son origine est ajoutée à `connect-src` (WebSocket du serveur).
  */
-const CSP = [
-  "default-src 'self'",
-  "script-src 'self'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
-  "connect-src 'self'",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-].join('; ');
+export function buildCsp(realtimeUrl?: string): string {
+  const connect = ["'self'"];
+  if (realtimeUrl && /^wss?:\/\//.test(realtimeUrl)) connect.push(new URL(realtimeUrl).origin);
+  return [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob:",
+    `connect-src ${connect.join(' ')}`,
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join('; ');
+}
 
-function cspPlugin(): Plugin {
+function securityPlugin(realtimeUrl?: string): Plugin {
+  const csp = buildCsp(realtimeUrl);
   return {
-    name: 'malinosland-csp',
+    name: 'malinosland-security',
     apply: 'build',
     transformIndexHtml(html) {
       return html.replace(
         '<!-- CSP -->',
-        `<meta http-equiv="Content-Security-Policy" content="${CSP}" />`,
+        `<meta http-equiv="Content-Security-Policy" content="${csp}" />`,
       );
+    },
+    generateBundle() {
+      this.emitFile({
+        type: 'asset',
+        fileName: '_headers',
+        source: [
+          '# En-têtes de sécurité (format Cloudflare Pages), générés par vite.config.ts.',
+          '/*',
+          '  X-Content-Type-Options: nosniff',
+          '  X-Frame-Options: DENY',
+          '  Referrer-Policy: strict-origin-when-cross-origin',
+          '  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()',
+          `  Content-Security-Policy: ${csp}; frame-ancestors 'none'`,
+          '',
+        ].join('\n'),
+      });
     },
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   base: './',
-  plugins: [cspPlugin()],
+  plugins: [securityPlugin(loadEnv(mode, '.', 'VITE_').VITE_REALTIME_URL)],
   build: {
     target: 'es2022',
     chunkSizeWarningLimit: 1600,
@@ -51,4 +75,4 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
     environment: 'node',
   },
-});
+}));

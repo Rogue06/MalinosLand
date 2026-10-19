@@ -20,7 +20,10 @@
     "test:watch": "vitest",
     "test:e2e": "node scripts/smoke-test.mjs",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build",
-    "docs:screenshots": "node scripts/doc-screenshots.mjs"
+    "docs:screenshots": "node scripts/doc-screenshots.mjs",
+    "test:online": "node scripts/online-test.mjs",
+    "server:install": "npm --prefix server install",
+    "server:dev": "npm --prefix server run dev"
   },
   "dependencies": {
     "phaser": "^4.2.1",

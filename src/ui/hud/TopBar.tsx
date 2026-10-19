@@ -1,3 +1,4 @@
+import { REALTIME_URL } from '../../config';
 import { panelStore, presenceStore, zoneStore } from '../../state';
 import { useStore } from '../hooks';
 
@@ -32,7 +33,11 @@ export function TopBar({
       <nav class="topbar-right" aria-label="Menu principal">
         <span
           class="presence-chip"
-          title="Joueurs visibles. En v0.1, uniquement les onglets ouverts dans ce navigateur."
+          title={
+            REALTIME_URL
+              ? 'Malinos connectés en ce moment'
+              : 'Joueurs visibles : hors ligne, uniquement les onglets ouverts dans ce navigateur'
+          }
         >
           <span class="dot" /> {presence.length} {presence.length > 1 ? 'Malinos' : 'Malino'}
         </span>

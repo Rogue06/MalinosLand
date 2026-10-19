@@ -1,4 +1,5 @@
 import { useState } from 'preact/hooks';
+import { REALTIME_URL } from '../../config';
 import { FLOORS } from '../../content/floors';
 import { REPO_URL, ROADMAP } from '../../content/roadmap';
 import { AI_TIPS, tipOfTheDay } from '../../content/tips';
@@ -262,17 +263,24 @@ export function SettingsPanel() {
           />
           <span>Afficher les performances (FPS, trafic)</span>
         </label>
-        <label class="check">
-          <input
-            type="checkbox"
-            checked={s.multiTab}
-            onChange={(e) => set({ multiTab: (e.target as HTMLInputElement).checked })}
-          />
-          <span>
-            Démo multijoueur locale : ouvre MalinosLand dans plusieurs onglets de ce navigateur pour
-            voir les avatars se croiser
-          </span>
-        </label>
+        {REALTIME_URL ? (
+          <p class="muted small">
+            🌐 Multijoueur en ligne : tu retrouves les autres Malinos connectés en même temps que
+            toi.
+          </p>
+        ) : (
+          <label class="check">
+            <input
+              type="checkbox"
+              checked={s.multiTab}
+              onChange={(e) => set({ multiTab: (e.target as HTMLInputElement).checked })}
+            />
+            <span>
+              Démo multijoueur locale : ouvre MalinosLand dans plusieurs onglets de ce navigateur
+              pour voir les avatars se croiser
+            </span>
+          </label>
+        )}
         <div class="row">
           <button
             class="btn ghost small"

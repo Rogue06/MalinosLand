@@ -63,3 +63,61 @@ jobs:
           name: screenshots
           path: screenshots
           retention-days: 7
+
+  server:
+    name: Serveur temps réel (Cloudflare local)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run test:integration
+        env:
+          WRANGLER_SEND_METRICS: 'false'
+
+  online:
+    name: Multijoueur en ligne (2 joueurs, Chrome)
+    runs-on: ubuntu-latest
+    needs: [check, server]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+      - run: npm ci
+      - run: npm ci
+        working-directory: server
+      - name: Lancer le serveur temps réel local
+        working-directory: server
+        run: npx wrangler dev --port 8787 > ../wrangler.log 2>&1 &
+        env:
+          WRANGLER_SEND_METRICS: 'false'
+      - name: Construire le jeu en mode en ligne
+        run: npm run build
+        env:
+          VITE_REALTIME_URL: ws://localhost:8787/ws
+      - name: Lancer le jeu
+        run: npx vite preview --port 4173 --strictPort &
+      - run: npx wait-on@8 http://localhost:4173 http://localhost:8787/health --timeout 90000
+      - name: Trouver Chrome sur le serveur
+        run: |
+          CHROME=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)
+          echo "CHROMIUM_PATH=$CHROME" >> "$GITHUB_ENV"
+      - run: npm run test:online
+      - name: Journal du serveur en cas d’échec
+        if: failure()
+        run: tail -100 wrangler.log

@@ -82,12 +82,18 @@ de fournisseur = écrire un nouveau transport et/ou migrer un dump Postgres.
   au-delà de 90 %.
 - Anti-spam du chat (seau à jetons), émotes en liste fermée.
 
-**Côté serveur (v0.2, à développer)**
+**Côté serveur (v0.2, développé — `server/`, pas encore en ligne)**
 
-- Compteurs internes de messages et de connexions par jour, stockés dans le Durable Object,
-  avec des **plafonds conservateurs** (ex. 70 % des quotas officiels) indépendants des métriques
-  du fournisseur.
-- Politique de saturation, dans l’ordre :
+- ✅ Compteur interne des messages reçus par jour (UTC), stocké dans le Durable Object, avec un
+  **plafond conservateur** : `DAILY_MESSAGE_BUDGET = 1 400 000`, soit 70 % du quota gratuit
+  d’environ 2 millions de messages WebSocket entrants par jour (à re-vérifier avant la mise en
+  ligne). Niveaux : > 70 % ralentir (400 ms), > 90 % ralentir fortement et couper les émotes
+  (1 s), 100 % **maintenance** (plus de mouvements relayés, nouvelles connexions refusées).
+- ✅ Hibernation des WebSockets : le serveur ne consomme pas de temps de calcul quand personne ne
+  parle ; les « ping » de maintien de connexion reçoivent une réponse automatique non facturée.
+- ✅ Plafond de 40 joueurs par salle, limites de débit par connexion.
+- Politique de saturation prévue, dans l’ordre (1, 2, 4 et 5 sont en place ; la file d’attente
+  est remplacée pour l’instant par un message « salle pleine » et un nouvel essai automatique) :
   1. réduire la fréquence de synchronisation (ordre envoyé aux clients) ;
   2. limiter les interactions non essentielles (émotes) ;
   3. suspendre temporairement la création de nouveaux espaces ;

@@ -5,7 +5,7 @@ concret et reste jouable : on ne construit pas tout d’un coup.
 
 ```mermaid
 flowchart LR
-    A["✅ v0.1<br/>Prototype<br/><i>se promener</i>"] --> B["🔜 v0.2<br/>Multijoueur<br/><i>se retrouver</i>"]
+    A["✅ v0.1<br/>Prototype<br/><i>se promener</i>"] --> B["🔶 v0.2<br/>Multijoueur<br/><i>se retrouver</i>"]
     B --> C["⏳ v0.3<br/>Chez soi<br/><i>son logement</i>"]
     C --> D["⏳ v0.4<br/>Expansion<br/><i>étages, galerie</i>"]
     D --> E["⏳ v0.5<br/>Vie communautaire<br/><i>événements, jeux</i>"]
@@ -45,7 +45,7 @@ Tu peux aider : voir [TESTING.md](TESTING.md#protocole-de-mesure-manuel).
 
 ---
 
-## 🔜 Version 0.2 — Le multijoueur : « se retrouver »
+## 🔶 Version 0.2 — Le multijoueur : « se retrouver »
 
 **En une phrase :** on se connecte avec un compte et on voit les autres Malinos bouger et parler
 en direct.
@@ -59,8 +59,17 @@ en direct.
 - tu peux **signaler** ou **masquer** quelqu’un qui dérange ;
 - le jeu est **en ligne** : une simple adresse à ouvrir, rien à installer.
 
-**Ce qu’il faut construire :** les comptes, un serveur temps réel, la mise en ligne gratuite,
-des limites anti-spam et un système qui protège les quotas gratuits.
+**Où en est-on ?**
+
+- ✅ **Le serveur temps réel est prêt** et testé sur ordinateur : deux joueurs dans deux
+  navigateurs différents se voient bouger, discutent et se croisent dans le Hub.
+- ✅ Les protections sont en place : anti-spam, anti-téléportation, 40 joueurs maximum par salle,
+  et un **budget quotidien** qui ralentit le jeu puis le met en pause avant la limite gratuite.
+- ⬜ **Mise en ligne** : elle attend la création des comptes gratuits Cloudflare par le
+  responsable du projet.
+- ⬜ Comptes joueurs (Supabase), signaler / masquer, suppression de compte.
+
+![Deux joueurs connectés au serveur se retrouvent dans le hall](images/multijoueur-en-ligne.jpg)
 
 **Point important — la gratuité :** les services en ligne gratuits ont des limites. Si un jour
 trop de monde joue en même temps, le jeu **ralentira ou mettra les gens en file d’attente**, mais
@@ -156,10 +165,13 @@ La feuille de route n’est pas figée : **elle bouge selon vos retours.**
 ### v0.2
 
 - ⬜ Comptes (Supabase Auth) + anti-robots (Turnstile)
-- ⬜ Serveur temps réel (Cloudflare Worker + Durable Object) et transport réseau associé
-- ⬜ Présence, synchronisation des déplacements, chat local/général
+- ✅ Serveur temps réel (Cloudflare Worker + Durable Object) et transport réseau associé
+  (testé en local avec Wrangler, pas encore en ligne)
+- ✅ Présence, synchronisation des déplacements, chat local/général
 - ⬜ Signaler / masquer, suppression de compte (RGPD)
-- ⬜ Compteurs de quotas et dégradation contrôlée, plafond par salle, file d’attente
+- ✅ Compteur de messages quotidien et dégradation contrôlée, plafond par salle
+- ⬜ File d’attente quand une salle est pleine (aujourd’hui : message « salle pleine » et
+  nouvel essai automatique une minute plus tard)
 - ⬜ Mise en ligne gratuite (Cloudflare Pages) — **après validation du responsable**
 
 ### v0.3
