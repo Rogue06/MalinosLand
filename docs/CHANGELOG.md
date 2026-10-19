@@ -3,6 +3,31 @@
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions selon
 [SemVer](https://semver.org/lang/fr/).
 
+## [Non publié]
+
+### Corrigé
+
+- Une fenêtre ou un dialogue ignorait la touche Échap / E pressée dans l’instant qui suit son
+  ouverture (l’écouteur clavier n’était installé qu’à l’image suivante, ce qui se voyait sur les
+  machines lentes). Les écouteurs sont maintenant actifs dès l’affichage.
+- Le test de bout en bout passe désormais de façon fiable sur GitHub Actions et devient
+  **bloquant** (l’échec venait du bug ci-dessus, révélé par la lenteur des serveurs de CI).
+
+### Amélioré
+
+- Qualité graphique « basse » : les panneaux de l’interface n’utilisent plus de flou
+  d’arrière-plan (fond opaque à la place). Sans carte graphique, ce flou faisait perdre environ
+  35 % d’images par seconde dès qu’une fenêtre était ouverte.
+- Test de bout en bout plus robuste : attentes sondées depuis Node, longs trajets remplacés par une
+  téléportation, qualité basse, détection automatique de Chrome.
+
+### Ajouté
+
+- Annotations GitHub et résumé du job pour chaque étape et erreur du test de bout en bout ;
+  diagnostic de l’état du jeu et de la page en cas d’échec (`window.__malinosDebug.state()`).
+- Mode `E2E_CPU_THROTTLE` pour simuler une machine lente en local.
+- Actions GitHub mises à jour (fin de l’avertissement Node.js 20).
+
 ## [0.1.0] — non publiée (branche `feature/initial-prototype`)
 
 ### Ajouté

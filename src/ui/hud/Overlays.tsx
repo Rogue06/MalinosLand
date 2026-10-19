@@ -1,4 +1,4 @@
-import { useEffect } from 'preact/hooks';
+import { useLayoutEffect } from 'preact/hooks';
 import { settingsStore } from '../../services/settings';
 import { dialogStore, hintStore, statsStore, toastStore } from '../../state';
 import { useStore } from '../hooks';
@@ -41,7 +41,8 @@ export function Stats() {
 /** Boîte de dialogue des personnages et panneaux (E, Espace ou Entrée pour avancer). */
 export function DialogBox() {
   const dialog = useStore(dialogStore);
-  useEffect(() => {
+  // useLayoutEffect : touches actives dès l'affichage (voir Modal).
+  useLayoutEffect(() => {
     if (!dialog) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.repeat) return;

@@ -595,6 +595,16 @@ export class WorldScene extends Phaser.Scene {
     (window as unknown as Record<string, unknown>).__malinosDebug = {
       pos: () => ({ ...this.player.pos }),
       seated: () => this.player.seat !== null,
+      /** État de l'interface et du joueur, pour diagnostiquer un test qui échoue. */
+      state: () => ({
+        pos: { ...this.player.pos },
+        seated: this.player.seat !== null,
+        walking: this.player.isWalkingPath,
+        panel: panelStore.get(),
+        dialog: dialogStore.get()?.speaker ?? null,
+        zone: this.zoneId,
+        fps: Math.round(this.game.loop.actualFps),
+      }),
       walkTo: (x: number, y: number) => this.player.walkTo({ x, y }),
       teleport: (x: number, y: number, facing?: Facing) => {
         if (!this.world.grid.isWalkable(Math.floor(x), Math.floor(y))) return false;

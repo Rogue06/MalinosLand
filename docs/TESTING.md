@@ -19,6 +19,19 @@ Le test de bout en bout utilise `playwright-core` (sans téléchargement de navi
 Chromium dans `/opt/pw-browsers/chromium` ou dans la variable `CHROMIUM_PATH`
 (ex. `CHROMIUM_PATH=/usr/bin/google-chrome`).
 
+### Le test de bout en bout dans la CI
+
+- Il tourne sur chaque pull request (job « Test de bout en bout (Chrome) ») et il est **bloquant**.
+- Chaque étape réussie et chaque erreur sont écrites en **annotations** GitHub (visibles sur la PR)
+  et dans le résumé du job. En cas d’échec, l’état du jeu et de la page est aussi affiché.
+- Les serveurs de GitHub n’ont pas de carte graphique (≈ 3 à 6 images/s) : le test tourne en
+  **qualité basse**, remplace les longs trajets par une téléportation (les trajets sont vérifiés
+  par les tests unitaires) et sonde les conditions depuis Node. `E2E_QUALITY=normal` pour tester
+  en qualité normale.
+- Cette lenteur a révélé un vrai bug : une touche pressée juste à l’ouverture d’une fenêtre était
+  perdue. Le test appuie volontairement vite pour l’empêcher de revenir.
+- Pour reproduire une machine lente en local : `E2E_CPU_THROTTLE=4 npm run test:e2e`.
+
 ## Couverture actuelle (v0.1)
 
 | Fichier                  | Ce qui est vérifié                                                                                                                                                                                                                                                               |
