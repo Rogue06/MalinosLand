@@ -188,3 +188,15 @@ clic un ticket GitHub prérempli (relu avant publication) : pas de jeton GitHub 
 jeu ou le serveur.
 **Conséquences.** Les contributeurs ne voient que les tickets retenus. Une publication automatique
 vers GitHub serait possible plus tard (workflow avec un jeton dédié), si le volume le justifie.
+
+## DEC-018 — Sièges en deux calques pour les personnages assis de dos (20/10/2026)
+
+**Contexte.** Chaque objet était une seule image, placée entièrement devant ou derrière un
+personnage. Assis de dos, l’assise et les accoudoirs passaient par-dessus lui : il semblait assis
+à côté du siège.
+**Décision.** Les pièces d’un siège peuvent être marquées `front` (dossier, accoudoir côté
+caméra) dans `src/game/art/objects.ts`. Les sièges sont rendus en deux images de même cadrage :
+`base` à la profondeur de l’objet, `front` juste au-dessus (+0,5). Un personnage assis de dos se
+place entre les deux (+0,25) ; de face, il reste devant tout le siège (+1).
+**Conséquences.** Une texture de plus par siège et orientation (faible). Tout nouveau siège doit
+marquer son dossier avec `backrest()` dans son dessin.

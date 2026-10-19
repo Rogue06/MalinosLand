@@ -31,10 +31,17 @@ export interface BoxSpec {
   outline?: boolean;
 }
 
+/**
+ * Calque d'une pièce. « front » : pièce qui doit passer devant un personnage assis vu de dos
+ * (le dossier d'un siège). Les objets sans calque « front » sont rendus en une seule image.
+ */
+export type Layer = 'base' | 'front';
+
 interface Item {
   min: Vec3;
   max: Vec3;
   draw: (ctx: CanvasRenderingContext2D) => void;
+  layer?: Layer;
 }
 
 export interface RenderedSprite {
@@ -59,13 +66,15 @@ function proj(p: Vec3): Vec2 {
  */
 export class IsoBuilder {
   private items: Item[] = [];
+  /** Calque des pièces ajoutées ensuite (voir `Layer`). */
+  layer: Layer = 'base';
   private minX = Infinity;
   private minY = Infinity;
   private maxX = -Infinity;
   private maxY = -Infinity;
 
   constructor(
-    private readonly rot: Rotation = 0,
+    readonly rot: Rotation = 0,
     /** Empreinte canonique servant de pivot de rotation. */
     private readonly fw = 1,
     private readonly fd = 1,
@@ -128,6 +137,7 @@ export class IsoBuilder {
       .filter((p) => p !== null);
 
     this.items.push({
+      layer: this.layer,
       min,
       max,
       draw: (ctx) => {
@@ -186,6 +196,7 @@ export class IsoBuilder {
     const screen = local.map(proj);
     this.extend(screen);
     this.items.push({
+      layer: this.layer,
       min: {
         x: Math.min(...local.map((p) => p.x)),
         y: Math.min(...local.map((p) => p.y)),
@@ -228,6 +239,7 @@ export class IsoBuilder {
     const ry = r * HH * Math.SQRT2;
     const hp = h * Z_PX;
     this.items.push({
+      layer: this.layer,
       min: { x: c.x - r, y: c.y - r, z },
       max: { x: c.x + r, y: c.y + r, z: z + h },
       draw: (ctx) => {
@@ -290,6 +302,7 @@ export class IsoBuilder {
     ]);
     const p = this.tr(anchor);
     this.items.push({
+      layer: this.layer,
       min: { x: p.x, y: p.y, z: p.z },
       max: { x: p.x, y: p.y, z: p.z },
       draw: (ctx) => {
@@ -325,6 +338,7 @@ export class IsoBuilder {
       { x: o.x + bounds.w / 2, y: o.y + bounds.h / 2 },
     ]);
     this.items.push({
+      layer: this.layer,
       min: { x: 99, y: 99, z: 99 },
       max: { x: 99, y: 99, z: 99 },
       draw: (ctx) => fn(ctx, o.x, o.y),
@@ -332,8 +346,17 @@ export class IsoBuilder {
     return this;
   }
 
-  /** Rend l'image. `scale` = résolution de la texture (2 = net en zoom ×2). */
-  render(scale: number, pad = 2): RenderedSprite {
+  /** Vrai si au moins une pièce est sur le calque donné. */
+  hasLayer(layer: Layer): boolean {
+    return this.items.some((it) => (it.layer ?? 'base') === layer);
+  }
+
+  /**
+   * Rend l'image. `scale` = résolution de la texture (2 = net en zoom ×2). `layer` : ne rend
+   * qu'un calque ; les dimensions et le point d'ancrage restent ceux de l'objet entier, pour que
+   * les deux images se superposent exactement.
+   */
+  render(scale: number, pad = 2, layer?: Layer): RenderedSprite {
     if (!Number.isFinite(this.minX)) {
       this.minX = this.minY = 0;
       this.maxX = this.maxY = 1;
@@ -349,7 +372,9 @@ export class IsoBuilder {
     ctx.setTransform(scale, 0, 0, scale, ox, oy);
     ctx.lineJoin = 'round';
     ctx.lineWidth = 0.6;
-    for (const item of sortItems(this.items)) item.draw(ctx);
+    for (const item of sortItems(this.items)) {
+      if (!layer || (item.layer ?? 'base') === layer) item.draw(ctx);
+    }
     return { canvas, anchorX: ox, anchorY: oy, scale };
   }
 }
