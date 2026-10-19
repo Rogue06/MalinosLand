@@ -19,7 +19,8 @@
 - `server/` : le serveur temps réel (Cloudflare Worker + Durable Object), voir §4.
 
 **État : le serveur fonctionne et est testé en local** (Wrangler, sans compte). La **mise en ligne**
-attend la création du compte Cloudflare gratuit (voir [SESSION_HANDOFF.md](SESSION_HANDOFF.md)).
+se fait depuis GitHub (workflow « Mise en ligne ») : mode d’emploi dans
+[MISE_EN_LIGNE.md](MISE_EN_LIGNE.md).
 
 ### Lancer le multijoueur en ligne sur son ordinateur
 
@@ -140,7 +141,8 @@ entrants gratuits) :
 
 - **Comptes** : les joueurs ne sont pas encore authentifiés (prochaine étape : Supabase, puis
   vérification du jeton de connexion par le Worker).
-- **Mise en ligne** : nécessite le compte Cloudflare gratuit du responsable.
+- **Mise en ligne** : prête (workflow « Mise en ligne », [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md)), à lancer
+  par le responsable une fois les secrets GitHub configurés.
 - Collisions vérifiées côté serveur (seule la vitesse et les limites de la carte le sont).
 
 ## 5. Tests

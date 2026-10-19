@@ -122,3 +122,17 @@ nécessaire pour développer et tester.
   **Conséquences.** Tests possibles en local et dans la CI sans aucun compte. Passage à plusieurs
   instances (une par groupe de salles) si un jour 40 joueurs par salle ou le débit d’une instance
   ne suffisent plus. Pas encore d’authentification : à ajouter avec les comptes Supabase.
+
+## DEC-014 — Mise en ligne par un workflow GitHub lancé à la main (19/10/2026)
+
+**Contexte.** Le site (Cloudflare Pages) et le serveur (Worker) doivent être publiés sans que les
+clés ne quittent les comptes en ligne, et seulement quand le responsable le décide.
+**Décision.** Workflow `.github/workflows/deploy.yml`, déclenché uniquement à la main
+(`workflow_dispatch`). Il lit `CLOUDFLARE_API_TOKEN` et `CLOUDFLARE_ACCOUNT_ID` dans les secrets
+GitHub, vérifie le projet (`npm run check`), crée le projet Pages s’il manque, déduit les adresses
+(site `*.pages.dev`, serveur `*.workers.dev`) depuis l’API Cloudflare, publie le Worker en
+n’autorisant que l’origine du site, construit le jeu avec `VITE_REALTIME_URL` puis publie le site.
+Plutôt que l’intégration Git de Cloudflare : tout est décrit dans le dépôt, reproductible, et
+indépendant de l’outil ou de l’ordinateur utilisé.
+**Conséquences.** Aucune clé dans le dépôt ni dans une conversation. Publication manuelle après
+chaque fusion (automatisable plus tard sur `push` vers `main` si le responsable le souhaite).

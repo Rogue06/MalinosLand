@@ -1,0 +1,126 @@
+# Mise en ligne du jeu (Cloudflare Pages) et du serveur temps réel (Cloudflare Worker).
+# Lancée uniquement à la main par le responsable : onglet « Actions » → « Mise en ligne » →
+# « Run workflow ». Mode d'emploi complet : docs/MISE_EN_LIGNE.md.
+# Secrets nécessaires (GitHub → Settings → Secrets and variables → Actions) :
+#   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
+name: Mise en ligne
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mise-en-ligne
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Mettre en ligne le jeu et le serveur temps réel
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      WRANGLER_SEND_METRICS: 'false'
+      PAGES_PROJECT: malinosland
+      WORKER_NAME: malinosland-realtime
+    steps:
+      - name: Vérifier que les secrets sont configurés
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::Secrets CLOUDFLARE_API_TOKEN et/ou CLOUDFLARE_ACCOUNT_ID absents. Voir docs/MISE_EN_LIGNE.md."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm ci
+        working-directory: server
+
+      - name: Vérifier le projet avant de le mettre en ligne
+        run: npm run check
+
+      - name: Trouver (ou créer) le site Cloudflare Pages
+        id: pages
+        run: |
+          base="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID"
+          api() { curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" -H "Content-Type: application/json" "$@"; }
+          res=$(api "$base/pages/projects/$PAGES_PROJECT")
+          if [ "$(echo "$res" | jq -r '.success')" != "true" ]; then
+            echo "Le site « $PAGES_PROJECT » n'existe pas encore : création (offre gratuite)."
+            res=$(api -X POST "$base/pages/projects" \
+              --data "{\"name\":\"$PAGES_PROJECT\",\"production_branch\":\"main\"}")
+          fi
+          sub=$(echo "$res" | jq -r '.result.subdomain // empty')
+          if [ -z "$sub" ]; then
+            echo "::error::Impossible de trouver ou de créer le site Cloudflare Pages. Vérifie les permissions du jeton (Cloudflare Pages : Edit)."
+            echo "$res" | jq '.errors'
+            exit 1
+          fi
+          echo "Adresse du site : https://$sub"
+          echo "origin=https://$sub" >> "$GITHUB_OUTPUT"
+
+      - name: Trouver l'adresse du serveur (workers.dev)
+        id: worker
+        run: |
+          res=$(curl -sS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain")
+          sub=$(echo "$res" | jq -r '.result.subdomain // empty')
+          if [ -z "$sub" ]; then
+            echo "::error::Aucun sous-domaine workers.dev sur le compte. Ouvre « Workers & Pages » dans Cloudflare et choisis-en un (étape 1 de docs/MISE_EN_LIGNE.md)."
+            echo "$res" | jq '.errors'
+            exit 1
+          fi
+          echo "Adresse du serveur : https://$WORKER_NAME.$sub.workers.dev"
+          echo "url=https://$WORKER_NAME.$sub.workers.dev" >> "$GITHUB_OUTPUT"
+
+      - name: Mettre en ligne le serveur temps réel
+        working-directory: server
+        env:
+          SITE_ORIGIN: ${{ steps.pages.outputs.origin }}
+        # Seul le site en ligne a le droit de se connecter au serveur.
+        run: npx wrangler deploy --var "ALLOWED_ORIGINS:$SITE_ORIGIN"
+
+      - name: Construire le jeu (connecté au serveur)
+        env:
+          WORKER_URL: ${{ steps.worker.outputs.url }}
+        run: VITE_REALTIME_URL="wss://${WORKER_URL#https://}/ws" npm run build
+
+      - name: Mettre en ligne le site
+        run: server/node_modules/.bin/wrangler pages deploy dist --project-name "$PAGES_PROJECT" --branch main --commit-dirty=true
+
+      - name: Vérifier que tout répond
+        env:
+          SITE_ORIGIN: ${{ steps.pages.outputs.origin }}
+          WORKER_URL: ${{ steps.worker.outputs.url }}
+        run: |
+          ok_site=no; ok_worker=no
+          # Une première mise en ligne peut demander une ou deux minutes (DNS).
+          for i in $(seq 1 24); do
+            [ "$ok_worker" = yes ] || { curl -fsS "$WORKER_URL/health" >/dev/null 2>&1 && ok_worker=yes; }
+            [ "$ok_site" = yes ] || { curl -fsS -o /dev/null "$SITE_ORIGIN/" 2>/dev/null && ok_site=yes; }
+            [ "$ok_site" = yes ] && [ "$ok_worker" = yes ] && break
+            sleep 5
+          done
+          code=$(curl -s --http1.1 -o /dev/null -w '%{http_code}' -H 'Connection: Upgrade' -H 'Upgrade: websocket' \
+            -H 'Sec-WebSocket-Version: 13' -H 'Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==' \
+            -H 'Origin: https://exemple.invalid' "$WORKER_URL/ws")
+          {
+            echo "## MalinosLand est en ligne"
+            echo ""
+            echo "| | Adresse | Réponse |"
+            echo "| --- | --- | --- |"
+            echo "| 🎮 Jeu | $SITE_ORIGIN | $ok_site |"
+            echo "| 🌐 Serveur temps réel | $WORKER_URL/health | $ok_worker |"
+            echo "| 🔒 Origine inconnue refusée | $WORKER_URL/ws | HTTP $code (403 attendu) |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::notice::Jeu : $SITE_ORIGIN — serveur : $WORKER_URL"
+          [ "$ok_worker" = yes ] || { echo "::error::Le serveur temps réel ne répond pas."; exit 1; }
+          [ "$code" = 403 ] || echo "::warning::Réponse inattendue pour une origine inconnue (HTTP $code au lieu de 403)."
+          [ "$ok_site" = yes ] || echo "::warning::Le site ne répond pas encore : réessaie dans quelques minutes."
