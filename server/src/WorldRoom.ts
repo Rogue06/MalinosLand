@@ -9,8 +9,10 @@ import {
   type QuotaCounter,
 } from './hub';
 import { encodeMessage } from '../../src/multiplayer/protocol';
+import { ACCOUNT_HEADER, WS_PROTOCOL, decodeAccountHeader, readProtocols } from './account';
+import type { SupabaseConfig } from './account';
 
-export interface Env {
+export interface Env extends SupabaseConfig {
   WORLD: DurableObjectNamespace<WorldRoom>;
   /** Origines autorisées, séparées par des virgules (« * » : toutes, à réserver au développement). */
   ALLOWED_ORIGINS: string;
@@ -94,17 +96,24 @@ export class WorldRoom extends DurableObject<Env> {
     return this.ctx.getWebSockets().map((ws) => this.wrap(ws));
   }
 
-  async fetch(): Promise<Response> {
+  async fetch(request: Request): Promise<Response> {
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair) as [WebSocket, WebSocket];
     this.ctx.acceptWebSocket(server);
-    server.serializeAttachment(newConnData(crypto.randomUUID(), Date.now()));
+    // Compte vérifié par le Worker (en-tête interne), sinon visiteur.
+    const account = decodeAccountHeader(request.headers.get(ACCOUNT_HEADER));
+    server.serializeAttachment(newConnData(crypto.randomUUID(), Date.now(), account));
     const refusal = this.hub.admission();
     if (refusal) {
       server.send(encodeMessage({ t: 'notice', code: refusal }));
       server.close(CLOSE_CODES[refusal], refusal);
     }
-    return new Response(null, { status: 101, webSocket: client });
+    const { offered } = readProtocols(request.headers.get('Sec-WebSocket-Protocol'));
+    return new Response(null, {
+      status: 101,
+      webSocket: client,
+      headers: offered ? { 'Sec-WebSocket-Protocol': WS_PROTOCOL } : {},
+    });
   }
 
   async webSocketMessage(ws: WebSocket, message: string | ArrayBuffer): Promise<void> {

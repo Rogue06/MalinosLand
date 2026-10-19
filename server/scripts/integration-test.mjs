@@ -1,7 +1,9 @@
 // Test d'intégration du serveur temps réel : lance le vrai Worker en local (Wrangler, sans
-// compte Cloudflare) et y connecte plusieurs clients WebSocket.
+// compte Cloudflare) et y connecte plusieurs clients WebSocket. Une fausse base Supabase locale
+// répond à la vérification des comptes.
 // Usage : cd server && npm run test:integration
 import { spawn } from 'node:child_process';
+import { createServer } from 'node:http';
 
 const PORT = 8788;
 const BASE = `http://127.0.0.1:${PORT}`;
@@ -12,6 +14,23 @@ const check = (ok, label) => {
   if (!ok) errors.push(label);
 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Fausse base : seul VALID_TOKEN correspond à un profil (comme `my_profile` dans Supabase).
+const DB_PORT = 8790;
+const VALID_TOKEN = 'aaaa.bbbb.cccc';
+const ACCOUNT = { id: '0b1c2d3e-0000-4000-8000-000000000001', name: 'Élodie' };
+const ACCOUNT_PLAYER = ACCOUNT.id.replaceAll('-', '');
+const fakeDb = createServer((req, res) => {
+  const ok =
+    req.method === 'POST' &&
+    req.url === '/rest/v1/rpc/my_profile' &&
+    req.headers.apikey === 'sb_publishable_test_0123456789';
+  const auth = req.headers.authorization;
+  res.setHeader('Content-Type', 'application/json');
+  if (!ok || !auth) return res.writeHead(400).end('{}');
+  if (auth !== `Bearer ${VALID_TOKEN}`) return res.writeHead(401).end('{}');
+  res.end(JSON.stringify([ACCOUNT]));
+}).listen(DB_PORT, '127.0.0.1');
 
 const server = spawn(
   'npx',
@@ -26,6 +45,10 @@ const server = spawn(
     `ALLOWED_ORIGINS:${ORIGIN}`,
     '--var',
     'MAX_PLAYERS_PER_ROOM:3',
+    '--var',
+    `SUPABASE_URL:http://127.0.0.1:${DB_PORT}`,
+    '--var',
+    'SUPABASE_KEY:sb_publishable_test_0123456789',
   ],
   {
     cwd: new URL('..', import.meta.url),
@@ -37,6 +60,7 @@ let logs = '';
 server.stdout.on('data', (d) => (logs += d));
 server.stderr.on('data', (d) => (logs += d));
 const stop = () => {
+  fakeDb.close();
   try {
     process.kill(-server.pid, 'SIGTERM');
   } catch {
@@ -45,9 +69,12 @@ const stop = () => {
 };
 
 /** Client WebSocket qui mémorise les messages reçus. */
-function client(origin = ORIGIN) {
+function client(origin = ORIGIN, protocols = undefined) {
   return new Promise((resolve) => {
-    const ws = new WebSocket(`ws://127.0.0.1:${PORT}/ws`, { headers: { Origin: origin } });
+    const ws = new WebSocket(`ws://127.0.0.1:${PORT}/ws`, {
+      headers: { Origin: origin },
+      ...(protocols ? { protocols } : {}),
+    });
     const c = { ws, inbox: [], closed: null, error: false };
     ws.onmessage = (e) => {
       try {
@@ -62,12 +89,12 @@ function client(origin = ORIGIN) {
     setTimeout(() => resolve(c), 5000);
   });
 }
-const hello = (c, id, x = 12.5, y = 21.5) =>
+const hello = (c, id, x = 12.5, y = 21.5, name = `Test ${id.slice(0, 2)}`) =>
   c.ws.send(
     JSON.stringify({
       t: 'hello',
       id,
-      name: `Test ${id.slice(0, 2)}`,
+      name,
       look: {},
       reply: false,
       room: 'hub',
@@ -169,7 +196,25 @@ try {
     'A est prévenu du départ de B',
   );
 
-  for (const x of [a, c, d, evil]) x.ws.close();
+  // Comptes : jeton vérifié par la base → pseudo du compte et marque « vérifié ».
+  c.ws.close();
+  await sleep(400);
+  const e = await client(ORIGIN, ['malinos.v1', `jwt.${VALID_TOKEN}`]);
+  check(e.ws.protocol === 'malinos.v1', 'le serveur accepte le sous-protocole du jeu');
+  hello(e, ACCOUNT_PLAYER, 12.5, 21.5, 'Usurpateur');
+  await sleep(600);
+  const seen = of(a, 'hello').find((m) => m.id === ACCOUNT_PLAYER);
+  check(
+    seen?.name === 'Élodie' && seen?.v === true,
+    'un joueur connecté garde le pseudo de son compte, avec la marque « vérifié »',
+  );
+  const g = await client(ORIGIN, ['malinos.v1', 'jwt.faux.jeton.x']);
+  hello(g, 'gggggggg77');
+  await sleep(600);
+  const guest = of(a, 'hello').find((m) => m.id === 'gggggggg77');
+  check(!!guest && guest.v === undefined, 'un jeton refusé par la base = simple visiteur');
+
+  for (const x of [a, d, e, g, evil]) x.ws.close();
 } catch (err) {
   errors.push(err.message);
   console.error(logs.slice(-3000));

@@ -26,6 +26,7 @@ Pas besoin de tout lire ! Choisis ton chemin.
 | Salles, cartes, étages      | [WORLD_DESIGN.md](WORLD_DESIGN.md)               |
 | Multijoueur                 | [REALTIME_NETWORK.md](REALTIME_NETWORK.md)       |
 | Base de données             | [DATABASE.md](DATABASE.md)                       |
+| Comptes joueurs             | [COMPTES.md](COMPTES.md)                         |
 | Hébergement gratuit, quotas | [FREE_INFRASTRUCTURE.md](FREE_INFRASTRUCTURE.md) |
 | Mettre le jeu en ligne      | [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md)             |
 | Sécurité, modération        | [SECURITY.md](SECURITY.md)                       |

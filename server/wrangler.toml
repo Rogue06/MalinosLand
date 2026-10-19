@@ -21,3 +21,7 @@ ALLOWED_ORIGINS = "http://localhost:5173,http://localhost:4173"
 MAX_PLAYERS_PER_ROOM = "40"
 # 70 % des ≈ 2 millions de messages WebSocket entrants gratuits par jour.
 DAILY_MESSAGE_BUDGET = "1400000"
+# Comptes joueurs (Supabase). Vides en local : tout le monde joue en visiteur. Remplis à la mise en
+# ligne (adresse du projet et clé PUBLIQUE « publishable » : ce ne sont pas des secrets).
+SUPABASE_URL = ""
+SUPABASE_KEY = ""

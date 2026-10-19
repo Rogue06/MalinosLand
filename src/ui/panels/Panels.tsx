@@ -8,6 +8,7 @@ import { profileStore } from '../../services/profile';
 import { resetProgress } from '../../services/progress';
 import { settingsStore, type Settings } from '../../services/settings';
 import { panelStore, pushToast } from '../../state';
+import { AccountBox } from '../AccountBox';
 import { AvatarEditor } from '../AvatarEditor';
 import { useStore } from '../hooks';
 import { Modal } from './Modal';
@@ -202,6 +203,7 @@ export function SettingsPanel() {
   return (
     <Modal title="Réglages" icon="⚙️">
       <div class="settings">
+        <AccountBox />
         <label>
           <span>Qualité graphique</span>
           <select

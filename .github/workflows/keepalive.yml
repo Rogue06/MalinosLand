@@ -1,0 +1,31 @@
+# Les projets Supabase gratuits sont mis en pause après une semaine sans activité. Une petite
+# lecture publique par jour (profils, clé PUBLIQUE) suffit à garder la base des comptes active.
+# Gratuit : quelques secondes de GitHub Actions par jour. Lançable aussi à la main.
+name: Maintien de la base des comptes
+
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    name: Lecture quotidienne de la base
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SUPABASE_URL: https://xezisaqffltiuyeblknt.supabase.co
+      SUPABASE_KEY: sb_publishable_3pEGlD_n2oskzf460JHjJg_gahrc6QQ
+    steps:
+      - name: Lire un profil
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' \
+            -H "apikey: $SUPABASE_KEY" \
+            "$SUPABASE_URL/rest/v1/profiles?select=id&limit=1")
+          echo "Réponse de la base : HTTP $code"
+          if [ "$code" != 200 ]; then
+            echo "::warning::La base des comptes ne répond pas (HTTP $code) : est-elle en pause ? Voir docs/COMPTES.md."
+          fi

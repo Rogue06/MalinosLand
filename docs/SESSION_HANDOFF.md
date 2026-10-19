@@ -3,8 +3,8 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 19/10/2026 — 🎉 le jeu est EN LIGNE : https://malinosland.pages.dev
-(serveur : https://malinosland-realtime.roguenftproject.workers.dev).**
+**Dernière mise à jour : 19/10/2026 — comptes joueurs Supabase développés (branche
+`feature/comptes-supabase`, PR ouverte) ; jeu en ligne : https://malinosland.pages.dev.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -35,6 +35,17 @@
 
 ## Dernières sessions
 
+- **19/10 (nuit)** — Robot d’accueil renommé **Joshua** (PR `content/robot-joshua`). Comptes
+  joueurs : projet Supabase `malinosland` créé (Paris, gratuit) après mise en pause de
+  LaChillance (accord du responsable : 2 projets gratuits actifs max). Table `profiles` + RLS +
+  `my_profile` appliqués en base **par morceaux** (l’outil MCP expirait sur les gros blocs) ;
+  **`delete_my_account` pas encore appliquée** (l’outil attend une confirmation : à coller dans le
+  SQL Editor, voir COMPTES.md étape 1). Code : `src/services/account.ts` (auth-js + postgrest-js
+  chargés à la demande, PKCE), `AccountBox`, vérification par le Worker (`server/src/account.ts`),
+  marque ✓, workflow `keepalive.yml`. Tests : 100 unitaires (dont PGlite), 13 d’intégration,
+  deux joueurs en ligne. **Jamais testé avec un vrai compte GitHub/Google** (fournisseurs pas
+  encore configurés, et la session Claude ne peut pas joindre supabase.co).
+
 - **19/10 (soir, suite)** — PR #5 fusionnée, première mise en ligne réussie. Les textes du jeu
   disaient « aucune donnée envoyée » : faux en ligne, corrigés. Le réseau des sessions Claude ne
   peut pas joindre `*.pages.dev` / `*.workers.dev` : vérification faite par le workflow lui-même.
@@ -63,18 +74,22 @@
 
 ## Points en attente de décision du responsable
 
-1. Fusionner `content/robot-joshua` (le robot d’accueil s’appelle Joshua) puis relancer
+1. Fusionner `content/robot-joshua` (Joshua) puis `feature/comptes-supabase`, et relancer
    **Mise en ligne**.
-2. Comptes joueurs Supabase (en cours de conception).
-3. Optionnel : exiger les vérifications de la CI dans la règle de protection.
-4. **DEC-009** — licence MIT (ou AGPL-3.0).
+2. Suivre [COMPTES.md](COMPTES.md) §2 : fonction de suppression (SQL Editor), adresses
+   autorisées, applications OAuth GitHub et Google (secrets dans Supabase uniquement), désactiver
+   l’e-mail.
+3. Tester une vraie connexion GitHub puis Google sur le site en ligne.
+4. Optionnel : exiger les vérifications de la CI dans la règle de protection.
+5. **DEC-009** — licence MIT (ou AGPL-3.0).
 
 ## Problèmes connus / limites
 
 - Quotas Cloudflare (≈ 2 millions de messages WebSocket entrants par jour en gratuit, d’où le
   budget de 1,4 million) relevés via la documentation : **à re-vérifier** avant la mise en ligne.
-- Le serveur ne vérifie pas encore l’identité des joueurs (pas de comptes) : un pseudo peut être
-  repris par quelqu’un d’autre. Acceptable pour une démo, à corriger avec Supabase.
+- Les visiteurs (sans compte) peuvent prendre n’importe quel pseudo libre : seuls les comptes ont
+  la marque ✓ et un pseudo réservé.
+- Supabase gratuit : 2 projets actifs max (LaChillance en pause depuis le 19/10, relançable 90 j).
 - Le journal complet des jobs GitHub n’est pas lisible depuis une session Claude : les tests
   écrivent leurs étapes en annotations, lisibles via l’API.
 - **Performances non mesurées sur du vrai matériel** (seulement en rendu logiciel, sans GPU).
@@ -83,7 +98,7 @@
 ## Prochaines étapes suggérées (dans l’ordre)
 
 1. Tester à plusieurs pour de vrai (deux ordinateurs ou un téléphone) et recueillir les retours.
-2. Comptes Supabase (lien magique / GitHub), puis authentification sur le serveur temps réel.
+2. Configurer GitHub / Google (COMPTES.md) et tester une vraie connexion.
 3. Signaler / masquer, modération minimale.
 4. Mesurer les performances sur 2–3 machines réelles (procédure dans [TESTING.md](TESTING.md)).
 

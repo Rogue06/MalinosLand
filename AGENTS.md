@@ -72,6 +72,8 @@ npm --prefix server run test:integration   # tests du serveur dans le vrai moteu
 npm run test:online         # deux joueurs en ligne (serveur + build avec VITE_REALTIME_URL)
 ```
 
+Comptes joueurs (Supabase) : `VITE_SUPABASE_URL` + `VITE_SUPABASE_PUBLISHABLE_KEY`, voir
+`docs/COMPTES.md` ; toute modification de la base passe par un fichier de `supabase/migrations/`.
 Le jeu se connecte au serveur seulement si `VITE_REALTIME_URL` est défini (copier `.env.example`
 en `.env.local`) ; sinon il reste en mode hors ligne / démo entre onglets.
 
@@ -91,6 +93,7 @@ src/services/    stockage local versionné : profil, réglages, progression
 src/ui/          interface Preact (HUD, panneaux, accueil)
 src/state.ts     pont jeu ↔ interface (stores + commandes)
 server/          serveur temps réel : Cloudflare Worker + Durable Object (paquet npm séparé)
+supabase/        migrations SQL de la base des comptes (testées par tests/database.test.ts)
 ```
 
 Règles de dépendance (en partie vérifiées par ESLint) : `core/` et `world/` n’importent ni Phaser,

@@ -223,7 +223,7 @@ describe('NetworkClient', () => {
 
 // ---------------------------------------------------------------- Transport serveur
 
-import { ServerTransport } from '../src/multiplayer/ServerTransport';
+import { ServerTransport, protocolsFor } from '../src/multiplayer/ServerTransport';
 import { parseRealtimeUrl } from '../src/config';
 import { vi } from 'vitest';
 
@@ -299,6 +299,39 @@ describe('ServerTransport', () => {
       FakeSocket.all[0]!.drop(4002);
       await vi.advanceTimersByTimeAsync(120_000);
       expect(FakeSocket.all).toHaveLength(1);
+      transport.close();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('propose le jeton du compte en sous-protocole, jamais dans l’adresse', async () => {
+    const seen: { url: string; protocols: string[] }[] = [];
+    const transport = new ServerTransport(
+      'ws://test/ws',
+      (url, protocols) => {
+        seen.push({ url, protocols });
+        return new FakeSocket() as unknown as WebSocket;
+      },
+      async () => 'aaa.bbb.ccc',
+    );
+    await transport.connect();
+    expect(seen).toEqual([{ url: 'ws://test/ws', protocols: ['malinos.v1', 'jwt.aaa.bbb.ccc'] }]);
+    expect(protocolsFor(null)).toEqual(['malinos.v1']);
+    transport.close();
+  });
+
+  it('se reconnecte à la demande', async () => {
+    vi.useFakeTimers();
+    try {
+      const transport = make();
+      await transport.connect();
+      const first = FakeSocket.all[0]!;
+      first.open();
+      first.close = () => first.drop(1000);
+      transport.reconnect();
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(FakeSocket.all).toHaveLength(2);
       transport.close();
     } finally {
       vi.useRealTimers();

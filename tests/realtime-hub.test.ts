@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_APPEARANCE } from '../src/content/avatars';
-import { decodeMessage, type NetMessage } from '../src/multiplayer/protocol';
+import { accountPlayerId, decodeMessage, type NetMessage } from '../src/multiplayer/protocol';
 import {
   CLOSE_CODES,
   RealtimeHub,
   newConnData,
+  type Account,
   type Conn,
   type QuotaCounter,
 } from '../server/src/hub';
@@ -39,8 +40,8 @@ function setup(opts: { maxPerRoom?: number; budget?: number } = {}) {
     dailyBudget: opts.budget ?? 1_000_000,
     quota,
   });
-  const join = (id: string, x = 12, y = 21, room = 'hub') => {
-    const c = new FakeConn();
+  const join = (id: string, x = 12, y = 21, room = 'hub', account: Account | null = null) => {
+    const c = new FakeConn(newConnData(Math.random().toString(36).slice(2), 0, account));
     conns.push(c);
     hub.onMessage(
       c,
@@ -187,5 +188,44 @@ describe('serveur temps réel', () => {
     say(a, { t: 'rate', ms: 60000 });
     expect(b.of('notice')).toHaveLength(0);
     expect(b.of('rate')).toHaveLength(0);
+  });
+
+  describe('comptes vérifiés', () => {
+    const ALICE: Account = { id: 'A1B2C3D4-0000-4000-8000-00000000000A', name: 'Alice' };
+    const aliceId = accountPlayerId(ALICE.id)!;
+
+    it('impose le pseudo du compte et ajoute la marque « vérifié »', () => {
+      const { join, say } = setup();
+      const a = join(aliceId, 12, 21, 'hub', ALICE);
+      const b = join('bbbbbbbb22');
+      const hello = b.of('hello').find((m) => m.id === aliceId);
+      expect(hello?.name).toBe('Alice');
+      expect(hello?.v).toBe(true);
+      expect(a.of('hello').find((m) => m.id === 'bbbbbbbb22')?.v).toBeUndefined();
+      say(a, { t: 'look', id: aliceId, name: 'Usurpé', look: DEFAULT_APPEARANCE });
+      expect(b.of('look').at(-1)).toMatchObject({ name: 'Alice', v: true });
+    });
+
+    it('refuse un autre identifiant que celui du compte', () => {
+      const { join } = setup();
+      join('cccccccc33', 12, 21, 'hub', ALICE);
+      const b = join('bbbbbbbb22');
+      expect(b.of('hello')).toHaveLength(0);
+    });
+
+    it('un visiteur ne peut pas prendre un identifiant de compte', () => {
+      const { join } = setup();
+      const b = join('bbbbbbbb22');
+      join(aliceId);
+      expect(b.of('hello')).toHaveLength(0);
+    });
+
+    it('un client ne peut pas se déclarer vérifié lui-même', () => {
+      const { join, say } = setup();
+      const a = join('aaaaaaaa11');
+      const b = join('bbbbbbbb22');
+      say(a, { t: 'look', id: 'aaaaaaaa11', name: 'Malin', look: DEFAULT_APPEARANCE, v: true });
+      expect(b.of('look').at(-1)?.v).toBeUndefined();
+    });
   });
 });

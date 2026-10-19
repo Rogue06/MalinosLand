@@ -66,18 +66,18 @@ limiter les appels de dessin. L’interface `TextureInfo` permettra d’utiliser
 
 ### Séparation demandée → emplacement
 
-| Responsabilité              | Emplacement                                                            |
-| --------------------------- | ---------------------------------------------------------------------- |
-| Moteur de rendu             | `src/game/` (Phaser) + `src/game/art/` (dessin canvas pur)             |
-| Logique du jeu              | `src/core/`, `src/world/` (sans Phaser ni DOM, testée)                 |
-| Interfaces utilisateur      | `src/ui/` (Preact)                                                     |
-| Données du monde            | `src/content/` (cartes JSON versionnées, catalogue)                    |
-| Connexion / comptes         | v0.1 : profil local (`src/services/profile.ts`) ; v0.2 : Supabase Auth |
-| Communications multijoueurs | `src/multiplayer/` (interface `Transport` remplaçable) + `server/`     |
-| Personnalisation            | `src/content/avatars.ts` + éditeur `src/ui/AvatarEditor.tsx`           |
-| Persistance                 | `src/services/storage.ts` (local) ; v0.2 : base de données             |
-| Modération / administration | prévu v0.2+ (voir SECURITY.md, DATABASE.md)                            |
-| Fonctions communautaires    | données dans `src/content/`, panneaux dans `src/ui/panels/`            |
+| Responsabilité              | Emplacement                                                                                                                     |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Moteur de rendu             | `src/game/` (Phaser) + `src/game/art/` (dessin canvas pur)                                                                      |
+| Logique du jeu              | `src/core/`, `src/world/` (sans Phaser ni DOM, testée)                                                                          |
+| Interfaces utilisateur      | `src/ui/` (Preact)                                                                                                              |
+| Données du monde            | `src/content/` (cartes JSON versionnées, catalogue)                                                                             |
+| Connexion / comptes         | `src/services/account.ts` (Supabase Auth, chargé à la demande), `src/ui/AccountBox.tsx` ; visiteurs : `src/services/profile.ts` |
+| Communications multijoueurs | `src/multiplayer/` (interface `Transport` remplaçable) + `server/`                                                              |
+| Personnalisation            | `src/content/avatars.ts` + éditeur `src/ui/AvatarEditor.tsx`                                                                    |
+| Persistance                 | `src/services/storage.ts` (local) ; profils en base : `supabase/migrations/`                                                    |
+| Modération / administration | prévu v0.2+ (voir SECURITY.md, DATABASE.md)                                                                                     |
+| Fonctions communautaires    | données dans `src/content/`, panneaux dans `src/ui/panels/`                                                                     |
 
 ## 3. Flux principaux
 
@@ -139,6 +139,12 @@ navigateur ── WebSocket ──► Worker (server/src/index.ts) ──► Dur
 - **Côté jeu**, `ServerTransport` est choisi seulement si `VITE_REALTIME_URL` est défini
   (`src/config.ts`) ; il se reconnecte tout seul (attente croissante) et respecte les refus du
   serveur (salle pleine, maintenance…). La CSP est générée au build pour autoriser cette adresse.
+
+**Comptes (v0.2).** `src/services/account.ts` charge les clients Supabase (`@supabase/auth-js`,
+`@supabase/postgrest-js`, ≈ 28 Ko gzip) **seulement** pour un joueur connecté ou qui se connecte ;
+les visiteurs ne les téléchargent pas. Le jeu attend de savoir si le joueur est connecté avant de
+démarrer (l’identifiant réseau en dépend), puis le Worker vérifie le jeton auprès de la base.
+Voir [COMPTES.md](COMPTES.md).
 
 Détails : [REALTIME_NETWORK.md](REALTIME_NETWORK.md). Restent à venir : Cloudflare Pages (mise en
 ligne), Supabase (comptes, profils, logements, règles d’accès RLS) — voir

@@ -94,12 +94,16 @@ Bitwarden), et activer la double authentification partout.
 
 ### Inventaire des secrets et des comptes
 
-| Nom                     | Rôle                                                                                                | Stocké dans                                                                            | Statut                     |
-| ----------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------------- |
-| `CLOUDFLARE_API_TOKEN`  | Mise en ligne depuis GitHub (workflow « Mise en ligne »), voir [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md) | GitHub → Secrets                                                                       | À créer par le responsable |
-| `CLOUDFLARE_ACCOUNT_ID` | Identifiant du compte Cloudflare (non secret)                                                       | GitHub → Secrets                                                                       | À créer par le responsable |
-| Compte Cloudflare       | Héberge le site (Pages) et le serveur temps réel (Worker)                                           | Cloudflare (connexion avec le compte Google du responsable)                            | ✅ Créé le 19/10/2026      |
-| Clés Supabase (prévu)   | Connexion des joueurs et base de données                                                            | Cloudflare + GitHub → Secrets (la clé « service » ne va **jamais** dans le navigateur) | À créer (v0.2)             |
+| Nom                                              | Rôle                                                                                                | Stocké dans                                                     | Statut                             |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ---------------------------------- |
+| `CLOUDFLARE_API_TOKEN`                           | Mise en ligne depuis GitHub (workflow « Mise en ligne »), voir [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md) | GitHub → Secrets                                                | À créer par le responsable         |
+| `CLOUDFLARE_ACCOUNT_ID`                          | Identifiant du compte Cloudflare (non secret)                                                       | GitHub → Secrets                                                | À créer par le responsable         |
+| Compte Cloudflare                                | Héberge le site (Pages) et le serveur temps réel (Worker)                                           | Cloudflare (connexion avec le compte Google du responsable)     | ✅ Créé le 19/10/2026              |
+| Projet Supabase `malinosland`                    | Comptes joueurs et base de données (Paris, offre gratuite)                                          | Supabase (organisation « Mickael »)                             | ✅ Créé le 19/10/2026              |
+| Clé publique Supabase (`sb_publishable_…`)       | Connexion du jeu et du serveur à la base (pas un secret)                                            | En clair dans `.github/workflows/deploy.yml`                    | ✅                                 |
+| Client secret GitHub OAuth (app « MalinosLand ») | Connexion avec GitHub                                                                               | Supabase → Sign In / Providers → GitHub                         | À créer ([COMPTES.md](COMPTES.md)) |
+| Client secret Google OAuth                       | Connexion avec Google                                                                               | Supabase → Sign In / Providers → Google                         | À créer ([COMPTES.md](COMPTES.md)) |
+| Clé `secret` / `service_role` Supabase           | Aucun usage aujourd’hui                                                                             | Reste dans Supabase : **jamais** dans le dépôt ni le navigateur | —                                  |
 
 ### Réglage actuel de la protection de `main`
 

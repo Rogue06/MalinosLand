@@ -17,6 +17,8 @@ export interface RemotePeer extends PeerState {
   name: string;
   look: AvatarAppearance;
   lastSeen: number;
+  /** Connecté à son compte (garanti par le serveur temps réel). */
+  verified: boolean;
 }
 
 export interface NetworkEvents extends Record<string, unknown> {
@@ -217,8 +219,8 @@ export class NetworkClient {
     const peer = this.peers.get(msg.id);
     switch (msg.t) {
       case 'hello': {
-        const { t: _t, reply, ...rest } = msg;
-        const next: RemotePeer = { ...rest, lastSeen: t };
+        const { t: _t, reply, v, ...rest } = msg;
+        const next: RemotePeer = { ...rest, lastSeen: t, verified: v === true };
         const isNew = !peer;
         this.peers.set(msg.id, next);
         this.events.emit(isNew ? 'join' : 'update', next);
@@ -240,7 +242,12 @@ export class NetworkClient {
       }
       case 'look': {
         if (!peer) return;
-        Object.assign(peer, { name: msg.name, look: msg.look, lastSeen: t });
+        Object.assign(peer, {
+          name: msg.name,
+          look: msg.look,
+          lastSeen: t,
+          verified: msg.v === true,
+        });
         this.events.emit('look', peer);
         break;
       }

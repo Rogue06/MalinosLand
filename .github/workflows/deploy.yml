@@ -26,6 +26,11 @@ jobs:
       WRANGLER_SEND_METRICS: 'false'
       PAGES_PROJECT: malinosland
       WORKER_NAME: malinosland-realtime
+      # Comptes joueurs (Supabase) : adresse du projet et clé PUBLIQUE « publishable ».
+      # Ce ne sont pas des secrets (elles sont visibles dans le navigateur) ; les droits sont
+      # vérifiés par la base (RLS). Ne JAMAIS mettre ici une clé « secret » ou « service_role ».
+      SUPABASE_URL: https://xezisaqffltiuyeblknt.supabase.co
+      SUPABASE_KEY: sb_publishable_3pEGlD_n2oskzf460JHjJg_gahrc6QQ
     steps:
       - name: Vérifier que les secrets sont configurés
         run: |
@@ -85,12 +90,17 @@ jobs:
         env:
           SITE_ORIGIN: ${{ steps.pages.outputs.origin }}
         # Seul le site en ligne a le droit de se connecter au serveur.
-        run: npx wrangler deploy --var "ALLOWED_ORIGINS:$SITE_ORIGIN"
+        run: >-
+          npx wrangler deploy --var "ALLOWED_ORIGINS:$SITE_ORIGIN"
+          --var "SUPABASE_URL:$SUPABASE_URL" --var "SUPABASE_KEY:$SUPABASE_KEY"
 
       - name: Construire le jeu (connecté au serveur)
         env:
           WORKER_URL: ${{ steps.worker.outputs.url }}
-        run: VITE_REALTIME_URL="wss://${WORKER_URL#https://}/ws" npm run build
+        run: |
+          export VITE_REALTIME_URL="wss://${WORKER_URL#https://}/ws"
+          export VITE_SUPABASE_URL="$SUPABASE_URL" VITE_SUPABASE_PUBLISHABLE_KEY="$SUPABASE_KEY"
+          npm run build
 
       - name: Mettre en ligne le site
         run: server/node_modules/.bin/wrangler pages deploy dist --project-name "$PAGES_PROJECT" --branch main --commit-dirty=true

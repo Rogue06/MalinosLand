@@ -26,10 +26,13 @@
     "server:dev": "npm --prefix server run dev"
   },
   "dependencies": {
+    "@supabase/auth-js": "^2.118.0",
+    "@supabase/postgrest-js": "^2.118.0",
     "phaser": "^4.2.1",
     "preact": "^11.0.1"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.3.16",
     "@eslint/js": "^10.0.1",
     "eslint": "^10.13.0",
     "globals": "^17.13.0",
