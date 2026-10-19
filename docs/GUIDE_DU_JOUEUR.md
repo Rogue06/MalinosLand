@@ -1,9 +1,11 @@
 # Guide du joueur
 
-Bienvenue dans MalinosLand ! Ce guide explique comment jouer à la **version 0.1**.
+Bienvenue dans MalinosLand ! Pour jouer, ouvre **[malinosland.pages.dev](https://malinosland.pages.dev)** : rien à installer.
 
-> Rappel : la v0.1 est un **prototype**. Ton personnage est enregistré **uniquement dans ton
-> navigateur** (aucun compte, rien n’est envoyé sur Internet). Le vrai multijoueur arrive en v0.2.
+> Rappel : c’est encore un **prototype** (v0.2 en cours). Il n’y a pas encore de compte : ton
+> personnage est enregistré **dans ton navigateur**. En ligne, ton pseudo, ton apparence, ta
+> position et tes messages sont transmis en direct aux autres joueurs connectés (le serveur ne les
+> conserve pas). Le badge « En ligne » en haut de l’écran indique que tu es connecté.
 
 ## 1. Créer son personnage
 

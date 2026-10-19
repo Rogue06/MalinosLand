@@ -6,6 +6,9 @@
 > fois**, donner à GitHub une « clé » (jeton d’API) qui l’autorise à publier sur le compte
 > Cloudflare. Seul le responsable du projet fait ces étapes.
 
+**État : en ligne depuis le 19/10/2026.** Jeu : <https://malinosland.pages.dev> · serveur :
+`https://malinosland-realtime.roguenftproject.workers.dev` (`/health` pour vérifier qu’il répond).
+
 ## Préparation (une seule fois, ≈ 10 minutes)
 
 ### Étape 1 — Choisir l’adresse du serveur (`workers.dev`)

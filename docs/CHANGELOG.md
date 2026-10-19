@@ -5,6 +5,17 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Mis en ligne
+
+- **Le jeu est en ligne** le 19/10/2026 : https://malinosland.pages.dev (Cloudflare Pages) avec le serveur temps réel
+  (Cloudflare Worker), en offre gratuite.
+
+### Corrigé (textes)
+
+- Les textes « aucune donnée envoyée » étaient faux en ligne : ils indiquent maintenant ce qui est
+  transmis (pseudo, apparence, position, messages, non conservés) selon le mode du jeu.
+- Feuille de route du jeu : v0.1 terminée, v0.2 en cours.
+
 ### Ajouté (mise en ligne)
 
 - Workflow GitHub « Mise en ligne » (lancé à la main) : vérifie le projet, publie le serveur temps

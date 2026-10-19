@@ -10,7 +10,7 @@ export const ROADMAP: RoadmapStep[] = [
   {
     version: '0.1',
     title: 'Prototype jouable',
-    status: 'current',
+    status: 'done',
     items: [
       'Le Hub en isométrique',
       'Avatar personnalisable',
@@ -22,12 +22,12 @@ export const ROADMAP: RoadmapStep[] = [
   {
     version: '0.2',
     title: 'Première expérience multijoueur',
-    status: 'planned',
+    status: 'current',
     items: [
-      'Comptes et profils',
-      'Joueurs en ligne',
-      'Chat local et général',
-      'Déploiement gratuit',
+      'Joueurs en ligne ✓',
+      'Chat local et général ✓',
+      'Mise en ligne gratuite ✓',
+      'Comptes et profils (bientôt)',
     ],
   },
   {
