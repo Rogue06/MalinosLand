@@ -61,9 +61,16 @@ function setup(opts: { maxPerRoom?: number; budget?: number } = {}) {
     return c;
   };
   const say = (c: FakeConn, msg: object) => hub.onMessage(c, JSON.stringify(msg));
+  /** Nouvelle connexion sans présentation. */
+  const connect = () => {
+    const c = new FakeConn();
+    conns.push(c);
+    return c;
+  };
   return {
     hub,
     join,
+    connect,
     say,
     advance: (ms: number) => (t += ms),
     setCount: (n: number) => (count = n),
@@ -226,6 +233,53 @@ describe('serveur temps réel', () => {
       const b = join('bbbbbbbb22');
       say(a, { t: 'look', id: 'aaaaaaaa11', name: 'Malin', look: DEFAULT_APPEARANCE, v: true });
       expect(b.of('look').at(-1)?.v).toBeUndefined();
+    });
+  });
+
+  describe('reconnexion (onglet revenu au premier plan)', () => {
+    const helloWithKey = (k: string | undefined) => ({
+      t: 'hello',
+      id: 'aaaaaaaa11',
+      name: 'Alice',
+      look: DEFAULT_APPEARANCE,
+      reply: false,
+      room: 'hub',
+      x: 12,
+      y: 21,
+      f: 'py',
+      s: 0,
+      ...(k ? { k } : {}),
+    });
+
+    it('la même session remplace son ancienne connexion, sans annoncer de départ', () => {
+      const { hub, join, connect } = setup();
+      const b = join('bbbbbbbb22');
+      const first = connect();
+      const second = connect();
+      hub.onMessage(first, JSON.stringify(helloWithKey('cle0session0alice')));
+      hub.onMessage(second, JSON.stringify(helloWithKey('cle0session0alice')));
+      expect(first.closed?.code).toBe(CLOSE_CODES.duplicate);
+      expect(second.closed).toBeNull();
+      hub.onClose(first);
+      expect(b.of('bye')).toHaveLength(0);
+      expect(second.of('hello').map((m) => m.id)).toContain('bbbbbbbb22');
+    });
+
+    it('sans la bonne clé, impossible de prendre la place d’un autre', () => {
+      const { join, say } = setup();
+      const alice = join('aaaaaaaa11');
+      say(alice, helloWithKey('cle0session0alice'));
+      const thief = join('aaaaaaaa11');
+      expect(thief.closed?.code).toBe(CLOSE_CODES.duplicate);
+      expect(alice.closed).toBeNull();
+    });
+
+    it('la clé de session n’est jamais transmise aux autres joueurs', () => {
+      const { join, hub, connect } = setup();
+      const b = join('bbbbbbbb22');
+      const a = connect();
+      hub.onMessage(a, JSON.stringify(helloWithKey('cle0session0alice')));
+      expect(b.of('hello').find((m) => m.id === 'aaaaaaaa11')?.k).toBeUndefined();
     });
   });
 });
