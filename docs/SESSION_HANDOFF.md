@@ -3,8 +3,8 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 19/10/2026 (soir) — comptes joueurs EN LIGNE : connexion Google
-testée avec succès par le responsable ; jeu : https://malinosland.pages.dev.**
+**Dernière mise à jour : 20/10/2026 — en ligne : comptes, masquer / signaler, modération,
+boîte à idées et borne à bugs, correctifs d’affichage (PR #11 à #14 fusionnées et mises en ligne).**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -38,15 +38,15 @@ testée avec succès par le responsable ; jeu : https://malinosland.pages.dev.**
 - **20/10 (suite, responsable absent — autorisation de fusionner)** — PR #12 (masquer/signaler)
   fusionnée, tables appliquées sur Supabase, responsable ajouté comme modérateur. PR #13 : assises
   contre le dossier + casque vu de dos (écouteur caché non dessiné) + tri d’affichage limité aux
-  pièces qui se recouvrent. Branche `feature/boite-a-idees` : Boîte à idées 💡 et Borne à bugs 🐞
-  (hall, coin gauche près de l’entrée), table `feedback`, onglet « Idées & bugs » en modération avec
-  ticket GitHub prérempli. Envoi réel vers Supabase non testé de bout en bout (réseau de la session).
+  pièces qui se recouvrent. PR #14 : Boîte à idées 💡 et Borne à bugs 🐞 (hall, coin gauche près de
+  l’entrée), table `feedback`, onglet « Idées & bugs » en modération avec ticket GitHub prérempli.
+  Tout est fusionné, appliqué sur Supabase (insertion visiteur vérifiée en SQL) et en ligne.
 
 - **20/10** — Modération v0.2 (branche `feature/masquer-signaler`) : liste des joueurs
   connectés (bouton « N Malinos »), masquer (local), signaler (compte, table `reports`, 10/jour),
   page 🛡️ Modération (table `moderators`, `is_moderator()`). Migration
-  `20261020090000_reports.sql` testée avec PGlite ; **à appliquer sur Supabase à la fusion**, puis
-  ajouter le responsable comme modérateur. Envoi d’un signalement et page de modération **pas
+  `20261020090000_reports.sql` appliquée ; le responsable (compte Google « Mickael ») est
+  modérateur. Envoi d’un signalement et page de modération **pas
   testés de bout en bout** (la session Claude ne joint pas supabase.co).
 
 - **19/10 (soir, fin)** — PR #8 (comptes), #9 (onglet en arrière-plan : joueur oublié / « solo »),
@@ -98,10 +98,12 @@ testée avec succès par le responsable ; jeu : https://malinosland.pages.dev.**
 
 ## Points en attente de décision du responsable
 
-1. Tester la connexion **GitHub** sur le site (Google fonctionne).
-2. Supprimer les branches fusionnées sur GitHub et cocher « Automatically delete head branches ».
-3. Optionnel : exiger les vérifications de la CI dans la règle de protection.
-4. **DEC-009** — licence MIT (ou AGPL-3.0).
+1. Tester en ligne : envoyer une idée et un bug depuis le jeu, puis les voir dans ⚙️ Réglages →
+   🛡️ Modération ; signaler un visiteur depuis un compte (fenêtre privée).
+2. Choisir les prochaines « petites fonctionnalités de confort » (à discuter).
+3. Tester la connexion GitHub (Google fonctionne).
+4. Supprimer les branches fusionnées sur GitHub et cocher « Automatically delete head branches ».
+5. **DEC-009** — licence MIT (ou AGPL-3.0).
 
 ## Problèmes connus / limites
 
