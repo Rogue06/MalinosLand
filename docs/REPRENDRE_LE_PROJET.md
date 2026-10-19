@@ -94,12 +94,12 @@ Bitwarden), et activer la double authentification partout.
 
 ### Inventaire des secrets et des comptes
 
-| Nom                             | Rôle                                          | Stocké dans                                                                            | Statut         |
-| ------------------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------- | -------------- |
-| _(aucun pour l’instant)_        | La v0.1 fonctionne sans aucun secret          | —                                                                                      | —              |
-| `CLOUDFLARE_API_TOKEN` (prévu)  | Mise en ligne automatique depuis GitHub       | GitHub → Secrets                                                                       | À créer (v0.2) |
-| `CLOUDFLARE_ACCOUNT_ID` (prévu) | Identifiant du compte Cloudflare (non secret) | GitHub → Variables                                                                     | À créer (v0.2) |
-| Clés Supabase (prévu)           | Connexion des joueurs et base de données      | Cloudflare + GitHub → Secrets (la clé « service » ne va **jamais** dans le navigateur) | À créer (v0.2) |
+| Nom                     | Rôle                                                                                                | Stocké dans                                                                            | Statut                     |
+| ----------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------------- |
+| `CLOUDFLARE_API_TOKEN`  | Mise en ligne depuis GitHub (workflow « Mise en ligne »), voir [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md) | GitHub → Secrets                                                                       | À créer par le responsable |
+| `CLOUDFLARE_ACCOUNT_ID` | Identifiant du compte Cloudflare (non secret)                                                       | GitHub → Secrets                                                                       | À créer par le responsable |
+| Compte Cloudflare       | Héberge le site (Pages) et le serveur temps réel (Worker)                                           | Cloudflare (connexion avec le compte Google du responsable)                            | ✅ Créé le 19/10/2026      |
+| Clés Supabase (prévu)   | Connexion des joueurs et base de données                                                            | Cloudflare + GitHub → Secrets (la clé « service » ne va **jamais** dans le navigateur) | À créer (v0.2)             |
 
 ### Réglage actuel de la protection de `main`
 

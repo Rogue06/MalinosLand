@@ -92,6 +92,10 @@ de fournisseur = écrire un nouveau transport et/ou migrer un dump Postgres.
 - ✅ Hibernation des WebSockets : le serveur ne consomme pas de temps de calcul quand personne ne
   parle ; les « ping » de maintien de connexion reçoivent une réponse automatique non facturée.
 - ✅ Plafond de 40 joueurs par salle, limites de débit par connexion.
+- Temps de calcul du Durable Object : une **seule** instance éveillée au plus 24 h par jour reste
+  sous la durée gratuite quotidienne (≈ 13 000 Go·s, soit ≈ 28 h pour 128 Mo — à re-vérifier).
+- Mise en ligne : workflow GitHub « Mise en ligne », lancé à la main (voir
+  [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md)).
 - Politique de saturation prévue, dans l’ordre (1, 2, 4 et 5 sont en place ; la file d’attente
   est remplacée pour l’instant par un message « salle pleine » et un nouvel essai automatique) :
   1. réduire la fréquence de synchronisation (ordre envoyé aux clients) ;

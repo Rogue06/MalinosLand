@@ -5,6 +5,14 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (mise en ligne)
+
+- Workflow GitHub « Mise en ligne » (lancé à la main) : vérifie le projet, publie le serveur temps
+  réel (Cloudflare Worker) et le jeu (Cloudflare Pages), puis vérifie que tout répond.
+- Guide `docs/MISE_EN_LIGNE.md` : sous-domaine `workers.dev`, jeton d’API, secrets GitHub, bouton
+  de mise en ligne, dépannage, mise hors ligne.
+- CI : préparation à blanc du serveur (`wrangler deploy --dry-run`), sans compte.
+
 ### Ajouté (v0.2 — serveur temps réel)
 
 - Serveur temps réel `server/` (Cloudflare Worker + Durable Object, hibernation des WebSockets) :

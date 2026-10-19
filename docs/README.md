@@ -27,6 +27,7 @@ Pas besoin de tout lire ! Choisis ton chemin.
 | Multijoueur                 | [REALTIME_NETWORK.md](REALTIME_NETWORK.md)       |
 | Base de données             | [DATABASE.md](DATABASE.md)                       |
 | Hébergement gratuit, quotas | [FREE_INFRASTRUCTURE.md](FREE_INFRASTRUCTURE.md) |
+| Mettre le jeu en ligne      | [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md)             |
 | Sécurité, modération        | [SECURITY.md](SECURITY.md)                       |
 | Tests et performances       | [TESTING.md](TESTING.md)                         |
 | Liste des fonctionnalités   | [FEATURE_BACKLOG.md](FEATURE_BACKLOG.md)         |

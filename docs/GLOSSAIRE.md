@@ -33,19 +33,22 @@ Les mots techniques utilisés dans le projet, expliqués simplement.
 
 ## Technique
 
-| Mot                       | Explication                                                                                                |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| **Navigateur**            | Chrome, Firefox, Edge, Safari… Le jeu fonctionne dedans, sans installation.                                |
-| **Build**                 | La transformation du code en fichiers prêts à être mis en ligne.                                           |
-| **Test automatique**      | Un petit programme qui vérifie qu’une partie du jeu fonctionne comme prévu.                                |
-| **Phaser**                | Le moteur de jeu utilisé pour afficher le monde.                                                           |
-| **Preact**                | La bibliothèque utilisée pour l’interface (menus, chat, fenêtres).                                         |
-| **TypeScript**            | Le langage de programmation du projet (du JavaScript avec des vérifications en plus).                      |
-| **Hébergement**           | Le service qui met le jeu en ligne pour que tout le monde y accède.                                        |
-| **Serveur temps réel**    | Le programme qui transmet en direct les déplacements et messages entre joueurs (v0.2).                     |
-| **Base de données**       | L’endroit où seront enregistrés les comptes, avatars et logements (v0.2).                                  |
-| **Quota**                 | La quantité maximale gratuite qu’un service accepte (par exemple un nombre de messages par jour).          |
-| **Offre gratuite**        | La formule sans paiement d’un service en ligne. MalinosLand n’utilise que celles-ci.                       |
-| **Cloudflare / Supabase** | Les services gratuits choisis pour héberger le jeu et les comptes (offres gratuites, sans carte bancaire). |
-| **RLS**                   | Des règles dans la base de données qui empêchent, par exemple, d’entrer dans un logement privé.            |
-| **CSP**                   | Une protection du navigateur qui bloque les scripts malveillants.                                          |
+| Mot                           | Explication                                                                                                  |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **Navigateur**                | Chrome, Firefox, Edge, Safari… Le jeu fonctionne dedans, sans installation.                                  |
+| **Build**                     | La transformation du code en fichiers prêts à être mis en ligne.                                             |
+| **Test automatique**          | Un petit programme qui vérifie qu’une partie du jeu fonctionne comme prévu.                                  |
+| **Phaser**                    | Le moteur de jeu utilisé pour afficher le monde.                                                             |
+| **Preact**                    | La bibliothèque utilisée pour l’interface (menus, chat, fenêtres).                                           |
+| **TypeScript**                | Le langage de programmation du projet (du JavaScript avec des vérifications en plus).                        |
+| **Hébergement**               | Le service qui met le jeu en ligne pour que tout le monde y accède.                                          |
+| **Serveur temps réel**        | Le programme qui transmet en direct les déplacements et messages entre joueurs (v0.2).                       |
+| **Base de données**           | L’endroit où seront enregistrés les comptes, avatars et logements (v0.2).                                    |
+| **Quota**                     | La quantité maximale gratuite qu’un service accepte (par exemple un nombre de messages par jour).            |
+| **Offre gratuite**            | La formule sans paiement d’un service en ligne. MalinosLand n’utilise que celles-ci.                         |
+| **Cloudflare / Supabase**     | Les services gratuits choisis pour héberger le jeu et les comptes (offres gratuites, sans carte bancaire).   |
+| **RLS**                       | Des règles dans la base de données qui empêchent, par exemple, d’entrer dans un logement privé.              |
+| **CSP**                       | Une protection du navigateur qui bloque les scripts malveillants.                                            |
+| **Jeton d’API**               | Une « clé » secrète qui autorise un programme (ici GitHub) à agir sur un compte (ici Cloudflare).            |
+| **Secret GitHub**             | Une valeur rangée chiffrée dans les réglages du dépôt, utilisable par les vérifications mais jamais lisible. |
+| **Workflow (GitHub Actions)** | Une suite d’étapes automatiques lancée par GitHub : tests à chaque PR, ou mise en ligne au clic.             |
