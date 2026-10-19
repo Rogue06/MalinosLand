@@ -64,6 +64,13 @@ export function TopBar({
         <button class="icon-btn" onClick={() => panelStore.set('roadmap')} title="Feuille de route">
           🗺️
         </button>
+        <button
+          class="icon-btn"
+          onClick={() => panelStore.set('ideas')}
+          title="Boîte à idées et bugs"
+        >
+          💡
+        </button>
         <button class="icon-btn" onClick={() => panelStore.set('help')} title="Aide et commandes">
           ❔
         </button>

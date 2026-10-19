@@ -176,3 +176,15 @@ l’équipe, sans serveur payant ni outil externe.
   Editor ; fonction `is_moderator()` utilisée par les règles. Page de modération dans le jeu.
   **Conséquences.** Aucune donnée de modération n’est lisible par les joueurs. Exclure un joueur du
   serveur temps réel viendra ensuite (le Worker devra lire une liste d’exclusion).
+
+## DEC-017 — Boîte à idées et borne à bugs dans le jeu (20/10/2026)
+
+**Contexte.** Les joueurs doivent pouvoir remonter idées et bugs sans compte GitHub, de façon
+ludique, et ces retours doivent arriver aux contributeurs.
+**Décision.** Deux objets dans le hall (et un bouton 💡) ouvrent un formulaire. Les messages vont
+dans la table `feedback` (ouverte à tous, même aux visiteurs, auteur imposé par la base, limites
+anti-abus par déclencheur). Les modérateurs les lisent dans la page de modération et créent en un
+clic un ticket GitHub prérempli (relu avant publication) : pas de jeton GitHub ni de secret dans le
+jeu ou le serveur.
+**Conséquences.** Les contributeurs ne voient que les tickets retenus. Une publication automatique
+vers GitHub serait possible plus tard (workflow avec un jeton dédié), si le volume le justifie.

@@ -49,7 +49,16 @@ export interface ZoneDef {
 }
 
 /** Identifiants des panneaux d'interface ouvrables depuis le monde. */
-export const PANEL_IDS = ['welcome', 'roadmap', 'elevator', 'tips', 'events', 'avatar'] as const;
+export const PANEL_IDS = [
+  'welcome',
+  'roadmap',
+  'elevator',
+  'tips',
+  'events',
+  'avatar',
+  'ideas',
+  'bugs',
+] as const;
 export type PanelId = (typeof PANEL_IDS)[number];
 
 export type InteractionDef =

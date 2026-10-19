@@ -35,6 +35,13 @@ testée avec succès par le responsable ; jeu : https://malinosland.pages.dev.**
 
 ## Dernières sessions
 
+- **20/10 (suite, responsable absent — autorisation de fusionner)** — PR #12 (masquer/signaler)
+  fusionnée, tables appliquées sur Supabase, responsable ajouté comme modérateur. PR #13 : assises
+  contre le dossier + casque vu de dos (écouteur caché non dessiné) + tri d’affichage limité aux
+  pièces qui se recouvrent. Branche `feature/boite-a-idees` : Boîte à idées 💡 et Borne à bugs 🐞
+  (hall, coin gauche près de l’entrée), table `feedback`, onglet « Idées & bugs » en modération avec
+  ticket GitHub prérempli. Envoi réel vers Supabase non testé de bout en bout (réseau de la session).
+
 - **20/10** — Modération v0.2 (branche `feature/masquer-signaler`) : liste des joueurs
   connectés (bouton « N Malinos »), masquer (local), signaler (compte, table `reports`, 10/jour),
   page 🛡️ Modération (table `moderators`, `is_moderator()`). Migration

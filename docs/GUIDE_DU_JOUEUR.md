@@ -137,7 +137,11 @@ Clique sur **« N Malinos »** en haut de l’écran : la liste des joueurs conn
 - **Signaler** (compte nécessaire) : choisis un motif, ajoute des précisions si tu veux. Ses
   derniers messages sont joints automatiquement. L’équipe de modération regarde chaque signalement.
 
-## 10. Un problème ?
+## 10. Une idée ? Un bug ?
 
-Signale-le en ouvrant une [issue « Bug »](https://github.com/Rogue06/MalinosLand/issues/new/choose) :
-explique ce que tu faisais, ton navigateur, et si possible ajoute une capture d’écran.
+Dans le hall, près de l’entrée, la **Boîte à idées** 💡 et la **Borne à bugs** 🐞 t’attendent
+(aussi accessibles avec le bouton 💡 en haut de l’écran). Écris ton message, il arrive directement
+à l’équipe, même sans compte. Les meilleures idées deviennent des tâches pour les contributeurs.
+
+Tu as un compte GitHub ? Tu peux aussi ouvrir une
+[issue](https://github.com/Rogue06/MalinosLand/issues/new/choose) et en discuter avec eux.

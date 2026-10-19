@@ -1,22 +1,41 @@
 import { useEffect, useState } from 'preact/hooks';
+import { SUPABASE_KEY, SUPABASE_URL } from '../../config';
 import {
   AccountError,
   accountStore,
+  listFeedback,
   listReports,
+  sendFeedback,
   sendReport,
+  setFeedbackStatus,
   setReportStatus,
+  type FeedbackKind,
+  type FeedbackRow,
   type ReportRow,
 } from '../../services/account';
 import {
+  FEEDBACK_MAX,
+  FEEDBACK_MIN,
+  GITHUB_NEW_ISSUE,
   REPORT_DETAILS_MAX,
   REPORT_REASONS,
   buildReport,
+  cleanFeedback,
+  githubIssueUrl,
   hiddenStore,
   hidePlayer,
   unhidePlayer,
   type ReportReason,
 } from '../../services/moderation';
-import { chatStore, presenceStore, pushToast, type PresenceEntry } from '../../state';
+import { profileStore } from '../../services/profile';
+import {
+  chatStore,
+  panelStore,
+  presenceStore,
+  pushToast,
+  zoneStore,
+  type PresenceEntry,
+} from '../../state';
 import { useStore } from '../hooks';
 import { Modal } from './Modal';
 
@@ -165,6 +184,123 @@ export function PlayersPanel() {
   );
 }
 
+const FEEDBACK_TEXT: Record<
+  FeedbackKind,
+  { title: string; icon: string; intro: string; hint: string }
+> = {
+  idee: {
+    title: 'Boîte à idées',
+    icon: '💡',
+    intro:
+      'Une idée pour MalinosLand ? Une salle, un objet, une activité, une amélioration… Toutes les idées sont lues par l’équipe et les meilleures deviennent des tâches pour les contributeurs.',
+    hint: 'Ex. : « Un coin jeux de société dans le salon, avec un plateau d’échecs. »',
+  },
+  bug: {
+    title: 'Borne à bugs',
+    icon: '🐞',
+    intro:
+      'Quelque chose ne marche pas ou s’affiche mal ? Décris ce que tu faisais et ce qui s’est passé. Le lieu où tu te trouves et la taille de ton écran sont joints automatiquement.',
+    hint: 'Ex. : « Au salon, mon personnage traverse le canapé quand je clique dessus. »',
+  },
+};
+
+/** Boîte à idées et borne à bugs : ouvertes à tous, même sans compte. */
+export function FeedbackPanel({ kind }: { kind: FeedbackKind }) {
+  const [message, setMessage] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
+  const text = FEEDBACK_TEXT[kind];
+  const online = !!(SUPABASE_URL && SUPABASE_KEY);
+
+  const submit = async () => {
+    const clean = cleanFeedback(message);
+    if (!clean) {
+      setError(`Écris au moins ${FEEDBACK_MIN} caractères.`);
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      await sendFeedback({
+        kind,
+        message: clean,
+        author_name: profileStore.get()?.name ?? null,
+        context: {
+          lieu: zoneStore.get()?.name ?? 'inconnu',
+          version: '0.2',
+          ecran: `${window.innerWidth}×${window.innerHeight}`,
+        },
+      });
+      setSent(true);
+      setMessage('');
+      pushToast(kind === 'bug' ? 'Bug envoyé, merci !' : 'Idée envoyée, merci !', text.icon, 4000);
+    } catch (e) {
+      setError(e instanceof AccountError ? e.message : 'Envoi impossible.');
+    }
+    setBusy(false);
+  };
+
+  return (
+    <Modal title={text.title} icon={text.icon}>
+      <div class="row start">
+        <button
+          type="button"
+          class={`btn small ${kind === 'idee' ? 'primary' : 'ghost'}`}
+          onClick={() => panelStore.set('ideas')}
+        >
+          💡 Une idée
+        </button>
+        <button
+          type="button"
+          class={`btn small ${kind === 'bug' ? 'primary' : 'ghost'}`}
+          onClick={() => panelStore.set('bugs')}
+        >
+          🐞 Un bug
+        </button>
+      </div>
+      <p>{text.intro}</p>
+      {sent && (
+        <p class="notice">Merci ! C’est bien arrivé. Tu peux en envoyer une autre si tu veux.</p>
+      )}
+      {online ? (
+        <div class="report-form">
+          <textarea
+            rows={5}
+            maxLength={FEEDBACK_MAX}
+            placeholder={text.hint}
+            value={message}
+            onInput={(e) => setMessage((e.target as HTMLTextAreaElement).value)}
+          />
+          <p class="muted small">
+            Envoyé avec ton pseudo. Lu uniquement par l’équipe de modération.
+          </p>
+          {error && <p class="error small">{error}</p>}
+          <div class="row end">
+            <button
+              type="button"
+              class="btn primary small"
+              disabled={busy}
+              onClick={() => void submit()}
+            >
+              Envoyer
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p class="notice">L’envoi depuis le jeu est disponible dans la version en ligne.</p>
+      )}
+      <p class="muted small">
+        Tu as un compte GitHub ? Tu peux aussi{' '}
+        <a href={GITHUB_NEW_ISSUE} target="_blank" rel="noopener noreferrer">
+          ouvrir un ticket directement
+        </a>{' '}
+        et en discuter avec les contributeurs.
+      </p>
+    </Modal>
+  );
+}
+
 function messagesOf(row: ReportRow): string[] {
   return Array.isArray(row.messages)
     ? row.messages.filter((m): m is string => typeof m === 'string').slice(0, 5)
@@ -173,6 +309,105 @@ function messagesOf(row: ReportRow): string[] {
 
 /** Modération : signalements reçus (accessible aux modérateurs, vérifié par la base). */
 export function ModerationPanel() {
+  const [section, setSection] = useState<'reports' | 'feedback'>('reports');
+  return (
+    <Modal title="Modération" icon="🛡️" wide>
+      <div class="row start">
+        <button
+          type="button"
+          class={`btn small ${section === 'reports' ? 'primary' : 'ghost'}`}
+          onClick={() => setSection('reports')}
+        >
+          🚩 Signalements
+        </button>
+        <button
+          type="button"
+          class={`btn small ${section === 'feedback' ? 'primary' : 'ghost'}`}
+          onClick={() => setSection('feedback')}
+        >
+          💡 Idées & bugs
+        </button>
+      </div>
+      {section === 'reports' ? <ReportsList /> : <FeedbackList />}
+    </Modal>
+  );
+}
+
+function FeedbackList() {
+  const [status, setStatus] = useState<'nouveau' | 'traite'>('nouveau');
+  const [rows, setRows] = useState<FeedbackRow[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setRows(null);
+    setError(null);
+    listFeedback(status)
+      .then(setRows)
+      .catch(() => setError('Chargement impossible.'));
+  }, [status]);
+
+  const toggle = async (row: FeedbackRow) => {
+    try {
+      await setFeedbackStatus(row.id, row.status === 'nouveau' ? 'traite' : 'nouveau');
+      setRows((list) => (list ?? []).filter((r) => r.id !== row.id));
+    } catch {
+      setError('Modification impossible.');
+    }
+  };
+
+  return (
+    <>
+      <div class="row start">
+        <button
+          type="button"
+          class={`btn small ${status === 'nouveau' ? 'primary' : 'ghost'}`}
+          onClick={() => setStatus('nouveau')}
+        >
+          Nouveaux
+        </button>
+        <button
+          type="button"
+          class={`btn small ${status === 'traite' ? 'primary' : 'ghost'}`}
+          onClick={() => setStatus('traite')}
+        >
+          Traités
+        </button>
+      </div>
+      {error && <p class="error small">{error}</p>}
+      {rows === null && !error && <p class="muted">Chargement…</p>}
+      {rows?.length === 0 && <p class="muted">Rien pour le moment.</p>}
+      <ul class="reports">
+        {rows?.map((r) => (
+          <li key={r.id}>
+            <div class="player-row">
+              <span class="player-name">
+                {r.kind === 'bug' ? '🐞 Bug' : '💡 Idée'}
+                {r.author_name && <span class="muted"> · {r.author_name}</span>}
+              </span>
+              <span class="muted small">{new Date(r.created_at).toLocaleString('fr-FR')}</span>
+            </div>
+            <p class="small feedback-message">{r.message}</p>
+            <div class="row start">
+              <a
+                class="btn ghost small"
+                href={githubIssueUrl(r)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Créer un ticket GitHub
+              </a>
+              <button type="button" class="btn ghost small" onClick={() => void toggle(r)}>
+                {r.status === 'nouveau' ? 'Marquer comme traité' : 'Remettre en nouveau'}
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+function ReportsList() {
   const [status, setStatus] = useState<'ouvert' | 'traite'>('ouvert');
   const [rows, setRows] = useState<ReportRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -196,7 +431,7 @@ export function ModerationPanel() {
   };
 
   return (
-    <Modal title="Modération" icon="🛡️" wide>
+    <>
       <div class="row start">
         <button
           type="button"
@@ -247,6 +482,6 @@ export function ModerationPanel() {
           </li>
         ))}
       </ul>
-    </Modal>
+    </>
   );
 }

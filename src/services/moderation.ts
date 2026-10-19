@@ -98,3 +98,49 @@ export function buildReport(
     messages,
   };
 }
+
+export const FEEDBACK_MIN = 5;
+export const FEEDBACK_MAX = 1000;
+const REPO_ISSUES = 'https://github.com/Rogue06/MalinosLand/issues';
+
+/** Message de la boîte à idées nettoyé, ou null s'il est trop court. */
+export function cleanFeedback(message: string): string | null {
+  const text = sanitizeText(message, FEEDBACK_MAX);
+  return Array.from(text).length >= FEEDBACK_MIN ? text : null;
+}
+
+/**
+ * Adresse d'un nouveau ticket GitHub prérempli à partir d'une idée ou d'un bug reçu dans le jeu
+ * (le modérateur relit avant de valider).
+ */
+export function githubIssueUrl(item: {
+  kind: 'bug' | 'idee';
+  message: string;
+  author_name: string | null;
+  created_at: string;
+  context?: unknown;
+}): string {
+  const label = item.kind === 'bug' ? 'bug' : 'idée';
+  const first = item.message.split('\n')[0]!.slice(0, 70);
+  const ctx =
+    typeof item.context === 'object' && item.context !== null
+      ? Object.entries(item.context as Record<string, unknown>)
+          .map(([k, v]) => `- ${k} : ${String(v)}`)
+          .join('\n')
+      : '';
+  const body = [
+    `Reçu dans le jeu (${item.kind === 'bug' ? 'borne à bugs' : 'boîte à idées'}) le ${item.created_at.slice(0, 10)}${item.author_name ? ` de ${item.author_name}` : ''}.`,
+    '',
+    item.message,
+    ...(ctx ? ['', 'Contexte :', ctx] : []),
+  ].join('\n');
+  const params = new URLSearchParams({
+    title: `[${label}] ${first}`,
+    body,
+    labels: item.kind === 'bug' ? 'bug' : 'enhancement',
+  });
+  return `${REPO_ISSUES}/new?${params.toString()}`;
+}
+
+/** Ouvrir directement un ticket GitHub (pour qui a un compte GitHub). */
+export const GITHUB_NEW_ISSUE = `${REPO_ISSUES}/new/choose`;

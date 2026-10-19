@@ -241,6 +241,47 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
     box(b, 0.3, 0.36, 0.92, 0.3, 0.24, 0.03, P.coral);
     plantCanopy(b, 2.6, 0.55, 0.92, 0.55, LEAVES);
   },
+  idea_box(b) {
+    box(b, 0.45, 0.45, 0, 0.1, 0.1, 0.55, P.woodDark);
+    box(b, 0.2, 0.3, 0.55, 0.6, 0.42, 0.4, P.wood, {
+      decals: [
+        decal('top', 0.2, 0.42, 0.8, 0.56, P.ink),
+        decal('py', 0.08, 0.12, 0.92, 0.88, '#fbf3df'),
+      ],
+    });
+    b.text({ x: 0.5, y: 0.72, z: 0.75 }, 'py', 'IDÉES', {
+      size: 5,
+      color: P.woodDark,
+      weight: 900,
+      fit: 0.5,
+    });
+    b.cylinder(0.5, 0.5, 0.95, 0.05, 0.05, P.metal);
+    box(b, 0.41, 0.41, 1.0, 0.18, 0.18, 0.18, P.sun, {
+      decals: [decal('py', 0.3, 0.3, 0.7, 0.7, lighten(P.sun, 0.45))],
+    });
+  },
+  bug_kiosk(b) {
+    box(b, 0.2, 0.26, 0, 0.6, 0.5, 0.8, P.slate, {
+      decals: [decal('py', 0.1, 0.55, 0.9, 0.85, darken(P.slate, 0.2))],
+    });
+    b.text({ x: 0.5, y: 0.76, z: 0.5 }, 'py', 'BUGS', {
+      size: 5,
+      color: '#ffffff',
+      weight: 900,
+      fit: 0.5,
+    });
+    box(b, 0.17, 0.3, 0.8, 0.66, 0.12, 0.52, P.ink, {
+      decals: [
+        decal('py', 0.08, 0.08, 0.92, 0.92, '#0d1630'),
+        // Une coccinelle (le « bug ») sur l'écran.
+        decal('py', 0.38, 0.28, 0.62, 0.62, P.coral),
+        decal('py', 0.44, 0.62, 0.56, 0.72, P.ink),
+        decal('py', 0.49, 0.28, 0.51, 0.62, P.ink),
+        decal('py', 0.41, 0.36, 0.46, 0.42, P.ink),
+        decal('py', 0.54, 0.48, 0.59, 0.54, P.ink),
+      ],
+    });
+  },
   board_welcome(b) {
     box(b, 0.18, 0.46, 0, 0.06, 0.06, 0.4, P.slate);
     box(b, 0.76, 0.46, 0, 0.06, 0.06, 0.4, P.slate);

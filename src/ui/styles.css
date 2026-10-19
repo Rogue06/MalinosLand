@@ -196,6 +196,15 @@ a {
 .reports p {
   margin: 4px 0;
 }
+.feedback-message {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+a.btn {
+  display: inline-block;
+  color: inherit;
+  text-decoration: none;
+}
 .report-messages {
   margin: 4px 0;
   padding-left: 16px;
