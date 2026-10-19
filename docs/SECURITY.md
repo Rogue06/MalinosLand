@@ -63,7 +63,9 @@ La démo multi-onglets ne fait **que** du `BroadcastChannel` (même origine, mê
   base). Le signalement contient le motif, des précisions et les 5 derniers messages du joueur vus
   par l’auteur. Table `reports` : écriture par l’auteur seulement, lecture et traitement par les
   **modérateurs** (`public.moderators`, géré à la main ; `is_moderator()`).
-- **Page de modération** dans le jeu (⚙️ Réglages → 🛡️ Modération), visible des modérateurs.
+- **Page de modération** dans le jeu (⚙️ Réglages → 🛡️ Modération), visible des modérateurs :
+  signalements, et onglet « Idées & bugs » (table `feedback`, ouverte en écriture à tous, même
+  sans compte : 10 messages par jour pour un compte, 30 par heure au total pour les visiteurs).
 - À venir : exclure un joueur du serveur temps réel (le code de fermeture 4004 existe déjà),
   suspendre un compte.
 

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   accountFromPlayerId,
+  cleanFeedback,
+  githubIssueUrl,
   buildReport,
   hiddenStore,
   hidePlayer,
@@ -56,5 +58,29 @@ describe('modération côté joueur', () => {
     expect(accountFromPlayerId('bbbbbbbb22')).toBeNull();
     const r = buildReport({ id, name: 'Élodie', verified: true }, 'harcelement', '', []);
     expect(r.reported_account).toBe('0b1c2d3e-0000-4000-8000-000000000001');
+  });
+});
+
+describe('boîte à idées et bugs', () => {
+  it('message nettoyé, assez long', () => {
+    expect(cleanFeedback('  ok ')).toBeNull();
+    expect(cleanFeedback('  Une piscine\u0000 !  ')).toBe('Une piscine !');
+  });
+
+  it('ticket GitHub prérempli, texte encodé dans l’adresse', () => {
+    const url = new URL(
+      githubIssueUrl({
+        kind: 'bug',
+        message: 'Le banc flotte & disparaît\nau salon',
+        author_name: 'Eve',
+        created_at: '2026-10-20T10:00:00Z',
+        context: { lieu: 'Salon', ecran: '390×780' },
+      }),
+    );
+    expect(url.origin + url.pathname).toBe('https://github.com/Rogue06/MalinosLand/issues/new');
+    expect(url.searchParams.get('title')).toBe('[bug] Le banc flotte & disparaît');
+    expect(url.searchParams.get('labels')).toBe('bug');
+    expect(url.searchParams.get('body')).toContain('(borne à bugs) le 2026-10-20 de Eve');
+    expect(url.searchParams.get('body')).toContain('- lieu : Salon');
   });
 });

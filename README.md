@@ -81,11 +81,11 @@ Pour le lancer sur ton ordinateur (pour contribuer au code) :
 
 Tout le monde peut aider, même sans savoir programmer :
 
-| Tu es…                   | Tu peux…                                                                                                                              |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| 🎮 **Joueur ou curieux** | Tester le jeu, signaler un bug, proposer une idée ([ouvrir une « issue »](https://github.com/Rogue06/MalinosLand/issues/new/choose)). |
-| 🎨 **Créatif**           | Proposer un objet, une décoration, une salle, des textes ou des astuces IA.                                                           |
-| 💻 **Développeur**       | Corriger un bug, ajouter une fonctionnalité, améliorer les performances.                                                              |
+| Tu es…                   | Tu peux…                                                                                                                                                                                                            |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🎮 **Joueur ou curieux** | Tester le jeu, signaler un bug ou proposer une idée **directement dans le jeu** (Boîte à idées 💡 et Borne à bugs 🐞 du hall), ou [ouvrir une « issue »](https://github.com/Rogue06/MalinosLand/issues/new/choose). |
+| 🎨 **Créatif**           | Proposer un objet, une décoration, une salle, des textes ou des astuces IA.                                                                                                                                         |
+| 💻 **Développeur**       | Corriger un bug, ajouter une fonctionnalité, améliorer les performances.                                                                                                                                            |
 
 👉 Commence par le [guide de contribution](docs/CONTRIBUTING.md) ; les mots techniques sont
 expliqués dans le [glossaire](docs/GLOSSAIRE.md).

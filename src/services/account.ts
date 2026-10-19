@@ -278,6 +278,57 @@ export async function setReportStatus(id: number, status: 'ouvert' | 'traite'): 
   if (error) throw explain(error);
 }
 
+export type FeedbackKind = 'bug' | 'idee';
+
+/**
+ * Envoie une idée ou un bug. Ouvert à tous : un visiteur passe par la clé publique (rôle
+ * anonyme), un joueur connecté est reconnu par la base. Limites vérifiées par la base.
+ */
+export async function sendFeedback(row: {
+  kind: FeedbackKind;
+  message: string;
+  author_name: string | null;
+  context: Record<string, string>;
+}): Promise<void> {
+  if (!SUPABASE_URL || !SUPABASE_KEY)
+    throw new AccountError('Envoi indisponible dans cette version.');
+  const { db } = await load();
+  const { error } = await db.from('feedback').insert(row);
+  if (!error) return;
+  if (/Trop de messages/.test(error.message ?? ''))
+    throw new AccountError('Beaucoup de messages en ce moment : réessaie un peu plus tard.');
+  throw explain(error);
+}
+
+export interface FeedbackRow {
+  id: number;
+  created_at: string;
+  kind: FeedbackKind;
+  message: string;
+  author_name: string | null;
+  context: unknown;
+  status: 'nouveau' | 'traite';
+}
+
+/** Idées et bugs (modérateurs seulement : la base renvoie une liste vide aux autres). */
+export async function listFeedback(status: 'nouveau' | 'traite'): Promise<FeedbackRow[]> {
+  const { db } = await load();
+  const { data, error } = await db
+    .from('feedback')
+    .select('id, created_at, kind, message, author_name, context, status')
+    .eq('status', status)
+    .order('created_at', { ascending: false })
+    .limit(50);
+  if (error) throw explain(error);
+  return (data ?? []) as FeedbackRow[];
+}
+
+export async function setFeedbackStatus(id: number, status: 'nouveau' | 'traite'): Promise<void> {
+  const { db } = await load();
+  const { error } = await db.from('feedback').update({ status }).eq('id', id);
+  if (error) throw explain(error);
+}
+
 /** Suppression définitive du compte et du profil en base (RGPD). */
 export async function deleteAccount(): Promise<void> {
   const { auth, db } = await load();

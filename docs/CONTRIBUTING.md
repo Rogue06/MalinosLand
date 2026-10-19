@@ -30,13 +30,14 @@ relues et validées._
 
 ## 2. Sans programmer : comment aider
 
-| Je veux…                               | Comment faire                                                                                                                                                      |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Signaler un bug                        | [Ouvrir une issue « Bug »](https://github.com/Rogue06/MalinosLand/issues/new/choose) : ce que tu faisais, ce qui s’est passé, ton navigateur, une capture d’écran. |
-| Proposer une idée                      | [Ouvrir une issue « Idée »](https://github.com/Rogue06/MalinosLand/issues/new/choose).                                                                             |
-| Proposer un objet, une déco, une salle | [Ouvrir une issue « Contenu »](https://github.com/Rogue06/MalinosLand/issues/new/choose) avec une description et, si possible, un croquis.                         |
-| Soutenir une idée                      | Ajouter une réaction 👍 sur l’issue.                                                                                                                               |
-| Tester sur ton ordinateur              | Suivre [Essayer le jeu](../README.md#essayer-le-jeu) et partager tes impressions (fluidité, bugs).                                                                 |
+| Je veux…                               | Comment faire                                                                                                                                                              |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Le dire depuis le jeu, sans compte     | Dans le hall : la **Boîte à idées** 💡 et la **Borne à bugs** 🐞 (ou le bouton 💡 en haut de l’écran). L’équipe relit et transforme les messages utiles en tickets GitHub. |
+| Signaler un bug                        | [Ouvrir une issue « Bug »](https://github.com/Rogue06/MalinosLand/issues/new/choose) : ce que tu faisais, ce qui s’est passé, ton navigateur, une capture d’écran.         |
+| Proposer une idée                      | [Ouvrir une issue « Idée »](https://github.com/Rogue06/MalinosLand/issues/new/choose).                                                                                     |
+| Proposer un objet, une déco, une salle | [Ouvrir une issue « Contenu »](https://github.com/Rogue06/MalinosLand/issues/new/choose) avec une description et, si possible, un croquis.                                 |
+| Soutenir une idée                      | Ajouter une réaction 👍 sur l’issue.                                                                                                                                       |
+| Tester sur ton ordinateur              | Suivre [Essayer le jeu](../README.md#essayer-le-jeu) et partager tes impressions (fluidité, bugs).                                                                         |
 
 ### Modifier un texte directement sur GitHub (sans rien installer)
 

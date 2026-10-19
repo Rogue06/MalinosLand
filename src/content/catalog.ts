@@ -134,6 +134,22 @@ export const CATALOG: Record<string, CatalogEntry> = {
       quest: 'read_welcome',
     },
   },
+  idea_box: {
+    name: 'Boîte à idées',
+    category: 'decor',
+    footprint: [1, 1],
+    blocking: true,
+    defaultInteraction: { kind: 'panel', label: 'Proposer une idée', panel: 'ideas' },
+    light: { color: 0xffd166, radius: 0.9, z: 1.15 },
+  },
+  bug_kiosk: {
+    name: 'Borne à bugs',
+    category: 'tech',
+    footprint: [1, 1],
+    blocking: true,
+    defaultInteraction: { kind: 'panel', label: 'Signaler un bug', panel: 'bugs' },
+    light: { color: 0xff8a7a, radius: 0.8, z: 1.2 },
+  },
   board_roadmap: {
     name: 'Tableau d’affichage',
     category: 'decor',

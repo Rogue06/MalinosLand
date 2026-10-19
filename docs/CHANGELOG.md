@@ -5,6 +5,13 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (retours des joueurs)
+
+- **Boîte à idées** 💡 et **Borne à bugs** 🐞 dans le hall (et bouton 💡 en haut de l’écran) :
+  ouvertes à tous, même sans compte ; le lieu et la taille d’écran sont joints aux bugs.
+- Table `feedback` (limites : 10 par jour par compte, 30 par heure pour les visiteurs).
+- Page de modération : onglet « Idées & bugs » avec « Créer un ticket GitHub » prérempli.
+
 ### Corrigé (graphismes)
 
 - Personnages assis : les hanches sont maintenant contre le dossier. Vus de dos, ils semblaient

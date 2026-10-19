@@ -225,3 +225,72 @@ describe('base de données : signalements et modération', () => {
     ).rejects.toThrow(/check constraint/);
   });
 });
+
+describe('base de données : boîte à idées et bugs', () => {
+  const MODO = '00000000-0000-4000-8000-0000000000c1';
+  const EVE = '00000000-0000-4000-8000-0000000000e1';
+  const send = (who: string | null, kind = 'idee', message = 'Ajouter une piscine !') =>
+    as(
+      who,
+      `insert into public.feedback (kind, message, author_name, context) values ($1, $2, 'Eve', '{"zone":"hall"}')`,
+      [kind, message],
+    );
+
+  beforeAll(async () => {
+    await db.exec(`insert into auth.users (id) values ('${EVE}') on conflict do nothing`);
+  });
+
+  it('un visiteur comme un joueur connecté peut envoyer une idée ou un bug', async () => {
+    await send(null, 'bug', 'Le banc du jardin flotte');
+    await send(EVE);
+    const rows = await db.query<{ author_id: string | null }>(
+      'select author_id from public.feedback order by id',
+    );
+    expect(rows.rows.map((r) => r.author_id)).toEqual([null, EVE]);
+  });
+
+  it('impossible de se faire passer pour un autre ou de choisir le statut', async () => {
+    await expect(
+      as(
+        EVE,
+        `insert into public.feedback (kind, message, author_id) values ('idee', 'Bonjour !', $1)`,
+        [MODO],
+      ),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      as(
+        null,
+        `insert into public.feedback (kind, message, status) values ('idee', 'Bonjour !', 'traite')`,
+      ),
+    ).rejects.toThrow(/permission denied/);
+  });
+
+  it('message de 5 à 1000 caractères, type connu', async () => {
+    await expect(send(EVE, 'idee', 'ok')).rejects.toThrow(/check constraint/);
+    await expect(send(EVE, 'idee', 'x'.repeat(1001))).rejects.toThrow(/check constraint/);
+    await expect(send(EVE, 'pub', 'Achetez mon produit')).rejects.toThrow(/check constraint/);
+  });
+
+  it('seuls les modérateurs lisent et traitent', async () => {
+    expect((await as(EVE, 'select id from public.feedback')).rows).toHaveLength(0);
+    expect(
+      (await as(null, 'select id from public.feedback').catch(() => ({ rows: [] }))).rows,
+    ).toHaveLength(0);
+    const rows = await as<{ id: number }>(MODO, 'select id from public.feedback order by id');
+    expect(rows.rows.length).toBeGreaterThanOrEqual(2);
+    await as(MODO, `update public.feedback set status = 'traite' where id = $1`, [
+      rows.rows[0]!.id,
+    ]);
+    const byEve = await as(EVE, `update public.feedback set status = 'nouveau' where id = $1`, [
+      rows.rows[0]!.id,
+    ]);
+    expect(byEve.affectedRows).toBe(0);
+  });
+
+  it('limites : 10 par jour pour un joueur connecté, 30 par heure pour les visiteurs', async () => {
+    for (let i = 0; i < 9; i++) await send(EVE);
+    await expect(send(EVE)).rejects.toThrow(/Trop de messages aujourd/);
+    for (let i = 0; i < 29; i++) await send(null);
+    await expect(send(null)).rejects.toThrow(/Trop de messages pour le moment/);
+  });
+});

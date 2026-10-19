@@ -223,6 +223,20 @@
       "id": "welcome-board"
     },
     {
+      "type": "idea_box",
+      "x": 8,
+      "y": 16,
+      "rot": 1,
+      "id": "idea-box"
+    },
+    {
+      "type": "bug_kiosk",
+      "x": 8,
+      "y": 17,
+      "rot": 1,
+      "id": "bug-kiosk"
+    },
+    {
       "type": "board_roadmap",
       "x": 9,
       "y": 11,
