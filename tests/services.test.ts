@@ -55,6 +55,15 @@ describe('profil et réglages', () => {
     });
   });
 
+  it('valide les réglages des sons', () => {
+    expect(parseSettings({ volume: 7, sounds: false, ambience: 'oui' })).toEqual({
+      ...DEFAULT_SETTINGS,
+      volume: 1,
+      sounds: false,
+    });
+    expect(parseSettings({ volume: Number.NaN }).volume).toBe(DEFAULT_SETTINGS.volume);
+  });
+
   it('borne les apparences', () => {
     expect(sanitizeAppearance({ skin: -1, hair: 1.5, top: 9 })).toEqual({
       ...DEFAULT_APPEARANCE,

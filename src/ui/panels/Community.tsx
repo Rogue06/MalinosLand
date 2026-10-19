@@ -136,6 +136,7 @@ export function PlayersPanel() {
                   <span class="player-name">
                     {p.name}
                     {p.verified && <span title="Connecté à son compte"> ✓</span>}
+                    {p.away && <span class="muted"> · absent 💤</span>}
                     {isHidden && <em class="muted"> · masqué</em>}
                   </span>
                   <span class="row-actions">

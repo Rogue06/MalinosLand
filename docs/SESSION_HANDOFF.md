@@ -4,7 +4,8 @@
 > tâche importante.
 
 **Dernière mise à jour : 20/10/2026 — en ligne : comptes, masquer / signaler, modération,
-boîte à idées et borne à bugs, correctifs d’affichage (PR #11 à #14 fusionnées et mises en ligne).**
+boîte à idées et borne à bugs, personnages assis de dos (PR #16), confort : statut « absent »,
+sons, mentions @pseudo, ambiance sonore (PR #17).**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -34,6 +35,17 @@ boîte à idées et borne à bugs, correctifs d’affichage (PR #11 à #14 fusio
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **20/10 (fin, responsable absent — autorisation de fusionner)** — PR #16 : sièges en deux
+  calques (`base` / `front`, DEC-018) : assis de dos, le personnage est devant l’assise et derrière
+  le dossier ; positions signalées en rouge par le responsable corrigées. PR #17 (branche
+  `feature/confort-absent-sons`, DEC-019) : statut « absent » 💤 après 20 s d’onglet caché
+  (message `away`), son discret à l’arrivée d’un message avec anti-spam (`SoundGate`), mentions
+  @pseudo surlignées + carillon, ambiance sonore (oiseaux dehors, claviers au coworking), réglages
+  sons / ambiance / volume. Sons générés en code (Web Audio), aucun fichier. **Pas entendu en vrai**
+  (la session n’a pas de haut-parleurs) : à écouter dans le jeu. Écartés pour l’instant à la
+  demande du responsable : téléportation depuis la mini-carte (F40), vêtements personnalisés (F39,
+  plus tard).
 
 - **20/10 (suite, responsable absent — autorisation de fusionner)** — PR #12 (masquer/signaler)
   fusionnée, tables appliquées sur Supabase, responsable ajouté comme modérateur. PR #13 : assises
@@ -100,7 +112,8 @@ boîte à idées et borne à bugs, correctifs d’affichage (PR #11 à #14 fusio
 
 1. Tester en ligne : envoyer une idée et un bug depuis le jeu, puis les voir dans ⚙️ Réglages →
    🛡️ Modération ; signaler un visiteur depuis un compte (fenêtre privée).
-2. Choisir les prochaines « petites fonctionnalités de confort » (à discuter).
+2. Écouter les sons et l’ambiance (régler le volume si besoin), vérifier le statut « absent »
+   entre deux appareils. Choisir les prochaines « petites fonctionnalités de confort ».
 3. Tester la connexion GitHub (Google fonctionne).
 4. Supprimer les branches fusionnées sur GitHub et cocher « Automatically delete head branches ».
 5. **DEC-009** — licence MIT (ou AGPL-3.0).
@@ -131,7 +144,7 @@ boîte à idées et borne à bugs, correctifs d’affichage (PR #11 à #14 fusio
   `.env.example`, puis `npm run dev` dans deux navigateurs.
 - Débogage / tests automatisés : ajouter `?debug` à l’URL expose `window.__malinosDebug`
   (`pos()`, `state()`, `walkTo(x, y)`, `teleport(x, y, f)`, `zoom(z)`, `use(id)`, `useType(type)`,
-  `seated()`, `peers()`, `fps()`).
+  `sit(type, n)`, `seated()`, `peers()`, `fps()`).
 - Fichiers centraux : `src/game/scenes/WorldScene.ts` (assemblage), `src/world/WorldModel.ts`,
   `src/world/PlayerController.ts`, `src/content/maps/hub.json`, `src/content/catalog.ts`,
   `src/game/art/objects.ts`, `src/game/art/characters.ts`, `src/multiplayer/NetworkClient.ts`,

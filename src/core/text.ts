@@ -25,3 +25,22 @@ export function sanitizeName(input: unknown): string | null {
   if (Array.from(name).length < NAME_MIN_LENGTH) return null;
   return NAME_RE.test(name) ? name : null;
 }
+
+/**
+ * Le message mentionne-t-il ce pseudo (« @Pseudo », sans tenir compte des majuscules) ?
+ * La mention doit être suivie d'une fin de texte, d'un espace ou d'une ponctuation.
+ */
+export function mentions(text: string, name: string): boolean {
+  if (!name) return false;
+  const t = text.toLocaleLowerCase('fr');
+  const needle = `@${name.toLocaleLowerCase('fr')}`;
+  for (let i = t.indexOf(needle); i !== -1; i = t.indexOf(needle, i + 1)) {
+    const prev = i > 0 ? t.charAt(i - 1) : '';
+    const next = t.charAt(i + needle.length);
+    const word = /[\p{L}\p{N}_'-]/u;
+    // « mail@pseudo.fr » n'est pas une mention : l'arobase doit commencer un mot.
+    if (prev !== '' && word.test(prev)) continue;
+    if (next === '' || !word.test(next)) return true;
+  }
+  return false;
+}

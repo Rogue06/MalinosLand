@@ -19,6 +19,8 @@ export interface ChatEntry {
   scope: ChatScope;
   /** Identifiant du joueur qui a écrit (messages de pairs). */
   peerId?: string;
+  /** Le message mentionne le joueur local (@pseudo). */
+  mention?: boolean;
 }
 
 export interface PresenceEntry {
@@ -29,6 +31,8 @@ export interface PresenceEntry {
   room: string;
   /** Connecté à son compte (marque ✓). */
   verified: boolean;
+  /** Absent (onglet caché). */
+  away: boolean;
 }
 
 export interface DialogState {

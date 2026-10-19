@@ -46,6 +46,8 @@ export interface ConnData {
   account: Account | null;
   /** Clé de session d'un visiteur (prouve qu'une reconnexion vient du même onglet). */
   secret: string | null;
+  /** Statut « absent » (onglet caché). */
+  away: boolean;
   /** Identifiant du joueur, fixé par son premier « hello ». */
   id: string | null;
   name: string;
@@ -122,6 +124,7 @@ export function newConnData(key: string, now: number, account: Account | null = 
     key,
     account,
     secret: null,
+    away: false,
     id: null,
     name: '',
     look: null,
@@ -204,6 +207,7 @@ export class RealtimeHub {
       f: c.f,
       s: c.s,
       ...(c.account ? { v: true as const } : {}),
+      ...(c.away ? { a: true as const } : {}),
     };
   }
 
@@ -255,6 +259,7 @@ export class RealtimeHub {
         Object.assign(d, {
           id: msg.id,
           secret: d.account ? null : (msg.k ?? null),
+          away: msg.a === true,
           name: d.account?.name ?? msg.name,
           look: msg.look,
           room: msg.room,
@@ -339,6 +344,13 @@ export class RealtimeHub {
           look: msg.look,
           ...(d.account ? { v: true as const } : {}),
         });
+        return;
+      }
+      case 'away': {
+        if (d.away === msg.on) return;
+        d.away = msg.on;
+        conn.save();
+        this.send(this.others(conn), { t: 'away', id: d.id, on: msg.on });
         return;
       }
       case 'bye':

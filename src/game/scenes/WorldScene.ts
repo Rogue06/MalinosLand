@@ -3,7 +3,8 @@ import { QUESTS } from '../../content/quests';
 import { loadWorld } from '../../content/world';
 import { project, screenInputToWorld, unproject, type Facing, type Vec2 } from '../../core/iso';
 import { facesCamera } from '../../core/rotation';
-import { CHAT_MAX_LENGTH, sanitizeText } from '../../core/text';
+import { SoundGate } from '../../core/soundGate';
+import { CHAT_MAX_LENGTH, mentions, sanitizeText } from '../../core/text';
 import { REALTIME_URL } from '../../config';
 import { NetworkClient, type RemotePeer } from '../../multiplayer/NetworkClient';
 import { ServerTransport } from '../../multiplayer/ServerTransport';
@@ -17,6 +18,7 @@ import {
 } from '../../multiplayer/protocol';
 import { accessToken, accountStore } from '../../services/account';
 import { hiddenStore, isHidden } from '../../services/moderation';
+import { ambienceForZone, playSound, setAmbience, setAudioPaused } from '../../services/audio';
 import {
   BroadcastChannelTransport,
   OfflineTransport,
@@ -88,6 +90,10 @@ export class WorldScene extends Phaser.Scene {
   private depthIndex!: DepthIndex;
   private net: NetworkClient | null = null;
   private serverTransport: ServerTransport | null = null;
+  /** Sons des messages : un à la fois, jamais pour un joueur qui inonde le chat. */
+  private readonly soundGate = new SoundGate();
+  private awayTimer: ReturnType<typeof setTimeout> | null = null;
+  private unreadMentions = 0;
   /** Clé de session de cet onglet : permet de reprendre sa place après une coupure. */
   private readonly sessionKey = randomId();
   /** Le joueur est connecté à son compte et le serveur le sait (marque ✓). */
@@ -171,6 +177,9 @@ export class WorldScene extends Phaser.Scene {
 
     void this.startNetwork(settings.multiTab);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.teardown());
+    const onVisibility = () => this.onVisibilityChange(document.hidden);
+    document.addEventListener('visibilitychange', onVisibility);
+    this.cleanups.push(() => document.removeEventListener('visibilitychange', onVisibility));
     const onUnload = () => this.net?.stop();
     window.addEventListener('pagehide', onUnload);
     this.cleanups.push(() => window.removeEventListener('pagehide', onUnload));
@@ -467,13 +476,25 @@ export class WorldScene extends Phaser.Scene {
     net.events.on('chat', ({ peer, text, scope }) => {
       if (isHidden(peer.id)) return;
       if (scope === 'local') this.remotes.get(peer.id)?.view.say(text);
+      const mention = mentions(text, profileStore.get()?.name ?? '');
       pushChat({
         from: displayName(peer.name, peer.verified),
         text,
         kind: 'peer',
         scope,
         peerId: peer.id,
+        ...(mention ? { mention: true } : {}),
       });
+      const sound = this.soundGate.decide(peer.id, mention);
+      if (sound) playSound(sound);
+      if (mention && document.hidden) {
+        this.unreadMentions++;
+        document.title = `(${this.unreadMentions}) MalinosLand`;
+      }
+    });
+    net.events.on('away', (peer) => {
+      this.remotes.get(peer.id)?.view.setAway(peer.away);
+      this.updatePresence();
     });
     net.events.on('emote', ({ peer, emote }) => {
       if (!isHidden(peer.id)) this.remotes.get(peer.id)?.view.say(emote, 3000);
@@ -504,6 +525,7 @@ export class WorldScene extends Phaser.Scene {
     view.y = peer.y;
     view.setNameVisible(settingsStore.get().showNames);
     view.setHidden(isHidden(peer.id));
+    view.setAway(peer.away);
     this.remotes.set(peer.id, { peer, view });
     this.updatePresence();
   }
@@ -531,6 +553,7 @@ export class WorldScene extends Phaser.Scene {
               self: true,
               room: ROOM,
               verified: this.selfVerified,
+              away: false,
             },
           ]
         : []),
@@ -541,6 +564,7 @@ export class WorldScene extends Phaser.Scene {
         self: false,
         room: peer.room,
         verified: peer.verified,
+        away: peer.away,
       })),
     ];
     presenceStore.set(list);
@@ -696,6 +720,7 @@ export class WorldScene extends Phaser.Scene {
     if (id === this.zoneId) return;
     this.zoneId = id;
     zoneStore.set(zone);
+    setAmbience(ambienceForZone(id));
     if (id === 'terrace') this.quest('terrace');
     if (id === 'hall' && !this.greeted) {
       this.greeted = true;
@@ -722,7 +747,11 @@ export class WorldScene extends Phaser.Scene {
         zone: this.zoneId,
         fps: Math.round(this.game.loop.actualFps),
         transport: this.net?.transportKind ?? 'offline',
-        peersPos: [...this.remotes.values()].map((r) => ({ x: r.peer.x, y: r.peer.y })),
+        peersPos: [...this.remotes.values()].map((r) => ({
+          x: r.peer.x,
+          y: r.peer.y,
+          away: r.peer.away,
+        })),
       }),
       walkTo: (x: number, y: number) => this.player.walkTo({ x, y }),
       teleport: (x: number, y: number, facing?: Facing) => {
@@ -777,7 +806,25 @@ export class WorldScene extends Phaser.Scene {
     };
   }
 
+  /**
+   * Onglet caché : l'ambiance sonore s'arrête et, après 20 s, les autres joueurs voient le
+   * statut « absent » (💤). Il disparaît dès le retour sur l'onglet.
+   */
+  private onVisibilityChange(hidden: boolean): void {
+    setAudioPaused(hidden);
+    if (this.awayTimer) clearTimeout(this.awayTimer);
+    this.awayTimer = null;
+    if (hidden) {
+      this.awayTimer = setTimeout(() => this.net?.setAway(true), 20_000);
+    } else {
+      this.net?.setAway(false);
+      this.unreadMentions = 0;
+      document.title = 'MalinosLand';
+    }
+  }
+
   private teardown(): void {
+    if (this.awayTimer) clearTimeout(this.awayTimer);
     for (const c of this.cleanups) c();
     this.cleanups = [];
     this.net?.stop();

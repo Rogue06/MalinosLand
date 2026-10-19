@@ -12,6 +12,12 @@ export interface Settings {
   showStats: boolean;
   /** Démo multijoueur locale entre onglets du même navigateur. */
   multiTab: boolean;
+  /** Son discret à l'arrivée d'un message et d'une mention @pseudo. */
+  sounds: boolean;
+  /** Ambiance sonore selon le lieu (oiseaux dehors…). */
+  ambience: boolean;
+  /** Volume général des sons, de 0 à 1. */
+  volume: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -21,6 +27,9 @@ export const DEFAULT_SETTINGS: Settings = {
   showNames: true,
   showStats: false,
   multiTab: true,
+  sounds: true,
+  ambience: true,
+  volume: 0.6,
 };
 
 const KEY = 'settings';
@@ -33,9 +42,18 @@ export function parseSettings(raw: unknown): Settings {
   const s = { ...DEFAULT_SETTINGS };
   if (r.quality === 'low' || r.quality === 'normal' || r.quality === 'high') s.quality = r.quality;
   if (r.fpsLimit === 0 || r.fpsLimit === 30 || r.fpsLimit === 60) s.fpsLimit = r.fpsLimit;
-  for (const k of ['reducedMotion', 'showNames', 'showStats', 'multiTab'] as const) {
+  for (const k of [
+    'reducedMotion',
+    'showNames',
+    'showStats',
+    'multiTab',
+    'sounds',
+    'ambience',
+  ] as const) {
     if (typeof r[k] === 'boolean') s[k] = r[k];
   }
+  if (typeof r.volume === 'number' && Number.isFinite(r.volume))
+    s.volume = Math.min(1, Math.max(0, r.volume));
   return s;
 }
 

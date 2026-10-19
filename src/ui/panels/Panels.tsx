@@ -267,6 +267,33 @@ export function SettingsPanel() {
           />
           <span>Afficher les performances (FPS, trafic)</span>
         </label>
+        <label class="check">
+          <input
+            type="checkbox"
+            checked={s.sounds}
+            onChange={(e) => set({ sounds: (e.target as HTMLInputElement).checked })}
+          />
+          <span>Son à l’arrivée d’un message et quand on te mentionne (@{'pseudo'})</span>
+        </label>
+        <label class="check">
+          <input
+            type="checkbox"
+            checked={s.ambience}
+            onChange={(e) => set({ ambience: (e.target as HTMLInputElement).checked })}
+          />
+          <span>Ambiance sonore (oiseaux dehors, clavier au coworking…)</span>
+        </label>
+        <label>
+          <span>Volume des sons</span>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={s.volume}
+            onInput={(e) => set({ volume: Number((e.target as HTMLInputElement).value) })}
+          />
+        </label>
         {REALTIME_URL ? (
           <p class="muted small">
             🌐 Multijoueur en ligne : tu retrouves les autres Malinos connectés en même temps que

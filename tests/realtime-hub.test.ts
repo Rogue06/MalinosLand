@@ -282,4 +282,28 @@ describe('serveur temps réel', () => {
       expect(b.of('hello').find((m) => m.id === 'aaaaaaaa11')?.k).toBeUndefined();
     });
   });
+
+  describe('statut « absent »', () => {
+    it('est relayé aux autres et transmis aux nouveaux venus', () => {
+      const { join, say } = setup();
+      const a = join('aaaaaaaa11');
+      const b = join('bbbbbbbb22');
+      say(a, { t: 'away', id: 'aaaaaaaa11', on: true });
+      expect(b.of('away').at(-1)).toEqual({ t: 'away', id: 'aaaaaaaa11', on: true });
+      const c = join('cccccccc33');
+      expect(c.of('hello').find((m) => m.id === 'aaaaaaaa11')?.a).toBe(true);
+      say(a, { t: 'away', id: 'aaaaaaaa11', on: true });
+      expect(b.of('away')).toHaveLength(1); // pas de répétition inutile
+      say(a, { t: 'away', id: 'aaaaaaaa11', on: false });
+      expect(b.of('away').at(-1)?.on).toBe(false);
+    });
+
+    it('impossible de changer le statut d’un autre', () => {
+      const { join, say } = setup();
+      const a = join('aaaaaaaa11');
+      const b = join('bbbbbbbb22');
+      say(a, { t: 'away', id: 'bbbbbbbb22', on: true });
+      expect(b.of('away')).toHaveLength(0);
+    });
+  });
 });

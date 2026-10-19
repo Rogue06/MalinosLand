@@ -59,7 +59,7 @@ export function Chat() {
       </div>
       <div class="chat-log" ref={log} aria-live="polite">
         {visible.slice(-30).map((m) => (
-          <p key={m.id} class={`msg ${m.kind}`}>
+          <p key={m.id} class={`msg ${m.kind}${m.mention ? ' mention' : ''}`}>
             <b>{m.from}</b> {m.text}
           </p>
         ))}

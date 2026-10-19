@@ -515,6 +515,12 @@ button.presence-chip {
 .msg.self b {
   color: var(--sun);
 }
+.msg.mention {
+  background: rgba(255, 200, 87, 0.14);
+  border-left: 3px solid var(--sun);
+  border-radius: 4px;
+  padding-left: 6px;
+}
 .msg.system {
   color: var(--muted);
   font-style: italic;

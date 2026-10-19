@@ -124,9 +124,22 @@ Bouton 🗺️ : les prochaines versions résumées. Détails dans [ROADMAP.md](
 | **Images par seconde max.**   | 30 pour économiser la batterie, 60 par défaut.                                                                                                             |
 | **Réduire les animations**    | Pour un affichage plus calme.                                                                                                                              |
 | **Afficher les noms**         | Montre ou cache les pseudos au-dessus des têtes.                                                                                                           |
+| **Sons**                      | Petit son à l’arrivée d’un message et quand on te mentionne (@pseudo).                                                                                     |
+| **Ambiance sonore**           | Oiseaux et vent dehors, claviers au coworking.                                                                                                             |
+| **Volume**                    | Volume de tous les sons du jeu.                                                                                                                            |
 | **Afficher les performances** | Montre les images par seconde (utile pour signaler un souci).                                                                                              |
 | **Compte**                    | Se connecter avec GitHub ou Google, se déconnecter, supprimer son compte.                                                                                  |
 | **Démo multijoueur locale**   | Relie les onglets ouverts dans ce même navigateur (version hors ligne seulement).                                                                          |
+
+### Sons, mentions et statut « absent »
+
+- Un petit **« pop »** signale un nouveau message. Si quelqu’un envoie trop de messages d’affilée,
+  il ne fait plus de bruit pendant une minute (le chat reste lisible).
+- Écris **@pseudo** pour appeler quelqu’un : son message est surligné en jaune chez lui, avec un
+  petit carillon. Si son onglet est caché, le titre de l’onglet affiche le nombre de mentions.
+- Tu passes sur un autre onglet plus de 20 secondes ? Les autres voient ton avatar pâle avec 💤
+  (**absent**). Tout redevient normal dès ton retour.
+- Le navigateur n’autorise le son qu’après ton premier clic ou ta première touche.
 
 ## 9. Quelqu’un te dérange ?
 

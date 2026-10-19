@@ -293,6 +293,24 @@ describe('onglet en arrière-plan', () => {
   });
 });
 
+describe('statut « absent »', () => {
+  it('se propage aux autres joueurs, et à ceux qui arrivent ensuite', async () => {
+    const { a, b, bus } = await pair(() => 0);
+    a.setAway(true);
+    expect(b.peers.get('aaaaaaaa11')?.away).toBe(true);
+    const c = new NetworkClient(
+      new MemoryTransport(bus),
+      'cccccccc33',
+      { name: 'Cleo', look: DEFAULT_APPEARANCE, state: state() },
+      { now: () => 0 },
+    );
+    await c.start();
+    expect(c.peers.get('aaaaaaaa11')?.away).toBe(true);
+    a.setAway(false);
+    expect(b.peers.get('aaaaaaaa11')?.away).toBe(false);
+  });
+});
+
 describe('ServerTransport', () => {
   const make = () => {
     FakeSocket.all = [];

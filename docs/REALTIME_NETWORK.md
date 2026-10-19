@@ -38,14 +38,15 @@ les deux personnages se voient. Le chat indique « En ligne ».
 
 Messages JSON courts (clés d’une lettre quand c’est utile). Positions arrondies au centième.
 
-| `t`     | Champs                                    | Rôle                                                                        |
-| ------- | ----------------------------------------- | --------------------------------------------------------------------------- |
-| `hello` | `id, name, look, reply, room, x, y, f, s` | Arrivée (et réponse `reply: true` pour se faire connaître)                  |
-| `state` | `id, room, x, y, f, s`                    | Position, orientation (`px/py/nx/ny`), état (0 immobile, 1 marche, 2 assis) |
-| `chat`  | `id, room, scope (local/global), text`    | Message (≤ 140 caractères, nettoyé)                                         |
-| `emote` | `id, room, e`                             | Émote d’une liste fermée                                                    |
-| `look`  | `id, name, look`                          | Changement de pseudo/apparence                                              |
-| `bye`   | `id`                                      | Départ                                                                      |
+| `t`     | Champs                                       | Rôle                                                                        |
+| ------- | -------------------------------------------- | --------------------------------------------------------------------------- |
+| `hello` | `id, name, look, reply, room, x, y, f, s, a` | Arrivée (et réponse `reply: true` pour se faire connaître) ; `a` : absent   |
+| `state` | `id, room, x, y, f, s`                       | Position, orientation (`px/py/nx/ny`), état (0 immobile, 1 marche, 2 assis) |
+| `chat`  | `id, room, scope (local/global), text`       | Message (≤ 140 caractères, nettoyé)                                         |
+| `emote` | `id, room, e`                                | Émote d’une liste fermée                                                    |
+| `look`  | `id, name, look`                             | Changement de pseudo/apparence                                              |
+| `away`  | `id, on`                                     | Statut « absent » (onglet caché depuis 20 s) ou retour                      |
+| `bye`   | `id`                                         | Départ                                                                      |
 
 Validation (`decodeMessage`) : taille ≤ 2 Ko, id `[a-z0-9]{8,32}`, salle `[a-z0-9-]`, coordonnées
 finies dans [0, 512], orientation et état dans des listes fermées, apparence bornée aux palettes,
@@ -144,6 +145,10 @@ connecté. En ligne, les clients **n’oublient pas** un joueur silencieux (`pee
 Infinity`) : seul le serveur annonce les départs. Si la connexion a été coupée entre-temps, la
 reconnexion remplace l’ancienne grâce à la clé de session. En démo entre onglets (sans serveur),
 un pair oublié qui se remet à bouger est redécouvert (demande de présentation).
+
+Après 20 s d’onglet caché, le jeu envoie `away` (`on: true`) : les autres voient l’avatar pâle
+avec 💤. Au retour, `away` (`on: false`). Le serveur garde ce statut, l’inclut dans la présence
+envoyée aux nouveaux venus et ne relaie qu’un vrai changement.
 
 ### Pas encore fait
 
