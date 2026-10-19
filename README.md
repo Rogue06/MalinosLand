@@ -33,11 +33,11 @@ Trois promesses :
 
 ## En images
 
-|                              Créer son personnage                               |                 Discuter avec Malo, le robot d’accueil                 |
-| :-----------------------------------------------------------------------------: | :--------------------------------------------------------------------: |
-| ![Écran de création du personnage](docs/images/accueil-creation-personnage.jpg) | ![Dialogue avec Malo dans le hall](docs/images/hall-dialogue-malo.jpg) |
-|                           **Travailler au coworking**                           |                  **S’asseoir au salon avec un café**                   |
-|                 ![Espace coworking](docs/images/coworking.jpg)                  |           ![Salon détente](docs/images/salon-assis-cafe.jpg)           |
+|                              Créer son personnage                               |                  Discuter avec Joshua, le robot d’accueil                  |
+| :-----------------------------------------------------------------------------: | :------------------------------------------------------------------------: |
+| ![Écran de création du personnage](docs/images/accueil-creation-personnage.jpg) | ![Dialogue avec Joshua dans le hall](docs/images/hall-dialogue-joshua.jpg) |
+|                           **Travailler au coworking**                           |                    **S’asseoir au salon avec un café**                     |
+|                 ![Espace coworking](docs/images/coworking.jpg)                  |             ![Salon détente](docs/images/salon-assis-cafe.jpg)             |
 
 Plus d’images et toutes les commandes dans le [guide du joueur](docs/GUIDE_DU_JOUEUR.md).
 

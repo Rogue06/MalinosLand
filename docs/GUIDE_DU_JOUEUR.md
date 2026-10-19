@@ -31,7 +31,7 @@ Tu pourras tout changer plus tard grâce au **miroir** du salon ou au bouton �
 | Fermer une fenêtre  | Clic à côté, ou ✕                                | **Échap**                                                     |
 
 Quand tu es près d’un objet utilisable, une étiquette apparaît en bas de l’écran
-(par exemple **E · Parler à Malo**). Les objets utilisables s’éclairent au survol de la souris.
+(par exemple **E · Parler à Joshua**). Les objets utilisables s’éclairent au survol de la souris.
 
 ## 3. L’écran de jeu
 
@@ -48,9 +48,9 @@ Quand tu es près d’un objet utilisable, une étiquette apparaît en bas de l�
 
 ### Le hall d’accueil
 
-![Dialogue avec Malo](images/hall-dialogue-malo.jpg)
+![Dialogue avec Joshua](images/hall-dialogue-joshua.jpg)
 
-Le cœur du Hub. **Malo**, le robot d’accueil, t’explique les bases. Tu y trouves aussi le panneau
+Le cœur du Hub. **Joshua**, le robot d’accueil, t’explique les bases. Tu y trouves aussi le panneau
 de bienvenue, le tableau de la feuille de route et l’**ascenseur**.
 
 ![L’ascenseur](images/panneau-ascenseur.jpg)
@@ -88,7 +88,7 @@ transats. À gauche, le **chantier de la Tour communautaire** annonce les futurs
 
 ## 5. Les objectifs « Premiers pas »
 
-Huit petites missions pour découvrir le Hub : parler à Malo, lire le panneau de bienvenue, s’asseoir,
+Huit petites missions pour découvrir le Hub : parler à Joshua, lire le panneau de bienvenue, s’asseoir,
 prendre un café, changer de style au miroir, appeler l’ascenseur, aller sur la terrasse et dire
 bonjour dans le chat. Il n’y a **rien à gagner** : c’est juste pour bien démarrer. 🙂
 

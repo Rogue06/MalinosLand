@@ -5,6 +5,11 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Modifié
+
+- Le robot d’accueil s’appelle désormais **Joshua** (anciennement Malo).
+- Badge de version : « v0.2 · prototype ».
+
 ### Mis en ligne
 
 - **Le jeu est en ligne** le 19/10/2026 : https://malinosland.pages.dev (Cloudflare Pages) avec le serveur temps réel

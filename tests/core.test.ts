@@ -151,7 +151,7 @@ describe('textes', () => {
     expect(sanitizeName('Léa_42')).toBe('Léa_42');
     expect(sanitizeName('a')).toBeNull();
     expect(sanitizeName('<script>')).toBeNull();
-    expect(sanitizeName('   Malo   ')).toBe('Malo');
+    expect(sanitizeName('   Joshua   ')).toBe('Joshua');
   });
 });
 

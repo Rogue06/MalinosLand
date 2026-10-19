@@ -13,7 +13,7 @@ Les mots techniques utilisés dans le projet, expliqués simplement.
 | **Tuile**       | Une case du sol. Le Hub mesure 34 × 30 tuiles.                                 |
 | **Avatar**      | Ton personnage dans le jeu.                                                    |
 | **Émote**       | Une petite icône qui s’affiche au-dessus de la tête (👋, ☕…).                 |
-| **PNJ**         | Personnage non joueur, comme Malo le robot.                                    |
+| **PNJ**         | Personnage non joueur, comme Joshua le robot.                                  |
 | **i/s (FPS)**   | Images par seconde : plus c’est haut, plus le jeu est fluide.                  |
 
 ## GitHub et la collaboration

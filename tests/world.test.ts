@@ -123,10 +123,10 @@ describe('WorldModel', () => {
   });
 
   it('trouve la zone et l’objet utilisable le plus proche', () => {
-    const malo = world.getObject('malo')!;
-    expect(world.zoneAt({ x: malo.x + 0.5, y: malo.y + 0.5 })?.id).toBe('hall');
-    const near = world.nearestUsable({ x: malo.x + 1.4, y: malo.y + 0.5 });
-    expect(near?.id).toBe('malo');
+    const joshua = world.getObject('joshua')!;
+    expect(world.zoneAt({ x: joshua.x + 0.5, y: joshua.y + 0.5 })?.id).toBe('hall');
+    const near = world.nearestUsable({ x: joshua.x + 1.4, y: joshua.y + 0.5 });
+    expect(near?.id).toBe('joshua');
   });
 
   it('gère l’occupation des sièges', () => {

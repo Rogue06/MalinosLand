@@ -220,11 +220,11 @@ try {
     await waitUi('.chat-log .msg', 'Bonjour les Malinos !');
   });
 
-  await step('marcher jusqu’à Malo et lui parler', async () => {
+  await step('marcher jusqu’à Joshua et lui parler', async () => {
     await teleport(12.5, 18.4, 'ny');
-    await dbg(() => window.__malinosDebug.use('malo'));
-    await waitUi('.dialog', 'Malo');
-    await page.screenshot({ path: `${outDir}/04-malo.png` });
+    await dbg(() => window.__malinosDebug.use('joshua'));
+    await waitUi('.dialog', 'Joshua');
+    await page.screenshot({ path: `${outDir}/04-joshua.png` });
     for (let i = 0; i < 10 && (await page.locator('.dialog').count()) > 0; i++) {
       await page.keyboard.press('e');
       await page.waitForTimeout(150);

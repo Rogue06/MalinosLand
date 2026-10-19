@@ -208,7 +208,7 @@ export class WorldRenderer {
     for (const l of this.labels) l.setVisible(visible);
   }
 
-  /** Bulle temporaire au-dessus d'un objet (ex. Malo qui salue). */
+  /** Bulle temporaire au-dessus d'un objet (ex. Joshua qui salue). */
   objectBubble(id: string, text: string, durationMs = 5000): void {
     const r = this.objects.get(id);
     if (!r) return;

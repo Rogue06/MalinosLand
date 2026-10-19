@@ -89,11 +89,11 @@ const closeHud = (page) => page.evaluate(() => document.querySelector('.objectiv
   await teleport(page, 12.9, 21.5, 'ny');
   await shot(page, 'hub-arrivee');
 
-  // 4. Dialogue avec Malo
+  // 4. Dialogue avec Joshua
   await teleport(page, 11.5, 16.6, 'ny');
-  await page.evaluate(() => window.__malinosDebug.use('malo'));
+  await page.evaluate(() => window.__malinosDebug.use('joshua'));
   await page.locator('.dialog').waitFor();
-  await shot(page, 'hall-dialogue-malo');
+  await shot(page, 'hall-dialogue-joshua');
   await page.keyboard.press('Escape');
 
   // 5. Coworking

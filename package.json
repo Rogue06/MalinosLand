@@ -1,6 +1,6 @@
 {
   "name": "malinosland",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "MalinosLand — monde virtuel isométrique, gratuit, open source et communautaire pour les Malinos.",
   "type": "module",
