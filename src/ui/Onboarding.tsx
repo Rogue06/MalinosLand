@@ -77,7 +77,12 @@ export function Onboarding() {
         />
         <AccountBox compact />
         <footer class="onboarding-footer">
-          <p class="muted small">{PRIVACY_NOTE}</p>
+          <p class="muted small">
+            {PRIVACY_NOTE}{' '}
+            <a href="./confidentialite.html" target="_blank" rel="noopener noreferrer">
+              Politique de confidentialité
+            </a>
+          </p>
           <button type="submit" class="btn primary big" disabled={busy}>
             Entrer dans MalinosLand →
           </button>

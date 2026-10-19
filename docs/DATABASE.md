@@ -120,5 +120,6 @@ L’entrée dans un logement en temps réel sera aussi vérifiée par le serveur
 - Suppression de compte : `on delete cascade` depuis `auth.users` supprime toutes les données liées.
 - ✅ Suppression de compte dans le jeu (Réglages → Compte → Supprimer mon compte).
 - Données affichées aux joueurs avant connexion (`PRIVACY_NOTE`, `src/config.ts`).
-- À faire : export de ses données sur demande (requête SQL documentée), page de politique de
-  confidentialité.
+- ✅ Page de politique de confidentialité : `public/confidentialite.html`
+  (https://malinosland.pages.dev/confidentialite.html), liée depuis l’accueil du jeu.
+- À faire : export de ses données sur demande (requête SQL documentée).

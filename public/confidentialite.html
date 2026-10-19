@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Confidentialité — MalinosLand</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #12141f;
+        --card: #1b1e2d;
+        --text: #e9ecf5;
+        --muted: #a6adc6;
+        --teal: #5fe3d0;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          16px/1.6 system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+      }
+      main {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 32px 16px 64px;
+      }
+      h1 {
+        font-size: 28px;
+        margin: 0 0 4px;
+      }
+      h2 {
+        font-size: 20px;
+        margin: 32px 0 8px;
+        color: var(--teal);
+      }
+      a {
+        color: var(--teal);
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .card {
+        background: var(--card);
+        border-radius: 12px;
+        padding: 12px 16px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 15px;
+      }
+      th,
+      td {
+        text-align: left;
+        vertical-align: top;
+        padding: 8px;
+        border-bottom: 1px solid #2c3046;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p><a href="./">← Retour au jeu</a></p>
+      <h1>Politique de confidentialité</h1>
+      <p class="muted">MalinosLand — dernière mise à jour : 19 octobre 2026</p>
+
+      <div class="card">
+        <p>
+          <strong>En bref :</strong> MalinosLand est un jeu gratuit, open source et sans publicité.
+          On collecte le moins de données possible : ton pseudo et l’apparence de ton avatar. Pas de
+          traceur, pas de revente, pas de publicité. Tu peux jouer sans compte, et supprimer ton
+          compte à tout moment.
+        </p>
+      </div>
+
+      <h2>Qui est responsable ?</h2>
+      <p>
+        MalinosLand est un projet communautaire géré par son responsable, <strong>Rogue06</strong>.
+        Le code est public :
+        <a href="https://github.com/Rogue06/MalinosLand">github.com/Rogue06/MalinosLand</a>.
+      </p>
+
+      <h2>Quelles données, et pourquoi ?</h2>
+      <table>
+        <tr>
+          <th>Situation</th>
+          <th>Données</th>
+          <th>Où, combien de temps</th>
+        </tr>
+        <tr>
+          <td>Jouer sans compte</td>
+          <td>Pseudo, apparence, réglages et progression</td>
+          <td>
+            Uniquement dans <strong>ton navigateur</strong> (stockage local). Tu les effaces en
+            vidant les données du site.
+          </td>
+        </tr>
+        <tr>
+          <td>Jouer en ligne</td>
+          <td>Pseudo, apparence, position dans le monde, messages du chat</td>
+          <td>
+            Transmis <strong>en direct</strong> aux joueurs connectés par notre serveur
+            (Cloudflare). <strong>Rien n’est conservé</strong> : ni historique du chat, ni
+            déplacements.
+          </td>
+        </tr>
+        <tr>
+          <td>Se connecter avec GitHub ou Google</td>
+          <td>
+            L’identifiant de ton compte GitHub / Google, l’adresse e-mail et le nom que ce service
+            nous transmet ; ton pseudo et ton apparence dans le jeu
+          </td>
+          <td>
+            Base de données <strong>Supabase</strong>, hébergée dans l’Union européenne (Paris),
+            jusqu’à la suppression de ton compte. L’e-mail sert uniquement à la connexion : il n’est
+            jamais affiché ni utilisé pour t’écrire.
+          </td>
+        </tr>
+      </table>
+      <p>
+        Base légale : l’exécution du service que tu demandes (jouer, retrouver ton personnage).
+        Aucune donnée n’est utilisée pour de la publicité, du profilage ou revendue.
+      </p>
+
+      <h2>Cookies et traceurs</h2>
+      <p>
+        Aucun cookie publicitaire, aucun outil de mesure d’audience, aucune ressource chargée chez
+        un tiers. Le jeu utilise seulement le stockage local de ton navigateur pour retenir ton
+        personnage, tes réglages et, si tu es connecté, ta session.
+      </p>
+
+      <h2>Prestataires</h2>
+      <ul>
+        <li><strong>Cloudflare</strong> : hébergement du site et du serveur temps réel.</li>
+        <li><strong>Supabase</strong> : comptes joueurs et base de données (Union européenne).</li>
+        <li>
+          <strong>GitHub</strong> et <strong>Google</strong> : seulement si tu choisis de te
+          connecter avec eux.
+        </li>
+      </ul>
+
+      <h2>Tes droits</h2>
+      <p>
+        Tu peux à tout moment accéder à tes données, les corriger (miroir du salon ou bouton 🧑 dans
+        le jeu) ou <strong>supprimer ton compte</strong> : ⚙️ Réglages → Compte → «&nbsp;Supprimer
+        mon compte&nbsp;». La suppression est immédiate et définitive. Pour toute autre demande
+        (RGPD : accès, rectification, effacement, opposition), ouvre un ticket sur
+        <a href="https://github.com/Rogue06/MalinosLand/issues">GitHub</a> sans y écrire de données
+        personnelles : nous te recontacterons. Tu peux aussi t’adresser à la CNIL (cnil.fr).
+      </p>
+
+      <h2>Mineurs</h2>
+      <p>
+        Les comptes sont réservés aux personnes de 15 ans et plus, ou avec l’accord d’un parent. Le
+        chat est public : n’y partage jamais d’informations personnelles.
+      </p>
+
+      <h2>Modifications</h2>
+      <p>
+        Cette page peut évoluer avec le jeu. Chaque changement est visible dans l’historique public
+        du projet sur GitHub.
+      </p>
+    </main>
+  </body>
+</html>

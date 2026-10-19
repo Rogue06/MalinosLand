@@ -5,6 +5,11 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (confidentialité)
+
+- Page « Politique de confidentialité » (`/confidentialite.html`), liée depuis l’écran d’accueil et
+  le panneau de bienvenue ; nécessaire pour publier la connexion Google.
+
 ### Corrigé (multijoueur en ligne)
 
 - Revenir sur l’onglet du jeu après l’avoir quitté : les autres joueurs ne nous voyaient plus, et
