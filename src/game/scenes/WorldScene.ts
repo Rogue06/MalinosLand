@@ -4,8 +4,10 @@ import { loadWorld } from '../../content/world';
 import { project, screenInputToWorld, unproject, type Facing, type Vec2 } from '../../core/iso';
 import { facesCamera } from '../../core/rotation';
 import { CHAT_MAX_LENGTH, sanitizeText } from '../../core/text';
+import { REALTIME_URL } from '../../config';
 import { NetworkClient, type RemotePeer } from '../../multiplayer/NetworkClient';
-import { EMOTES, type AnimState, type Emote } from '../../multiplayer/protocol';
+import { ServerTransport } from '../../multiplayer/ServerTransport';
+import { EMOTES, type AnimState, type Emote, type NoticeCode } from '../../multiplayer/protocol';
 import {
   BroadcastChannelTransport,
   OfflineTransport,
@@ -47,6 +49,15 @@ interface RemoteAvatar {
 }
 
 const ROOM = 'hub';
+
+/** Messages affichés pour les avis du serveur. */
+const NOTICE_TEXT: Record<NoticeCode, string> = {
+  full: 'Le Hub est plein pour le moment. Tu peux continuer à explorer en solo : nouvelle tentative dans une minute.',
+  maintenance:
+    'Le quota gratuit du jour est atteint : le multijoueur revient bientôt. Le jeu reste jouable en solo.',
+  duplicate: 'Tu es déjà connecté dans un autre onglet : cet onglet reste en solo.',
+  kicked: 'Tu as été déconnecté du multijoueur.',
+};
 const BASE_ZOOM = 1.35;
 
 /**
@@ -360,15 +371,19 @@ export class WorldScene extends Phaser.Scene {
     for (const r of this.remotes.values()) r.view.destroy();
     this.remotes.clear();
     const profile = profileStore.get()!;
-    const transport: Transport =
-      multiTab && BroadcastChannelTransport.isSupported()
+    // Serveur configuré (VITE_REALTIME_URL) : multijoueur en ligne. Sinon, démo locale ou solo.
+    const transport: Transport = REALTIME_URL
+      ? new ServerTransport(REALTIME_URL)
+      : multiTab && BroadcastChannelTransport.isSupported()
         ? new BroadcastChannelTransport()
         : new OfflineTransport();
-    const net = new NetworkClient(transport, this.selfId, {
-      name: profile.name,
-      look: profile.look,
-      state: this.localState(),
-    });
+    const net = new NetworkClient(
+      transport,
+      this.selfId,
+      { name: profile.name, look: profile.look, state: this.localState() },
+      // En ligne : 5 positions par seconde au plus (quota gratuit), l'interpolation lisse le reste.
+      { stateIntervalMs: transport.kind === 'server' ? 200 : 100 },
+    );
     this.net = net;
     net.events.on('join', (peer) => {
       this.addRemote(peer);
@@ -404,6 +419,11 @@ export class WorldScene extends Phaser.Scene {
       pushChat({ from: peer.name, text, kind: 'peer', scope });
     });
     net.events.on('emote', ({ peer, emote }) => this.remotes.get(peer.id)?.view.say(emote, 3000));
+    net.events.on('notice', ({ code }) => {
+      const text = NOTICE_TEXT[code];
+      pushToast(text, '🌐', 7000);
+      pushChat({ from: 'MalinosLand', text, kind: 'system', scope: 'global' });
+    });
     try {
       await net.start();
     } catch (err) {
@@ -457,6 +477,7 @@ export class WorldScene extends Phaser.Scene {
     this.avatar.setNameVisible(s.showNames);
     this.renderer3d.setLabelsVisible(s.showNames);
     for (const r of this.remotes.values()) r.view.setNameVisible(s.showNames);
+    if (REALTIME_URL) return; // en ligne : la démo multi-onglets ne s'applique pas
     const wantsTabs = s.multiTab && BroadcastChannelTransport.isSupported();
     const hasTabs = this.net?.transportKind === 'local-tabs';
     if (this.net && wantsTabs !== hasTabs) void this.startNetwork(s.multiTab);
@@ -604,6 +625,8 @@ export class WorldScene extends Phaser.Scene {
         dialog: dialogStore.get()?.speaker ?? null,
         zone: this.zoneId,
         fps: Math.round(this.game.loop.actualFps),
+        transport: this.net?.transportKind ?? 'offline',
+        peersPos: [...this.remotes.values()].map((r) => ({ x: r.peer.x, y: r.peer.y })),
       }),
       walkTo: (x: number, y: number) => this.player.walkTo({ x, y }),
       teleport: (x: number, y: number, facing?: Facing) => {

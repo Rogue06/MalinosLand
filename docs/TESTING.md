@@ -4,16 +4,18 @@
 
 ## Commandes
 
-| Commande                           | Contenu                                                                     |
-| ---------------------------------- | --------------------------------------------------------------------------- |
-| `npm test`                         | Tests unitaires Vitest (`tests/*.test.ts`), sans navigateur                 |
-| `npm run typecheck`                | Vérification TypeScript stricte                                             |
-| `npm run lint`                     | ESLint (dont règles de sécurité et de dépendances entre modules)            |
-| `npm run format:check`             | Style Prettier                                                              |
-| `npm run build`                    | Types + build de production                                                 |
-| `npm run check`                    | Tout ce qui précède (hors format) — à lancer avant chaque PR                |
-| `npm run test:e2e [url] [dossier]` | Test de bout en bout dans Chromium sur le build servi par `npm run preview` |
-| `npm run docs:screenshots [url]`   | Régénère les captures de `docs/images/` (avec `npm run preview` lancé)      |
+| Commande                                   | Contenu                                                                      |
+| ------------------------------------------ | ---------------------------------------------------------------------------- |
+| `npm test`                                 | Tests unitaires Vitest (`tests/*.test.ts`), sans navigateur                  |
+| `npm run typecheck`                        | Vérification TypeScript stricte                                              |
+| `npm run lint`                             | ESLint (dont règles de sécurité et de dépendances entre modules)             |
+| `npm run format:check`                     | Style Prettier                                                               |
+| `npm run build`                            | Types + build de production                                                  |
+| `npm run check`                            | Tout ce qui précède (hors format) — à lancer avant chaque PR                 |
+| `npm run test:e2e [url] [dossier]`         | Test de bout en bout dans Chromium sur le build servi par `npm run preview`  |
+| `npm run docs:screenshots [url]`           | Régénère les captures de `docs/images/` (avec `npm run preview` lancé)       |
+| `npm --prefix server run test:integration` | Serveur temps réel lancé avec Wrangler, testé par de vrais clients WebSocket |
+| `npm run test:online [url]`                | Deux joueurs (deux navigateurs séparés) connectés au serveur local           |
 
 Le test de bout en bout utilise `playwright-core` (sans téléchargement de navigateur) : il cherche
 Chromium dans `/opt/pw-browsers/chromium` ou dans la variable `CHROMIUM_PATH`
@@ -32,16 +34,27 @@ Chromium dans `/opt/pw-browsers/chromium` ou dans la variable `CHROMIUM_PATH`
   perdue. Le test appuie volontairement vite pour l’empêcher de revenir.
 - Pour reproduire une machine lente en local : `E2E_CPU_THROTTLE=4 npm run test:e2e`.
 
-## Couverture actuelle (v0.1)
+### Les tests du serveur temps réel dans la CI
 
-| Fichier                  | Ce qui est vérifié                                                                                                                                                                                                                                                               |
-| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tests/core.test.ts`     | Projection iso aller-retour, directions clavier, rotations, collisions (glissement, pas de traversée, bords), A* (chemin valide, sans coin coupé, cible inaccessible), lissage, limiteur de débit, nettoyage des textes et pseudos, profondeur des avatars près d’un meuble long |
-| `tests/world.test.ts`    | Validation de chaque carte, **accessibilité de toutes les zones ouvertes**, **chaque objet interactif atteignable**, détection des erreurs de carte, assises après rotation, zones, occupation des sièges                                                                        |
-| `tests/player.test.ts`   | Trajet A* jusqu’au coworking, aller parler à Malo, s’asseoir puis se lever, impossibilité de traverser un mur au clavier                                                                                                                                                         |
-| `tests/network.test.ts`  | Protocole (rejet des messages hostiles, nettoyage), découverte entre clients, débit limité, silence à l’arrêt, dégradation selon le budget, anti-spam, filtrage par salle, départ et pairs fantômes                                                                              |
-| `tests/services.test.ts` | Stockage versionné robuste, validation du profil et des réglages, bornes des apparences, cohérence contenu ↔ dessins ↔ objectifs, rangement de l’atlas sans chevauchement                                                                                                        |
-| `scripts/smoke-test.mjs` | Création du personnage, entrée dans le monde, clavier, chat, dialogue avec Malo, panneau, ascenseur, café, s’asseoir, terrasse, **démo multi-onglets**, aucune erreur JS ni violation CSP                                                                                        |
+- Job « Serveur temps réel (Wrangler) » : vérification des types du serveur puis
+  `test:integration` (10 vérifications : santé, refus d’une origine inconnue, présentation,
+  mouvements, chat, anti-usurpation, salle pleine, identifiant en double, départ…).
+- Job « Deux joueurs en ligne » : lance le serveur, construit le jeu avec
+  `VITE_REALTIME_URL=ws://localhost:8787/ws`, puis `npm run test:online` vérifie qu’Alice et Bob
+  se voient, se déplacent, discutent, et que le départ de l’un est vu par l’autre.
+
+## Couverture actuelle
+
+| Fichier                      | Ce qui est vérifié                                                                                                                                                                                                                                                                                |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tests/core.test.ts`         | Projection iso aller-retour, directions clavier, rotations, collisions (glissement, pas de traversée, bords), A* (chemin valide, sans coin coupé, cible inaccessible), lissage, limiteur de débit, nettoyage des textes et pseudos, profondeur des avatars près d’un meuble long                  |
+| `tests/world.test.ts`        | Validation de chaque carte, **accessibilité de toutes les zones ouvertes**, **chaque objet interactif atteignable**, détection des erreurs de carte, assises après rotation, zones, occupation des sièges                                                                                         |
+| `tests/player.test.ts`       | Trajet A* jusqu’au coworking, aller parler à Malo, s’asseoir puis se lever, impossibilité de traverser un mur au clavier                                                                                                                                                                          |
+| `tests/network.test.ts`      | Protocole (rejet des messages hostiles, nettoyage), découverte entre clients, débit limité, silence à l’arrêt, dégradation selon le budget, anti-spam, filtrage par salle, départ et pairs fantômes, transport serveur (reconnexion, refus, adresse), ordres `rate` / `notice` du serveur         |
+| `tests/realtime-hub.test.ts` | Règles du serveur : présentation sans écho, relais par salle, téléportation et identifiant usurpé ignorés, positions hors carte, chat local/général, anti-spam, salle pleine, identifiant en double, inondation, budget du jour (ralentir puis maintenance), départ, messages réservés au serveur |
+| `tests/services.test.ts`     | Stockage versionné robuste, validation du profil et des réglages, bornes des apparences, cohérence contenu ↔ dessins ↔ objectifs, rangement de l’atlas sans chevauchement                                                                                                                         |
+| `scripts/smoke-test.mjs`     | Création du personnage, entrée dans le monde, clavier, chat, dialogue avec Malo, panneau, ascenseur, café, s’asseoir, terrasse, **démo multi-onglets**, aucune erreur JS ni violation CSP                                                                                                         |
+| `scripts/online-test.mjs`    | Deux navigateurs séparés connectés au serveur : badge « En ligne », chacun voit l’autre, déplacement, chat, départ                                                                                                                                                                                |
 
 ## Objectifs de performance
 
@@ -78,6 +91,6 @@ consigner les résultats ici. Aucun nombre d’images par seconde n’est garant
 
 ## Tests prévus pour les versions suivantes
 
-- v0.2 : autorisations (RLS) avec une base locale, Durable Object avec Wrangler, charge simulée
-  (N clients Node), reconnexion.
+- v0.2 : autorisations (RLS) avec une base locale, charge simulée (N clients Node). (Durable
+  Object avec Wrangler et reconnexion : faits.)
 - v0.3 : éditeur de décoration (sérialisation des dispositions, droits du propriétaire).

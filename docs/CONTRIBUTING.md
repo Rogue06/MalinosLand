@@ -119,6 +119,21 @@ npm run build && npm run preview      # dans un premier terminal
 npm run docs:screenshots              # dans un second terminal → docs/images/
 ```
 
+### Jouer à plusieurs avec le serveur temps réel (sur ton ordinateur)
+
+Pas besoin de compte Cloudflare : le serveur tourne en local avec Wrangler.
+
+```bash
+npm run server:install                # une seule fois (outils du serveur, dossier server/)
+npm run server:dev                    # premier terminal : serveur sur ws://localhost:8787/ws
+cp .env.example .env.local            # une seule fois (sous Windows : copy .env.example .env.local)
+npm run dev                           # second terminal : le jeu se connecte au serveur
+```
+
+Ouvre ensuite le jeu dans deux navigateurs différents (ou une fenêtre privée) : les deux avatars
+se voient. Le badge « En ligne » apparaît en haut de l’écran. Détails :
+[REALTIME_NETWORK.md](REALTIME_NETWORK.md).
+
 ## 5. Ce qu’on attend d’une contribution
 
 - ✅ `npm run check` passe.

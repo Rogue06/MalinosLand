@@ -7,6 +7,7 @@ import {
   type ChatScope,
   type Emote,
   type NetMessage,
+  type NoticeCode,
   type PeerState,
 } from './protocol';
 import type { Transport } from './Transport';
@@ -25,6 +26,8 @@ export interface NetworkEvents extends Record<string, unknown> {
   look: RemotePeer;
   chat: { peer: RemotePeer; text: string; scope: ChatScope };
   emote: { peer: RemotePeer; emote: Emote };
+  /** Avis du serveur (salle pleine, maintenance…). */
+  notice: { code: NoticeCode };
 }
 
 export interface NetworkOptions {
@@ -55,6 +58,9 @@ export class NetworkClient {
   private lastSentAt = -Infinity;
   private sentLog: number[] = [];
   private unsubscribe: (() => void) | null = null;
+  private unsubscribeOpen: (() => void) | null = null;
+  /** Intervalle minimal imposé par le serveur (quota), en ms. */
+  private serverInterval = 0;
   bytesSent = 0;
 
   constructor(
@@ -79,14 +85,28 @@ export class NetworkClient {
   }
 
   async start(): Promise<void> {
-    await this.transport.connect();
     this.unsubscribe = this.transport.onMessage((raw) => this.receive(raw));
-    this.sendHello(false);
+    if (this.transport.onOpen) {
+      // Transport qui se reconnecte : à chaque connexion, on repart d'une liste de pairs vide
+      // (le serveur renvoie les présents) et on se présente.
+      this.unsubscribeOpen = this.transport.onOpen(() => {
+        for (const id of [...this.peers.keys()]) {
+          this.peers.delete(id);
+          this.events.emit('leave', { id });
+        }
+        this.sendHello(false);
+      });
+      await this.transport.connect();
+    } else {
+      await this.transport.connect();
+      this.sendHello(false);
+    }
   }
 
   stop(): void {
     this.send({ t: 'bye', id: this.selfId });
     this.unsubscribe?.();
+    this.unsubscribeOpen?.();
     this.transport.close();
     this.peers.clear();
   }
@@ -94,9 +114,10 @@ export class NetworkClient {
   /** Intervalle d'envoi courant, doublé puis quadruplé si le quota approche. */
   currentInterval(): number {
     const usage = this.recentCount() / this.budget;
-    if (usage > 0.9) return this.baseInterval * 4;
-    if (usage > 0.7) return this.baseInterval * 2;
-    return this.baseInterval;
+    let interval = this.baseInterval;
+    if (usage > 0.9) interval = this.baseInterval * 4;
+    else if (usage > 0.7) interval = this.baseInterval * 2;
+    return Math.max(interval, this.serverInterval);
   }
 
   /** À appeler à chaque image : envoie l'état local si nécessaire. */
@@ -182,7 +203,16 @@ export class NetworkClient {
   /** Traite un message entrant (public pour les tests). */
   receive(raw: unknown): void {
     const msg = decodeMessage(raw);
-    if (!msg || msg.id === this.selfId) return;
+    if (!msg) return;
+    if (msg.t === 'rate') {
+      this.serverInterval = msg.ms;
+      return;
+    }
+    if (msg.t === 'notice') {
+      this.events.emit('notice', { code: msg.code });
+      return;
+    }
+    if (msg.id === this.selfId) return;
     const t = this.now();
     const peer = this.peers.get(msg.id);
     switch (msg.t) {

@@ -220,3 +220,99 @@ describe('NetworkClient', () => {
     expect(c.peers.size).toBe(0);
   });
 });
+
+// ---------------------------------------------------------------- Transport serveur
+
+import { ServerTransport } from '../src/multiplayer/ServerTransport';
+import { parseRealtimeUrl } from '../src/config';
+import { vi } from 'vitest';
+
+/** WebSocket factice pilotée par le test. */
+class FakeSocket {
+  static all: FakeSocket[] = [];
+  readyState = 0;
+  sent: string[] = [];
+  onopen: (() => void) | null = null;
+  onmessage: ((e: { data: unknown }) => void) | null = null;
+  onclose: ((e: { code: number }) => void) | null = null;
+  onerror: (() => void) | null = null;
+  constructor() {
+    FakeSocket.all.push(this);
+  }
+  send(p: string) {
+    this.sent.push(p);
+  }
+  close() {
+    this.readyState = 3;
+  }
+  open() {
+    this.readyState = 1;
+    this.onopen?.();
+  }
+  drop(code: number) {
+    this.readyState = 3;
+    this.onclose?.({ code });
+  }
+}
+
+describe('ServerTransport', () => {
+  const make = () => {
+    FakeSocket.all = [];
+    return new ServerTransport('ws://test/ws', () => new FakeSocket() as unknown as WebSocket);
+  };
+
+  it('valide l’adresse du serveur', () => {
+    expect(parseRealtimeUrl('wss://exemple.workers.dev/ws')).toBe('wss://exemple.workers.dev/ws');
+    expect(parseRealtimeUrl('https://exemple.dev')).toBeNull();
+    expect(parseRealtimeUrl(undefined)).toBeNull();
+  });
+
+  it('se reconnecte après une coupure et se représente au serveur', async () => {
+    vi.useFakeTimers();
+    try {
+      const transport = make();
+      const net = new NetworkClient(transport, 'aaaaaaaa11', {
+        name: 'Alice',
+        look: DEFAULT_APPEARANCE,
+        state: state(),
+      });
+      await net.start();
+      FakeSocket.all[0]!.open();
+      expect(FakeSocket.all[0]!.sent.some((p) => p.includes('"t":"hello"'))).toBe(true);
+      FakeSocket.all[0]!.drop(1006);
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(FakeSocket.all).toHaveLength(2);
+      FakeSocket.all[1]!.open();
+      expect(FakeSocket.all[1]!.sent.some((p) => p.includes('"t":"hello"'))).toBe(true);
+      net.stop();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('respecte les refus du serveur (déjà connecté : pas de nouvelle tentative)', async () => {
+    vi.useFakeTimers();
+    try {
+      const transport = make();
+      await transport.connect();
+      FakeSocket.all[0]!.open();
+      FakeSocket.all[0]!.drop(4002);
+      await vi.advanceTimersByTimeAsync(120_000);
+      expect(FakeSocket.all).toHaveLength(1);
+      transport.close();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('applique la fréquence imposée par le serveur et transmet ses avis', async () => {
+    const { a } = await pair(() => 0);
+    const notices: string[] = [];
+    a.events.on('notice', ({ code }) => notices.push(code));
+    a.receive(JSON.stringify({ t: 'rate', ms: 1000 }));
+    a.receive(JSON.stringify({ t: 'notice', code: 'full' }));
+    a.receive(JSON.stringify({ t: 'notice', code: 'piratage' }));
+    expect(a.currentInterval()).toBe(1000);
+    expect(notices).toEqual(['full']);
+  });
+});

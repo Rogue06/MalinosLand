@@ -5,6 +5,21 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (v0.2 — serveur temps réel)
+
+- Serveur temps réel `server/` (Cloudflare Worker + Durable Object, hibernation des WebSockets) :
+  présence, déplacements, chat de proximité et général, émotes, changements d’apparence.
+- Protections côté serveur : validation de chaque message, identifiant non usurpable,
+  anti-téléportation, positions hors carte refusées, limites de débit, 40 joueurs par salle,
+  identifiant en double refusé, origines autorisées, budget quotidien de messages (ralentissement
+  puis maintenance avant la limite gratuite).
+- Côté jeu : `ServerTransport` (reconnexion automatique, refus respectés), messages du serveur
+  `rate` et `notice`, badge « En ligne », messages clairs (salle pleine, maintenance…).
+- Activation par `VITE_REALTIME_URL` (`.env.example`) ; CSP générée au build en conséquence.
+- Tests : règles du serveur (Vitest), intégration avec Wrangler, test « deux joueurs en ligne » ;
+  deux nouveaux jobs dans la CI.
+- Commandes `server:install`, `server:dev`, `test:online`.
+
 ### Ajouté (reprise du projet)
 
 - `AGENTS.md` : consignes communes à toutes les IA (Codex, Cursor, Copilot, Gemini, Claude Code…) ;

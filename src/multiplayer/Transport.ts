@@ -12,6 +12,11 @@ export interface Transport {
   /** Envoie un message déjà encodé. */
   send(payload: string): void;
   onMessage(handler: (payload: unknown) => void): () => void;
+  /**
+   * Facultatif : appelé à chaque (re)connexion réussie. Les transports qui se reconnectent
+   * (serveur) l'implémentent pour que le client renvoie son « hello ».
+   */
+  onOpen?(handler: () => void): () => void;
   close(): void;
 }
 

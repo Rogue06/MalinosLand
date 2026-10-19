@@ -26,7 +26,8 @@ Trois promesses :
 
 > **Où en est-on ?** La **version 0.1** est un **prototype** : on peut se promener, personnaliser
 > son avatar et utiliser les objets, mais **on est encore seul** (pas de vrai multijoueur en ligne).
-> Le multijoueur arrive en **version 0.2**. Voir la [feuille de route](docs/ROADMAP.md).
+> Le multijoueur arrive en **version 0.2** : le serveur temps réel est prêt et testé, il reste à
+> le mettre en ligne. Voir la [feuille de route](docs/ROADMAP.md).
 
 ## En images
 
@@ -40,14 +41,14 @@ Plus d’images et toutes les commandes dans le [guide du joueur](docs/GUIDE_DU_
 
 ## La feuille de route en un coup d’œil
 
-| Version                       | En une phrase                                                          | État               |
-| ----------------------------- | ---------------------------------------------------------------------- | ------------------ |
-| **0.1** — Prototype           | On visite le Hub, on crée son avatar, on utilise les objets.           | ✅ **Fait**        |
-| **0.2** — Multijoueur         | On se connecte avec un compte et on voit les autres Malinos en direct. | 🔜 Prochaine étape |
-| **0.3** — Chez soi            | Chacun reçoit un logement à décorer et choisit qui peut entrer.        | ⏳ Prévu           |
-| **0.4** — Le monde s’agrandit | Étages, ascenseur, Galerie des projets, annuaire des membres.          | ⏳ Prévu           |
-| **0.5** — Vie communautaire   | Événements, expositions, défis, mini-jeux.                             | ⏳ Prévu           |
-| **1.0** — Version stable      | Un monde complet, sûr, bien modéré, toujours gratuit.                  | ⏳ Objectif        |
+| Version                       | En une phrase                                                          | État        |
+| ----------------------------- | ---------------------------------------------------------------------- | ----------- |
+| **0.1** — Prototype           | On visite le Hub, on crée son avatar, on utilise les objets.           | ✅ **Fait** |
+| **0.2** — Multijoueur         | On se connecte avec un compte et on voit les autres Malinos en direct. | 🔶 En cours |
+| **0.3** — Chez soi            | Chacun reçoit un logement à décorer et choisit qui peut entrer.        | ⏳ Prévu    |
+| **0.4** — Le monde s’agrandit | Étages, ascenseur, Galerie des projets, annuaire des membres.          | ⏳ Prévu    |
+| **0.5** — Vie communautaire   | Événements, expositions, défis, mini-jeux.                             | ⏳ Prévu    |
+| **1.0** — Version stable      | Un monde complet, sûr, bien modéré, toujours gratuit.                  | ⏳ Objectif |
 
 Le détail de chaque étape, expliqué simplement : [docs/ROADMAP.md](docs/ROADMAP.md).
 

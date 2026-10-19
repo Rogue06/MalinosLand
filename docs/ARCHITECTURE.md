@@ -2,7 +2,7 @@
 
 > **En bref (version simple)** : le jeu est écrit en TypeScript. Le moteur **Phaser** affiche le monde, **Preact** affiche les menus et le chat, et la « logique » (déplacements, collisions, règles) est rangée à part pour être testée facilement. Le contenu (salles, objets, textes) est séparé du code du moteur, pour que chacun puisse en ajouter sans tout comprendre.
 
-> Dernière mise à jour : v0.1 (prototype local). Les décisions détaillées et leurs motivations sont
+> Dernière mise à jour : v0.2 en cours (serveur temps réel prêt en local, pas encore en ligne). Les décisions détaillées et leurs motivations sont
 > dans [DECISIONS.md](DECISIONS.md).
 
 ## 1. Analyse technique et choix de la stack
@@ -55,7 +55,7 @@ limiter les appels de dessin. L’interface `TextureInfo` permettra d’utiliser
 │ WorldModel, validateMap │   │ protocol (validation)       │   │ stockage local versionné │
 │ PlayerController, depth │   │ NetworkClient (débit, quota)│   │ profil, réglages,        │
 └──────────────┬──────────┘   │ Transport : Offline,        │   │ progression              │
-               │              │ BroadcastChannel, (serveur) │   └──────────────────────────┘
+               │              │ BroadcastChannel, Server    │   └──────────────────────────┘
 ┌──────────────▼──────────┐   └─────────────────────────────┘
 │ src/core (pur)          │   ┌─────────────────────────────┐
 │ iso, collision, A*,     │   │ src/content (DONNÉES)       │
@@ -73,7 +73,7 @@ limiter les appels de dessin. L’interface `TextureInfo` permettra d’utiliser
 | Interfaces utilisateur      | `src/ui/` (Preact)                                                     |
 | Données du monde            | `src/content/` (cartes JSON versionnées, catalogue)                    |
 | Connexion / comptes         | v0.1 : profil local (`src/services/profile.ts`) ; v0.2 : Supabase Auth |
-| Communications multijoueurs | `src/multiplayer/` (interface `Transport` remplaçable)                 |
+| Communications multijoueurs | `src/multiplayer/` (interface `Transport` remplaçable) + `server/`     |
 | Personnalisation            | `src/content/avatars.ts` + éditeur `src/ui/AvatarEditor.tsx`           |
 | Persistance                 | `src/services/storage.ts` (local) ; v0.2 : base de données             |
 | Modération / administration | prévu v0.2+ (voir SECURITY.md, DATABASE.md)                            |
@@ -119,10 +119,27 @@ réduction des animations. Voir [TESTING.md](TESTING.md) pour les mesures et leu
 - **Un panneau d’interface** : ajouter l’id dans `PANEL_IDS` (`src/world/types.ts`) et le composant
   dans `src/ui/panels/`.
 
-## 6. Évolution prévue (v0.2)
+## 6. Le serveur temps réel (v0.2)
 
-Voir [REALTIME_NETWORK.md](REALTIME_NETWORK.md), [DATABASE.md](DATABASE.md) et
-[FREE_INFRASTRUCTURE.md](FREE_INFRASTRUCTURE.md) : Cloudflare Pages (site), Worker + Durable Object
-(temps réel, une instance par salle ou groupe de salles), Supabase (comptes, profils, logements,
-règles d’accès RLS). La couche `Transport` permet d’ajouter le transport serveur sans modifier le
-rendu ni la logique du monde.
+```
+navigateur ── WebSocket ──► Worker (server/src/index.ts) ──► Durable Object « monde-1 »
+ ServerTransport            /health, /ws, contrôle Origin     (server/src/WorldRoom.ts)
+                                                                       │
+                                                       RealtimeHub (server/src/hub.ts, pur)
+```
+
+- **`server/`** est un petit paquet npm séparé (outil Wrangler et types Cloudflare) : les joueurs
+  et les contributeurs qui ne touchent pas au serveur n’installent rien de plus.
+- **Une seule instance** du Durable Object pour tout le monde en v0.2 (« monde-1 ») : elle connaît
+  la salle de chaque joueur et ne relaie mouvements et chat de proximité qu’à la même salle.
+  Découpage par groupe de salles plus tard si besoin.
+- **`RealtimeHub`** contient toutes les règles (validation, anti-usurpation, anti-téléportation,
+  limites de débit, budget du jour) sans dépendre de Cloudflare : il est testé par Vitest comme
+  le reste du jeu. Il réutilise le protocole du client (`src/multiplayer/protocol.ts`).
+- **Côté jeu**, `ServerTransport` est choisi seulement si `VITE_REALTIME_URL` est défini
+  (`src/config.ts`) ; il se reconnecte tout seul (attente croissante) et respecte les refus du
+  serveur (salle pleine, maintenance…). La CSP est générée au build pour autoriser cette adresse.
+
+Détails : [REALTIME_NETWORK.md](REALTIME_NETWORK.md). Restent à venir : Cloudflare Pages (mise en
+ligne), Supabase (comptes, profils, logements, règles d’accès RLS) — voir
+[DATABASE.md](DATABASE.md) et [FREE_INFRASTRUCTURE.md](FREE_INFRASTRUCTURE.md).

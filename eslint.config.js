@@ -3,7 +3,7 @@ import tseslint from 'typescript-eslint';
 import globals from 'globals';
 
 export default tseslint.config(
-  { ignores: ['dist', 'node_modules', 'coverage'] },
+  { ignores: ['dist', 'node_modules', 'coverage', 'server/node_modules', 'server/.wrangler'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -32,7 +32,7 @@ export default tseslint.config(
   },
   {
     // Scripts Node (outils, tests de bout en bout exécutant du code dans la page).
-    files: ['scripts/**/*.mjs', '*.config.{js,ts}'],
+    files: ['scripts/**/*.mjs', 'server/scripts/**/*.mjs', '*.config.{js,ts}'],
     languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },
   {

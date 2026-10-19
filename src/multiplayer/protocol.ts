@@ -17,6 +17,10 @@ export type Emote = (typeof EMOTES)[number];
 
 export type ChatScope = 'local' | 'global';
 
+/** Avis du serveur au client (affichés au joueur). */
+export const NOTICE_CODES = ['full', 'maintenance', 'duplicate', 'kicked'] as const;
+export type NoticeCode = (typeof NOTICE_CODES)[number];
+
 export interface PeerState {
   room: string;
   x: number;
@@ -31,7 +35,10 @@ export type NetMessage =
   | { t: 'chat'; id: string; room: string; scope: ChatScope; text: string }
   | { t: 'emote'; id: string; room: string; e: Emote }
   | { t: 'look'; id: string; name: string; look: AvatarAppearance }
-  | { t: 'bye'; id: string };
+  | { t: 'bye'; id: string }
+  // Messages émis uniquement par le serveur temps réel :
+  | { t: 'rate'; ms: number }
+  | { t: 'notice'; code: NoticeCode };
 
 const ID_RE = /^[a-z0-9]{8,32}$/;
 const ROOM_RE = /^[a-z0-9-]{1,48}$/;
@@ -62,7 +69,20 @@ export function decodeMessage(raw: unknown): NetMessage | null {
       return null;
     }
   }
-  if (!isObj(data) || typeof data.id !== 'string' || !ID_RE.test(data.id)) return null;
+  if (!isObj(data)) return null;
+  // Messages du serveur (sans identifiant de joueur).
+  if (data.t === 'rate') {
+    const ms = data.ms;
+    return typeof ms === 'number' && Number.isFinite(ms) && ms >= 50 && ms <= 60000
+      ? { t: 'rate', ms: Math.round(ms) }
+      : null;
+  }
+  if (data.t === 'notice') {
+    return NOTICE_CODES.includes(data.code as NoticeCode)
+      ? { t: 'notice', code: data.code as NoticeCode }
+      : null;
+  }
+  if (typeof data.id !== 'string' || !ID_RE.test(data.id)) return null;
   const id = data.id;
   switch (data.t) {
     case 'hello': {

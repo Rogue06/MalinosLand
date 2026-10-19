@@ -1,0 +1,23 @@
+# Serveur temps réel de MalinosLand — offre GRATUITE de Cloudflare uniquement (voir
+# docs/FREE_INFRASTRUCTURE.md). Sur l'offre gratuite, un dépassement de quota provoque des
+# erreurs, jamais de facturation. Ne jamais activer d'offre payante sans l'accord du responsable.
+name = "malinosland-realtime"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+
+[[durable_objects.bindings]]
+name = "WORLD"
+class_name = "WorldRoom"
+
+# L'offre gratuite n'accepte que les Durable Objects à stockage SQLite.
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["WorldRoom"]
+
+[vars]
+# Développement local : le jeu tourne sur ces adresses. À remplacer par l'adresse publique du jeu
+# lors de la mise en ligne.
+ALLOWED_ORIGINS = "http://localhost:5173,http://localhost:4173"
+MAX_PLAYERS_PER_ROOM = "40"
+# 70 % des ≈ 2 millions de messages WebSocket entrants gratuits par jour.
+DAILY_MESSAGE_BUDGET = "1400000"
