@@ -2,6 +2,7 @@ import { h, render } from 'preact';
 import type Phaser from 'phaser';
 import { randomId } from './multiplayer/protocol';
 import { profileStore } from './services/profile';
+import { settingsStore } from './services/settings';
 import { App } from './ui/App';
 import './ui/styles.css';
 
@@ -13,6 +14,11 @@ const uiRoot = document.getElementById('ui')!;
 const gameRoot = document.getElementById('game')!;
 const selfId = randomId();
 let game: Phaser.Game | null = null;
+
+// La qualité graphique pilote aussi l'interface (ex. pas de flou d'arrière-plan en « basse »).
+const applyQuality = () => (document.documentElement.dataset.quality = settingsStore.get().quality);
+applyQuality();
+settingsStore.subscribe(applyQuality);
 
 render(h(App, null), uiRoot);
 document.getElementById('boot')?.remove();

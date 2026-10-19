@@ -89,6 +89,13 @@ a {
   backdrop-filter: blur(8px);
 }
 
+/* Qualité basse : le flou d'arrière-plan coûte cher sans carte graphique (≈ −35 % d'images/s
+   mesurés en rendu logiciel). On le remplace par un fond opaque. */
+[data-quality='low'] .panel-glass {
+  backdrop-filter: none;
+  background: var(--glass-strong);
+}
+
 /* ---------- Boutons */
 .btn {
   border: 0;
