@@ -6,6 +6,9 @@
  * Règles appliquées côté serveur (le client n'est jamais cru sur parole) :
  * - chaque message est validé par le protocole partagé (`decodeMessage`) puis ré-encodé ;
  * - l'identifiant d'un joueur est fixé à sa première présentation et ne peut pas être usurpé ;
+ * - un joueur connecté à son compte (jeton vérifié par la base) garde l'identifiant et le pseudo
+ *   de son compte, et porte la marque « vérifié » ; un visiteur ne peut pas prendre un
+ *   identifiant réservé aux comptes ;
  * - les déplacements trop rapides (téléportation) ou hors de la carte sont ignorés ;
  * - mouvements, émotes et chat de proximité ne sont relayés qu'aux joueurs de la même salle ;
  * - limites de débit (anti-spam), plafond de joueurs par salle, budget quotidien de messages.
@@ -13,6 +16,8 @@
 import type { AvatarAppearance } from '../../src/content/avatars';
 import type { Facing } from '../../src/core/iso';
 import {
+  ACCOUNT_ID_LENGTH,
+  accountPlayerId,
   decodeMessage,
   encodeMessage,
   type AnimState,
@@ -27,10 +32,18 @@ export interface Bucket {
   at: number;
 }
 
+/** Compte vérifié d'une connexion (identifiant du compte et pseudo enregistré). */
+export interface Account {
+  id: string;
+  name: string;
+}
+
 /** Données d'une connexion, enregistrées avec la WebSocket (« attachment »). */
 export interface ConnData {
   /** Clé unique de la connexion (attribuée par le serveur). */
   key: string;
+  /** Compte vérifié à l'ouverture de la connexion, ou null pour un visiteur. */
+  account: Account | null;
   /** Identifiant du joueur, fixé par son premier « hello ». */
   id: string | null;
   name: string;
@@ -102,9 +115,10 @@ function take(b: Bucket, capacity: number, perSecond: number, now: number): bool
   return true;
 }
 
-export function newConnData(key: string, now: number): ConnData {
+export function newConnData(key: string, now: number, account: Account | null = null): ConnData {
   return {
     key,
+    account,
     id: null,
     name: '',
     look: null,
@@ -186,6 +200,7 @@ export class RealtimeHub {
       y: c.y,
       f: c.f,
       s: c.s,
+      ...(c.account ? { v: true as const } : {}),
     };
   }
 
@@ -215,6 +230,10 @@ export class RealtimeHub {
 
     if (msg.t === 'hello') {
       if (d.id === null) {
+        // Compte : identifiant imposé. Visiteur : identifiants de compte interdits.
+        if (d.account) {
+          if (msg.id !== accountPlayerId(d.account.id)) return this.strike(conn);
+        } else if (msg.id.length === ACCOUNT_ID_LENGTH) return this.strike(conn);
         if (this.others(conn).some((c) => c.data.id === msg.id))
           return this.reject(conn, 'duplicate');
         if (!this.inBounds(msg.room, msg.x, msg.y)) return this.strike(conn);
@@ -222,7 +241,7 @@ export class RealtimeHub {
         if (inRoom >= this.opts.maxPerRoom) return this.reject(conn, 'full');
         Object.assign(d, {
           id: msg.id,
-          name: msg.name,
+          name: d.account?.name ?? msg.name,
           look: msg.look,
           room: msg.room,
           x: msg.x,
@@ -296,9 +315,16 @@ export class RealtimeHub {
         return;
       }
       case 'look': {
-        Object.assign(d, { name: msg.name, look: msg.look });
+        // Le pseudo d'un compte ne change qu'en base (nouvelle connexion ensuite).
+        Object.assign(d, { name: d.account?.name ?? msg.name, look: msg.look });
         conn.save();
-        this.send(this.others(conn), { t: 'look', id: d.id, name: d.name, look: msg.look });
+        this.send(this.others(conn), {
+          t: 'look',
+          id: d.id,
+          name: d.name,
+          look: msg.look,
+          ...(d.account ? { v: true as const } : {}),
+        });
         return;
       }
       case 'bye':

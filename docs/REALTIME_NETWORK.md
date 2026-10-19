@@ -139,10 +139,13 @@ entrants gratuits) :
 
 ### Pas encore fait
 
-- **Comptes** : les joueurs ne sont pas encore authentifiés (prochaine étape : Supabase, puis
-  vérification du jeton de connexion par le Worker).
-- **Mise en ligne** : prête (workflow « Mise en ligne », [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md)), à lancer
-  par le responsable une fois les secrets GitHub configurés.
+- **Comptes** : ✅ faits côté code. Le jeu propose le jeton Supabase dans les sous-protocoles de
+  la WebSocket (`malinos.v1`, `jwt.<jeton>`) ; le Worker demande `my_profile` à la base avec ce
+  jeton et transmet le compte au Durable Object (en-tête interne réécrit). Un joueur connecté
+  garde l’identifiant (UUID sans tirets, 32 caractères) et le pseudo de son compte, avec `v: true`
+  dans `hello` / `look` ; les visiteurs ne peuvent pas utiliser d’identifiant de 32 caractères.
+  Détails : [COMPTES.md](COMPTES.md).
+- **Mise en ligne** : ✅ (workflow « Mise en ligne », [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md)).
 - Collisions vérifiées côté serveur (seule la vitesse et les limites de la carte le sont).
 
 ## 5. Tests

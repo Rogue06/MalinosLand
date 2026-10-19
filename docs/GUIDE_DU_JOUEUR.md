@@ -18,6 +18,18 @@ Bienvenue dans MalinosLand ! Pour jouer, ouvre **[malinosland.pages.dev](https:/
 
 Tu pourras tout changer plus tard grâce au **miroir** du salon ou au bouton 🧑 en haut à droite.
 
+### Avec ou sans compte ?
+
+Les deux marchent. **Sans compte**, ton personnage est enregistré dans ce navigateur.
+**Avec un compte** (boutons « Se connecter avec GitHub / Google ») :
+
+- tu retrouves ton personnage sur tous tes appareils ;
+- ton pseudo t’est réservé, et une marque **✓** à côté de ton nom montre aux autres que c’est
+  bien toi ;
+- tu peux te déconnecter ou **supprimer ton compte** à tout moment (⚙️ Réglages → Compte).
+
+Ce qui est enregistré : ton pseudo et ton apparence. Jamais tes messages ni tes déplacements.
+
 ## 2. Se déplacer et interagir
 
 | Je veux…            | À la souris                                      | Au clavier                                                    |
@@ -113,7 +125,8 @@ Bouton 🗺️ : les prochaines versions résumées. Détails dans [ROADMAP.md](
 | **Réduire les animations**    | Pour un affichage plus calme.                                                                                                                              |
 | **Afficher les noms**         | Montre ou cache les pseudos au-dessus des têtes.                                                                                                           |
 | **Afficher les performances** | Montre les images par seconde (utile pour signaler un souci).                                                                                              |
-| **Démo multijoueur locale**   | Relie les onglets ouverts dans ce même navigateur.                                                                                                         |
+| **Compte**                    | Se connecter avec GitHub ou Google, se déconnecter, supprimer son compte.                                                                                  |
+| **Démo multijoueur locale**   | Relie les onglets ouverts dans ce même navigateur (version hors ligne seulement).                                                                          |
 
 ## 9. Un problème ?
 

@@ -114,6 +114,17 @@ de fournisseur = écrire un nouveau transport et/ou migrer un dump Postgres.
 - Vérifier chaque mois les tableaux de bord d’usage (Cloudflare, Supabase) ; consigner les
   relevés dans ce fichier.
 
+**Supabase (v0.2, en place)**
+
+- Organisation « Mickael » en offre **Free** (vérifié le 19/10/2026). 2 projets actifs maximum par
+  compte : LaChillance mis en pause pour créer `malinosland`.
+- Pause après 7 jours sans activité : évitée par le workflow quotidien « Maintien de la base des
+  comptes » (`.github/workflows/keepalive.yml`). En cas de pause, le jeu reste jouable en visiteur.
+- Pas de connexion par e-mail (l’envoi d’e-mails gratuit est réservé à l’équipe du projet) :
+  GitHub et Google uniquement, gratuits.
+- Le serveur temps réel fait **une** requête à la base par connexion d’un joueur connecté
+  (vérification du jeton), aucune pour les visiteurs.
+
 ## 7. Sauvegardes et portabilité
 
 - Code : GitHub (public).

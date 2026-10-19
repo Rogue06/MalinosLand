@@ -10,6 +10,13 @@ const RETRY_AFTER_CLOSE: Record<number, number | null> = {
 };
 const BACKOFF = [1000, 2000, 4000, 8000, 15_000, 30_000];
 const PING_EVERY = 25_000;
+/** Sous-protocole attendu par le serveur ; le jeton de connexion suit sous la forme « jwt.… ». */
+export const WS_PROTOCOL = 'malinos.v1';
+
+/** Sous-protocoles à proposer : le jeton du compte n'est jamais placé dans l'URL. */
+export function protocolsFor(token: string | null): string[] {
+  return token ? [WS_PROTOCOL, `jwt.${token}`] : [WS_PROTOCOL];
+}
 
 /**
  * Transport vers le serveur temps réel (Cloudflare Worker + Durable Object) par WebSocket.
@@ -31,20 +38,33 @@ export class ServerTransport implements Transport {
 
   constructor(
     private readonly url: string,
-    private readonly createSocket: (url: string) => WebSocket = (u) => new WebSocket(u),
+    private readonly createSocket: (url: string, protocols: string[]) => WebSocket = (u, p) =>
+      new WebSocket(u, p),
+    /** Jeton du compte connecté, relu à chaque connexion (il est renouvelé régulièrement). */
+    private readonly getToken: () => Promise<string | null> = async () => null,
   ) {}
 
   /** Lance la connexion ; ne bloque pas le jeu si le serveur est injoignable. */
   async connect(): Promise<void> {
     this.stopped = false;
-    this.open();
+    await this.open();
   }
 
-  private open(): void {
+  /** Ferme puis rouvre la connexion (ex. pseudo du compte modifié : le serveur le relit). */
+  reconnect(): void {
+    if (this.stopped) return;
+    this.attempt = 0;
+    if (this.ws) this.ws.close(1000, 'reconnexion');
+    else void this.open();
+  }
+
+  private async open(): Promise<void> {
     if (this.stopped) return;
     let ws: WebSocket;
     try {
-      ws = this.createSocket(this.url);
+      const token = await this.getToken().catch(() => null);
+      if (this.stopped) return;
+      ws = this.createSocket(this.url, protocolsFor(token));
     } catch {
       this.scheduleRetry();
       return;
@@ -84,7 +104,7 @@ export class ServerTransport implements Transport {
     const wait = base + Math.floor(Math.random() * 500);
     this.retryTimer = setTimeout(() => {
       this.retryTimer = null;
-      this.open();
+      void this.open();
     }, wait);
   }
 

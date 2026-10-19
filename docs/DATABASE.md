@@ -1,15 +1,21 @@
-# Base de données (prévue à partir de la v0.2)
+# Base de données
 
-> **En bref (version simple)** : en v0.1, ton personnage est enregistré dans ton navigateur. À partir de la v0.2, une base de données gratuite gardera les comptes, avatars, logements et projets de la galerie. Les règles d’accès (qui peut entrer dans quel logement) seront appliquées **dans la base elle-même**, pour qu’on ne puisse pas tricher.
+> **En bref (version simple)** : sans compte, ton personnage est enregistré dans ton navigateur. Depuis la v0.2, les joueurs qui se connectent (GitHub ou Google) ont un **profil** (pseudo + apparence) dans une base de données gratuite (Supabase). Plus tard, elle gardera aussi les logements et les projets de la galerie. Les règles d’accès sont appliquées **dans la base elle-même**, pour qu’on ne puisse pas tricher.
 
-> **v0.1 : aucune base de données.** Le profil, les réglages et la progression sont dans le
-> `localStorage` du navigateur (`src/services/`), versionnés (`{ v, data }`) et validés à la lecture.
+## 1. État actuel (v0.2)
 
-## 1. Choix prévu
+- **Supabase** (Postgres + Auth), offre gratuite, projet `malinosland` (Paris). Mode d’emploi et
+  réglages : [COMPTES.md](COMPTES.md).
+- Migrations SQL versionnées dans `supabase/migrations/` ; règles testées sans compte par
+  `tests/database.test.ts` (PGlite).
+- **En place** : table `profiles` (pseudo unique, apparence), RLS (lecture publique, écriture de
+  son seul profil, colonnes modifiables limitées), `delete_my_account()` (RGPD), `my_profile()`
+  (vérification des comptes par le serveur temps réel).
+- Visiteurs : profil, réglages et progression restent dans le `localStorage` (`src/services/`),
+  versionnés (`{ v, data }`) et validés à la lecture.
 
-Supabase (Postgres + Auth) en offre gratuite — voir [FREE_INFRASTRUCTURE.md](FREE_INFRASTRUCTURE.md).
-Les migrations SQL seront versionnées dans `supabase/migrations/`. Les permissions sont appliquées
-**en base** par des règles RLS (Row Level Security), jamais seulement dans l’interface.
+> Le schéma ci-dessous est la **cible** des versions suivantes ; seule la table `profiles` existe
+> (avec les colonnes `name`, `look`, `created_at`, `updated_at`).
 
 ## 2. Schéma envisagé
 
@@ -112,5 +118,7 @@ L’entrée dans un logement en temps réel sera aussi vérifiée par le serveur
 
 - Données minimales : pseudo, apparence, logement, contributions. Pas de nom réel requis.
 - Suppression de compte : `on delete cascade` depuis `auth.users` supprime toutes les données liées.
-- Export de ses données sur demande (requête SQL documentée), politique de confidentialité à rédiger
-  avant l’ouverture des comptes (v0.2).
+- ✅ Suppression de compte dans le jeu (Réglages → Compte → Supprimer mon compte).
+- Données affichées aux joueurs avant connexion (`PRIVACY_NOTE`, `src/config.ts`).
+- À faire : export de ses données sur demande (requête SQL documentée), page de politique de
+  confidentialité.

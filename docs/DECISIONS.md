@@ -136,3 +136,26 @@ Plutôt que l’intégration Git de Cloudflare : tout est décrit dans le dépô
 indépendant de l’outil ou de l’ordinateur utilisé.
 **Conséquences.** Aucune clé dans le dépôt ni dans une conversation. Publication manuelle après
 chaque fusion (automatisable plus tard sur `push` vers `main` si le responsable le souhaite).
+
+## DEC-015 — Comptes facultatifs : Supabase, GitHub + Google, vérifiés par la base (19/10/2026)
+
+**Contexte.** v0.2 : retrouver son personnage partout et empêcher l’usurpation de pseudo, sans
+coût, sans secret dans le Worker, sans alourdir le jeu pour les visiteurs.
+**Décision.**
+
+- Comptes **facultatifs** : les visiteurs jouent comme avant. Connexion **GitHub** et **Google**
+  (choix du responsable) ; pas d’e-mail (envoi gratuit réservé à l’équipe du projet Supabase).
+- Client : `@supabase/auth-js` + `@supabase/postgrest-js` (plutôt que `supabase-js` complet, qui
+  embarque temps réel et stockage inutiles), chargés à la demande (≈ 28 Ko gzip), flux **PKCE**.
+- Base : table `profiles` (pseudo unique, apparence), RLS, droits par colonne,
+  `delete_my_account()` (RGPD), `my_profile()`. Migrations dans `supabase/migrations/`.
+- Serveur temps réel : le jeton voyage dans `Sec-WebSocket-Protocol` (jamais dans l’URL) ; le
+  Worker le fait vérifier par la base via `my_profile` (aucun secret ni code de cryptographie) ;
+  identifiant réseau = UUID du compte sans tirets ; marque `v` ajoutée par le serveur seulement.
+- Tests de la base sans compte avec **PGlite** (PostgreSQL en WebAssembly, dépendance de
+  développement uniquement, ≈ 22 Mo installés).
+- Workflow quotidien pour éviter la pause des projets gratuits.
+  **Conséquences.** Les noms d’utilisateurs vérifiés ne peuvent pas être usurpés ; les visiteurs
+  peuvent encore prendre n’importe quel pseudo libre (sans ✓). Le pseudo d’un compte se change en
+  base, puis le jeu se reconnecte au serveur. Réglages GitHub / Google à faire dans les tableaux de
+  bord (secrets hors du dépôt).

@@ -5,6 +5,17 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (comptes joueurs)
+
+- Comptes **facultatifs** avec GitHub ou Google (Supabase) : personnage retrouvé sur tous les
+  appareils, pseudo réservé, marque **✓** garantie par le serveur temps réel, déconnexion et
+  suppression du compte (Réglages → Compte).
+- Base : table `profiles` avec règles d’accès (RLS), `delete_my_account`, `my_profile` ;
+  migrations dans `supabase/migrations/`, testées avec PGlite.
+- Serveur temps réel : vérification du jeton auprès de la base, identifiant et pseudo du compte
+  imposés, identifiants de compte interdits aux visiteurs.
+- Workflow quotidien pour garder la base gratuite active ; guide `docs/COMPTES.md`.
+
 ### Modifié
 
 - Le robot d’accueil s’appelle désormais **Joshua** (anciennement Malo).

@@ -29,12 +29,23 @@ export interface PeerState {
   s: AnimState;
 }
 
+/**
+ * `v` (vérifié) : ajouté par le serveur temps réel quand le joueur est connecté à son compte.
+ * Un client ne peut pas se l'attribuer : le serveur reconstruit lui-même ces messages.
+ */
 export type NetMessage =
-  | ({ t: 'hello'; id: string; name: string; look: AvatarAppearance; reply: boolean } & PeerState)
+  | ({
+      t: 'hello';
+      id: string;
+      name: string;
+      look: AvatarAppearance;
+      reply: boolean;
+      v?: true;
+    } & PeerState)
   | ({ t: 'state'; id: string } & PeerState)
   | { t: 'chat'; id: string; room: string; scope: ChatScope; text: string }
   | { t: 'emote'; id: string; room: string; e: Emote }
-  | { t: 'look'; id: string; name: string; look: AvatarAppearance }
+  | { t: 'look'; id: string; name: string; look: AvatarAppearance; v?: true }
   | { t: 'bye'; id: string }
   // Messages émis uniquement par le serveur temps réel :
   | { t: 'rate'; ms: number }
@@ -96,6 +107,7 @@ export function decodeMessage(raw: unknown): NetMessage | null {
         look: sanitizeAppearance(data.look),
         reply: data.reply === true,
         ...st,
+        ...(data.v === true ? { v: true as const } : {}),
       };
     }
     case 'state': {
@@ -115,7 +127,14 @@ export function decodeMessage(raw: unknown): NetMessage | null {
     }
     case 'look': {
       const name = sanitizeName(data.name);
-      return name ? { t: 'look', id, name, look: sanitizeAppearance(data.look) } : null;
+      if (!name) return null;
+      return {
+        t: 'look',
+        id,
+        name,
+        look: sanitizeAppearance(data.look),
+        ...(data.v === true ? { v: true as const } : {}),
+      };
     }
     case 'bye':
       return { t: 'bye', id };
@@ -141,4 +160,13 @@ export function randomId(rnd: () => number = Math.random): string {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   for (let i = 0; i < 16; i++) id += chars[Math.floor(rnd() * chars.length)];
   return id;
+}
+
+/** Longueur des identifiants réservés aux comptes (UUID sans tirets). */
+export const ACCOUNT_ID_LENGTH = 32;
+
+/** Identifiant réseau d'un joueur connecté à son compte : dérivé de l'identifiant du compte. */
+export function accountPlayerId(userId: string): string | null {
+  const id = userId.toLowerCase().replace(/-/g, '');
+  return /^[0-9a-f]{32}$/.test(id) ? id : null;
 }

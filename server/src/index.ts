@@ -3,6 +3,7 @@
  *   GET /health  → état du service
  *   GET /ws      → connexion WebSocket au monde (Durable Object « WorldRoom »)
  */
+import { ACCOUNT_HEADER, encodeAccountHeader, readProtocols, verifyAccount } from './account';
 import type { Env } from './WorldRoom';
 
 export { WorldRoom } from './WorldRoom';
@@ -32,8 +33,14 @@ export default {
       if (!originAllowed(request.headers.get('Origin'), env.ALLOWED_ORIGINS)) {
         return new Response('Origine non autorisée', { status: 403 });
       }
+      // Compte du joueur (jeton vérifié par la base) ; l'en-tête interne est toujours réécrit.
+      const { token } = readProtocols(request.headers.get('Sec-WebSocket-Protocol'));
+      const account = await verifyAccount(token, env);
+      const headers = new Headers(request.headers);
+      headers.delete(ACCOUNT_HEADER);
+      if (account) headers.set(ACCOUNT_HEADER, encodeAccountHeader(account));
       const stub = env.WORLD.get(env.WORLD.idFromName(WORLD_NAME));
-      return stub.fetch(request);
+      return stub.fetch(new Request(request, { headers }));
     }
     return new Response('Introuvable', { status: 404 });
   },

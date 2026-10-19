@@ -7,7 +7,14 @@ import { CHAT_MAX_LENGTH, sanitizeText } from '../../core/text';
 import { REALTIME_URL } from '../../config';
 import { NetworkClient, type RemotePeer } from '../../multiplayer/NetworkClient';
 import { ServerTransport } from '../../multiplayer/ServerTransport';
-import { EMOTES, type AnimState, type Emote, type NoticeCode } from '../../multiplayer/protocol';
+import {
+  EMOTES,
+  accountPlayerId,
+  type AnimState,
+  type Emote,
+  type NoticeCode,
+} from '../../multiplayer/protocol';
+import { accessToken, accountStore } from '../../services/account';
 import {
   BroadcastChannelTransport,
   OfflineTransport,
@@ -50,6 +57,11 @@ interface RemoteAvatar {
 
 const ROOM = 'hub';
 
+/** Nom affiché : la marque ✓ signale un joueur connecté à son compte (garantie par le serveur). */
+function displayName(name: string, verified: boolean): string {
+  return verified ? `${name} ✓` : name;
+}
+
 /** Messages affichés pour les avis du serveur. */
 const NOTICE_TEXT: Record<NoticeCode, string> = {
   full: 'Le Hub est plein pour le moment. Tu peux continuer à explorer en solo : nouvelle tentative dans une minute.',
@@ -72,6 +84,9 @@ export class WorldScene extends Phaser.Scene {
   private avatar!: AvatarView;
   private depthIndex!: DepthIndex;
   private net: NetworkClient | null = null;
+  private serverTransport: ServerTransport | null = null;
+  /** Le joueur est connecté à son compte et le serveur le sait (marque ✓). */
+  private selfVerified = false;
   private remotes = new Map<string, RemoteAvatar>();
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
   private cleanups: Array<() => void> = [];
@@ -112,9 +127,19 @@ export class WorldScene extends Phaser.Scene {
     this.renderer3d.build();
     this.depthIndex = new DepthIndex(this.world.width, this.renderer3d.depthBoxes);
 
+    const account = accountStore.get();
+    this.selfVerified =
+      account.status === 'signed-in' && accountPlayerId(account.user.id) === this.selfId;
+    this.savedName = account.status === 'signed-in' ? account.savedName : null;
     const spawn = this.world.map.spawn;
     this.player = new PlayerController(this.world, this.selfId, spawn, spawn.facing);
-    this.avatar = new AvatarView(this, this.tex, profile.look, profile.name, true);
+    this.avatar = new AvatarView(
+      this,
+      this.tex,
+      profile.look,
+      displayName(profile.name, this.selfVerified),
+      true,
+    );
 
     this.marker = this.add
       .ellipse(0, 0, 30, 15)
@@ -130,6 +155,7 @@ export class WorldScene extends Phaser.Scene {
     this.applySettings(settings);
     this.cleanups.push(settingsStore.subscribe((s) => this.applySettings(s)));
     this.cleanups.push(profileStore.subscribe((p) => p && this.onProfileChanged(p)));
+    this.cleanups.push(accountStore.subscribe(() => this.onAccountChanged()));
     this.cleanups.push(commands.on('chat-send', ({ text, scope }) => this.sendChat(text, scope)));
     this.cleanups.push(commands.on('emote', ({ emoji }) => this.playEmote(emoji)));
 
@@ -372,8 +398,11 @@ export class WorldScene extends Phaser.Scene {
     this.remotes.clear();
     const profile = profileStore.get()!;
     // Serveur configuré (VITE_REALTIME_URL) : multijoueur en ligne. Sinon, démo locale ou solo.
-    const transport: Transport = REALTIME_URL
-      ? new ServerTransport(REALTIME_URL)
+    this.serverTransport = REALTIME_URL
+      ? new ServerTransport(REALTIME_URL, undefined, accessToken)
+      : null;
+    const transport: Transport = this.serverTransport
+      ? this.serverTransport
       : multiTab && BroadcastChannelTransport.isSupported()
         ? new BroadcastChannelTransport()
         : new OfflineTransport();
@@ -389,7 +418,7 @@ export class WorldScene extends Phaser.Scene {
       this.addRemote(peer);
       pushChat({
         from: 'MalinosLand',
-        text: `${peer.name} a rejoint le Hub.`,
+        text: `${displayName(peer.name, peer.verified)} a rejoint le Hub.`,
         kind: 'system',
         scope: 'global',
       });
@@ -398,7 +427,7 @@ export class WorldScene extends Phaser.Scene {
       if (!this.remotes.has(peer.id)) this.addRemote(peer);
     });
     net.events.on('look', (peer) => {
-      this.remotes.get(peer.id)?.view.setLook(peer.look, peer.name);
+      this.remotes.get(peer.id)?.view.setLook(peer.look, displayName(peer.name, peer.verified));
       this.updatePresence();
     });
     net.events.on('leave', ({ id }) => {
@@ -416,7 +445,7 @@ export class WorldScene extends Phaser.Scene {
     });
     net.events.on('chat', ({ peer, text, scope }) => {
       if (scope === 'local') this.remotes.get(peer.id)?.view.say(text);
-      pushChat({ from: peer.name, text, kind: 'peer', scope });
+      pushChat({ from: displayName(peer.name, peer.verified), text, kind: 'peer', scope });
     });
     net.events.on('emote', ({ peer, emote }) => this.remotes.get(peer.id)?.view.say(emote, 3000));
     net.events.on('notice', ({ code }) => {
@@ -434,7 +463,13 @@ export class WorldScene extends Phaser.Scene {
 
   private addRemote(peer: RemotePeer): void {
     if (this.remotes.has(peer.id)) return;
-    const view = new AvatarView(this, this.tex, peer.look, peer.name, false);
+    const view = new AvatarView(
+      this,
+      this.tex,
+      peer.look,
+      displayName(peer.name, peer.verified),
+      false,
+    );
     view.x = peer.x;
     view.y = peer.y;
     view.setNameVisible(settingsStore.get().showNames);
@@ -457,11 +492,19 @@ export class WorldScene extends Phaser.Scene {
     const profile = profileStore.get();
     const list = [
       ...(profile
-        ? [{ id: this.selfId, name: profile.name, look: profile.look, self: true, room: ROOM }]
+        ? [
+            {
+              id: this.selfId,
+              name: displayName(profile.name, this.selfVerified),
+              look: profile.look,
+              self: true,
+              room: ROOM,
+            },
+          ]
         : []),
       ...[...this.remotes.values()].map(({ peer }) => ({
         id: peer.id,
-        name: peer.name,
+        name: displayName(peer.name, peer.verified),
         look: peer.look,
         self: false,
         room: peer.room,
@@ -484,9 +527,28 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private onProfileChanged(p: Profile): void {
-    this.avatar.setLook(p.look, p.name);
+    this.avatar.setLook(p.look, displayName(p.name, this.selfVerified));
     this.net?.updateLook(p.name, p.look);
     this.updatePresence();
+  }
+
+  private savedName: string | null = null;
+
+  /** Pseudo du compte enregistré ou modifié en base : le serveur doit le relire. */
+  private onAccountChanged(): void {
+    const s = accountStore.get();
+    const saved = s.status === 'signed-in' ? s.savedName : null;
+    if (saved === this.savedName) return;
+    const first = this.savedName === null;
+    this.savedName = saved;
+    if (!saved) return;
+    if (this.selfVerified) this.serverTransport?.reconnect();
+    else if (first && REALTIME_URL)
+      pushToast(
+        'Profil enregistré. Recharge la page pour apparaître avec ton compte ✓.',
+        '🔑',
+        8000,
+      );
   }
 
   // ---------------------------------------------------------------- Boucle

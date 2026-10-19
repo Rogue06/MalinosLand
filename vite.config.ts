@@ -7,11 +7,13 @@ import { loadEnv, type Plugin } from 'vite';
  *   n'est donc appliquée qu'en production) ;
  * - fichier `_headers` pour l'hébergeur (format Cloudflare Pages), avec les autres en-têtes de
  *   sécurité.
- * Si VITE_REALTIME_URL est défini, son origine est ajoutée à `connect-src` (WebSocket du serveur).
+ * Si VITE_REALTIME_URL (WebSocket du serveur) ou VITE_SUPABASE_URL (comptes) sont définis, leur
+ * origine est ajoutée à `connect-src`, et seulement elle.
  */
-export function buildCsp(realtimeUrl?: string): string {
+export function buildCsp(realtimeUrl?: string, supabaseUrl?: string): string {
   const connect = ["'self'"];
   if (realtimeUrl && /^wss?:\/\//.test(realtimeUrl)) connect.push(new URL(realtimeUrl).origin);
+  if (supabaseUrl && /^https:\/\//.test(supabaseUrl)) connect.push(new URL(supabaseUrl).origin);
   return [
     "default-src 'self'",
     "script-src 'self'",
@@ -24,8 +26,8 @@ export function buildCsp(realtimeUrl?: string): string {
   ].join('; ');
 }
 
-function securityPlugin(realtimeUrl?: string): Plugin {
-  const csp = buildCsp(realtimeUrl);
+function securityPlugin(realtimeUrl?: string, supabaseUrl?: string): Plugin {
+  const csp = buildCsp(realtimeUrl, supabaseUrl);
   return {
     name: 'malinosland-security',
     apply: 'build',
@@ -54,25 +56,28 @@ function securityPlugin(realtimeUrl?: string): Plugin {
   };
 }
 
-export default defineConfig(({ mode }) => ({
-  base: './',
-  plugins: [securityPlugin(loadEnv(mode, '.', 'VITE_').VITE_REALTIME_URL)],
-  build: {
-    target: 'es2022',
-    chunkSizeWarningLimit: 1600,
-    rollupOptions: {
-      output: {
-        // Phaser change rarement : un chunk séparé reste en cache entre deux versions du jeu.
-        manualChunks(id) {
-          if (id.includes('node_modules/phaser')) return 'phaser';
-          if (id.includes('node_modules/preact')) return 'preact';
-          return undefined;
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, '.', 'VITE_');
+  return {
+    base: './',
+    plugins: [securityPlugin(env.VITE_REALTIME_URL, env.VITE_SUPABASE_URL)],
+    build: {
+      target: 'es2022',
+      chunkSizeWarningLimit: 1600,
+      rollupOptions: {
+        output: {
+          // Phaser change rarement : un chunk séparé reste en cache entre deux versions du jeu.
+          manualChunks(id) {
+            if (id.includes('node_modules/phaser')) return 'phaser';
+            if (id.includes('node_modules/preact')) return 'preact';
+            return undefined;
+          },
         },
       },
     },
-  },
-  test: {
-    include: ['tests/**/*.test.ts'],
-    environment: 'node',
-  },
-}));
+    test: {
+      include: ['tests/**/*.test.ts'],
+      environment: 'node',
+    },
+  };
+});
