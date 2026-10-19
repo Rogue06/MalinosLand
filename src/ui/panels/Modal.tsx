@@ -1,5 +1,5 @@
 import type { ComponentChildren } from 'preact';
-import { useEffect, useRef } from 'preact/hooks';
+import { useLayoutEffect, useRef } from 'preact/hooks';
 import { panelStore } from '../../state';
 
 /** Fenêtre modale accessible : Échap ou clic à l'extérieur pour fermer. */
@@ -15,7 +15,9 @@ export function Modal({
   wide?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
+  // useLayoutEffect : l'écouteur est actif dès l'affichage. Avec useEffect, il n'arrivait qu'à
+  // l'image suivante, et un Échap rapide sur une machine lente était perdu.
+  useLayoutEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && panelStore.set(null);
     window.addEventListener('keydown', onKey);
     ref.current?.focus();

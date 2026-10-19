@@ -106,7 +106,7 @@ const dbg = (fn, arg) => page.evaluate(fn, arg);
  * Node (et non par une minuterie de la page) : sur les serveurs de CI, Chrome peut ralentir
  * fortement les minuteries d'une page, ce qui bloquait page.waitForFunction.
  */
-async function pollPage(target, fn, arg) {
+async function pollPage(target, fn, arg, label = 'condition') {
   const deadline = Date.now() + TIMEOUT;
   let last;
   let attempts = 0;
@@ -124,7 +124,7 @@ async function pollPage(target, fn, arg) {
     await new Promise((r) => setTimeout(r, 200));
   }
   throw new Error(
-    `délai de ${TIMEOUT / 1000} s dépassé après ${attempts} vérification(s), la plus lente en ${slowest} ms` +
+    `${label} : délai de ${TIMEOUT / 1000} s dépassé après ${attempts} vérification(s), la plus lente en ${slowest} ms` +
       (last ? ` (${last.message.split('\n')[0]})` : ''),
   );
 }
@@ -154,12 +154,18 @@ function waitUi(selector, text = '', target = page) {
         return r.width > 0 && r.height > 0 && (!txt || el.textContent.includes(txt));
       }),
     [selector, text],
+    `affichage de ${selector}${text ? ` « ${text} »` : ''}`,
   );
 }
 
 /** Attend qu'aucun élément ne corresponde au sélecteur. */
 function waitGone(selector) {
-  return waitFor((sel) => !document.querySelector(sel), selector);
+  return pollPage(
+    page,
+    (sel) => !document.querySelector(sel),
+    selector,
+    `disparition de ${selector}`,
+  );
 }
 
 /** Attend qu'aucune fenêtre ni dialogue ne soit ouvert (le jeu peut traiter les touches en retard). */

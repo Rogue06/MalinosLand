@@ -21,10 +21,12 @@
 
 ## Dernières sessions
 
-- **19/10** — Réparation du test e2e sur GitHub : la cause était le ralentissement des minuteries
-  de la page par Chrome sur les serveurs de CI (les attentes de Playwright dans la page ne se
-  réveillaient pas). Les attentes sont maintenant sondées depuis Node. Annotations GitHub par étape,
-  diagnostic `state()` en cas d’échec, mode `E2E_CPU_THROTTLE`, détection de Chrome.
+- **19/10** — Réparation du test e2e sur GitHub. Vraie cause trouvée grâce aux annotations : les
+  fenêtres (Modal) et dialogues installaient leur écouteur clavier avec `useEffect`, donc à l’image
+  suivante ; sur une machine lente, l’Échap pressé aussitôt était perdu. Corrigé avec
+  `useLayoutEffect`. Au passage : pas de flou d’arrière-plan en qualité basse (−35 % d’i/s sans GPU),
+  test e2e en qualité basse, sondage depuis Node, annotations par étape, `state()`,
+  `E2E_CPU_THROTTLE`, détection de Chrome. Le job e2e est bloquant.
 - **18/10 (soir)** — Casque qui traversait certaines coiffures corrigé (`HAIR_BOUNDS` + test) ;
   documentation réécrite pour la communauté (README illustré, guide du joueur, glossaire, feuille
   de route pédagogique…) ; script `npm run docs:screenshots`.
