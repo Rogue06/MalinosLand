@@ -11,7 +11,7 @@ export interface QuestDef {
 export const QUESTS: QuestDef[] = [
   {
     id: 'talk_guide',
-    title: 'Parle à Malo, le robot d’accueil',
+    title: 'Parle à Joshua, le robot d’accueil',
     hint: 'Il t’attend dans le hall. Clique sur lui ou approche-toi et appuie sur E.',
   },
   { id: 'read_welcome', title: 'Lis le panneau de bienvenue', hint: 'Près de l’entrée du hall.' },

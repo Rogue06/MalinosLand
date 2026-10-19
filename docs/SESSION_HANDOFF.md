@@ -26,8 +26,8 @@
   étapes vertes : `/health` répond, site répond, origine inconnue refusée). Guide :
   [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md). **Relancer le workflow après chaque fusion** dans `main`
   qui touche au jeu ou au serveur.
-- Branche `fix/textes-jeu-en-ligne` : textes du jeu exacts sur les données transmises en ligne
-  (`PRIVACY_NOTE`), feuille de route du jeu, README avec l’adresse du jeu.
+- PR #6 fusionnée et mise en ligne : textes exacts sur les données transmises (`PRIVACY_NOTE`),
+  feuille de route du jeu, README avec l’adresse du jeu.
 - Anciennes branches distantes déjà fusionnées (`feature/initial-prototype`,
   `fix/casque-et-documentation`, `fix/ci-e2e`, `docs/portabilite-ia`, `feature/v0.2-realtime`,
   `feature/mise-en-ligne-cloudflare`) :
@@ -63,9 +63,9 @@
 
 ## Points en attente de décision du responsable
 
-1. Fusionner `fix/textes-jeu-en-ligne` puis relancer **Mise en ligne** (sinon le site en ligne
-   affiche encore « aucune donnée envoyée »).
-2. Ensuite : compte Supabase pour les comptes joueurs.
+1. Fusionner `content/robot-joshua` (le robot d’accueil s’appelle Joshua) puis relancer
+   **Mise en ligne**.
+2. Comptes joueurs Supabase (en cours de conception).
 3. Optionnel : exiger les vérifications de la CI dans la règle de protection.
 4. **DEC-009** — licence MIT (ou AGPL-3.0).
 

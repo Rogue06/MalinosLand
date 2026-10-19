@@ -22,14 +22,14 @@ describe('PlayerController', () => {
     expect(pc.pos.y).toBeCloseTo(7.5, 1);
   });
 
-  it('marche jusqu’à Malo puis déclenche l’interaction', () => {
+  it('marche jusqu’à Joshua puis déclenche l’interaction', () => {
     const world = loadWorld('hub');
     const pc = new PlayerController(world, 'me', world.map.spawn, 'ny');
-    const malo = world.getObject('malo')!;
-    expect(pc.requestUse(malo)).toBe('walking');
+    const joshua = world.getObject('joshua')!;
+    expect(pc.requestUse(joshua)).toBe('walking');
     const arrived = simulate(pc, 15);
-    expect(arrived).toEqual([{ kind: 'use', objectId: 'malo' }]);
-    expect(world.distanceToObject(pc.pos, malo)).toBeLessThan(1);
+    expect(arrived).toEqual([{ kind: 'use', objectId: 'joshua' }]);
+    expect(world.distanceToObject(pc.pos, joshua)).toBeLessThan(1);
   });
 
   it('s’assoit sur un banc puis se relève au clavier', () => {

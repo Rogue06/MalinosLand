@@ -33,7 +33,7 @@ y  0   BBBBBBBBBBBBB#############gggggggg      B/# murs hauts (brique / enduit)
 
 | Zone (id)                          | Statut           | Contenu                                                                                             |
 | ---------------------------------- | ---------------- | --------------------------------------------------------------------------------------------------- |
-| Hall d’accueil (`hall`)            | ouvert           | Malo le robot, comptoir, panneau de bienvenue, tableau « Roadmap », ascenseur, tapis MalinosLand    |
+| Hall d’accueil (`hall`)            | ouvert           | Joshua le robot, comptoir, panneau de bienvenue, tableau « Roadmap », ascenseur, tapis MalinosLand  |
 | Espace coworking (`coworking`)     | ouvert           | 4 bureaux doubles, poste « Astuce IA du jour », table ronde, bibliothèques, fenêtres, tableau blanc |
 | Salle de conférence (`conference`) | ouvert           | Scène, pupitre, écran géant, rangées de sièges (événements : v0.5)                                  |
 | Salon détente (`lounge`)           | ouvert           | Canapés, fauteuils, comptoir à café, borne d’arcade, miroir, livres                                 |
@@ -73,11 +73,11 @@ Fichiers JSON dans `src/content/maps/`, typés par `MapFile` (`src/world/types.t
       "type": "robot",
       "x": 11,
       "y": 15,
-      "id": "malo",
-      "label": "Malo",
+      "id": "joshua",
+      "label": "Joshua",
       "rot": 0,
       "variant": 0,
-      "interaction": { "kind": "dialog", "label": "Parler à Malo", "lines": ["…"] },
+      "interaction": { "kind": "dialog", "label": "Parler à Joshua", "lines": ["…"] },
     },
   ],
   "wallDecor": [{ "type": "window", "x": 2, "y": 0, "side": "py" }],

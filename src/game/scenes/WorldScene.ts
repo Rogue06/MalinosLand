@@ -603,7 +603,7 @@ export class WorldScene extends Phaser.Scene {
     if (id === 'terrace') this.quest('terrace');
     if (id === 'hall' && !this.greeted) {
       this.greeted = true;
-      this.renderer3d.objectBubble('malo', 'Bip bip ! Bienvenue !', 4500);
+      this.renderer3d.objectBubble('joshua', 'Bip bip ! Bienvenue !', 4500);
     }
   }
 

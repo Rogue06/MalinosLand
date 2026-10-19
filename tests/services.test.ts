@@ -43,7 +43,7 @@ describe('stockage versionné', () => {
 
 describe('profil et réglages', () => {
   it('valide le profil chargé', () => {
-    expect(parseProfile({ name: 'Malo', look: { top: 3 } })?.look.top).toBe(3);
+    expect(parseProfile({ name: 'Joshua', look: { top: 3 } })?.look.top).toBe(3);
     expect(parseProfile({ name: '<b>', look: {} })).toBeNull();
     expect(parseProfile(null)).toBeNull();
   });

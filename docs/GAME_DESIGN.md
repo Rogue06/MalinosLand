@@ -26,11 +26,11 @@ Les touches « haut/bas/gauche/droite » suivent l’écran (haut = vers le fond
 - **Déplacement** : 3,4 tuiles/s, glissement le long des obstacles, chemin A* lissé (8 directions,
   sans couper les coins). Indicateur de destination au sol.
 - **Interactions** (données dans la carte et le catalogue) :
-  - _dialogue_ : personnage ou panneau qui parle (Malo, chantier, galerie, borne d’arcade…) ;
+  - _dialogue_ : personnage ou panneau qui parle (Joshua, chantier, galerie, borne d’arcade…) ;
   - _panneau_ : bienvenue, feuille de route, ascenseur, astuce IA, événements, miroir (avatar) ;
   - _émote_ : café ☕, fontaine ✨ ;
   - _assise_ : chaises, fauteuils, canapés, bancs, transats (places multiples, occupation gérée).
-- **Indice contextuel** en bas de l’écran : « E · Parler à Malo », « E · S’asseoir »…
+- **Indice contextuel** en bas de l’écran : « E · Parler à Joshua », « E · S’asseoir »…
 - **Objectifs « Premiers pas »** (8) : guident la découverte ; aucune récompense marchande.
 - **Chat** : onglets _Proximité_ (bulle au-dessus de la tête, même salle) et _Général_ ;
   anti-spam (5 messages d’affilée puis 1 toutes les 2 s) ; 140 caractères max.

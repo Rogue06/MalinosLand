@@ -20,8 +20,15 @@ export function TopBar({
             Malinos<b>Land</b>
           </span>
         </div>
-        <span class="badge" title="Version prototype : fonctionne en local, sans serveur">
-          v0.1 · prototype
+        <span
+          class="badge"
+          title={
+            REALTIME_URL
+              ? 'Version prototype en ligne : les comptes arrivent bientôt'
+              : 'Version prototype : fonctionne en local, sans serveur'
+          }
+        >
+          v0.2 · prototype
         </span>
         {zone && (
           <span class={`zone-chip ${zone.status}`} title={zone.description}>

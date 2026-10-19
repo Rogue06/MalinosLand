@@ -31,7 +31,7 @@ flowchart LR
 - créer et modifier ton avatar (silhouette, coiffure, couleurs, accessoires) ;
 - te promener à la souris ou au clavier dans le hall, le coworking, la salle de conférence, le
   salon, le jardin et la terrasse ;
-- parler à Malo, t’asseoir, prendre un café, appeler l’ascenseur, lire les panneaux ;
+- parler à Joshua, t’asseoir, prendre un café, appeler l’ascenseur, lire les panneaux ;
 - suivre les 8 objectifs « Premiers pas », écrire dans le chat, envoyer des émotes.
 
 **Ses limites (normales pour un prototype) :**

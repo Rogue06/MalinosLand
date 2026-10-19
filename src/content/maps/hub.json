@@ -199,14 +199,14 @@
       "type": "robot",
       "x": 11,
       "y": 15,
-      "id": "malo",
+      "id": "joshua",
       "interaction": {
         "kind": "dialog",
-        "label": "Parler à Malo",
-        "speaker": "Malo",
+        "label": "Parler à Joshua",
+        "speaker": "Joshua",
         "quest": "talk_guide",
         "lines": [
-          "Bip bip ! Bienvenue au Hub de MalinosLand ! Je suis Malo, le robot d’accueil.",
+          "Bip bip ! Bienvenue au Hub de MalinosLand ! Je suis Joshua, le robot d’accueil.",
           "Ici, tout est gratuit, open source et construit par la communauté des Malinos.",
           "Pour te déplacer : clique sur le sol, ou utilise ZQSD / WASD / les flèches.",
           "Approche-toi d’un objet et appuie sur E (ou clique dessus) pour interagir.",
@@ -214,7 +214,7 @@
           "Ta liste d’objectifs « Premiers pas » est en haut à droite. Bonne visite !"
         ]
       },
-      "label": "Malo"
+      "label": "Joshua"
     },
     {
       "type": "board_welcome",
