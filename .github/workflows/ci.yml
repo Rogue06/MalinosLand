@@ -40,8 +40,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: check
     timeout-minutes: 15
-    # Non bloquant tant qu'il n'a pas été validé sur les runners GitHub (voir docs/TESTING.md).
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

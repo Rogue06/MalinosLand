@@ -3,6 +3,21 @@
 Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Versions selon
 [SemVer](https://semver.org/lang/fr/).
 
+## [Non publié]
+
+### Corrigé
+
+- Le test de bout en bout passe désormais sur GitHub Actions et devient **bloquant** : attentes
+  sondées depuis Node (Chrome ralentissait les minuteries de la page sur les serveurs de CI),
+  longs trajets remplacés par une téléportation, détection automatique de Chrome.
+
+### Ajouté
+
+- Annotations GitHub et résumé du job pour chaque étape et erreur du test de bout en bout,
+  diagnostic de l’état du jeu en cas d’échec (`window.__malinosDebug.state()`).
+- Mode `E2E_CPU_THROTTLE` pour simuler une machine lente en local.
+- Actions GitHub mises à jour (fin de l’avertissement Node.js 20).
+
 ## [0.1.0] — non publiée (branche `feature/initial-prototype`)
 
 ### Ajouté
