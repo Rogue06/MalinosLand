@@ -18,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -29,7 +29,7 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: dist
           path: dist
@@ -43,8 +43,8 @@ jobs:
     # Non bloquant tant qu'il n'a pas été validé sur les runners GitHub (voir docs/TESTING.md).
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -53,10 +53,13 @@ jobs:
       - name: Lancer le serveur de prévisualisation
         run: npx vite preview --port 4173 --strictPort &
       - run: npx wait-on@8 http://localhost:4173 --timeout 30000
+      - name: Trouver Chrome sur le serveur
+        run: |
+          CHROME=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)
+          echo "Chrome : $CHROME"
+          echo "CHROMIUM_PATH=$CHROME" >> "$GITHUB_ENV"
       - run: npm run test:e2e -- http://localhost:4173/ screenshots
-        env:
-          CHROMIUM_PATH: /usr/bin/google-chrome
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: always()
         with:
           name: screenshots
