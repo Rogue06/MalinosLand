@@ -109,16 +109,23 @@ const dbg = (fn, arg) => page.evaluate(fn, arg);
 async function pollPage(target, fn, arg) {
   const deadline = Date.now() + TIMEOUT;
   let last;
+  let attempts = 0;
+  let slowest = 0;
   while (Date.now() < deadline) {
+    const t0 = Date.now();
     try {
-      if (await target.evaluate(fn, arg)) return;
+      attempts++;
+      const ok = await target.evaluate(fn, arg);
+      slowest = Math.max(slowest, Date.now() - t0);
+      if (ok) return;
     } catch (err) {
       last = err;
     }
     await new Promise((r) => setTimeout(r, 200));
   }
   throw new Error(
-    `délai de ${TIMEOUT / 1000} s dépassé${last ? ` (${last.message.split('\n')[0]})` : ''}`,
+    `délai de ${TIMEOUT / 1000} s dépassé après ${attempts} vérification(s), la plus lente en ${slowest} ms` +
+      (last ? ` (${last.message.split('\n')[0]})` : ''),
   );
 }
 const waitFor = (fn, arg) => pollPage(page, fn, arg);
