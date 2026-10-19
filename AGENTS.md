@@ -132,5 +132,6 @@ expliqués dans `docs/GLOSSAIRE.md`.
 ## 9. Outils de débogage
 
 Ajouter `?debug` à l’URL du jeu expose `window.__malinosDebug` : `pos()`, `state()`,
-`walkTo(x, y)`, `teleport(x, y, orientation)`, `zoom(z)`, `use(id)`, `useType(type)`, `seated()`,
+`walkTo(x, y)`, `teleport(x, y, orientation)`, `zoom(z)`, `use(id)`, `useType(type)`,
+`sit(type, n)` (s’asseoir aussitôt sur le n-ième siège d’un type), `seated()`,
 `peers()`, `fps()`. Utilisé par les tests de bout en bout et les captures de documentation.
