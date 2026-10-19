@@ -3,13 +3,17 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 18/10/2026 (soir) — v0.1 terminée, pull request ouverte vers `main`.**
+**Dernière mise à jour : 19/10/2026 — v0.1 terminée, PR #1 prête à être fusionnée dans `main`.**
 
 ## Où en est-on ?
 
 - Branche de travail : **`feature/initial-prototype`** (poussée sur GitHub).
-- Une **pull request vers `main`** a été ouverte à la demande du responsable. **Elle n’est pas
-  fusionnée** : la fusion attend sa validation explicite (Rogue06).
+- La **PR #1** (`fix/casque-et-documentation` → `main`) contient tout le travail de la v0.1. Le
+  responsable a validé sa fusion le 19/10 ; elle se fait par **« Squash and merge »** depuis GitHub.
+  `feature/initial-prototype` est une ancienne branche (incluse dans la PR #1) : à supprimer après fusion.
+- **Protection de `main` active** (corrigée le 19/10) : règle « Protection de la branche principale »
+  sur la branche par défaut — pull request obligatoire, fusion en _squash_ uniquement, ni
+  suppression ni push forcé. Les branches de travail ne sont pas protégées.
 - `main` ne contient qu’un commit d’initialisation vide.
 - **v0.1 (prototype jouable, local) : terminée et testée.** Voir [ROADMAP.md](ROADMAP.md).
 - `npm run check` : **OK** (62 tests unitaires). Test de bout en bout : **OK** en développement
@@ -31,9 +35,9 @@
 
 ## Points en attente de décision du responsable
 
-1. **Relire et fusionner la pull request** de la v0.1 (ou demander des changements).
-2. **Protection de `main`** sur GitHub (Settings → Branches) : PR obligatoire, CI
-   « Types, lint, tests, build » requise, relecture CODEOWNERS.
+1. **Fusionner la PR #1** (bouton « Squash and merge » sur GitHub).
+2. Optionnel : rendre la vérification « Types, lint, tests, build » obligatoire dans la règle
+   de protection (_Require status checks to pass_).
 3. **DEC-006** — infrastructure v0.2 : Cloudflare (Pages + Workers + Durable Objects) + Supabase,
    comptes gratuits **sans carte bancaire**.
 4. **DEC-009** — licence MIT (ou AGPL-3.0).
@@ -41,8 +45,10 @@
 ## Problèmes connus / limites
 
 - **Performances non mesurées sur du vrai matériel** (seulement en rendu logiciel, sans GPU).
-- Job CI `e2e` **non bloquant** tant qu’il n’a pas tourné avec succès sur GitHub (chemin de Chrome
-  supposé `/usr/bin/google-chrome`). Vérifier son résultat sur la PR, puis le rendre bloquant.
+- Job CI `e2e` **en échec sur GitHub** (non bloquant). Il passe dans l’environnement de
+  développement ; le journal GitHub n’est pas lisible depuis une session Claude (téléchargement
+  bloqué). Piste : faire écrire les erreurs du test en annotations (`::error::`) pour les lire via
+  l’API, vérifier le chemin de Chrome (`/usr/bin/google-chrome`) et la lenteur du rendu sans GPU.
 - Quotas des fournisseurs relevés via un moteur de recherche : **à re-vérifier** avant déploiement.
 - Phaser ≈ 357 Ko gzip (piste : build allégé, F33).
 - Mobile jouable au toucher mais interface non optimisée.
@@ -51,7 +57,8 @@
 
 ## Prochaines étapes suggérées (dans l’ordre)
 
-1. Vérifier la CI sur la PR, faire valider puis fusionner la v0.1, activer la protection de `main`.
+1. Après la fusion : corriger le test de bout en bout sur GitHub (branche `fix/ci-e2e`), puis le
+   rendre bloquant.
 2. Mesurer les performances sur 2–3 machines réelles (procédure dans [TESTING.md](TESTING.md)).
 3. Valider DEC-006 et créer les comptes gratuits, puis démarrer la v0.2 sur des branches dédiées :
    `feature/v0.2-auth` (Supabase Auth, profils, migrations SQL, RLS) puis
