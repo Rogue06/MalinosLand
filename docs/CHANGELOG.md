@@ -5,6 +5,12 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Corrigé (affichage)
+
+- Réglages : les cases à cocher étaient écrasées (conflit avec le style des cases d’objectifs).
+- Téléphone : le bouton ⚙️ était caché sous la liste d’objectifs ; barre du haut sur deux lignes,
+  objectifs repliés au départ sur petit écran.
+
 ### Ajouté (confidentialité)
 
 - Page « Politique de confidentialité » (`/confidentialite.html`), liée depuis l’écran d’accueil et

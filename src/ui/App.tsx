@@ -45,7 +45,10 @@ function ActivePanel() {
 
 export function App() {
   const profile = useStore(profileStore);
-  const [objectives, setObjectives] = useState(true);
+  // Petits écrans : la liste d'objectifs est repliée au départ (bouton 🎯 pour l'ouvrir).
+  const [objectives, setObjectives] = useState(
+    () => typeof window === 'undefined' || window.innerWidth > 760,
+  );
   if (!profile) return <Onboarding />;
   return (
     <div class="hud">

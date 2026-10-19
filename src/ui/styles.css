@@ -336,7 +336,8 @@ a {
   font-size: 11.5px;
   margin-top: 2px;
 }
-.check {
+/* Case des objectifs (à ne pas confondre avec les cases à cocher des réglages). */
+.objectives .check {
   flex: none;
   width: 16px;
   height: 16px;
@@ -348,7 +349,7 @@ a {
   font-size: 11px;
   font-weight: 900;
 }
-.done .check {
+.objectives .done .check {
   background: var(--teal);
   border-color: var(--teal);
   color: #fff;
@@ -937,9 +938,36 @@ a {
   .avatar-editor {
     grid-template-columns: 1fr;
   }
+  /* Barre du haut sur deux lignes fixes : logo + lieu, puis présence + boutons (tous visibles). */
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .topbar-left,
+  .topbar-right {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+  .topbar-right {
+    justify-content: flex-end;
+  }
+  .topbar-left .zone-chip {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+  }
   .objectives {
     width: calc(100vw - 24px);
-    top: 104px;
+    top: 100px;
+    max-height: calc(100vh - 330px);
+    overflow-y: auto;
   }
   .chat {
     width: calc(100vw - 24px);
