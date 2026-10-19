@@ -96,10 +96,17 @@ Supabase → **Authentication** → **URL Configuration** :
 
 1. [console.cloud.google.com](https://console.cloud.google.com) → créer un projet « MalinosLand »
    (gratuit, aucune carte demandée pour cet usage).
-2. **APIs & Services** → **OAuth consent screen** (ou « Google Auth Platform ») : type
-   **External**, nom de l’application `MalinosLand`, e-mail de contact ; domaine autorisé
-   `supabase.co`. Publier l’application (« In production ») pour que tout le monde puisse se
-   connecter.
+2. **Google Auth Platform** → **Branding** (« Branding ») :
+   - Nom de l’application : `MalinosLand` ; adresse e-mail d’assistance : au choix ;
+   - Page d’accueil : `https://malinosland.pages.dev`
+   - Règles de confidentialité : `https://malinosland.pages.dev/confidentialite.html`
+   - Conditions d’utilisation : laisser vide (facultatif) ;
+   - Domaines autorisés : `malinosland.pages.dev` et `xezisaqffltiuyeblknt.supabase.co` ;
+   - Coordonnées du développeur : ton e-mail → **Enregistrer**.
+     Puis **Audience** : type **Externe**, et **Publier l’application** (« En production »).
+     Sans publication, seuls les « utilisateurs tests » ajoutés à la main peuvent se connecter.
+     La connexion n’utilise que les informations de base (e-mail, nom) : aucune validation par
+     Google n’est nécessaire.
 3. **Credentials** → **Create credentials** → **OAuth client ID** → type **Web application** :
    - Authorized JavaScript origins : `https://malinosland.pages.dev`
    - Authorized redirect URIs : `https://xezisaqffltiuyeblknt.supabase.co/auth/v1/callback`

@@ -53,7 +53,10 @@ export function WelcomePanel() {
         Développeurs, graphistes ou simples curieux : chaque contribution passe par une proposition
         (pull request) relue par l’équipe.
       </p>
-      <p class="muted small">{PRIVACY_NOTE}</p>
+      <p class="muted small">
+        {PRIVACY_NOTE}{' '}
+        <ExternalLink href="./confidentialite.html">Politique de confidentialité</ExternalLink>
+      </p>
     </Modal>
   );
 }
