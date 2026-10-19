@@ -67,8 +67,8 @@ en direct.
   et un **budget quotidien** qui ralentit le jeu puis le met en pause avant la limite gratuite.
 - ✅ **Le jeu est en ligne** depuis le 19/10/2026 : [malinosland.pages.dev](https://malinosland.pages.dev) (offre gratuite
   Cloudflare).
-- 🔶 **Comptes joueurs** (facultatifs, GitHub ou Google) : développés et testés, base de données
-  créée ; il reste à brancher GitHub et Google dans les réglages (voir [COMPTES.md](COMPTES.md)).
+- ✅ **Comptes joueurs** (facultatifs, GitHub ou Google) : en ligne depuis le 19/10/2026 (voir
+  [COMPTES.md](COMPTES.md)).
   Avec un compte : personnage retrouvé partout, pseudo réservé, marque ✓, suppression du compte
   en un clic.
 - ⬜ Signaler / masquer un joueur.
@@ -168,8 +168,8 @@ La feuille de route n’est pas figée : **elle bouge selon vos retours.**
 
 ### v0.2
 
-- 🔶 Comptes facultatifs (Supabase Auth, GitHub + Google), profil en base, marque ✓ vérifiée
-  par le serveur — reste la configuration GitHub / Google ; anti-robots (Turnstile) plus tard
+- ✅ Comptes facultatifs (Supabase Auth, GitHub + Google), profil en base, marque ✓ vérifiée
+  par le serveur · ⬜ anti-robots (Turnstile) plus tard
 - ✅ Serveur temps réel (Cloudflare Worker + Durable Object) et transport réseau associé
 - ✅ Présence, synchronisation des déplacements, chat local/général
 - ✅ Suppression de compte (RGPD) · ⬜ signaler / masquer

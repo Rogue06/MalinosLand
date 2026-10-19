@@ -3,8 +3,8 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 19/10/2026 — comptes joueurs Supabase développés (branche
-`feature/comptes-supabase`, PR ouverte) ; jeu en ligne : https://malinosland.pages.dev.**
+**Dernière mise à jour : 19/10/2026 (soir) — comptes joueurs EN LIGNE : connexion Google
+testée avec succès par le responsable ; jeu : https://malinosland.pages.dev.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -34,6 +34,16 @@
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **19/10 (soir, fin)** — PR #8 (comptes), #9 (onglet en arrière-plan : joueur oublié / « solo »),
+  #10 (page `confidentialite.html`, exigée par Google) fusionnées et mises en ligne. Le
+  responsable a configuré Supabase (URL, fournisseurs GitHub + Google, e-mail désactivé,
+  `delete_my_account` collée dans le SQL Editor) et Google Auth Platform (Branding, publication).
+  **Connexion Google vérifiée** (1 compte, profil « Mickael » en base). Connexion GitHub : pas
+  encore testée. Correctif d’affichage (branche `fix/affichage-reglages`) : cases des réglages
+  écrasées par la règle CSS `.check` des objectifs ; barre du haut inaccessible sur téléphone.
+  Choix : on garde le projet Supabase actuel (LaChillance reste en pause) ; le compte Supabase
+  « leakmic » créé par le responsable n’est pas utilisé.
 
 - **19/10 (nuit)** — Robot d’accueil renommé **Joshua** (PR `content/robot-joshua`). Comptes
   joueurs : projet Supabase `malinosland` créé (Paris, gratuit) après mise en pause de
@@ -74,14 +84,10 @@
 
 ## Points en attente de décision du responsable
 
-1. Fusionner `content/robot-joshua` (Joshua) puis `feature/comptes-supabase`, et relancer
-   **Mise en ligne**.
-2. Suivre [COMPTES.md](COMPTES.md) §2 : fonction de suppression (SQL Editor), adresses
-   autorisées, applications OAuth GitHub et Google (secrets dans Supabase uniquement), désactiver
-   l’e-mail.
-3. Tester une vraie connexion GitHub puis Google sur le site en ligne.
-4. Optionnel : exiger les vérifications de la CI dans la règle de protection.
-5. **DEC-009** — licence MIT (ou AGPL-3.0).
+1. Tester la connexion **GitHub** sur le site (Google fonctionne).
+2. Supprimer les branches fusionnées sur GitHub et cocher « Automatically delete head branches ».
+3. Optionnel : exiger les vérifications de la CI dans la règle de protection.
+4. **DEC-009** — licence MIT (ou AGPL-3.0).
 
 ## Problèmes connus / limites
 
@@ -97,9 +103,9 @@
 
 ## Prochaines étapes suggérées (dans l’ordre)
 
-1. Tester à plusieurs pour de vrai (deux ordinateurs ou un téléphone) et recueillir les retours.
-2. Configurer GitHub / Google (COMPTES.md) et tester une vraie connexion.
-3. Signaler / masquer, modération minimale.
+1. Tester à plusieurs pour de vrai (ordinateurs + téléphones) et recueillir les retours.
+2. Signaler / masquer un joueur, modération minimale (v0.2).
+3. Interface mobile plus confortable (chat repliable, boutons tactiles).
 4. Mesurer les performances sur 2–3 machines réelles (procédure dans [TESTING.md](TESTING.md)).
 
 ## Repères rapides pour reprendre
