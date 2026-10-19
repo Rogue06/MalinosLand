@@ -5,6 +5,12 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Corrigé (multijoueur en ligne)
+
+- Revenir sur l’onglet du jeu après l’avoir quitté : les autres joueurs ne nous voyaient plus, et
+  le jeu pouvait passer en « solo » (« déjà connecté dans un autre onglet »). Un joueur silencieux
+  reste maintenant visible, et une reconnexion du même onglet remplace l’ancienne connexion.
+
 ### Ajouté (comptes joueurs)
 
 - Comptes **facultatifs** avec GitHub ou Google (Supabase) : personnage retrouvé sur tous les

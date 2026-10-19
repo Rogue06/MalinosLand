@@ -41,6 +41,11 @@ export type NetMessage =
       look: AvatarAppearance;
       reply: boolean;
       v?: true;
+      /**
+       * Clé de session d'un visiteur, envoyée au serveur seulement (jamais relayée) : elle prouve
+       * qu'une nouvelle connexion vient du même onglet et peut remplacer l'ancienne.
+       */
+      k?: string;
     } & PeerState)
   | ({ t: 'state'; id: string } & PeerState)
   | { t: 'chat'; id: string; room: string; scope: ChatScope; text: string }
@@ -52,6 +57,7 @@ export type NetMessage =
   | { t: 'notice'; code: NoticeCode };
 
 const ID_RE = /^[a-z0-9]{8,32}$/;
+const KEY_RE = /^[a-z0-9]{16,32}$/;
 const ROOM_RE = /^[a-z0-9-]{1,48}$/;
 const MAX_COORD = 512;
 
@@ -108,6 +114,7 @@ export function decodeMessage(raw: unknown): NetMessage | null {
         reply: data.reply === true,
         ...st,
         ...(data.v === true ? { v: true as const } : {}),
+        ...(typeof data.k === 'string' && KEY_RE.test(data.k) ? { k: data.k } : {}),
       };
     }
     case 'state': {

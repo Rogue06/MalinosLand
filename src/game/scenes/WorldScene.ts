@@ -10,6 +10,7 @@ import { ServerTransport } from '../../multiplayer/ServerTransport';
 import {
   EMOTES,
   accountPlayerId,
+  randomId,
   type AnimState,
   type Emote,
   type NoticeCode,
@@ -67,7 +68,8 @@ const NOTICE_TEXT: Record<NoticeCode, string> = {
   full: 'Le Hub est plein pour le moment. Tu peux continuer à explorer en solo : nouvelle tentative dans une minute.',
   maintenance:
     'Le quota gratuit du jour est atteint : le multijoueur revient bientôt. Le jeu reste jouable en solo.',
-  duplicate: 'Tu es déjà connecté dans un autre onglet : cet onglet reste en solo.',
+  duplicate:
+    'Tu es connecté dans un autre onglet ou appareil : cet onglet passe en solo. Recharge la page pour jouer ici.',
   kicked: 'Tu as été déconnecté du multijoueur.',
 };
 const BASE_ZOOM = 1.35;
@@ -85,6 +87,8 @@ export class WorldScene extends Phaser.Scene {
   private depthIndex!: DepthIndex;
   private net: NetworkClient | null = null;
   private serverTransport: ServerTransport | null = null;
+  /** Clé de session de cet onglet : permet de reprendre sa place après une coupure. */
+  private readonly sessionKey = randomId();
   /** Le joueur est connecté à son compte et le serveur le sait (marque ✓). */
   private selfVerified = false;
   private remotes = new Map<string, RemoteAvatar>();
@@ -410,8 +414,16 @@ export class WorldScene extends Phaser.Scene {
       transport,
       this.selfId,
       { name: profile.name, look: profile.look, state: this.localState() },
-      // En ligne : 5 positions par seconde au plus (quota gratuit), l'interpolation lisse le reste.
-      { stateIntervalMs: transport.kind === 'server' ? 200 : 100 },
+      transport.kind === 'server'
+        ? {
+            // En ligne : 5 positions par seconde au plus (quota gratuit), l'interpolation lisse
+            // le reste. Les départs sont annoncés par le serveur : un joueur dont l'onglet est en
+            // arrière-plan (jeu en pause, donc silencieux) reste visible.
+            stateIntervalMs: 200,
+            peerTimeoutMs: Infinity,
+            sessionKey: this.sessionKey,
+          }
+        : { stateIntervalMs: 100 },
     );
     this.net = net;
     net.events.on('join', (peer) => {

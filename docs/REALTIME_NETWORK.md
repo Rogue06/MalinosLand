@@ -89,17 +89,17 @@ Joueur ──WebSocket──▶ Worker (server/src/index.ts)
 
 ### Règles appliquées par le serveur (le client n’est jamais cru sur parole)
 
-| Règle               | Détail                                                                                                                                                |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Validation          | Chaque message passe par `decodeMessage` (protocole partagé), puis est **ré-encodé** : rien n’est relayé tel quel.                                    |
-| Identité            | L’identifiant est fixé au premier « hello » ; un message avec un autre identifiant est ignoré ; un identifiant déjà connecté est refusé.              |
-| Anti-téléportation  | Un déplacement plus long que `3,4 tuiles/s × 1,6 × durée + 1,2` est ignoré.                                                                           |
-| Carte               | Position hors de la carte ou salle inconnue : ignorée.                                                                                                |
-| Interest management | Mouvements, émotes et chat de proximité : seulement aux joueurs de la **même salle**. Chat général, arrivées, départs, changements de style : à tous. |
-| Anti-spam           | 20 messages/s (rafale de 40) par connexion ; chat et émotes : 5 d’affilée puis 1 toutes les 2 s. Plus de 30 infractions : déconnexion.                |
-| Plafond par salle   | `MAX_PLAYERS_PER_ROOM` (40 par défaut) : au-delà, avis « salle pleine ».                                                                              |
-| Messages réservés   | Un client ne peut pas envoyer `rate` ni `notice`.                                                                                                     |
-| Origine             | Seules les adresses de `ALLOWED_ORIGINS` peuvent se connecter.                                                                                        |
+| Règle               | Détail                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Validation          | Chaque message passe par `decodeMessage` (protocole partagé), puis est **ré-encodé** : rien n’est relayé tel quel.                                                                                                                                                                                                                                                                                            |
+| Identité            | L’identifiant est fixé au premier « hello » ; un message avec un autre identifiant est ignoré. Un identifiant déjà connecté est refusé, **sauf** s’il s’agit du même joueur (même compte, ou même clé de session `k` pour un visiteur) : la nouvelle connexion remplace alors l’ancienne, sans annonce de départ (onglet revenu au premier plan, réseau coupé puis rétabli). La clé `k` n’est jamais relayée. |
+| Anti-téléportation  | Un déplacement plus long que `3,4 tuiles/s × 1,6 × durée + 1,2` est ignoré.                                                                                                                                                                                                                                                                                                                                   |
+| Carte               | Position hors de la carte ou salle inconnue : ignorée.                                                                                                                                                                                                                                                                                                                                                        |
+| Interest management | Mouvements, émotes et chat de proximité : seulement aux joueurs de la **même salle**. Chat général, arrivées, départs, changements de style : à tous.                                                                                                                                                                                                                                                         |
+| Anti-spam           | 20 messages/s (rafale de 40) par connexion ; chat et émotes : 5 d’affilée puis 1 toutes les 2 s. Plus de 30 infractions : déconnexion.                                                                                                                                                                                                                                                                        |
+| Plafond par salle   | `MAX_PLAYERS_PER_ROOM` (40 par défaut) : au-delà, avis « salle pleine ».                                                                                                                                                                                                                                                                                                                                      |
+| Messages réservés   | Un client ne peut pas envoyer `rate` ni `notice`.                                                                                                                                                                                                                                                                                                                                                             |
+| Origine             | Seules les adresses de `ALLOWED_ORIGINS` peuvent se connecter.                                                                                                                                                                                                                                                                                                                                                |
 
 ### Budget quotidien et dégradation contrôlée
 
@@ -121,13 +121,13 @@ entrants gratuits) :
 | `{"t":"rate","ms":400}`        | Intervalle minimal entre deux envois de position                      |
 | `{"t":"notice","code":"full"}` | Avis affiché au joueur : `full`, `maintenance`, `duplicate`, `kicked` |
 
-| Code de fermeture | Motif                       | Réaction du jeu                            |
-| ----------------- | --------------------------- | ------------------------------------------ |
-| 4001              | Salle pleine                | Nouvelle tentative dans 1 minute           |
-| 4002              | Déjà connecté ailleurs      | Pas de nouvelle tentative                  |
-| 4003              | Maintenance (budget épuisé) | Nouvelle tentative dans 30 minutes         |
-| 4004 / 4005       | Exclusion / abus            | Pas de nouvelle tentative                  |
-| autre             | Coupure réseau              | Reconnexion après 1, 2, 4, 8, 15 puis 30 s |
+| Code de fermeture | Motif                                                                                | Réaction du jeu                            |
+| ----------------- | ------------------------------------------------------------------------------------ | ------------------------------------------ |
+| 4001              | Salle pleine                                                                         | Nouvelle tentative dans 1 minute           |
+| 4002              | Connexion remplacée par une autre (autre onglet / appareil) ou identifiant déjà pris | Pas de nouvelle tentative                  |
+| 4003              | Maintenance (budget épuisé)                                                          | Nouvelle tentative dans 30 minutes         |
+| 4004 / 4005       | Exclusion / abus                                                                     | Pas de nouvelle tentative                  |
+| autre             | Coupure réseau                                                                       | Reconnexion après 1, 2, 4, 8, 15 puis 30 s |
 
 ### Réglages (`server/wrangler.toml`)
 
@@ -136,6 +136,14 @@ entrants gratuits) :
 | `ALLOWED_ORIGINS`      | Adresses du jeu autorisées à se connecter (local : `http://localhost:5173,http://localhost:4173`) |
 | `MAX_PLAYERS_PER_ROOM` | Plafond de joueurs par salle                                                                      |
 | `DAILY_MESSAGE_BUDGET` | Budget quotidien de messages entrants                                                             |
+
+### Onglet en arrière-plan
+
+Un navigateur met en pause la boucle du jeu d’un onglet caché : le joueur se tait mais reste
+connecté. En ligne, les clients **n’oublient pas** un joueur silencieux (`peerTimeoutMs:
+Infinity`) : seul le serveur annonce les départs. Si la connexion a été coupée entre-temps, la
+reconnexion remplace l’ancienne grâce à la clé de session. En démo entre onglets (sans serveur),
+un pair oublié qui se remet à bouger est redécouvert (demande de présentation).
 
 ### Pas encore fait
 

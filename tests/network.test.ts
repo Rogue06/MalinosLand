@@ -255,6 +255,44 @@ class FakeSocket {
   }
 }
 
+describe('onglet en arrière-plan', () => {
+  it('un pair oublié qui se remet à bouger est redécouvert', async () => {
+    let t = 0;
+    const { a, b } = await pair(() => t);
+    expect(a.peers.has('bbbbbbbb22')).toBe(true);
+    // B se tait 20 s (onglet en arrière-plan : boucle de jeu en pause) : A l'oublie.
+    t = 20_000;
+    a.updateLocal(state());
+    expect(a.peers.has('bbbbbbbb22')).toBe(false);
+    // B revient et bouge : A demande une présentation, B répond, A le revoit.
+    b.updateLocal(state(9, 8));
+    expect(a.peers.has('bbbbbbbb22')).toBe(true);
+  });
+
+  it('avec un serveur, un joueur silencieux reste visible (le serveur annonce les départs)', () => {
+    let t = 0;
+    const c = new NetworkClient(
+      new MemoryTransport(new MemoryBus()),
+      'cccccccc33',
+      { name: 'Cleo', look: DEFAULT_APPEARANCE, state: state() },
+      { now: () => t, peerTimeoutMs: Infinity },
+    );
+    c.receive(
+      JSON.stringify({
+        t: 'hello',
+        id: 'dddddddd44',
+        name: 'Dan',
+        look: {},
+        reply: true,
+        ...state(),
+      }),
+    );
+    t = 10 * 60_000;
+    c.updateLocal(state());
+    expect(c.peers.has('dddddddd44')).toBe(true);
+  });
+});
+
 describe('ServerTransport', () => {
   const make = () => {
     FakeSocket.all = [];

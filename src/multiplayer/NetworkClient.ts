@@ -36,8 +36,13 @@ export interface NetworkOptions {
   now?: () => number;
   /** Intervalle minimal entre deux envois de position (ms). */
   stateIntervalMs?: number;
-  /** Au-delà, un pair silencieux est considéré comme parti (ms). */
+  /**
+   * Au-delà, un pair silencieux est considéré comme parti (ms). Avec un serveur, mettre
+   * `Infinity` : c'est lui qui annonce les départs (un onglet en arrière-plan se tait sans partir).
+   */
   peerTimeoutMs?: number;
+  /** Clé de session envoyée au serveur pour reprendre sa place après une coupure. */
+  sessionKey?: string;
   /** Budget de messages sortants par minute avant dégradation (quota). */
   budgetPerMinute?: number;
 }
@@ -63,6 +68,9 @@ export class NetworkClient {
   private unsubscribeOpen: (() => void) | null = null;
   /** Intervalle minimal imposé par le serveur (quota), en ms. */
   private serverInterval = 0;
+  private readonly sessionKey: string | undefined;
+  /** Dernière demande de présentation envoyée, par pair inconnu. */
+  private helloRequests = new Map<string, number>();
   bytesSent = 0;
 
   constructor(
@@ -76,6 +84,7 @@ export class NetworkClient {
     this.peerTimeout = opts.peerTimeoutMs ?? 12000;
     this.budget = opts.budgetPerMinute ?? 900;
     this.chatLimiter = new TokenBucket(5, 0.5, this.now);
+    this.sessionKey = opts.sessionKey;
   }
 
   get transportLabel(): string {
@@ -187,10 +196,18 @@ export class NetworkClient {
       look: this.self.look,
       reply,
       ...this.self.state,
+      ...(this.sessionKey ? { k: this.sessionKey } : {}),
     });
     // Le « hello » contient déjà l'état : inutile de le renvoyer aussitôt.
     this.lastSent = { ...this.self.state };
     this.lastSentAt = this.now();
+  }
+
+  private requestHello(id: string, t: number): void {
+    if (this.transport.kind === 'server') return; // le serveur présente lui-même les joueurs
+    if (t - (this.helloRequests.get(id) ?? -Infinity) < 3000) return;
+    this.helloRequests.set(id, t);
+    this.sendHello(false);
   }
 
   private prune(t: number): void {
@@ -222,13 +239,19 @@ export class NetworkClient {
         const { t: _t, reply, v, ...rest } = msg;
         const next: RemotePeer = { ...rest, lastSeen: t, verified: v === true };
         const isNew = !peer;
+        this.helloRequests.delete(msg.id);
         this.peers.set(msg.id, next);
         this.events.emit(isNew ? 'join' : 'update', next);
         if (!reply) this.sendHello(true);
         break;
       }
       case 'state': {
-        if (!peer) return; // pair inconnu : on attend son « hello »
+        if (!peer) {
+          // Pair inconnu (oublié pendant que cet onglet était en arrière-plan, par exemple) :
+          // on se présente sans « reply », ce qui l'invite à se présenter en retour.
+          this.requestHello(msg.id, t);
+          return;
+        }
         Object.assign(peer, {
           room: msg.room,
           x: msg.x,

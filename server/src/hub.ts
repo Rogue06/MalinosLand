@@ -44,6 +44,8 @@ export interface ConnData {
   key: string;
   /** Compte vérifié à l'ouverture de la connexion, ou null pour un visiteur. */
   account: Account | null;
+  /** Clé de session d'un visiteur (prouve qu'une reconnexion vient du même onglet). */
+  secret: string | null;
   /** Identifiant du joueur, fixé par son premier « hello ». */
   id: string | null;
   name: string;
@@ -119,6 +121,7 @@ export function newConnData(key: string, now: number, account: Account | null = 
   return {
     key,
     account,
+    secret: null,
     id: null,
     name: '',
     look: null,
@@ -234,13 +237,24 @@ export class RealtimeHub {
         if (d.account) {
           if (msg.id !== accountPlayerId(d.account.id)) return this.strike(conn);
         } else if (msg.id.length === ACCOUNT_ID_LENGTH) return this.strike(conn);
-        if (this.others(conn).some((c) => c.data.id === msg.id))
-          return this.reject(conn, 'duplicate');
+        const holder = this.others(conn).find((c) => c.data.id === msg.id);
+        if (holder) {
+          // Même joueur (onglet revenu au premier plan, connexion relancée) : la nouvelle
+          // connexion remplace l'ancienne, restée ouverte côté serveur. Sinon : refus.
+          const same = d.account
+            ? holder.data.account?.id === d.account.id
+            : !!msg.k && holder.data.secret === msg.k;
+          if (!same) return this.reject(conn, 'duplicate');
+          holder.data.id = null; // pas d'annonce de départ : le joueur reste là
+          holder.save();
+          this.reject(holder, 'duplicate');
+        }
         if (!this.inBounds(msg.room, msg.x, msg.y)) return this.strike(conn);
         const inRoom = this.others(conn).filter((c) => c.data.room === msg.room).length;
         if (inRoom >= this.opts.maxPerRoom) return this.reject(conn, 'full');
         Object.assign(d, {
           id: msg.id,
+          secret: d.account ? null : (msg.k ?? null),
           name: d.account?.name ?? msg.name,
           look: msg.look,
           room: msg.room,
