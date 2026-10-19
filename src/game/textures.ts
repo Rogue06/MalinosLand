@@ -96,6 +96,32 @@ export class TextureFactory {
     return this.register(key, b.render(this.texScale));
   }
 
+  /**
+   * Siège en deux images de même cadrage : `base` (tout sauf le dossier) et `front` (le
+   * dossier). null si l'objet n'a pas de dossier séparé.
+   */
+  objectLayers(
+    type: string,
+    rot: Rotation,
+    variant: number,
+  ): { base: TextureInfo; front: TextureInfo } | null {
+    const entry = CATALOG[type];
+    const art = OBJECT_ART[type];
+    if (!entry || !art) return null;
+    const b = new IsoBuilder(rot, entry.footprint[0], entry.footprint[1]);
+    art(b, variant);
+    if (!b.hasLayer('front')) return null;
+    const key = `obj:${type}:${rot}:${variant}`;
+    return {
+      base:
+        this.infos.get(`${key}:base`) ??
+        this.register(`${key}:base`, b.render(this.texScale, 2, 'base')),
+      front:
+        this.infos.get(`${key}:front`) ??
+        this.register(`${key}:front`, b.render(this.texScale, 2, 'front')),
+    };
+  }
+
   wall(type: WallType, mask: number): TextureInfo {
     const key = `wall:${type}:${mask}`;
     return this.infos.get(key) ?? this.register(key, drawWall(type, mask).render(this.texScale));

@@ -5,6 +5,12 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Corrigé (assis de dos)
+
+- Personnage assis de dos : il passe maintenant devant l’assise mais derrière le dossier (et
+  l’accoudoir côté caméra). Les sièges sont dessinés en deux images (`base` et `front`), le
+  personnage se place entre les deux ; le bas des jambes, caché par le siège, n’est plus dessiné.
+
 ### Ajouté (retours des joueurs)
 
 - **Boîte à idées** 💡 et **Borne à bugs** 🐞 dans le hall (et bouton 💡 en haut de l’écran) :

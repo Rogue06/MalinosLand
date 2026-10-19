@@ -17,8 +17,13 @@ const DEPTH_GLOW = 1e7;
 export interface RenderedObject {
   obj: WorldObject;
   image: Phaser.GameObjects.Image;
+  /** Dossier d'un siège, dessiné juste au-dessus du reste (profondeur + 0,5). */
+  front?: Phaser.GameObjects.Image;
   depth: number;
 }
+
+/** Écart de profondeur du dossier : un personnage assis de dos se place entre les deux. */
+export const BACKREST_DEPTH = 0.5;
 
 export interface RenderOptions {
   effects: boolean;
@@ -134,15 +139,26 @@ export class WorldRenderer {
     return this.world.objects.map((obj, i) => {
       const flat = obj.entry.flat === true;
       const depth = flat ? DEPTH_FLAT + i : staticDepth(obj.x, obj.y, obj.w, obj.d);
-      const info = this.tex.object(obj.type, obj.rot, obj.variant);
+      // Sièges : le dossier est une image à part, pour qu'un personnage assis de dos passe
+      // devant le siège mais derrière son dossier.
+      const layers =
+        !flat && obj.seats.length > 0
+          ? this.tex.objectLayers(obj.type, obj.rot, obj.variant)
+          : null;
+      const info = layers?.base ?? this.tex.object(obj.type, obj.rot, obj.variant);
       const shadow = this.opts.effects && !flat ? this.tex.shadow(obj.w, obj.d) : null;
       return () => {
         const image = this.place(info, obj.x, obj.y).setDepth(depth);
-        this.objects.set(obj.id, { obj, image, depth });
+        const front = layers
+          ? this.place(layers.front, obj.x, obj.y).setDepth(depth + BACKREST_DEPTH)
+          : undefined;
+        this.objects.set(obj.id, { obj, image, depth, ...(front ? { front } : {}) });
         if (!flat) this.depthBoxes.push({ x: obj.x, y: obj.y, w: obj.w, d: obj.d, depth });
         if (obj.interaction || obj.seats.length > 0) {
-          image.setInteractive({ pixelPerfect: true, alphaTolerance: 40, useHandCursor: true });
-          image.setData('objectId', obj.id);
+          for (const img of front ? [image, front] : [image]) {
+            img.setInteractive({ pixelPerfect: true, alphaTolerance: 40, useHandCursor: true });
+            img.setData('objectId', obj.id);
+          }
         }
         if (shadow) this.place(shadow, obj.x, obj.y).setDepth(DEPTH_SHADOW).setAlpha(0.7);
         const light = obj.entry.light;
@@ -221,7 +237,9 @@ export class WorldRenderer {
   highlight(id: string, on: boolean): void {
     const r = this.objects.get(id);
     if (!r) return;
-    if (on) r.image.setTint(0x2e2e2e).setTintMode(Phaser.TintModes.ADD);
-    else r.image.clearTint().setTintMode(Phaser.TintModes.MULTIPLY);
+    for (const img of r.front ? [r.image, r.front] : [r.image]) {
+      if (on) img.setTint(0x2e2e2e).setTintMode(Phaser.TintModes.ADD);
+      else img.clearTint().setTintMode(Phaser.TintModes.MULTIPLY);
+    }
   }
 }

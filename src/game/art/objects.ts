@@ -1,4 +1,5 @@
 import type { Vec3 } from '../../core/iso';
+import { facesCamera, rotateFacing } from '../../core/rotation';
 import { darken, lighten } from './color';
 import type { BoxSpec, Decal, IsoBuilder } from './iso3d';
 import { PALETTE as P } from './palette';
@@ -114,6 +115,22 @@ function plantCanopy(
 
 const LEAVES = [P.leaf, P.leafLight, P.leafDark, P.leaf];
 
+/**
+ * Dossier d'un siège : calque « front », affiché devant un personnage assis vu de dos (le reste
+ * du siège passe derrière lui). Voir WorldRenderer et DEC-018.
+ */
+function backrest(b: IsoBuilder, draw: () => void): void {
+  b.layer = 'front';
+  draw();
+  b.layer = 'base';
+}
+
+/** Accoudoir : devant le personnage assis de dos seulement s'il est du côté de la caméra. */
+function armrest(b: IsoBuilder, side: 'nx' | 'px', draw: () => void): void {
+  if (facesCamera(rotateFacing(side, b.rot))) backrest(b, draw);
+  else draw();
+}
+
 export const OBJECT_ART: Record<string, ObjectArt> = {
   desk_pc(b, v) {
     box(b, 0.1, 0.18, 0, 0.07, 0.68, 0.62, P.metalDark);
@@ -131,7 +148,7 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
     box(b, 0.32, 0.36, 0, 0.36, 0.36, 0.05, P.ink);
     b.cylinder(0.5, 0.54, 0.05, 0.035, 0.3, P.metal);
     box(b, 0.2, 0.28, 0.35, 0.6, 0.54, 0.08, c);
-    box(b, 0.22, 0.2, 0.43, 0.56, 0.09, 0.5, c);
+    backrest(b, () => box(b, 0.22, 0.2, 0.43, 0.56, 0.09, 0.5, c));
   },
   conf_chair(b) {
     box(b, 0.24, 0.3, 0, 0.05, 0.05, 0.36, P.woodDark);
@@ -139,22 +156,22 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
     box(b, 0.24, 0.72, 0, 0.05, 0.05, 0.36, P.woodDark);
     box(b, 0.71, 0.72, 0, 0.05, 0.05, 0.36, P.woodDark);
     box(b, 0.2, 0.26, 0.36, 0.6, 0.54, 0.07, P.violet);
-    box(b, 0.2, 0.2, 0.43, 0.6, 0.08, 0.46, P.violet);
+    backrest(b, () => box(b, 0.2, 0.2, 0.43, 0.6, 0.08, 0.46, P.violet));
   },
   armchair(b, v) {
     const c = pick([P.teal, P.coral, P.sun], v);
     box(b, 0.1, 0.12, 0, 0.8, 0.8, 0.3, c);
-    box(b, 0.1, 0.1, 0.3, 0.8, 0.18, 0.44, c);
-    box(b, 0.1, 0.28, 0.3, 0.14, 0.64, 0.16, darken(c, 0.05));
-    box(b, 0.76, 0.28, 0.3, 0.14, 0.64, 0.16, darken(c, 0.05));
+    backrest(b, () => box(b, 0.1, 0.1, 0.3, 0.8, 0.18, 0.44, c));
+    armrest(b, 'nx', () => box(b, 0.1, 0.28, 0.3, 0.14, 0.64, 0.16, darken(c, 0.05)));
+    armrest(b, 'px', () => box(b, 0.76, 0.28, 0.3, 0.14, 0.64, 0.16, darken(c, 0.05)));
     box(b, 0.24, 0.3, 0.3, 0.52, 0.6, 0.06, lighten(c, 0.12));
   },
   sofa(b, v) {
     const c = pick([P.coral, P.teal, P.violet], v);
     box(b, 0.06, 0.12, 0, 1.88, 0.8, 0.3, c);
-    box(b, 0.06, 0.1, 0.3, 1.88, 0.2, 0.44, c);
-    box(b, 0.06, 0.3, 0.3, 0.16, 0.62, 0.16, darken(c, 0.05));
-    box(b, 1.78, 0.3, 0.3, 0.16, 0.62, 0.16, darken(c, 0.05));
+    backrest(b, () => box(b, 0.06, 0.1, 0.3, 1.88, 0.2, 0.44, c));
+    armrest(b, 'nx', () => box(b, 0.06, 0.3, 0.3, 0.16, 0.62, 0.16, darken(c, 0.05)));
+    armrest(b, 'px', () => box(b, 1.78, 0.3, 0.3, 0.16, 0.62, 0.16, darken(c, 0.05)));
     box(b, 0.24, 0.32, 0.3, 0.74, 0.58, 0.06, lighten(c, 0.12));
     box(b, 1.02, 0.32, 0.3, 0.74, 0.58, 0.06, lighten(c, 0.12));
     box(b, 0.3, 0.22, 0.36, 0.3, 0.1, 0.22, P.sun);
@@ -549,10 +566,12 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
     box(b, 0.16, 0.3, 0, 0.08, 0.46, 0.36, P.ink);
     box(b, 1.76, 0.3, 0, 0.08, 0.46, 0.36, P.ink);
     for (let i = 0; i < 3; i++) box(b, 0.1, 0.3 + i * 0.16, 0.36, 1.8, 0.13, 0.05, P.wood);
-    box(b, 0.16, 0.2, 0.36, 0.08, 0.08, 0.42, P.ink);
-    box(b, 1.76, 0.2, 0.36, 0.08, 0.08, 0.42, P.ink);
-    box(b, 0.1, 0.18, 0.54, 1.8, 0.06, 0.12, P.wood);
-    box(b, 0.1, 0.18, 0.7, 1.8, 0.06, 0.1, P.wood);
+    backrest(b, () => {
+      box(b, 0.16, 0.2, 0.36, 0.08, 0.08, 0.42, P.ink);
+      box(b, 1.76, 0.2, 0.36, 0.08, 0.08, 0.42, P.ink);
+      box(b, 0.1, 0.18, 0.54, 1.8, 0.06, 0.12, P.wood);
+      box(b, 0.1, 0.18, 0.7, 1.8, 0.06, 0.1, P.wood);
+    });
   },
   lamp_post(b) {
     box(b, 0.36, 0.36, 0, 0.28, 0.28, 0.14, P.ink);
@@ -608,9 +627,11 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
     box(b, 0.22, 0.3, 0.2, 0.56, 0.62, 0.06, P.teal, {
       decals: [decal('top', 0.3, 0, 0.45, 1, '#fdf7ec'), decal('top', 0.6, 0, 0.75, 1, '#fdf7ec')],
     });
-    box(b, 0.22, 0.14, 0.24, 0.56, 0.14, 0.5, P.teal, {
-      decals: [decal('py', 0.3, 0, 0.45, 1, '#fdf7ec'), decal('py', 0.6, 0, 0.75, 1, '#fdf7ec')],
-    });
+    backrest(b, () =>
+      box(b, 0.22, 0.14, 0.24, 0.56, 0.14, 0.5, P.teal, {
+        decals: [decal('py', 0.3, 0, 0.45, 1, '#fdf7ec'), decal('py', 0.6, 0, 0.75, 1, '#fdf7ec')],
+      }),
+    );
   },
   cone(b) {
     box(b, 0.3, 0.3, 0, 0.4, 0.4, 0.05, '#f06a2b');

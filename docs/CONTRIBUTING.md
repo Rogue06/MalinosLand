@@ -101,6 +101,9 @@ Types : `feat` (nouveauté), `fix` (correction), `docs` (documentation), `refact
    assises, interaction, lumière.
 2. **Le dessiner** dans `src/game/art/objects.ts` avec des boîtes (`IsoBuilder`), l’objet tourné
    vers le bas-gauche de l’écran.
+   Pour un **siège**, entourer le dossier de `backrest(b, () => …)` et les accoudoirs de
+   `armrest(b, 'nx' | 'px', () => …)` : un personnage assis de dos passera derrière eux.
+   Placer le point d’assise (`seats`) contre le dossier.
 3. **Le vérifier** : `npm run dev` puis http://localhost:5173/art-preview.html (les 4 rotations).
 4. **Le placer** dans une carte (`src/content/maps/hub.json`) et lancer `npm test`.
 

@@ -46,7 +46,7 @@ import { avatarDepth, DepthIndex } from '../../world/depth';
 import type { InteractionDef } from '../../world/types';
 import { AvatarView } from '../entities/AvatarView';
 import { TextureFactory } from '../textures';
-import { WorldRenderer } from '../WorldRenderer';
+import { BACKREST_DEPTH, WorldRenderer } from '../WorldRenderer';
 
 export interface WorldSceneData {
   selfId: string;
@@ -649,7 +649,8 @@ export class WorldScene extends Phaser.Scene {
   ): number {
     if (seatObjectId) {
       const r = this.renderer3d.objects.get(seatObjectId);
-      if (r) return r.depth + (facesCamera(facing) ? 1 : -1);
+      // Face à la caméra : devant tout le siège. De dos : devant l'assise, derrière le dossier.
+      if (r) return r.depth + (facesCamera(facing) ? 1 : r.front ? BACKREST_DEPTH / 2 : -1);
     }
     return avatarDepth({ x, y }, this.depthIndex.near({ x, y }));
   }

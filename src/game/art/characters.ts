@@ -78,8 +78,12 @@ function buildAvatar(a: AvatarAppearance, facing: Facing, pose: AvatarPose): Iso
     const lx = side < 0 ? -0.115 : 0.015;
     if (sitting) {
       B(lx, -0.06, hip - 0.1, legW, 0.32, 0.1, bottom);
-      B(lx, 0.17, 0.05, legW, legD, hip - 0.15, bottom);
-      B(lx, 0.16, 0, legW, legD + 0.04, 0.06, shoe);
+      // Vu de dos, le bas des jambes est caché par le siège : ne pas le dessiner évite de voir
+      // les chaussures « à travers » un fauteuil ou un canapé.
+      if (facesCamera(facing)) {
+        B(lx, 0.17, 0.05, legW, legD, hip - 0.15, bottom);
+        B(lx, 0.16, 0, legW, legD + 0.04, 0.06, shoe);
+      }
     } else {
       const dy = swing * side * 0.06;
       B(lx, -legD / 2 + dy, 0.05, legW, legD, hip - 0.05 + bob, bottom);
