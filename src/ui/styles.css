@@ -670,6 +670,13 @@ a {
   border-color: var(--teal);
   background: rgba(34, 181, 166, 0.1);
 }
+.roadmap > li.done {
+  opacity: 0.85;
+}
+.badge.done {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--muted);
+}
 .roadmap-version {
   font-weight: 900;
   color: var(--teal-light);

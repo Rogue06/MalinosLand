@@ -4,6 +4,8 @@
 
 **Le monde virtuel gratuit, open source et communautaire des Malinos.**
 
+### 🎮 [Jouer maintenant : malinosland.pages.dev](https://malinosland.pages.dev)
+
 ![Vue d’ensemble du Hub de MalinosLand](docs/images/hub-vue-ensemble.jpg)
 
 </div>
@@ -24,10 +26,10 @@ Trois promesses :
 - 🤝 **Construit ensemble** : le code est public, chacun peut proposer des idées ou des améliorations.
 - 🪶 **Léger** : pensé pour fonctionner sur des ordinateurs modestes.
 
-> **Où en est-on ?** La **version 0.1** est un **prototype** : on peut se promener, personnaliser
-> son avatar et utiliser les objets, mais **on est encore seul** (pas de vrai multijoueur en ligne).
-> Le multijoueur arrive en **version 0.2** : le serveur temps réel est prêt et testé, il reste à
-> le mettre en ligne. Voir la [feuille de route](docs/ROADMAP.md).
+> **Où en est-on ?** C’est encore un **prototype** : on se promène, on personnalise son avatar,
+> on utilise les objets et, depuis la **version 0.2** (en cours), on **croise en direct les autres
+> Malinos connectés** et on discute. Les comptes joueurs arrivent ensuite. Voir la
+> [feuille de route](docs/ROADMAP.md).
 
 ## En images
 
@@ -54,7 +56,10 @@ Le détail de chaque étape, expliqué simplement : [docs/ROADMAP.md](docs/ROADM
 
 ## Essayer le jeu
 
-Pour l’instant, le jeu n’est pas encore en ligne : il faut le lancer sur son ordinateur.
+**En ligne, sans rien installer : [malinosland.pages.dev](https://malinosland.pages.dev)** — tu y croises les autres Malinos
+connectés.
+
+Pour le lancer sur ton ordinateur (pour contribuer au code) :
 
 1. Installe [Node.js](https://nodejs.org) (version 20 ou plus récente) et [Git](https://git-scm.com).
 2. Ouvre un terminal et tape :
@@ -68,8 +73,9 @@ Pour l’instant, le jeu n’est pas encore en ligne : il faut le lancer sur son
 
 3. Ouvre **http://localhost:5173** dans ton navigateur, crée ton personnage… et bonne visite !
 
-> Astuce : ouvre le jeu dans **deux onglets** du même navigateur pour voir deux personnages se
-> croiser (c’est une démonstration locale, rien ne passe par Internet).
+> Astuce : en local, ouvre le jeu dans **deux onglets** du même navigateur pour voir deux
+> personnages se croiser (démonstration locale, rien ne passe par Internet). Pour tester le vrai
+> serveur sur ton ordinateur : [CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 ## Participer
 

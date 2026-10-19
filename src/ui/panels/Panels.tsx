@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { REALTIME_URL } from '../../config';
+import { PRIVACY_NOTE, REALTIME_URL } from '../../config';
 import { FLOORS } from '../../content/floors';
 import { REPO_URL, ROADMAP } from '../../content/roadmap';
 import { AI_TIPS, tipOfTheDay } from '../../content/tips';
@@ -52,9 +52,7 @@ export function WelcomePanel() {
         Développeurs, graphistes ou simples curieux : chaque contribution passe par une proposition
         (pull request) relue par l’équipe.
       </p>
-      <p class="muted small">
-        Cette version 0.1 est un prototype local : rien n’est envoyé sur Internet.
-      </p>
+      <p class="muted small">{PRIVACY_NOTE}</p>
     </Modal>
   );
 }
@@ -72,6 +70,7 @@ export function RoadmapPanel() {
             <div>
               <h3>
                 {step.title} {step.status === 'current' && <span class="badge">en cours</span>}
+                {step.status === 'done' && <span class="badge done">terminé</span>}
               </h3>
               <ul>
                 {step.items.map((i) => (
@@ -338,11 +337,13 @@ export function HelpPanel() {
           </tr>
         </tbody>
       </table>
-      <h3>Ce qui fonctionne dans la v0.1</h3>
+      <h3>Ce qui fonctionne aujourd’hui</h3>
       <p>
         Exploration du Hub, avatar personnalisable, interactions, objectifs de découverte, chat et
-        émotes. La démo multijoueur relie uniquement les onglets ouverts dans ce navigateur : le
-        vrai multijoueur en ligne arrive en v0.2.
+        émotes.{' '}
+        {REALTIME_URL
+          ? 'Tu croises en direct les autres Malinos connectés. Les comptes arrivent bientôt.'
+          : 'La démo multijoueur relie uniquement les onglets ouverts dans ce navigateur.'}
       </p>
     </Modal>
   );

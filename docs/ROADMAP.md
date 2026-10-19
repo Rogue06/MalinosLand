@@ -65,8 +65,8 @@ en direct.
   navigateurs différents se voient bouger, discutent et se croisent dans le Hub.
 - ✅ Les protections sont en place : anti-spam, anti-téléportation, 40 joueurs maximum par salle,
   et un **budget quotidien** qui ralentit le jeu puis le met en pause avant la limite gratuite.
-- ⬜ **Mise en ligne** : elle attend la création des comptes gratuits Cloudflare par le
-  responsable du projet.
+- ✅ **Le jeu est en ligne** depuis le 19/10/2026 : [malinosland.pages.dev](https://malinosland.pages.dev) (offre gratuite
+  Cloudflare).
 - ⬜ Comptes joueurs (Supabase), signaler / masquer, suppression de compte.
 
 ![Deux joueurs connectés au serveur se retrouvent dans le hall](images/multijoueur-en-ligne.jpg)
@@ -172,7 +172,7 @@ La feuille de route n’est pas figée : **elle bouge selon vos retours.**
 - ✅ Compteur de messages quotidien et dégradation contrôlée, plafond par salle
 - ⬜ File d’attente quand une salle est pleine (aujourd’hui : message « salle pleine » et
   nouvel essai automatique une minute plus tard)
-- ⬜ Mise en ligne gratuite (Cloudflare Pages) — **après validation du responsable**
+- ✅ Mise en ligne gratuite (Cloudflare Pages + Worker) : https://malinosland.pages.dev
 
 ### v0.3
 

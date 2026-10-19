@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
 import { DEFAULT_APPEARANCE, randomAppearance } from '../content/avatars';
+import { PRIVACY_NOTE } from '../config';
 import { NAME_MIN_LENGTH, sanitizeName } from '../core/text';
 import { profileStore } from '../services/profile';
 import { typingStore } from '../state';
@@ -49,10 +50,7 @@ export function Onboarding() {
           nameError={error}
         />
         <footer class="onboarding-footer">
-          <p class="muted small">
-            Version 0.1 · prototype local : ton personnage est enregistré uniquement dans ce
-            navigateur. Aucun compte, aucune donnée envoyée.
-          </p>
+          <p class="muted small">{PRIVACY_NOTE}</p>
           <button type="submit" class="btn primary big">
             Entrer dans MalinosLand →
           </button>
