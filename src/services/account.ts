@@ -3,6 +3,7 @@ import { Store } from '../core/store';
 import { sanitizeName } from '../core/text';
 import { accountPlayerId } from '../multiplayer/protocol';
 import { pushToast } from '../state';
+import type { ReportDraft } from './moderation';
 import { parseProfile, profileStore, type Profile } from './profile';
 import type { SupabaseClients } from './supabaseClients';
 
@@ -35,6 +36,8 @@ export type AccountState =
       user: AccountUser;
       /** Pseudo enregistré en base (null tant que le profil n'y est pas). */
       savedName: string | null;
+      /** Modérateur (vérifié par la base, qui seule donne accès aux signalements). */
+      moderator: boolean;
     };
 
 export const accountStore = new Store<AccountState>({
@@ -154,7 +157,13 @@ export async function initAccount(): Promise<void> {
     const res = await db.from('profiles').select('name, look').eq('id', user.id).maybeSingle();
     if (res.error) throw res.error;
     const remote = parseProfile(res.data);
-    accountStore.set({ status: 'signed-in', user, savedName: remote?.name ?? null });
+    const modo = await db.rpc('is_moderator');
+    accountStore.set({
+      status: 'signed-in',
+      user,
+      savedName: remote?.name ?? null,
+      moderator: modo.data === true,
+    });
     const plan = reconcileProfiles(profileStore.get(), remote);
     if (plan.use) {
       lastSynced = JSON.stringify({ name: plan.use.name, look: plan.use.look });
@@ -223,6 +232,50 @@ export async function signOut(): Promise<void> {
   const { auth } = await load();
   await auth.signOut({ scope: 'local' });
   location.reload();
+}
+
+/** Envoie un signalement (joueur connecté uniquement ; la base vérifie et limite). */
+export async function sendReport(report: ReportDraft): Promise<void> {
+  if (!signedInUser()) throw new AccountError('Connecte-toi pour signaler un joueur.');
+  const { db } = await load();
+  const { error } = await db.from('reports').insert(report);
+  if (!error) return;
+  if (/Trop de signalements/.test(error.message ?? ''))
+    throw new AccountError('Tu as atteint la limite de signalements pour aujourd’hui.');
+  throw explain(error);
+}
+
+export interface ReportRow {
+  id: number;
+  created_at: string;
+  reported_player: string;
+  reported_account: string | null;
+  reported_name: string;
+  reason: string;
+  details: string;
+  messages: unknown;
+  status: 'ouvert' | 'traite';
+}
+
+/** Signalements (modérateurs seulement : la base renvoie une liste vide aux autres). */
+export async function listReports(status: 'ouvert' | 'traite'): Promise<ReportRow[]> {
+  const { db } = await load();
+  const { data, error } = await db
+    .from('reports')
+    .select(
+      'id, created_at, reported_player, reported_account, reported_name, reason, details, messages, status',
+    )
+    .eq('status', status)
+    .order('created_at', { ascending: false })
+    .limit(50);
+  if (error) throw explain(error);
+  return (data ?? []) as ReportRow[];
+}
+
+export async function setReportStatus(id: number, status: 'ouvert' | 'traite'): Promise<void> {
+  const { db } = await load();
+  const { error } = await db.from('reports').update({ status }).eq('id', id);
+  if (error) throw explain(error);
 }
 
 /** Suppression définitive du compte et du profil en base (RGPD). */

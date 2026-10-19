@@ -71,7 +71,8 @@ en direct.
   [COMPTES.md](COMPTES.md)).
   Avec un compte : personnage retrouvé partout, pseudo réservé, marque ✓, suppression du compte
   en un clic.
-- ⬜ Signaler / masquer un joueur.
+- ✅ **Masquer** un joueur qui dérange, le **signaler** à l’équipe (avec un compte), page de
+  modération pour l’équipe.
 
 ![Deux joueurs connectés au serveur se retrouvent dans le hall](images/multijoueur-en-ligne.jpg)
 
@@ -172,7 +173,7 @@ La feuille de route n’est pas figée : **elle bouge selon vos retours.**
   par le serveur · ⬜ anti-robots (Turnstile) plus tard
 - ✅ Serveur temps réel (Cloudflare Worker + Durable Object) et transport réseau associé
 - ✅ Présence, synchronisation des déplacements, chat local/général
-- ✅ Suppression de compte (RGPD) · ⬜ signaler / masquer
+- ✅ Suppression de compte (RGPD) · ✅ masquer / signaler, page de modération
 - ✅ Compteur de messages quotidien et dégradation contrôlée, plafond par salle
 - ⬜ File d’attente quand une salle est pleine (aujourd’hui : message « salle pleine » et
   nouvel essai automatique une minute plus tard)

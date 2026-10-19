@@ -45,19 +45,27 @@ La démo multi-onglets ne fait **que** du `BroadcastChannel` (même origine, mê
   conservées au-delà du nécessaire.
 - **Sauvegardes** : export régulier hors du dépôt public, procédure de restauration testée.
 
-## 4. Modération (prévue)
+## 4. Modération
 
 | Outil                                             | Version |
 | ------------------------------------------------- | ------- |
-| Masquer un utilisateur (côté joueur)              | 0.2     |
-| Signaler un membre ou un contenu                  | 0.2     |
+| Masquer un utilisateur (côté joueur)              | ✅ 0.2  |
+| Signaler un membre ou un contenu                  | ✅ 0.2  |
+| Page de modération (signalements, « traité »)     | ✅ 0.2  |
 | Expulser quelqu’un de son logement                | 0.3     |
 | Retirer immédiatement une invitation              | 0.3     |
 | Rôles modérateur / administrateur                 | 0.4     |
 | Suspendre un compte, supprimer un contenu signalé | 0.4     |
 
-Les choix actuels (identifiants stables, messages validés, salles séparées) ne bloquent pas ces
-ajouts.
+- **Masquer** : liste des joueurs connectés (bouton « N Malinos » en haut) → « Masquer ». Avatar,
+  messages, bulles et émotes cachés pour soi seulement (liste gardée dans le navigateur).
+- **Signaler** : réservé aux joueurs connectés (anti-abus), 10 par jour au maximum (vérifié par la
+  base). Le signalement contient le motif, des précisions et les 5 derniers messages du joueur vus
+  par l’auteur. Table `reports` : écriture par l’auteur seulement, lecture et traitement par les
+  **modérateurs** (`public.moderators`, géré à la main ; `is_moderator()`).
+- **Page de modération** dans le jeu (⚙️ Réglages → 🛡️ Modération), visible des modérateurs.
+- À venir : exclure un joueur du serveur temps réel (le code de fermeture 4004 existe déjà),
+  suspendre un compte.
 
 ## 5. RGPD
 

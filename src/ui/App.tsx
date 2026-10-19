@@ -8,6 +8,7 @@ import { Objectives } from './hud/Objectives';
 import { DialogBox, Hint, Stats, Toasts } from './hud/Overlays';
 import { TopBar } from './hud/TopBar';
 import { Onboarding } from './Onboarding';
+import { ModerationPanel, PlayersPanel } from './panels/Community';
 import {
   AvatarPanel,
   ElevatorPanel,
@@ -38,6 +39,10 @@ function ActivePanel() {
       return <SettingsPanel />;
     case 'help':
       return <HelpPanel />;
+    case 'players':
+      return <PlayersPanel />;
+    case 'moderation':
+      return <ModerationPanel />;
     default:
       return null;
   }

@@ -17,6 +17,8 @@ export interface ChatEntry {
   text: string;
   kind: 'self' | 'peer' | 'system';
   scope: ChatScope;
+  /** Identifiant du joueur qui a écrit (messages de pairs). */
+  peerId?: string;
 }
 
 export interface PresenceEntry {
@@ -25,6 +27,8 @@ export interface PresenceEntry {
   look: AvatarAppearance;
   self: boolean;
   room: string;
+  /** Connecté à son compte (marque ✓). */
+  verified: boolean;
 }
 
 export interface DialogState {
@@ -48,7 +52,9 @@ export interface Stats {
 
 export const zoneStore = new Store<ZoneDef | null>(null);
 export const hintStore = new Store<string | null>(null);
-export const panelStore = new Store<PanelId | 'settings' | 'help' | null>(null);
+export const panelStore = new Store<
+  PanelId | 'settings' | 'help' | 'players' | 'moderation' | null
+>(null);
 export const dialogStore = new Store<DialogState | null>(null);
 export const chatStore = new Store<ChatEntry[]>([]);
 export const presenceStore = new Store<PresenceEntry[]>([]);

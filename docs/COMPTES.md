@@ -123,7 +123,19 @@ d’e-mails gratuit de Supabase est réservé aux membres de l’équipe du proj
 GitHub → **Actions** → **Mise en ligne** → **Run workflow**. Les boutons « Se connecter avec
 GitHub / Google » apparaissent alors dans le jeu.
 
-## 3. Gratuité et limites
+## 3. Modérateurs
+
+Les signalements ne sont lisibles que par les modérateurs. Pour en ajouter un : Supabase →
+**Authentication → Users** → copier son **User UID**, puis dans le **SQL Editor** :
+
+```sql
+insert into public.moderators (user_id) values ('UID-copié-ici');
+```
+
+Pour en retirer un : `delete from public.moderators where user_id = 'UID';`. La personne voit
+ensuite le bouton **🛡️ Modération** dans ⚙️ Réglages (après rechargement de la page).
+
+## 4. Gratuité et limites
 
 - Offre gratuite Supabase : 50 000 utilisateurs actifs par mois, base de 500 Mo — très
   au-dessus des besoins (un profil ≈ 0,5 Ko).
@@ -135,7 +147,7 @@ GitHub / Google » apparaissent alors dans le jeu.
   « Maintien de la base des comptes » l’évite. Si la base est en pause malgré tout, le jeu reste
   jouable en visiteur ; on la relance avec **Resume project** dans Supabase.
 
-## 4. Tester sans compte
+## 5. Tester sans compte
 
 - `npm test` : les règles de la base (`tests/database.test.ts`) tournent dans un vrai PostgreSQL
   en WebAssembly (PGlite), avec une imitation minimale de Supabase.
