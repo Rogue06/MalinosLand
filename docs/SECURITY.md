@@ -39,7 +39,8 @@ La démo multi-onglets ne fait **que** du `BroadcastChannel` (même origine, mê
   ouverture dans un nouvel onglet avec `noopener noreferrer`, aucun contenu tiers chargé
   automatiquement (pas d’iframe, pas d’aperçu distant).
 - **Secrets** : variables d’environnement chiffrées de l’hébergeur / secrets GitHub, jamais dans le
-  code. Rotation documentée.
+  code. Rotation documentée. Inventaire (noms et rôles, jamais les valeurs) dans
+  [REPRENDRE_LE_PROJET.md](REPRENDRE_LE_PROJET.md#inventaire-des-secrets-et-des-comptes).
 - **Journalisation minimale** : erreurs et actions de modération, sans contenu de chat ni IP
   conservées au-delà du nécessaire.
 - **Sauvegardes** : export régulier hors du dépôt public, procédure de restauration testée.

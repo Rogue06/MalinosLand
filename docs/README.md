@@ -35,5 +35,6 @@ Pas besoin de tout lire ! Choisis ton chemin.
 
 ## 🤖 Je suis un assistant IA (ou je reprends le travail)
 
-1. [`CLAUDE.md`](../CLAUDE.md) : les règles permanentes du projet.
+1. [`AGENTS.md`](../AGENTS.md) : les règles permanentes du projet (pour toutes les IA).
 2. [Reprise de session](SESSION_HANDOFF.md) : où en est le travail et quoi faire ensuite.
+3. [Reprendre le projet](REPRENDRE_LE_PROJET.md) : installer et reprendre sur n’importe quel ordinateur.

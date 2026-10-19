@@ -3,7 +3,12 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 19/10/2026 — v0.1 fusionnée dans `main`, test e2e réparé (PR #2).**
+**Dernière mise à jour : 19/10/2026 — PR #2 fusionnée, hébergement validé, projet portable vers
+tout outil IA (`AGENTS.md`).**
+
+> Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
+> reprendre sur un autre ordinateur ou un autre outil est dans
+> [REPRENDRE_LE_PROJET.md](REPRENDRE_LE_PROJET.md).
 
 ## Où en est-on ?
 
@@ -12,8 +17,13 @@
 - **Protection de `main` active** : règle « Protection de la branche principale » sur la branche
   par défaut — pull request obligatoire, fusion en _squash_ uniquement, ni suppression ni push
   forcé. Les branches de travail ne sont pas protégées.
-- **PR #2 (`fix/ci-e2e`)** : le test de bout en bout passe désormais sur GitHub et devient
-  bloquant. En attente de validation pour fusion.
+- **PR #2 fusionnée** le 19/10 : touches actives dès l’ouverture des fenêtres, test de bout en bout
+  fiable et **bloquant** sur GitHub.
+- **Hébergement validé (DEC-006)** : Cloudflare (Pages, Workers, Durable Objects) + Supabase, en
+  offres gratuites sans carte bancaire. Les comptes ne sont pas encore créés.
+- **Portabilité (branche `docs/portabilite-ia`)** : `AGENTS.md` devient la source unique des
+  consignes pour toutes les IA ; guide `docs/REPRENDRE_LE_PROJET.md` ; démarrage automatique des
+  sessions cloud Claude Code ; `.gitattributes`.
 - `npm run check` : **OK** (62 tests unitaires). Test de bout en bout : **OK** en local (y compris
   avec un processeur 4× et 8× plus lent) et **sur GitHub Actions** (Chrome 155).
 - Anciennes branches `feature/initial-prototype` et `fix/casque-et-documentation` : incluses dans
@@ -33,16 +43,16 @@
 
 ## Ce qui n’est PAS fait (volontairement)
 
-- Aucun backend, compte, base de données ou déploiement (v0.2, après validation de DEC-006).
+- Aucun backend, compte, base de données ou déploiement (v0.2 : hébergement validé, comptes à créer).
 - Galerie, tour, étages, logements : annoncés « bientôt » dans le jeu, non implémentés.
 
 ## Points en attente de décision du responsable
 
-1. **Fusionner la PR #2** (test e2e bloquant).
+1. Fusionner la PR de portabilité (`docs/portabilite-ia`).
 2. Optionnel : dans la règle de protection, exiger les vérifications « Types, lint, tests, build »
    et « Test de bout en bout (Chrome) » (_Require status checks to pass_).
-3. **DEC-006** — infrastructure v0.2 : Cloudflare (Pages + Workers + Durable Objects) + Supabase,
-   comptes gratuits **sans carte bancaire**. Bloquant pour la v0.2 en ligne.
+3. **Création des comptes gratuits** Cloudflare et Supabase (sans carte bancaire) par le
+   responsable — nécessaire seulement pour brancher les comptes joueurs et mettre en ligne.
 4. **DEC-009** — licence MIT (ou AGPL-3.0).
 
 ## Problèmes connus / limites
@@ -58,10 +68,11 @@
 
 ## Prochaines étapes suggérées (dans l’ordre)
 
-1. Fusionner la PR #2.
-2. Préparer la v0.2 (multijoueur) : valider DEC-006 ; le serveur temps réel (Worker + Durable
-   Object) peut être développé et testé **en local avec Wrangler, sans compte** ; les comptes
-   (Supabase) demandent la création d’un projet gratuit par le responsable.
+1. Fusionner la PR de portabilité.
+2. v0.2 (multijoueur) : développer le serveur temps réel (Cloudflare Worker + Durable Object) sur
+   `feature/v0.2-realtime`, testé **en local avec Wrangler, sans compte**, puis le transport
+   `ServerTransport` côté jeu. Ensuite : comptes Supabase et mise en ligne (comptes à créer par le
+   responsable).
 3. Améliorer le prototype en parallèle : nouvelles salles, objets, animations, version mobile.
 4. Mesurer les performances sur 2–3 machines réelles (procédure dans [TESTING.md](TESTING.md)).
 

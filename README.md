@@ -87,19 +87,36 @@ expliqués dans le [glossaire](docs/GLOSSAIRE.md).
 proposition passe par une **pull request** (une demande de modification) qui est relue et validée
 par le responsable du projet avant d’être ajoutée.
 
+### 🤖 Tu codes avec une IA ? Commence par cette phrase
+
+Que tu utilises Claude Code, Codex, Cursor, Copilot, Gemini ou un autre assistant, en local ou dans
+le cloud, ouvre le projet puis donne-lui exactement ceci :
+
+```text
+Lis AGENTS.md puis docs/SESSION_HANDOFF.md. Résume-moi où en est le projet MalinosLand
+et propose la prochaine étape. Respecte toutes les règles d'AGENTS.md
+(gratuité permanente, travail sur une branche, pull request, documentation en français).
+```
+
+[`AGENTS.md`](AGENTS.md) contient toutes les règles du projet, et
+[`docs/SESSION_HANDOFF.md`](docs/SESSION_HANDOFF.md) dit où en est le travail. La plupart des outils
+lisent même `AGENTS.md` tout seuls. Ton IA saura donc quoi faire, comme toutes les autres. Mode
+d’emploi complet : [Reprendre le projet](docs/REPRENDRE_LE_PROJET.md).
+
 ## Toute la documentation
 
 Le [plan de la documentation](docs/README.md) t’indique quoi lire selon ton profil.
 
-| Document                                               | Pour qui      | Contenu                                        |
-| ------------------------------------------------------ | ------------- | ---------------------------------------------- |
-| [Guide du joueur](docs/GUIDE_DU_JOUEUR.md)             | Tout le monde | Commandes, lieux, objectifs, réglages          |
-| [Feuille de route](docs/ROADMAP.md)                    | Tout le monde | Les prochaines versions, expliquées simplement |
-| [Vision du projet](docs/PROJECT_VISION.md)             | Tout le monde | Pourquoi MalinosLand existe, nos principes     |
-| [Contribuer](docs/CONTRIBUTING.md)                     | Contributeurs | Comment proposer une modification, pas à pas   |
-| [Glossaire](docs/GLOSSAIRE.md)                         | Débutants     | Les mots techniques expliqués                  |
-| [Architecture](docs/ARCHITECTURE.md)                   | Développeurs  | Comment le code est organisé                   |
-| [Infrastructure gratuite](docs/FREE_INFRASTRUCTURE.md) | Développeurs  | Comment rester 100 % gratuit                   |
+| Document                                               | Pour qui      | Contenu                                                 |
+| ------------------------------------------------------ | ------------- | ------------------------------------------------------- |
+| [Guide du joueur](docs/GUIDE_DU_JOUEUR.md)             | Tout le monde | Commandes, lieux, objectifs, réglages                   |
+| [Feuille de route](docs/ROADMAP.md)                    | Tout le monde | Les prochaines versions, expliquées simplement          |
+| [Vision du projet](docs/PROJECT_VISION.md)             | Tout le monde | Pourquoi MalinosLand existe, nos principes              |
+| [Contribuer](docs/CONTRIBUTING.md)                     | Contributeurs | Comment proposer une modification, pas à pas            |
+| [Reprendre le projet](docs/REPRENDRE_LE_PROJET.md)     | Contributeurs | Sur n’importe quel ordinateur, avec n’importe quelle IA |
+| [Glossaire](docs/GLOSSAIRE.md)                         | Débutants     | Les mots techniques expliqués                           |
+| [Architecture](docs/ARCHITECTURE.md)                   | Développeurs  | Comment le code est organisé                            |
+| [Infrastructure gratuite](docs/FREE_INFRASTRUCTURE.md) | Développeurs  | Comment rester 100 % gratuit                            |
 
 ## Pour les développeurs
 
