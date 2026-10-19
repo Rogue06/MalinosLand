@@ -82,7 +82,27 @@ async function openPage(label) {
 
 const page = await openPage('onglet 1');
 const dbg = (fn, arg) => page.evaluate(fn, arg);
-const waitFor = (fn, arg) => page.waitForFunction(fn, arg, { timeout: TIMEOUT, polling: 200 });
+/**
+ * Attend qu'une condition évaluée dans la page devienne vraie. Le sondage est fait depuis
+ * Node (et non par une minuterie de la page) : sur les serveurs de CI, Chrome peut ralentir
+ * fortement les minuteries d'une page, ce qui bloquait page.waitForFunction.
+ */
+async function pollPage(target, fn, arg) {
+  const deadline = Date.now() + TIMEOUT;
+  let last;
+  while (Date.now() < deadline) {
+    try {
+      if (await target.evaluate(fn, arg)) return;
+    } catch (err) {
+      last = err;
+    }
+    await new Promise((r) => setTimeout(r, 200));
+  }
+  throw new Error(
+    `délai de ${TIMEOUT / 1000} s dépassé${last ? ` (${last.message.split('\n')[0]})` : ''}`,
+  );
+}
+const waitFor = (fn, arg) => pollPage(page, fn, arg);
 
 let current = '';
 const started = Date.now();
@@ -100,14 +120,14 @@ async function step(name, fn) {
  * alors que la fenêtre est bien affichée.
  */
 function waitUi(selector, text = '', target = page) {
-  return target.waitForFunction(
+  return pollPage(
+    target,
     ([sel, txt]) =>
       [...document.querySelectorAll(sel)].some((el) => {
         const r = el.getBoundingClientRect();
         return r.width > 0 && r.height > 0 && (!txt || el.textContent.includes(txt));
       }),
     [selector, text],
-    { timeout: TIMEOUT, polling: 200 },
   );
 }
 
@@ -219,13 +239,8 @@ try {
   await step('démo multi-onglets', async () => {
     const page2 = await openPage('onglet 2');
     await page2.goto(url, { waitUntil: 'networkidle' });
-    await page2.waitForFunction(() => window.__malinosDebug !== undefined, null, {
-      timeout: TIMEOUT,
-    });
-    await page2.waitForFunction(() => window.__malinosDebug.peers() > 0, null, {
-      timeout: TIMEOUT,
-      polling: 250,
-    });
+    await pollPage(page2, () => window.__malinosDebug !== undefined);
+    await pollPage(page2, () => window.__malinosDebug.peers() > 0);
     await waitFor(() => window.__malinosDebug.peers() > 0);
     await page.screenshot({ path: `${outDir}/08-multi-onglets.png` });
     await page2.close();
@@ -254,6 +269,8 @@ try {
         describe('.hud'),
         `hud: ${[...(document.querySelector('.hud')?.children ?? [])].map((c) => c.className).join(' | ')}`,
         `reduced-motion=${matchMedia('(prefers-reduced-motion: reduce)').matches}`,
+        `visibilité=${document.visibilityState} focus=${document.hasFocus()}`,
+        `texte de la fenêtre : « ${(document.querySelector('.modal')?.textContent ?? '').slice(0, 60)} »`,
       ].join(' ; ');
     })
     .catch((e) => `indisponible (${e.message})`);
