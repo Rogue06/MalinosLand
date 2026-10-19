@@ -45,10 +45,8 @@
 
 ## Problèmes connus / limites
 
-- **Performances non mesurées sur du vrai matériel** (seulement en rendu logiciel, sans GPU).
-- Job CI `e2e` **en échec sur GitHub** (non bloquant). Il passe dans l’environnement de
-  développement ; le journal GitHub n’est pas lisible depuis une session Claude (téléchargement
-  bloqué). Piste : faire écrire les erreurs du test en annotations (`::error::`) pour les lire via
+- Le journal complet des jobs GitHub n’est pas lisible depuis une session Claude (téléchargement
+  bloqué) : le test e2e écrit donc ses étapes et erreurs en annotations, lisibles via l’API.
   l’API, vérifier le chemin de Chrome (`/usr/bin/google-chrome`) et la lenteur du rendu sans GPU.
 - Quotas des fournisseurs relevés via un moteur de recherche : **à re-vérifier** avant déploiement.
 - Phaser ≈ 357 Ko gzip (piste : build allégé, F33).
