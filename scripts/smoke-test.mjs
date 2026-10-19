@@ -8,6 +8,7 @@
 // Variables utiles :
 //   CHROMIUM_PATH=/chemin/vers/chrome   navigateur à utiliser
 //   E2E_CPU_THROTTLE=4                  simule une machine 4× plus lente (comme les serveurs de CI)
+//   E2E_QUALITY=normal                  teste en qualité graphique normale (basse par défaut)
 //
 // Sur GitHub Actions, chaque étape et chaque erreur sont aussi écrites en
 // « annotations » (visibles sur la page de la PR et lisibles via l'API).
@@ -66,6 +67,24 @@ try {
 
 const context = await browser.newContext({ viewport: { width: 1366, height: 800 } });
 context.setDefaultTimeout(TIMEOUT);
+// Qualité « basse » : ce test vérifie la logique et l'interface, pas les graphismes. Sur les
+// serveurs de CI sans carte graphique, le rendu complet sature le processeur (≈ 3 i/s) au point
+// de retarder la page. Les réglages ne sont posés qu'au premier chargement (si absents).
+if (process.env.E2E_QUALITY !== 'normal') {
+  await context.addInitScript(() => {
+    const key = 'malinosland:settings';
+    if (localStorage.getItem(key)) return;
+    const settings = {
+      quality: 'low',
+      fpsLimit: 30,
+      reducedMotion: true,
+      showNames: true,
+      showStats: false,
+      multiTab: true,
+    };
+    localStorage.setItem(key, JSON.stringify({ v: 1, data: settings }));
+  });
+}
 
 async function openPage(label) {
   const page = await context.newPage();

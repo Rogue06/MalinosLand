@@ -28,6 +28,9 @@ Chromium dans `/opt/pw-browsers/chromium` ou dans la variable `CHROMIUM_PATH`
   remplacés par une téléportation (les trajets sont vérifiés par les tests unitaires), et les
   attentes sont sondées **depuis Node** et non par des minuteries de la page, que Chrome ralentit
   fortement sur ces serveurs.
+- Le test tourne en **qualité basse** (30 i/s, animations réduites) : il vérifie la logique et
+  l’interface, pas les graphismes, et le rendu complet saturait le processeur du serveur au point
+  de retarder la page. `E2E_QUALITY=normal` pour tester en qualité normale.
 - Pour reproduire une machine lente en local : `E2E_CPU_THROTTLE=4 npm run test:e2e`.
 
 ## Couverture actuelle (v0.1)
