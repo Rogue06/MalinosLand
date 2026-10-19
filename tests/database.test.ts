@@ -139,3 +139,89 @@ describe('base de données : my_profile (serveur temps réel)', () => {
     expect(guest.rows).toEqual([]);
   });
 });
+
+describe('base de données : signalements et modération', () => {
+  const MODO = '00000000-0000-4000-8000-0000000000c1';
+  const DORA = '00000000-0000-4000-8000-0000000000d1';
+  const report = (who: string, extra = '') =>
+    as(
+      who,
+      `insert into public.reports (reported_player, reported_account, reported_name, reason, details, messages${extra ? ', status' : ''})
+       values ($1, $2, 'Alice2', 'spam', 'pub en boucle', '["achetez !"]'${extra ? `, '${extra}'` : ''})`,
+      [ALICE.replace(/-/g, ''), ALICE],
+    );
+
+  beforeAll(async () => {
+    await db.exec(`insert into auth.users (id) values ('${MODO}'), ('${DORA}')`);
+    await db.exec(`insert into public.moderators (user_id) values ('${MODO}')`);
+  });
+
+  it('un joueur connecté peut signaler, un visiteur non', async () => {
+    await report(DORA);
+    await expect(
+      as(
+        null,
+        `insert into public.reports (reported_player, reported_name, reason) values ('aaaaaaaa11', 'X', 'spam')`,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('impossible de signaler au nom d’un autre ou de créer un signalement déjà « traité »', async () => {
+    await expect(
+      as(
+        DORA,
+        `insert into public.reports (reporter_id, reported_player, reported_name, reason) values ($1, 'aaaaaaaa11', 'X', 'spam')`,
+        [MODO],
+      ),
+    ).rejects.toThrow(/permission denied/);
+    await expect(report(DORA, 'traite')).rejects.toThrow(/permission denied/);
+  });
+
+  it('seuls les modérateurs lisent et traitent les signalements', async () => {
+    const seenByDora = await as(DORA, 'select id from public.reports');
+    expect(seenByDora.rows).toHaveLength(0);
+    const seenByModo = await as<{ id: number; reason: string }>(
+      MODO,
+      'select id, reason from public.reports',
+    );
+    expect(seenByModo.rows).toHaveLength(1);
+    const id = seenByModo.rows[0]!.id;
+    const byDora = await as(DORA, `update public.reports set status = 'traite' where id = $1`, [
+      id,
+    ]);
+    expect(byDora.affectedRows).toBe(0);
+    await as(MODO, `update public.reports set status = 'traite' where id = $1`, [id]);
+    await expect(
+      as(MODO, `update public.reports set reason = 'autre' where id = $1`, [id]),
+    ).rejects.toThrow(/permission denied/);
+    const after = await as<{ status: string }>(MODO, 'select status from public.reports');
+    expect(after.rows[0]!.status).toBe('traite');
+  });
+
+  it('is_moderator et la liste des modérateurs ne sont pas accessibles aux joueurs', async () => {
+    const me = await as<{ m: boolean }>(MODO, 'select public.is_moderator() as m');
+    expect(me.rows[0]!.m).toBe(true);
+    const dora = await as<{ m: boolean }>(DORA, 'select public.is_moderator() as m');
+    expect(dora.rows[0]!.m).toBe(false);
+    await expect(as(DORA, 'select * from public.moderators')).rejects.toThrow(/permission denied/);
+    await expect(
+      as(DORA, `insert into public.moderators (user_id) values ($1)`, [DORA]),
+    ).rejects.toThrow(/permission denied/);
+  });
+
+  it('pas plus de 10 signalements par jour et par joueur', async () => {
+    for (let i = 0; i < 9; i++) await report(DORA);
+    await expect(report(DORA)).rejects.toThrow(/Trop de signalements/);
+  });
+
+  it('messages joints limités en taille', async () => {
+    const big = JSON.stringify(Array.from({ length: 50 }, () => 'x'.repeat(200)));
+    await expect(
+      as(
+        MODO,
+        `insert into public.reports (reported_player, reported_name, reason, messages) values ('aaaaaaaa11', 'X', 'spam', $1)`,
+        [big],
+      ),
+    ).rejects.toThrow(/check constraint/);
+  });
+});

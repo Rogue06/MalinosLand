@@ -35,6 +35,13 @@ testée avec succès par le responsable ; jeu : https://malinosland.pages.dev.**
 
 ## Dernières sessions
 
+- **20/10** — Modération v0.2 (branche `feature/masquer-signaler`) : liste des joueurs
+  connectés (bouton « N Malinos »), masquer (local), signaler (compte, table `reports`, 10/jour),
+  page 🛡️ Modération (table `moderators`, `is_moderator()`). Migration
+  `20261020090000_reports.sql` testée avec PGlite ; **à appliquer sur Supabase à la fusion**, puis
+  ajouter le responsable comme modérateur. Envoi d’un signalement et page de modération **pas
+  testés de bout en bout** (la session Claude ne joint pas supabase.co).
+
 - **19/10 (soir, fin)** — PR #8 (comptes), #9 (onglet en arrière-plan : joueur oublié / « solo »),
   #10 (page `confidentialite.html`, exigée par Google) fusionnées et mises en ligne. Le
   responsable a configuré Supabase (URL, fournisseurs GitHub + Google, e-mail désactivé,

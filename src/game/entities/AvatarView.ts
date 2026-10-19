@@ -28,6 +28,9 @@ export class AvatarView {
   moving = false;
   /** Hauteur d'assise si l'avatar est assis, sinon null. */
   seatHeight: number | null = null;
+  private nameVisible = true;
+  /** Joueur masqué par le joueur local : rien n'est affiché. */
+  private hidden = false;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -62,7 +65,15 @@ export class AvatarView {
   }
 
   setNameVisible(visible: boolean): void {
-    this.label.setVisible(visible);
+    this.nameVisible = visible;
+    this.label.setVisible(visible && !this.hidden);
+  }
+
+  setHidden(hidden: boolean): void {
+    this.hidden = hidden;
+    this.sprite.setVisible(!hidden);
+    this.label.setVisible(this.nameVisible && !hidden);
+    if (hidden) this.clearBubble();
   }
 
   /** Met à jour cadre, position écran et profondeur. */
@@ -82,7 +93,7 @@ export class AvatarView {
     this.shadow
       .setPosition(p.x, p.y)
       .setDepth(depth - 0.5)
-      .setVisible(this.seatHeight === null);
+      .setVisible(this.seatHeight === null && !this.hidden);
     this.label.setPosition(p.x, p.y - HEAD_OFFSET - lift + sitDrop);
     this.bubble?.setPosition(p.x, p.y - HEAD_OFFSET - 20 - lift + sitDrop);
   }
@@ -90,6 +101,7 @@ export class AvatarView {
   /** Affiche une bulle au-dessus de la tête. Le texte est rendu tel quel (jamais interprété). */
   say(text: string, durationMs = 6000): void {
     this.clearBubble();
+    if (this.hidden) return;
     this.bubble = createBubble(this.scene, text);
     this.bubbleTimer = this.scene.time.delayedCall(durationMs, () => this.clearBubble());
   }

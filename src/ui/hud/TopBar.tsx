@@ -38,16 +38,18 @@ export function TopBar({
         )}
       </div>
       <nav class="topbar-right" aria-label="Menu principal">
-        <span
+        <button
+          type="button"
           class="presence-chip"
+          onClick={() => panelStore.set('players')}
           title={
             REALTIME_URL
-              ? 'Malinos connectés en ce moment'
+              ? 'Malinos connectés en ce moment (masquer, signaler)'
               : 'Joueurs visibles : hors ligne, uniquement les onglets ouverts dans ce navigateur'
           }
         >
           <span class="dot" /> {presence.length} {presence.length > 1 ? 'Malinos' : 'Malino'}
-        </span>
+        </button>
         <button
           class={`icon-btn ${objectivesOpen ? 'active' : ''}`}
           onClick={onToggleObjectives}

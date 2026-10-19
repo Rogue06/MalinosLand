@@ -7,6 +7,7 @@ import {
   signOut,
   AccountError,
 } from '../services/account';
+import { panelStore } from '../state';
 import { useStore } from './hooks';
 
 const PROVIDER_LABEL: Record<string, string> = { github: 'GitHub', google: 'Google' };
@@ -68,6 +69,15 @@ export function AccountBox({ compact = false }: { compact?: boolean }) {
       </p>
       {!compact && (
         <div class="row">
+          {account.moderator && (
+            <button
+              type="button"
+              class="btn primary small"
+              onClick={() => panelStore.set('moderation')}
+            >
+              🛡️ Modération
+            </button>
+          )}
           <button type="button" class="btn ghost small" onClick={() => void signOut()}>
             Se déconnecter
           </button>

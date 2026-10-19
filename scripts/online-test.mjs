@@ -90,6 +90,31 @@ try {
     'Bob reçoit le message de chat d’Alice',
   );
 
+  // Masquer : Alice masque Bob depuis la liste des joueurs ; elle ne voit plus ses messages.
+  await alice.click('.presence-chip');
+  await alice.getByRole('button', { name: 'Masquer', exact: true }).click();
+  await alice.getByRole('button', { name: 'Signaler', exact: true }).click();
+  check(
+    await poll(alice, () => document.querySelector('.modal')?.textContent.includes('Connecte-toi')),
+    'sans compte, le signalement demande de se connecter (masquer reste possible)',
+  );
+  if (process.env.SHOT_DIR)
+    await alice.screenshot({ path: `${process.env.SHOT_DIR}/joueurs-masquer.png` });
+  await alice.keyboard.press('Escape');
+  await bob.keyboard.press('Enter');
+  await bob.keyboard.type('Message masqué');
+  await bob.keyboard.press('Enter');
+  await bob.waitForTimeout(1500);
+  check(
+    !(await alice.evaluate(() =>
+      document.querySelector('.chat-log')?.textContent.includes('Message masqué'),
+    )),
+    'Alice a masqué Bob : son message ne s’affiche pas',
+  );
+  await alice.click('.presence-chip');
+  await alice.getByRole('button', { name: 'Afficher', exact: true }).click();
+  await alice.keyboard.press('Escape');
+
   await bob.context().close();
   check(await poll(alice, () => window.__malinosDebug.peers() === 0), 'Alice voit Bob partir');
 } catch (err) {

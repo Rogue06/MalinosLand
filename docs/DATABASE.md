@@ -11,6 +11,9 @@
 - **En place** : table `profiles` (pseudo unique, apparence), RLS (lecture publique, écriture de
   son seul profil, colonnes modifiables limitées), `delete_my_account()` (RGPD), `my_profile()`
   (vérification des comptes par le serveur temps réel).
+- **Modération** (migration `20261020090000_reports.sql`) : `moderators` (géré à la main),
+  `is_moderator()`, `reports` (signalements : insertion par l’auteur connecté, 10 par jour ;
+  lecture et changement de statut par les modérateurs).
 - Visiteurs : profil, réglages et progression restent dans le `localStorage` (`src/services/`),
   versionnés (`{ v, data }`) et validés à la lecture.
 

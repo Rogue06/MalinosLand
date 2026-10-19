@@ -128,7 +128,16 @@ Bouton 🗺️ : les prochaines versions résumées. Détails dans [ROADMAP.md](
 | **Compte**                    | Se connecter avec GitHub ou Google, se déconnecter, supprimer son compte.                                                                                  |
 | **Démo multijoueur locale**   | Relie les onglets ouverts dans ce même navigateur (version hors ligne seulement).                                                                          |
 
-## 9. Un problème ?
+## 9. Quelqu’un te dérange ?
+
+Clique sur **« N Malinos »** en haut de l’écran : la liste des joueurs connectés s’ouvre.
+
+- **Masquer** : tu ne vois plus son avatar, ses messages ni ses bulles. Lui ne le sait pas. Tu peux
+  revenir en arrière avec « Afficher ».
+- **Signaler** (compte nécessaire) : choisis un motif, ajoute des précisions si tu veux. Ses
+  derniers messages sont joints automatiquement. L’équipe de modération regarde chaque signalement.
+
+## 10. Un problème ?
 
 Signale-le en ouvrant une [issue « Bug »](https://github.com/Rogue06/MalinosLand/issues/new/choose) :
 explique ce que tu faisais, ton navigateur, et si possible ajoute une capture d’écran.

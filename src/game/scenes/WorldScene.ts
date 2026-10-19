@@ -16,6 +16,7 @@ import {
   type NoticeCode,
 } from '../../multiplayer/protocol';
 import { accessToken, accountStore } from '../../services/account';
+import { hiddenStore, isHidden } from '../../services/moderation';
 import {
   BroadcastChannelTransport,
   OfflineTransport,
@@ -160,6 +161,11 @@ export class WorldScene extends Phaser.Scene {
     this.cleanups.push(settingsStore.subscribe((s) => this.applySettings(s)));
     this.cleanups.push(profileStore.subscribe((p) => p && this.onProfileChanged(p)));
     this.cleanups.push(accountStore.subscribe(() => this.onAccountChanged()));
+    this.cleanups.push(
+      hiddenStore.subscribe(() => {
+        for (const [id, r] of this.remotes) r.view.setHidden(isHidden(id));
+      }),
+    );
     this.cleanups.push(commands.on('chat-send', ({ text, scope }) => this.sendChat(text, scope)));
     this.cleanups.push(commands.on('emote', ({ emoji }) => this.playEmote(emoji)));
 
@@ -428,6 +434,7 @@ export class WorldScene extends Phaser.Scene {
     this.net = net;
     net.events.on('join', (peer) => {
       this.addRemote(peer);
+      if (isHidden(peer.id)) return;
       pushChat({
         from: 'MalinosLand',
         text: `${displayName(peer.name, peer.verified)} a rejoint le Hub.`,
@@ -445,21 +452,32 @@ export class WorldScene extends Phaser.Scene {
     net.events.on('leave', ({ id }) => {
       const r = this.remotes.get(id);
       if (!r) return;
-      pushChat({
-        from: 'MalinosLand',
-        text: `${r.peer.name} a quitté le Hub.`,
-        kind: 'system',
-        scope: 'global',
-      });
+      if (!isHidden(id))
+        pushChat({
+          from: 'MalinosLand',
+          text: `${r.peer.name} a quitté le Hub.`,
+          kind: 'system',
+          scope: 'global',
+        });
       r.view.destroy();
       this.remotes.delete(id);
       this.updatePresence();
     });
+    // Joueur masqué : ni bulle, ni message, ni émote.
     net.events.on('chat', ({ peer, text, scope }) => {
+      if (isHidden(peer.id)) return;
       if (scope === 'local') this.remotes.get(peer.id)?.view.say(text);
-      pushChat({ from: displayName(peer.name, peer.verified), text, kind: 'peer', scope });
+      pushChat({
+        from: displayName(peer.name, peer.verified),
+        text,
+        kind: 'peer',
+        scope,
+        peerId: peer.id,
+      });
     });
-    net.events.on('emote', ({ peer, emote }) => this.remotes.get(peer.id)?.view.say(emote, 3000));
+    net.events.on('emote', ({ peer, emote }) => {
+      if (!isHidden(peer.id)) this.remotes.get(peer.id)?.view.say(emote, 3000);
+    });
     net.events.on('notice', ({ code }) => {
       const text = NOTICE_TEXT[code];
       pushToast(text, '🌐', 7000);
@@ -485,6 +503,7 @@ export class WorldScene extends Phaser.Scene {
     view.x = peer.x;
     view.y = peer.y;
     view.setNameVisible(settingsStore.get().showNames);
+    view.setHidden(isHidden(peer.id));
     this.remotes.set(peer.id, { peer, view });
     this.updatePresence();
   }
@@ -507,19 +526,21 @@ export class WorldScene extends Phaser.Scene {
         ? [
             {
               id: this.selfId,
-              name: displayName(profile.name, this.selfVerified),
+              name: profile.name,
               look: profile.look,
               self: true,
               room: ROOM,
+              verified: this.selfVerified,
             },
           ]
         : []),
       ...[...this.remotes.values()].map(({ peer }) => ({
         id: peer.id,
-        name: displayName(peer.name, peer.verified),
+        name: peer.name,
         look: peer.look,
         self: false,
         room: peer.room,
+        verified: peer.verified,
       })),
     ];
     presenceStore.set(list);

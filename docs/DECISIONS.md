@@ -159,3 +159,20 @@ coût, sans secret dans le Worker, sans alourdir le jeu pour les visiteurs.
   peuvent encore prendre n’importe quel pseudo libre (sans ✓). Le pseudo d’un compte se change en
   base, puis le jeu se reconnecte au serveur. Réglages GitHub / Google à faire dans les tableaux de
   bord (secrets hors du dépôt).
+
+## DEC-016 — Masquer côté joueur, signaler avec un compte, modérer en base (20/10/2026)
+
+**Contexte.** Le jeu est public : il faut pouvoir se protéger d’un joueur gênant et prévenir
+l’équipe, sans serveur payant ni outil externe.
+**Décision.**
+
+- **Masquer** est purement local (liste dans le navigateur) : immédiat, accessible à tous, sans
+  serveur. Pour un visiteur, l’identifiant change à chaque visite : le masquage dure jusqu’à sa
+  déconnexion (un compte a un identifiant stable).
+- **Signaler** exige un compte (limite l’abus) et passe directement par la base (table `reports`,
+  RLS) ; 10 signalements par jour et par joueur (déclencheur). Les 5 derniers messages vus du
+  joueur sont joints : le serveur temps réel ne conserve rien, c’est le seul contexte disponible.
+- **Modérateurs** : table `moderators` sans aucun accès par l’API, gérée à la main dans le SQL
+  Editor ; fonction `is_moderator()` utilisée par les règles. Page de modération dans le jeu.
+  **Conséquences.** Aucune donnée de modération n’est lisible par les joueurs. Exclure un joueur du
+  serveur temps réel viendra ensuite (le Worker devra lire une liste d’exclusion).

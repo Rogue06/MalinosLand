@@ -137,6 +137,72 @@ a {
 .account p {
   margin: 0;
 }
+.row.start {
+  justify-content: flex-start;
+}
+.players,
+.reports {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.players > li,
+.reports > li {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+.player-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.player-name {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.row-actions {
+  display: flex;
+  gap: 6px;
+}
+.report-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.report-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+.report-form select,
+.report-form textarea {
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 7px;
+  font: inherit;
+  resize: vertical;
+}
+.reports p {
+  margin: 4px 0;
+}
+.report-messages {
+  margin: 4px 0;
+  padding-left: 16px;
+  font-size: 13px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
 .account .row {
   justify-content: flex-start;
   flex-wrap: wrap;
@@ -253,6 +319,11 @@ a {
   border: 1px solid var(--line);
   padding: 5px 12px 5px 6px;
   border-radius: 12px;
+}
+button.presence-chip {
+  color: inherit;
+  font-family: inherit;
+  cursor: pointer;
 }
 .zone-chip,
 .presence-chip {

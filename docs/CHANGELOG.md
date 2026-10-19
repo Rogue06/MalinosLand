@@ -5,6 +5,15 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (modération)
+
+- Liste des **joueurs connectés** (bouton « N Malinos ») : **masquer** un joueur (avatar, messages,
+  bulles et émotes cachés pour soi), **signaler** un joueur (compte nécessaire : motif,
+  précisions, derniers messages joints).
+- Base : tables `reports` et `moderators`, `is_moderator()`, limite de 10 signalements par jour.
+- Page **🛡️ Modération** (Réglages, modérateurs seulement) : signalements à traiter / traités.
+- Page de confidentialité complétée (contenu d’un signalement).
+
 ### Corrigé (affichage)
 
 - Réglages : les cases à cocher étaient écrasées (conflit avec le style des cases d’objectifs).
