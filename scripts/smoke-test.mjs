@@ -93,8 +93,19 @@ async function step(name, fn) {
   notice(`✔ ${name} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
 }
 
+/** Attend qu'aucune fenêtre ni dialogue ne soit ouvert (le jeu peut traiter les touches en retard). */
+async function waitIdle() {
+  await waitFor(() => {
+    const s = window.__malinosDebug.state();
+    return s.panel === null && s.dialog === null;
+  });
+  // Laisse passer le délai anti-rebond du clavier et quelques images.
+  await page.waitForTimeout(800);
+}
+
 /** Téléporte le joueur (les longs trajets sont couverts par les tests unitaires). */
 async function teleport(x, y, f = 'py') {
+  await waitIdle();
   const ok = await dbg(([x, y, f]) => window.__malinosDebug.teleport(x, y, f), [x, y, f]);
   if (!ok) throw new Error(`téléportation impossible en ${x},${y}`);
   await page.waitForTimeout(300);
@@ -201,6 +212,10 @@ try {
   notice(`Images par seconde mesurées (indicatif, sans GPU) : ${fps}`);
 } catch (err) {
   fail(`étape « ${current} » échouée : ${err.message.split('\n')[0]}`);
+  const state = await page
+    .evaluate(() => window.__malinosDebug?.state())
+    .catch((e) => `indisponible (${e.message})`);
+  fail(`état au moment de l’échec : ${JSON.stringify(state)}`);
   await page.screenshot({ path: `${outDir}/erreur.png` }).catch(() => {});
 }
 notice(`Durée totale : ${((Date.now() - started) / 1000).toFixed(1)} s`);
