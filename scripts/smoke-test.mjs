@@ -93,6 +93,29 @@ async function step(name, fn) {
   notice(`✔ ${name} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
 }
 
+/**
+ * Attend qu'un élément d'interface soit affiché (présent, de taille non nulle, contenant
+ * éventuellement un texte). Vérification faite directement dans la page : avec Chrome 155 sur
+ * les serveurs de CI très lents, l'attente de visibilité de Playwright peut ne jamais aboutir
+ * alors que la fenêtre est bien affichée.
+ */
+function waitUi(selector, text = '', target = page) {
+  return target.waitForFunction(
+    ([sel, txt]) =>
+      [...document.querySelectorAll(sel)].some((el) => {
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && (!txt || el.textContent.includes(txt));
+      }),
+    [selector, text],
+    { timeout: TIMEOUT, polling: 200 },
+  );
+}
+
+/** Attend qu'aucun élément ne corresponde au sélecteur. */
+function waitGone(selector) {
+  return waitFor((sel) => !document.querySelector(sel), selector);
+}
+
 /** Attend qu'aucune fenêtre ni dialogue ne soit ouvert (le jeu peut traiter les touches en retard). */
 async function waitIdle() {
   await waitFor(() => {
@@ -142,13 +165,13 @@ try {
     await page.keyboard.press('Enter');
     await page.keyboard.type('Bonjour les Malinos !');
     await page.keyboard.press('Enter');
-    await page.locator('.chat-log').getByText('Bonjour les Malinos !').waitFor();
+    await waitUi('.chat-log .msg', 'Bonjour les Malinos !');
   });
 
   await step('marcher jusqu’à Malo et lui parler', async () => {
     await teleport(12.5, 18.4, 'ny');
     await dbg(() => window.__malinosDebug.use('malo'));
-    await page.locator('.dialog').waitFor();
+    await waitUi('.dialog', 'Malo');
     await page.screenshot({ path: `${outDir}/04-malo.png` });
     for (let i = 0; i < 10 && (await page.locator('.dialog').count()) > 0; i++) {
       await page.keyboard.press('e');
@@ -160,24 +183,24 @@ try {
   await step('panneau de bienvenue', async () => {
     await teleport(14.5, 17.5, 'px');
     await dbg(() => window.__malinosDebug.use('welcome-board'));
-    await page.locator('.modal').waitFor();
+    await waitUi('.modal', 'Bienvenue à MalinosLand');
     await page.keyboard.press('Escape');
-    await page.locator('.modal').waitFor({ state: 'detached' });
+    await waitGone('.modal');
   });
 
   await step('ascenseur', async () => {
     await teleport(12.5, 10.6, 'ny');
     await dbg(() => window.__malinosDebug.use('elevator'));
-    await page.getByText('Choisis un étage.').waitFor();
+    await waitUi('.modal', 'Choisis un étage.');
     await page.screenshot({ path: `${outDir}/05-ascenseur.png` });
     await page.keyboard.press('Escape');
-    await page.locator('.modal').waitFor({ state: 'detached' });
+    await waitGone('.modal');
   });
 
   await step('café au salon', async () => {
     await teleport(2.5, 11.6, 'ny');
     await dbg(() => window.__malinosDebug.use('coffee'));
-    await page.getByText('Tu te sers un café').first().waitFor();
+    await waitUi('.toast', 'Tu te sers un café');
   });
 
   await step('s’asseoir sur le canapé', async () => {
@@ -189,7 +212,7 @@ try {
 
   await step('terrasse (zone et objectif)', async () => {
     await teleport(29.5, 7.5, 'py');
-    await page.locator('.zone-chip').getByText('Terrasse').waitFor();
+    await waitUi('.zone-chip', 'Terrasse');
     await page.screenshot({ path: `${outDir}/07-terrasse.png` });
   });
 
