@@ -1,5 +1,5 @@
 import type { Facing } from '../../core/iso';
-import { rotationForFacing } from '../../core/rotation';
+import { facesCamera, rotateFacing, rotationForFacing } from '../../core/rotation';
 import {
   BOTTOM_COLORS,
   HAIR_COLORS,
@@ -121,7 +121,7 @@ function buildAvatar(a: AvatarAppearance, facing: Facing, pose: AvatarPose): Iso
   }
   B(-0.135, -0.125, hz, 0.27, 0.25, 0.28, skin, face);
   drawHair(B, a.hair, hairC, hz);
-  if (a.accessory === 2) drawHeadphones(B, a.hair, hz);
+  if (a.accessory === 2) drawHeadphones(B, a.hair, hz, facing);
   return b;
 }
 
@@ -152,15 +152,20 @@ export const HAIR_BOUNDS: ReadonlyArray<{ halfWidth: number; top: number }> = [
   { halfWidth: 0.135, top: 0.28 }, // aucun
 ];
 
-/** Casque audio : écouteurs et arceau posés à l'extérieur de la coiffure. */
-function drawHeadphones(B: BoxFn, hairStyle: number, hz: number): void {
+/**
+ * Casque audio : écouteurs et arceau posés à l'extérieur de la coiffure.
+ * Seul l'écouteur du côté de la caméra est dessiné : l'autre est caché par la tête, et le
+ * dessiner donnait l'impression de le voir à travers le crâne quand le personnage est de dos.
+ */
+function drawHeadphones(B: BoxFn, hairStyle: number, hz: number, facing: Facing): void {
   const { halfWidth: hw, top } = HAIR_BOUNDS[hairStyle] ?? HAIR_BOUNDS[0]!;
   const cup = 0.045;
   const band = 0.03;
   const bandTop = hz + top;
-  // Écouteurs à hauteur des oreilles, juste à l'extérieur des cheveux.
-  B(-hw - cup, -0.05, hz + 0.07, cup, 0.12, 0.15, P.ink);
-  B(hw, -0.05, hz + 0.07, cup, 0.12, 0.15, P.ink);
+  const rot = rotationForFacing(facing);
+  // Écouteur à hauteur de l'oreille, juste à l'extérieur des cheveux, côté caméra.
+  if (facesCamera(rotateFacing('nx', rot))) B(-hw - cup, -0.05, hz + 0.07, cup, 0.12, 0.15, P.ink);
+  if (facesCamera(rotateFacing('px', rot))) B(hw, -0.05, hz + 0.07, cup, 0.12, 0.15, P.ink);
   // Montants et arceau, légèrement en avant du sommet (devant un chignon).
   B(-hw - band, 0.075, hz + 0.2, band, 0.04, bandTop - (hz + 0.2), P.ink);
   B(hw, 0.075, hz + 0.2, band, 0.04, bandTop - (hz + 0.2), P.ink);

@@ -5,6 +5,15 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Corrigé (graphismes)
+
+- Personnages assis : les hanches sont maintenant contre le dossier. Vus de dos, ils semblaient
+  assis à côté ou devant le siège (bancs, fauteuils, canapés, chaises, transats).
+- Casque audio vu de dos : l’écouteur caché derrière la tête n’est plus dessiné (on avait
+  l’impression de le voir à travers le crâne).
+- Moteur de dessin : seules les pièces qui se recouvrent à l’écran sont ordonnées entre elles
+  (moins d’erreurs d’ordre d’affichage).
+
 ### Ajouté (modération)
 
 - Liste des **joueurs connectés** (bouton « N Malinos ») : **masquer** un joueur (avatar, messages,

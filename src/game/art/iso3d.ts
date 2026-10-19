@@ -389,12 +389,30 @@ export function inFront(a: { min: Vec3; max: Vec3 }, b: { min: Vec3; max: Vec3 }
   return ca > cb;
 }
 
+/** Rectangle occupé à l'écran par une boîte (projection de ses coins extrêmes). */
+function screenRect(it: Item): [number, number, number, number] {
+  const { min, max } = it;
+  return [
+    (min.x - max.y) * HW,
+    (max.x - min.y) * HW,
+    (min.x + min.y) * HH - max.z * Z_PX,
+    (max.x + max.y) * HH - min.z * Z_PX,
+  ];
+}
+
 function sortItems(items: Item[]): Item[] {
   const n = items.length;
   const after: number[][] = Array.from({ length: n }, () => []);
   const indegree = new Array<number>(n).fill(0);
+  const rects = items.map(screenRect);
+  const e = 1e-3;
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
+      // Deux boîtes qui ne se recouvrent pas à l'écran n'ont pas d'ordre à respecter : ne pas
+      // créer de contrainte inutile évite des cycles (et donc des pièces dessinées par-dessus
+      // ce qui devrait les cacher, comme un écouteur vu à travers la tête).
+      const [a, b] = [rects[i]!, rects[j]!];
+      if (a[1] <= b[0] + e || b[1] <= a[0] + e || a[3] <= b[2] + e || b[3] <= a[2] + e) continue;
       if (inFront(items[i]!, items[j]!)) {
         after[j]!.push(i);
         indegree[i]!++;

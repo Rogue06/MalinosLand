@@ -744,6 +744,17 @@ export class WorldScene extends Phaser.Scene {
         if (obj) this.useObject(obj);
         return !!obj;
       },
+      /** S'assoit aussitôt sur le n-ième objet d'un type (captures et tests d'affichage). */
+      sit: (type: string, n = 0) => {
+        const obj = this.world.objects.filter((o) => o.type === type)[n];
+        if (!obj) return false;
+        this.player.standUp();
+        this.player.cancel();
+        if (!this.player.sitOn(obj)) return false;
+        const p = project(this.player.pos.x, this.player.pos.y);
+        this.cameras.main.centerOn(p.x, p.y - 30);
+        return this.player.facing;
+      },
       zoom: (z: number) => {
         this.userZoom = Phaser.Math.Clamp(z, 0.4, 2.4);
         this.updateZoom();

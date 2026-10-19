@@ -7,6 +7,8 @@ import type { CatalogEntry } from '../world/types';
  * Ajouter un objet : 1) une entrée ici, 2) un dessin dans objects.ts,
  * 3) le placer dans une carte. Voir docs/CONTRIBUTING.md.
  */
+// Assises : le point d'assise est placé contre le dossier (hanches au fond du siège), sinon
+// le personnage semble flotter devant le dossier, surtout vu de dos.
 export const CATALOG: Record<string, CatalogEntry> = {
   // --- Mobilier intérieur -------------------------------------------------
   desk_pc: {
@@ -29,21 +31,21 @@ export const CATALOG: Record<string, CatalogEntry> = {
     category: 'furniture',
     footprint: [1, 1],
     blocking: true,
-    seats: [{ x: 0.5, y: 0.5, height: 0.42 }],
+    seats: [{ x: 0.5, y: 0.41, height: 0.42 }],
   },
   conf_chair: {
     name: 'Siège de conférence',
     category: 'furniture',
     footprint: [1, 1],
     blocking: true,
-    seats: [{ x: 0.5, y: 0.5, height: 0.42 }],
+    seats: [{ x: 0.5, y: 0.4, height: 0.42 }],
   },
   armchair: {
     name: 'Fauteuil',
     category: 'furniture',
     footprint: [1, 1],
     blocking: true,
-    seats: [{ x: 0.5, y: 0.55, height: 0.38 }],
+    seats: [{ x: 0.5, y: 0.4, height: 0.38 }],
   },
   sofa: {
     name: 'Canapé',
@@ -51,8 +53,8 @@ export const CATALOG: Record<string, CatalogEntry> = {
     footprint: [2, 1],
     blocking: true,
     seats: [
-      { x: 0.55, y: 0.55, height: 0.38 },
-      { x: 1.45, y: 0.55, height: 0.38 },
+      { x: 0.55, y: 0.42, height: 0.38 },
+      { x: 1.45, y: 0.42, height: 0.38 },
     ],
   },
   coffee_table: {
@@ -269,8 +271,8 @@ export const CATALOG: Record<string, CatalogEntry> = {
     footprint: [2, 1],
     blocking: true,
     seats: [
-      { x: 0.55, y: 0.5, height: 0.4 },
-      { x: 1.45, y: 0.5, height: 0.4 },
+      { x: 0.55, y: 0.37, height: 0.4 },
+      { x: 1.45, y: 0.37, height: 0.4 },
     ],
   },
   lamp_post: {
@@ -303,7 +305,7 @@ export const CATALOG: Record<string, CatalogEntry> = {
     category: 'furniture',
     footprint: [1, 1],
     blocking: true,
-    seats: [{ x: 0.5, y: 0.5, height: 0.3 }],
+    seats: [{ x: 0.5, y: 0.42, height: 0.3 }],
   },
   cone: {
     name: 'Plot de chantier',
