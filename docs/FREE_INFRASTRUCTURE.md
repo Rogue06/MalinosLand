@@ -60,7 +60,7 @@ d’attente (voir §6). Le jeu reste gratuit ; il devient simplement limité.
 | Cloudflare D1    | Base SQLite gratuite avec quotas journaliers de lectures/écritures (à re-vérifier)                                                                                                                                                                                                                                                                                        | Bien intégré aux Workers, mais pas d’authentification incluse (à développer soi-même : risqué). Alternative de repli.                                 |
 | Firebase (Spark) | Gratuit avec plafonds ; passage au palier payant lié à une carte                                                                                                                                                                                                                                                                                                          | Écarté (risque de facturation, dépendance forte)                                                                                                      |
 
-## 5. Architecture retenue (à valider — DEC-006)
+## 5. Architecture retenue (validée le 19/10/2026 — DEC-006)
 
 ```
 Navigateur ──(HTTPS, statique)──▶ Cloudflare Pages  (le jeu)

@@ -145,8 +145,9 @@ Le projet est découpé pour que plusieurs personnes avancent en même temps :
 
 ## 7. Développer avec une IA
 
-Les assistants IA (Claude Code, ChatGPT…) sont bienvenus. Ils doivent lire [`CLAUDE.md`](../CLAUDE.md)
-et [SESSION_HANDOFF.md](SESSION_HANDOFF.md). Relis toujours le code proposé et vérifie que
+Les assistants IA (Claude Code, Codex, Cursor, Copilot…) sont bienvenus. Ils lisent
+automatiquement [`AGENTS.md`](../AGENTS.md) et doivent lire [SESSION_HANDOFF.md](SESSION_HANDOFF.md).
+Mode d’emploi : [Reprendre le projet](REPRENDRE_LE_PROJET.md). Relis toujours le code proposé et vérifie que
 `npm run check` passe vraiment.
 
 ## 8. Sécurité et respect

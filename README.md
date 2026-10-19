@@ -91,15 +91,16 @@ par le responsable du projet avant d’être ajoutée.
 
 Le [plan de la documentation](docs/README.md) t’indique quoi lire selon ton profil.
 
-| Document                                               | Pour qui      | Contenu                                        |
-| ------------------------------------------------------ | ------------- | ---------------------------------------------- |
-| [Guide du joueur](docs/GUIDE_DU_JOUEUR.md)             | Tout le monde | Commandes, lieux, objectifs, réglages          |
-| [Feuille de route](docs/ROADMAP.md)                    | Tout le monde | Les prochaines versions, expliquées simplement |
-| [Vision du projet](docs/PROJECT_VISION.md)             | Tout le monde | Pourquoi MalinosLand existe, nos principes     |
-| [Contribuer](docs/CONTRIBUTING.md)                     | Contributeurs | Comment proposer une modification, pas à pas   |
-| [Glossaire](docs/GLOSSAIRE.md)                         | Débutants     | Les mots techniques expliqués                  |
-| [Architecture](docs/ARCHITECTURE.md)                   | Développeurs  | Comment le code est organisé                   |
-| [Infrastructure gratuite](docs/FREE_INFRASTRUCTURE.md) | Développeurs  | Comment rester 100 % gratuit                   |
+| Document                                               | Pour qui      | Contenu                                                 |
+| ------------------------------------------------------ | ------------- | ------------------------------------------------------- |
+| [Guide du joueur](docs/GUIDE_DU_JOUEUR.md)             | Tout le monde | Commandes, lieux, objectifs, réglages                   |
+| [Feuille de route](docs/ROADMAP.md)                    | Tout le monde | Les prochaines versions, expliquées simplement          |
+| [Vision du projet](docs/PROJECT_VISION.md)             | Tout le monde | Pourquoi MalinosLand existe, nos principes              |
+| [Contribuer](docs/CONTRIBUTING.md)                     | Contributeurs | Comment proposer une modification, pas à pas            |
+| [Reprendre le projet](docs/REPRENDRE_LE_PROJET.md)     | Contributeurs | Sur n’importe quel ordinateur, avec n’importe quelle IA |
+| [Glossaire](docs/GLOSSAIRE.md)                         | Débutants     | Les mots techniques expliqués                           |
+| [Architecture](docs/ARCHITECTURE.md)                   | Développeurs  | Comment le code est organisé                            |
+| [Infrastructure gratuite](docs/FREE_INFRASTRUCTURE.md) | Développeurs  | Comment rester 100 % gratuit                            |
 
 ## Pour les développeurs
 

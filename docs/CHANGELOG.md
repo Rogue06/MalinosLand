@@ -5,6 +5,15 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (reprise du projet)
+
+- `AGENTS.md` : consignes communes à toutes les IA (Codex, Cursor, Copilot, Gemini, Claude Code…) ;
+  `CLAUDE.md` et `GEMINI.md` l’importent, `.github/copilot-instructions.md` y renvoie.
+- Guide `docs/REPRENDRE_LE_PROJET.md` : reprendre le projet sur Windows, macOS ou Linux, avec
+  n’importe quel outil, en local ou dans le cloud.
+- Démarrage automatique des sessions cloud de Claude Code (`.claude/hooks/session-start.sh`).
+- `.gitattributes` : fins de ligne identiques sur tous les systèmes.
+
 ### Corrigé
 
 - Une fenêtre ou un dialogue ignorait la touche Échap / E pressée dans l’instant qui suit son

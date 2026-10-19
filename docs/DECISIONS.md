@@ -48,7 +48,7 @@ et `BroadcastChannel` (démo locale entre onglets, aucune donnée ne quitte l’
 **Conséquences.** Le protocole, la limitation de débit, la dégradation selon un budget de messages
 et le filtrage par salle sont déjà en place et testés ; v0.2 ajoutera un transport serveur.
 
-## DEC-006 — Infrastructure cible v0.2 : Cloudflare + Supabase (18/10/2026) — **à valider**
+## DEC-006 — Infrastructure cible v0.2 : Cloudflare + Supabase (18/10/2026) — **validée le 19/10/2026**
 
 **Contexte.** Contrainte absolue de gratuité ; voir [FREE_INFRASTRUCTURE.md](FREE_INFRASTRUCTURE.md).
 **Proposition.** Cloudflare Pages (site statique), Cloudflare Workers + Durable Objects (temps réel,
@@ -90,3 +90,15 @@ La v0.1 est développée sur `feature/initial-prototype`.
 **Décision.** Le profil (pseudo + apparence), les réglages et la progression sont stockés dans le
 `localStorage`, versionnés et validés à la lecture. Aucune donnée personnelle n’est envoyée.
 **Conséquences.** Pas de RGPD à gérer côté serveur en v0.1 ; migration vers les comptes en v0.2.
+
+## DEC-012 — `AGENTS.md`, source unique des consignes pour toutes les IA (19/10/2026)
+
+**Contexte.** Le projet doit pouvoir être repris à tout moment, depuis n’importe quel ordinateur et
+avec n’importe quel outil (Claude Code, Codex, Cursor, Copilot…), en local ou dans le cloud.
+**Décision.** Les consignes vivent dans `AGENTS.md` (format standard lu par la plupart des outils).
+`CLAUDE.md` et `GEMINI.md` l’importent, `.github/copilot-instructions.md` y renvoie. L’état du
+travail reste dans `docs/SESSION_HANDOFF.md`, mis à jour à chaque fin de tâche. Un script de
+démarrage (`.claude/hooks/session-start.sh`) installe les dépendances dans les sessions cloud de
+Claude Code ; `.gitattributes` uniformise les fins de ligne entre Windows, macOS et Linux.
+**Conséquences.** Une seule copie des règles à maintenir ; aucune information importante ne dépend
+d’une conversation ou d’un ordinateur. Guide humain : `docs/REPRENDRE_LE_PROJET.md`.
