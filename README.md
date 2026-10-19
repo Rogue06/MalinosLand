@@ -87,6 +87,22 @@ expliqués dans le [glossaire](docs/GLOSSAIRE.md).
 proposition passe par une **pull request** (une demande de modification) qui est relue et validée
 par le responsable du projet avant d’être ajoutée.
 
+### 🤖 Tu codes avec une IA ? Commence par cette phrase
+
+Que tu utilises Claude Code, Codex, Cursor, Copilot, Gemini ou un autre assistant, en local ou dans
+le cloud, ouvre le projet puis donne-lui exactement ceci :
+
+```text
+Lis AGENTS.md puis docs/SESSION_HANDOFF.md. Résume-moi où en est le projet MalinosLand
+et propose la prochaine étape. Respecte toutes les règles d'AGENTS.md
+(gratuité permanente, travail sur une branche, pull request, documentation en français).
+```
+
+[`AGENTS.md`](AGENTS.md) contient toutes les règles du projet, et
+[`docs/SESSION_HANDOFF.md`](docs/SESSION_HANDOFF.md) dit où en est le travail. La plupart des outils
+lisent même `AGENTS.md` tout seuls. Ton IA saura donc quoi faire, comme toutes les autres. Mode
+d’emploi complet : [Reprendre le projet](docs/REPRENDRE_LE_PROJET.md).
+
 ## Toute la documentation
 
 Le [plan de la documentation](docs/README.md) t’indique quoi lire selon ton profil.

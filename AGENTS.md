@@ -41,6 +41,8 @@ Responsable du projet : **Rogue06**.
 4. **Déploiement et comptes.** Pas de mise en ligne ni de création de ressource sur un compte
    externe sans autorisation explicite. Pas d’identifiants inventés. **Aucun secret dans le dépôt**
    (`.env*` ignorés ; les secrets vont dans les réglages chiffrés de l’hébergeur ou de GitHub).
+   Tout nouveau secret est ajouté à l’**inventaire** (nom et rôle, jamais la valeur) dans
+   `docs/REPRENDRE_LE_PROJET.md`.
 5. **Sécurité.** Tout texte venant d’un joueur ou du réseau est non fiable : passer par
    `sanitizeText` / `sanitizeName` / `decodeMessage`. Interdits (bloqués par ESLint) : `innerHTML`,
    `dangerouslySetInnerHTML`, `eval`. Les permissions sont vérifiées côté serveur / base de

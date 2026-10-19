@@ -66,17 +66,46 @@ Si le projet est déjà cloné : `git checkout main` puis `git pull` pour récup
 - poussé sa branche sur GitHub (sinon le travail reste sur l’ordinateur ou le serveur de l’IA !) ;
 - ouvert une pull request, ou indiqué où en est sa branche.
 
-## 4. Ce qui n’est pas dans le dépôt (et c’est normal)
+## 4. Ne rien perdre : où sont les secrets, les comptes et les réglages ?
 
-| Élément                                                        | Où il se trouve                                                                             | Qui le gère              |
-| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------ |
-| Mots de passe, clés d’API, jetons                              | Réglages chiffrés de Cloudflare, Supabase ou GitHub (« Secrets ») — **jamais dans le code** | Le responsable du projet |
-| Comptes Cloudflare et Supabase (gratuits, sans carte bancaire) | Sites des fournisseurs                                                                      | Le responsable du projet |
-| Protection de la branche `main`                                | GitHub → Settings → Rules                                                                   | Le responsable du projet |
+**Rien de tout cela ne dépend d’une IA ni d’un ordinateur.** Tout est stocké **en ligne, dans les
+comptes du responsable du projet**, et reste en place même si l’on change d’outil IA, d’ordinateur
+ou de façon de travailler. Une IA ne « garde » jamais rien : elle relit le dépôt à chaque session.
 
-Réglage actuel de la protection (à recréer à l’identique si le dépôt change de place) : règle
-« Protection de la branche principale » ciblant la **branche par défaut**, avec pull request
-obligatoire, fusion en **squash** uniquement, suppression et push forcé interdits.
+| Élément                                             | Où il est stocké (en ligne)                                                          | Ce qu’il faut conserver soi-même                                   |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| Code, documentation, décisions, état du travail     | **GitHub** (ce dépôt)                                                                | Rien : tout est dans le dépôt                                      |
+| Réglages du dépôt (protection de `main`…)           | **GitHub** → Settings                                                                | Rien (et ils sont décrits ci-dessous)                              |
+| Compte GitHub                                       | GitHub                                                                               | Mot de passe + **codes de secours** de la double authentification  |
+| Compte Cloudflare (hébergement, serveur temps réel) | Cloudflare                                                                           | Mot de passe + codes de secours                                    |
+| Projet Supabase (comptes joueurs, base de données)  | Supabase                                                                             | Mot de passe + codes de secours                                    |
+| Clés techniques (clé d’API, jeton de déploiement…)  | Réglages chiffrés de **Cloudflare**, **Supabase** ou **GitHub → Settings → Secrets** | Rien : on peut toujours en régénérer une nouvelle depuis le compte |
+
+👉 **Le seul vrai risque est de perdre l’accès à ses comptes.** Conseil : garder les mots de passe et
+les codes de secours dans un **gestionnaire de mots de passe** (il en existe de gratuits, par exemple
+Bitwarden), et activer la double authentification partout.
+
+**Règles pour les IA et les contributeurs :**
+
+- Jamais de secret dans le code, dans un fichier commité, dans une issue ou dans une conversation
+  publique. Un secret exposé doit être **révoqué et régénéré** immédiatement.
+- Le dépôt contient seulement l’**inventaire** des secrets (leur nom et leur rôle, jamais leur
+  valeur), dans le tableau ci-dessous, à tenir à jour à chaque ajout.
+
+### Inventaire des secrets et des comptes
+
+| Nom                             | Rôle                                          | Stocké dans                                                                            | Statut         |
+| ------------------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------- | -------------- |
+| _(aucun pour l’instant)_        | La v0.1 fonctionne sans aucun secret          | —                                                                                      | —              |
+| `CLOUDFLARE_API_TOKEN` (prévu)  | Mise en ligne automatique depuis GitHub       | GitHub → Secrets                                                                       | À créer (v0.2) |
+| `CLOUDFLARE_ACCOUNT_ID` (prévu) | Identifiant du compte Cloudflare (non secret) | GitHub → Variables                                                                     | À créer (v0.2) |
+| Clés Supabase (prévu)           | Connexion des joueurs et base de données      | Cloudflare + GitHub → Secrets (la clé « service » ne va **jamais** dans le navigateur) | À créer (v0.2) |
+
+### Réglage actuel de la protection de `main`
+
+À recréer à l’identique si le dépôt change de place : règle « Protection de la branche
+principale » ciblant la **branche par défaut**, avec pull request obligatoire, fusion en **squash**
+uniquement, suppression et push forcé interdits.
 
 ## 5. Sessions Claude Code dans le cloud
 
