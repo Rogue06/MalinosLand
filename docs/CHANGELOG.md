@@ -5,6 +5,16 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (ville plus vivante — lot 2 : Hub agrandi)
+
+- Le Hub passe de 34 × 30 à **48 × 38 cases** : **Parc des Malinos** à l’est (étang avec
+  nénuphars et ronds dans l’eau, bancs, kiosque en bois avec tables à parasol, transats et
+  télescope, nombreux arbres pour les oiseaux) et **Verger et potager** au sud (promenade bordée
+  d’arbres fruitiers, potager partagé). Chemins raccordés à ceux du Hub.
+- 2 nouveaux secrets (8 au total) et nouveaux objets : étang, télescope.
+- Ambiance sonore « dehors » dans le parc et le verger.
+- Corrigé : licence AGPL aussi dans `package-lock.json`.
+
 ### Ajouté (ville plus vivante — lot 1)
 
 - **Vie du décor**, calculée dans le navigateur (aucun message réseau, rien pour les quotas) :

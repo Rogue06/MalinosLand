@@ -176,6 +176,42 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
     box(b, 1.02, 0.32, 0.3, 0.74, 0.58, 0.06, lighten(c, 0.12));
     box(b, 0.3, 0.22, 0.36, 0.3, 0.1, 0.22, P.sun);
   },
+  pond(b) {
+    const stone = '#b9b2a4';
+    b.poly(
+      [
+        { x: 0.3, y: 0.3, z: 0.12 },
+        { x: 2.7, y: 0.3, z: 0.12 },
+        { x: 2.7, y: 2.7, z: 0.12 },
+        { x: 0.3, y: 2.7, z: 0.12 },
+      ],
+      P.water,
+    );
+    box(b, 0.15, 0.15, 0, 2.7, 0.18, 0.2, stone);
+    box(b, 0.15, 0.33, 0, 0.18, 2.34, 0.2, stone);
+    box(b, 2.67, 0.33, 0, 0.18, 2.34, 0.2, stone);
+    box(b, 0.15, 2.67, 0, 2.7, 0.18, 0.2, stone);
+    b.disc(0.9, 1.0, 0.13, 0.2, P.leaf);
+    b.disc(1.9, 1.7, 0.13, 0.24, P.leafDark);
+    b.disc(1.4, 2.1, 0.13, 0.16, P.leaf);
+    box(b, 1.82, 1.6, 0.13, 0.08, 0.08, 0.05, '#f2a7c3', { outline: false });
+    // Roseaux dans un coin et un rocher.
+    for (const [x, y, h] of [
+      [2.3, 0.45, 0.6],
+      [2.45, 0.55, 0.75],
+      [2.2, 0.6, 0.5],
+    ] as const)
+      box(b, x, y, 0.12, 0.05, 0.05, h, P.leafDark, { outline: false });
+    box(b, 0.45, 2.15, 0.08, 0.3, 0.26, 0.18, '#8f897d');
+  },
+  telescope(b) {
+    box(b, 0.3, 0.35, 0, 0.05, 0.05, 0.6, P.metalDark);
+    box(b, 0.65, 0.35, 0, 0.05, 0.05, 0.6, P.metalDark);
+    box(b, 0.48, 0.7, 0, 0.05, 0.05, 0.6, P.metalDark);
+    box(b, 0.42, 0.45, 0.6, 0.18, 0.18, 0.1, P.ink);
+    box(b, 0.44, 0.2, 0.68, 0.14, 0.56, 0.14, P.violet);
+    box(b, 0.42, 0.14, 0.66, 0.18, 0.08, 0.18, P.metal);
+  },
   cat(b) {
     // Petit coussin et chat roulé en boule, la queue autour.
     box(b, 0.15, 0.2, 0, 0.7, 0.62, 0.1, P.violet);

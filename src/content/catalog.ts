@@ -57,6 +57,32 @@ export const CATALOG: Record<string, CatalogEntry> = {
       { x: 1.45, y: 0.42, height: 0.38 },
     ],
   },
+  pond: {
+    name: 'Étang',
+    category: 'nature',
+    footprint: [3, 3],
+    blocking: true,
+    defaultInteraction: {
+      kind: 'emote',
+      label: 'Regarder dans l’étang',
+      emoji: '🍾',
+      text: 'Une bouteille flotte entre les nénuphars. Le message dit : « Celui qui trouve ce mot doit dire bonjour à tout le monde dans le chat ! »',
+      secret: 'bouteille',
+    },
+  },
+  telescope: {
+    name: 'Télescope',
+    category: 'decor',
+    footprint: [1, 1],
+    blocking: true,
+    defaultInteraction: {
+      kind: 'emote',
+      label: 'Regarder dans le télescope',
+      emoji: '🔭',
+      text: 'Au loin, des grues s’affairent : la Tour des Malinos grandit… Les étages arrivent en v0.4 !',
+      secret: 'telescope',
+    },
+  },
   cat: {
     name: 'Chat',
     category: 'decor',

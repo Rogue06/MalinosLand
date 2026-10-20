@@ -36,6 +36,11 @@ Prochaine étape : v0.3 Logements.**
 
 ## Dernières sessions
 
+- **23/10** — PR #25 (ville vivante lot 1) fusionnée et en ligne. Lot 2 (branche
+  `feature/hub-agrandi`) : Hub 48 × 38 (Parc des Malinos, Verger et potager), étang et télescope
+  (2 secrets de plus, 8 au total), ronds dans l’étang. Pièces intérieures **pas encore
+  agrandies** (à discuter : cela demande de redessiner le bâtiment).
+
 - **22/10 (nuit)** — PR #24 fusionnée, migration `site_owners` appliquée, compte du responsable
   ajouté comme responsable du site, mise en ligne faite. Ville vivante lot 1 (branche
   `feature/ville-vivante`) : `src/game/life/AmbientLife.ts` (fontaine, oiseaux, papillons,

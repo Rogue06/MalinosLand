@@ -2,8 +2,8 @@
   "formatVersion": 1,
   "id": "hub",
   "name": "Le Hub — rez-de-chaussée",
-  "width": 34,
-  "height": 30,
+  "width": 48,
+  "height": 38,
   "spawn": {
     "x": 12.9,
     "y": 21.5,
@@ -51,36 +51,44 @@
     }
   },
   "tiles": [
-    "BBBBBBBBBBBBB#############gggggggg",
-    "Bwwwwwwwwwww=cccccccccccc=gggggggg",
-    "Bwwwwwwwwwww=cccccccccccc=gggggggg",
-    "Bwwwwwwwwwww=cccccccccccc=gddddddg",
-    "Bwwwwwwwwwww=cccccccccccc=gddddddg",
-    "Bwwwwwwwwwww=cccccccccccc=gddddddg",
-    "Bwwwwwwwwwww=cccccccccccc=gddddddg",
-    "Bwwwwwwwwwww=cccccccccccc=gddddddg",
-    "Bwwwwwwwwwww=cccccccccccc=gddddddg",
-    "B========hhhh==hh=========gddddddg",
-    "#llllll=hhhhhhhhh=aaaaaaa=gddddddg",
-    "#llllll=hhhhhhhhh=aaaaaaa=gddddddg",
-    "#llllll=hhhhhhhhh=aaaaaaa=gggppggg",
-    "#llllllhhhhhhhhhhhaaaaaaa=gggppggg",
-    "#llllllhhhhhhhhhhhaaaaaaa=gggppggg",
-    "#llllllhhhhhhhhhh=aaaaaaa=gggppggg",
-    "#llllll=hhhhhhhhh=aaaaaaa=gggppggg",
-    "#llllll=hhhhhhhhh=aaaaaaa=gggppggg",
-    "#llllll=hhhhhhhhh=aaaaaaa=gggppggg",
-    "============hh============gggppggg",
-    "ggggggggggggppgggggggggggggggppggg",
-    "ggggggggggggppgggggggggggggggppggg",
-    "ggppppppppppppppppppppppppppppppgg",
-    "ggggggggggggppgggppppggggggggggggg",
-    "ggggggggggggppgggppppggggggggggggg",
-    "gssssssssgggppgggppppggggggggggggg",
-    "gssssssssgggppgggppppggggggggggggg",
-    "gssssssssgggppgggggggggggggggggggg",
-    "gssssssssgggppgggggggggggggggggggg",
-    "gggggggggggggggggggggggggggggggggg"
+    "BBBBBBBBBBBBB#############gggggggggggggggggggggg",
+    "Bwwwwwwwwwww=cccccccccccc=gggggggggggggggggggggg",
+    "Bwwwwwwwwwww=cccccccccccc=gggggggggggggggggggggg",
+    "Bwwwwwwwwwww=cccccccccccc=gddddddgggggggppgggggg",
+    "Bwwwwwwwwwww=cccccccccccc=gddddddgggggggppgggggg",
+    "Bwwwwwwwwwww=cccccccccccc=gddddddgggggggppgddddg",
+    "Bwwwwwwwwwww=cccccccccccc=gddddddgggggggppgddddg",
+    "Bwwwwwwwwwww=cccccccccccc=gddddddgggggggppgddddg",
+    "Bwwwwwwwwwww=cccccccccccc=gddddddgggggggppgddddg",
+    "B========hhhh==hh=========gddddddgggggggppgddddg",
+    "#llllll=hhhhhhhhh=aaaaaaa=gddddddgggggggppgggggg",
+    "#llllll=hhhhhhhhh=aaaaaaa=gddddddgggggggppgggggg",
+    "#llllll=hhhhhhhhh=aaaaaaa=gggppgggggggggppgggggg",
+    "#llllllhhhhhhhhhhhaaaaaaa=gggppgggggggggppgggggg",
+    "#llllllhhhhhhhhhhhaaaaaaa=gggppgggggggggppgggggg",
+    "#llllllhhhhhhhhhh=aaaaaaa=gggppgggggggggppgggggg",
+    "#llllll=hhhhhhhhh=aaaaaaa=gggppgggggggggppgggggg",
+    "#llllll=hhhhhhhhh=aaaaaaa=gggppgggggggggppgggggg",
+    "#llllll=hhhhhhhhh=aaaaaaa=gggppgggggggggppgggggg",
+    "============hh============gggppgggggggggppgggggg",
+    "ggggggggggggppgggggggggggggggppgggggggggppgggggg",
+    "ggggggggggggppgggggggggggggggppgggggggggppgggggg",
+    "ggppppppppppppppppppppppppppppppppppppppppgggggg",
+    "ggggggggggggppgggppppgggggggggggggggggggppgggggg",
+    "ggggggggggggppgggppppgggggggggggggggggggppgggggg",
+    "gssssssssgggppgggppppgggggggggggggggggggppgggggg",
+    "gssssssssgggppgggppppgggggggggggggggggggppgggggg",
+    "gssssssssgggppggggggggggggggggggggggggggppgggggg",
+    "gssssssssgggppggggggggggggggggggggggggggppgggggg",
+    "ggggggggggggppggggggggggggggggggggggggggppgggggg",
+    "ggggggggggggppggggggggggggggggggggggggggppgggggg",
+    "ggssssssssggppggggggggggggggggggggggggggppgggggg",
+    "ggssssssssggppggggggggggggggggggggggggggppgggggg",
+    "ggssssssssggppggggggggggggggggggggggggggppgggggg",
+    "ggssssssssggppppppppppppppppppppppppppppppgggggg",
+    "ggssssssssggggggggggggggggggggggggggggggppgggggg",
+    "ggssssssssgggggggggggggggggggggggggggggggggggggg",
+    "gggggggggggggggggggggggggggggggggggggggggggggggg"
   ],
   "zones": [
     {
@@ -170,13 +178,37 @@
       "description": "Les futurs logements des Malinos."
     },
     {
+      "id": "park",
+      "name": "Parc des Malinos",
+      "rect": {
+        "x": 34,
+        "y": 0,
+        "w": 14,
+        "h": 30
+      },
+      "status": "open",
+      "description": "Un grand parc avec son étang, son kiosque et ses arbres pleins d’oiseaux."
+    },
+    {
+      "id": "orchard",
+      "name": "Verger et potager",
+      "rect": {
+        "x": 0,
+        "y": 30,
+        "w": 48,
+        "h": 8
+      },
+      "status": "open",
+      "description": "Une promenade entre les arbres fruitiers et le potager partagé."
+    },
+    {
       "id": "garden",
       "name": "Jardin communautaire",
       "rect": {
         "x": 0,
         "y": 0,
-        "w": 34,
-        "h": 30
+        "w": 48,
+        "h": 38
       },
       "status": "open",
       "description": "Le jardin qui entoure le Hub."
@@ -1150,6 +1182,397 @@
       "x": 33,
       "y": 0,
       "id": "nain"
+    },
+    {
+      "type": "pond",
+      "x": 35,
+      "y": 14,
+      "id": "etang"
+    },
+    {
+      "type": "bench",
+      "x": 35,
+      "y": 18,
+      "rot": 2
+    },
+    {
+      "type": "bench",
+      "x": 38,
+      "y": 14,
+      "rot": 3
+    },
+    {
+      "type": "tree",
+      "x": 34,
+      "y": 2,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 37,
+      "y": 1,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 44,
+      "y": 1,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 46,
+      "y": 3,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 34,
+      "y": 9,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 37,
+      "y": 10,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 46,
+      "y": 13,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 34,
+      "y": 20,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 44,
+      "y": 17,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 46,
+      "y": 24,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 35,
+      "y": 27,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 43,
+      "y": 28,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 37,
+      "y": 24,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 44,
+      "y": 12,
+      "variant": 2
+    },
+    {
+      "type": "bush",
+      "x": 36,
+      "y": 5
+    },
+    {
+      "type": "bush",
+      "x": 38,
+      "y": 7
+    },
+    {
+      "type": "bush",
+      "x": 42,
+      "y": 20
+    },
+    {
+      "type": "bush",
+      "x": 45,
+      "y": 20
+    },
+    {
+      "type": "bush",
+      "x": 36,
+      "y": 22
+    },
+    {
+      "type": "bush",
+      "x": 38,
+      "y": 29
+    },
+    {
+      "type": "bush",
+      "x": 47,
+      "y": 9
+    },
+    {
+      "type": "bush",
+      "x": 34,
+      "y": 12
+    },
+    {
+      "type": "lamp_post",
+      "x": 39,
+      "y": 6
+    },
+    {
+      "type": "lamp_post",
+      "x": 39,
+      "y": 12
+    },
+    {
+      "type": "lamp_post",
+      "x": 39,
+      "y": 19
+    },
+    {
+      "type": "lamp_post",
+      "x": 42,
+      "y": 25
+    },
+    {
+      "type": "lamp_post",
+      "x": 39,
+      "y": 30
+    },
+    {
+      "type": "flowerbed",
+      "x": 42,
+      "y": 14,
+      "rot": 1
+    },
+    {
+      "type": "flowerbed",
+      "x": 42,
+      "y": 17,
+      "rot": 1,
+      "variant": 1
+    },
+    {
+      "type": "parasol_table",
+      "x": 44,
+      "y": 6
+    },
+    {
+      "type": "parasol_table",
+      "x": 45,
+      "y": 8
+    },
+    {
+      "type": "deck_chair",
+      "x": 43,
+      "y": 8,
+      "rot": 1
+    },
+    {
+      "type": "deck_chair",
+      "x": 46,
+      "y": 6,
+      "rot": 3
+    },
+    {
+      "type": "telescope",
+      "x": 46,
+      "y": 5,
+      "id": "telescope"
+    },
+    {
+      "type": "plant",
+      "x": 43,
+      "y": 5
+    },
+    {
+      "type": "tree",
+      "x": 16,
+      "y": 31,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 19,
+      "y": 31,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 22,
+      "y": 31,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 25,
+      "y": 31,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 28,
+      "y": 31,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 31,
+      "y": 31,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 34,
+      "y": 31,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 37,
+      "y": 31,
+      "variant": 2
+    },
+    {
+      "type": "tree",
+      "x": 18,
+      "y": 36,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 22,
+      "y": 36,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 26,
+      "y": 36,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 30,
+      "y": 36,
+      "variant": 0
+    },
+    {
+      "type": "tree",
+      "x": 34,
+      "y": 36,
+      "variant": 0
+    },
+    {
+      "type": "flowerbed",
+      "x": 3,
+      "y": 32,
+      "variant": 2
+    },
+    {
+      "type": "flowerbed",
+      "x": 6,
+      "y": 32,
+      "variant": 2
+    },
+    {
+      "type": "flowerbed",
+      "x": 3,
+      "y": 35,
+      "variant": 2
+    },
+    {
+      "type": "flowerbed",
+      "x": 6,
+      "y": 35,
+      "variant": 2
+    },
+    {
+      "type": "bench",
+      "x": 10,
+      "y": 32,
+      "rot": 3
+    },
+    {
+      "type": "bench",
+      "x": 20,
+      "y": 33,
+      "rot": 0
+    },
+    {
+      "type": "bench",
+      "x": 30,
+      "y": 33,
+      "rot": 0
+    },
+    {
+      "type": "lamp_post",
+      "x": 15,
+      "y": 33
+    },
+    {
+      "type": "lamp_post",
+      "x": 25,
+      "y": 33
+    },
+    {
+      "type": "lamp_post",
+      "x": 35,
+      "y": 33
+    },
+    {
+      "type": "lamp_post",
+      "x": 11,
+      "y": 30
+    },
+    {
+      "type": "bush",
+      "x": 44,
+      "y": 32
+    },
+    {
+      "type": "bush",
+      "x": 46,
+      "y": 35
+    },
+    {
+      "type": "bush",
+      "x": 1,
+      "y": 30
+    },
+    {
+      "type": "bush",
+      "x": 14,
+      "y": 37
+    },
+    {
+      "type": "tree",
+      "x": 45,
+      "y": 31,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 47,
+      "y": 37,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 0,
+      "y": 37,
+      "variant": 0
     }
   ],
   "wallDecor": [
