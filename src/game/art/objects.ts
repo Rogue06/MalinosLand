@@ -176,6 +176,103 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
     box(b, 1.02, 0.32, 0.3, 0.74, 0.58, 0.06, lighten(c, 0.12));
     box(b, 0.3, 0.22, 0.36, 0.3, 0.1, 0.22, P.sun);
   },
+  pingpong(b) {
+    for (const [x, y] of [
+      [0.2, 0.25],
+      [1.75, 0.25],
+      [0.2, 0.7],
+      [1.75, 0.7],
+    ] as const)
+      box(b, x, y, 0, 0.05, 0.05, 0.6, P.metalDark);
+    box(b, 0.1, 0.15, 0.6, 1.8, 0.7, 0.04, '#2f6fb3', {
+      decals: [decal('top', 0.49, 0, 0.51, 1, P.white), decal('top', 0, 0.48, 1, 0.52, P.white)],
+    });
+    box(b, 0.97, 0.12, 0.64, 0.06, 0.76, 0.1, '#e9e4dc', { outline: false });
+    box(b, 0.4, 0.4, 0.64, 0.12, 0.1, 0.02, P.coral);
+    b.cylinder(1.4, 0.55, 0.64, 0.03, 0.05, P.white);
+  },
+  foosball(b) {
+    box(b, 0.2, 0.3, 0, 0.08, 0.08, 0.5, P.woodDark);
+    box(b, 1.72, 0.3, 0, 0.08, 0.08, 0.5, P.woodDark);
+    box(b, 0.2, 0.62, 0, 0.08, 0.08, 0.5, P.woodDark);
+    box(b, 1.72, 0.62, 0, 0.08, 0.08, 0.5, P.woodDark);
+    box(b, 0.12, 0.2, 0.5, 1.76, 0.6, 0.24, P.wood, { top: P.leaf });
+    for (let i = 0; i < 4; i++)
+      box(b, 0.35 + i * 0.4, 0.05, 0.66, 0.04, 0.9, 0.04, P.metal, { outline: false });
+    for (let i = 0; i < 4; i++)
+      box(b, 0.32 + i * 0.4, 0.45, 0.6, 0.1, 0.08, 0.14, i % 2 ? P.coral : '#3e6fd1', {
+        outline: false,
+      });
+  },
+  chess_table(b) {
+    b.cylinder(0.5, 0.5, 0, 0.18, 0.04, P.ink);
+    b.cylinder(0.5, 0.5, 0.04, 0.05, 0.5, P.woodDark);
+    box(b, 0.14, 0.14, 0.54, 0.72, 0.72, 0.06, P.wood, {
+      decals: Array.from({ length: 16 }, (_, i) => {
+        const x = (i % 4) * 0.25;
+        const y = Math.floor(i / 4) * 0.25;
+        return decal(
+          'top',
+          x + (Math.floor(i / 4) % 2) * 0.125,
+          y,
+          x + 0.125 + (Math.floor(i / 4) % 2) * 0.125,
+          y + 0.125,
+          '#3a2a1c',
+        );
+      }),
+    });
+    box(b, 0.3, 0.3, 0.6, 0.06, 0.06, 0.12, P.white);
+    box(b, 0.62, 0.6, 0.6, 0.06, 0.06, 0.14, P.ink);
+  },
+  beanbag(b, v) {
+    const c = pick([P.coral, P.teal, P.sun, P.violet], v);
+    box(b, 0.14, 0.14, 0, 0.72, 0.72, 0.2, c);
+    box(b, 0.22, 0.22, 0.2, 0.56, 0.56, 0.06, lighten(c, 0.1));
+    box(b, 0.18, 0.12, 0.2, 0.64, 0.18, 0.24, darken(c, 0.06));
+  },
+  flowers(b, v) {
+    const colors = [P.coral, P.sun, '#f2a7c3', P.violet, P.white];
+    for (let i = 0; i < 7; i++) {
+      const x = 0.12 + ((i * 37 + v * 13) % 70) / 100;
+      const y = 0.12 + ((i * 53 + v * 29) % 70) / 100;
+      box(b, x + 0.03, y + 0.03, 0, 0.02, 0.02, 0.08, P.leafDark, { outline: false });
+      box(b, x, y, 0.08, 0.08, 0.08, 0.04, pick(colors, i + v), { outline: false });
+    }
+  },
+  rock(b, v) {
+    const c = pick(['#9a948a', '#8b8579', '#a8a397'], v);
+    box(b, 0.18, 0.22, 0, 0.62, 0.5, 0.22, c);
+    box(b, 0.28, 0.3, 0.22, 0.38, 0.32, 0.14, lighten(c, 0.08));
+    box(b, 0.62, 0.55, 0, 0.22, 0.22, 0.12, darken(c, 0.06));
+  },
+  mushrooms(b) {
+    for (const [x, y, s] of [
+      [0.25, 0.3, 1],
+      [0.6, 0.25, 0.8],
+      [0.7, 0.6, 1.1],
+      [0.3, 0.65, 0.7],
+      [0.48, 0.45, 0.9],
+    ] as const) {
+      box(b, x, y, 0, 0.05 * s, 0.05 * s, 0.1 * s, '#f1ede6', { outline: false });
+      box(b, x - 0.04 * s, y - 0.04 * s, 0.1 * s, 0.13 * s, 0.13 * s, 0.05 * s, '#d9483b', {
+        outline: false,
+      });
+    }
+  },
+  log(b) {
+    box(b, 0.1, 0.3, 0, 1.8, 0.42, 0.3, '#7a5236', { top: '#c9a172' });
+    box(b, 0.1, 0.3, 0.3, 0.16, 0.42, 0.02, '#e2c08f', { outline: false });
+  },
+  campfire(b) {
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      box(b, 0.44 + Math.cos(a) * 0.3, 0.44 + Math.sin(a) * 0.3, 0, 0.12, 0.12, 0.1, '#8f897d');
+    }
+    box(b, 0.3, 0.45, 0.04, 0.4, 0.1, 0.08, '#6b4a2f');
+    box(b, 0.45, 0.3, 0.06, 0.1, 0.4, 0.08, '#7a5236');
+    box(b, 0.4, 0.4, 0.12, 0.2, 0.2, 0.16, '#ff8a3d', { outline: false });
+    box(b, 0.45, 0.45, 0.22, 0.1, 0.1, 0.14, '#ffd25e', { outline: false });
+  },
   pond(b) {
     const stone = '#b9b2a4';
     b.poly(

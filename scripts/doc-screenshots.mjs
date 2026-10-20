@@ -133,10 +133,14 @@ const closeHud = (page) => page.evaluate(() => document.querySelector('.objectiv
   await shot(page, 'panneau-ascenseur');
   await page.keyboard.press('Escape');
   // 10. Le Parc des Malinos (étang, kiosque).
-  await teleport(page, 39.5, 16.5, 'py');
-  await page.evaluate(() => window.__malinosDebug.zoom(1.0));
+  await teleport(page, 39.0, 20.0, 'py');
+  await page.evaluate(() => window.__malinosDebug.zoom(0.8));
   await page.waitForTimeout(1500);
   await shot(page, 'parc');
+  await teleport(page, 40.5, 8.0, 'ny');
+  await page.evaluate(() => window.__malinosDebug.zoom(1.5));
+  await page.waitForTimeout(1500);
+  await shot(page, 'salle-de-jeux');
   // 11. Un studio de la Tour (gabarit commun à tous les logements).
   await page.evaluate(() => window.__malinosDebug.travel(`home-${'a'.repeat(32)}`));
   await page.waitForFunction(() => window.__malinosDebug?.room?.().startsWith('home-'));

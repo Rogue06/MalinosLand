@@ -36,6 +36,11 @@ Prochaine étape : v0.3 Logements.**
 
 ## Dernières sessions
 
+- **23/10 (suite 2)** — Branche `feature/parc-foret-jeux` (empilée sur `feature/chat-proximite`) :
+  partie est du Hub redessinée (générateur ponctuel, non conservé) : salle de jeux, chemins en
+  lacets, prairie, étang, forêt dense et clairière avec feu de camp ; 9 nouveaux objets ;
+  10 secrets au total.
+
 - **23/10 (suite)** — PR #26 fusionnée et en ligne. Branche `feature/chat-proximite` : rayon de
   8 cases pour « autour » (serveur + démo), chat en un seul fil avec choix « À : Tout le monde /
   Autour · n » (défaut : tout le monde), buisson retiré du chemin + test. À suivre (demandes du
