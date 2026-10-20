@@ -15,7 +15,11 @@ export const TURNSTILE_ORIGIN = 'https://challenges.cloudflare.com';
 
 export function buildCsp(realtimeUrl?: string, supabaseUrl?: string, turnstile = false): string {
   const connect = ["'self'"];
-  if (realtimeUrl && /^wss?:\/\//.test(realtimeUrl)) connect.push(new URL(realtimeUrl).origin);
+  if (realtimeUrl && /^wss?:\/\//.test(realtimeUrl)) {
+    // WebSocket du monde, et même hôte en HTTP(S) pour ses petites routes (historique).
+    const origin = new URL(realtimeUrl).origin;
+    connect.push(origin, origin.replace(/^ws/, 'http'));
+  }
   if (supabaseUrl && /^https:\/\//.test(supabaseUrl)) connect.push(new URL(supabaseUrl).origin);
   return [
     "default-src 'self'",

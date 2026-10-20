@@ -69,7 +69,7 @@ export function AccountBox({ compact = false }: { compact?: boolean }) {
       </p>
       {!compact && (
         <div class="row">
-          {account.moderator && (
+          {(account.moderator || account.owner) && (
             <button
               type="button"
               class="btn primary small"

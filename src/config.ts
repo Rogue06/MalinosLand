@@ -6,6 +6,11 @@
 /** Adresse du serveur temps réel (ws:// ou wss://). Absente : multijoueur local ou solo. */
 export const REALTIME_URL: string | null = parseRealtimeUrl(import.meta.env.VITE_REALTIME_URL);
 
+/** Adresse HTTP du serveur temps réel (même hôte que la WebSocket), pour ses petites routes. */
+export const REALTIME_HTTP: string | null = REALTIME_URL
+  ? new URL(REALTIME_URL).origin.replace(/^ws/, 'http')
+  : null;
+
 export function parseRealtimeUrl(value: unknown): string | null {
   if (typeof value !== 'string') return null;
   const url = value.trim();
@@ -35,7 +40,8 @@ export const ACCOUNTS_ENABLED = !!(REALTIME_URL && SUPABASE_URL && SUPABASE_KEY)
 /** Ce que le jeu transmet, affiché aux joueurs (doit rester exact : voir docs/SECURITY.md). */
 export const PRIVACY_NOTE = REALTIME_URL
   ? 'Version 0.2 · en ligne. Ton pseudo, ton apparence, ta position et tes messages sont ' +
-    'transmis en direct aux joueurs connectés, sans être conservés par le serveur. ' +
+    'transmis en direct aux joueurs connectés, sans être conservés ; seuls ton pseudo et tes ' +
+    'heures de connexion sont notés 90 jours (visibles par le responsable du site). ' +
     (ACCOUNTS_ENABLED
       ? 'Sans compte, ton personnage reste dans ce navigateur. Avec un compte (GitHub ou ' +
         'Google), ton pseudo et ton apparence sont enregistrés (Supabase, en Europe) ; ' +

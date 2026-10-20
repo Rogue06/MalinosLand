@@ -98,6 +98,29 @@ export async function checkHomeAccess(
   }
 }
 
+/** Le jeton est-il celui du responsable du site (`is_site_owner`) ? Erreur = non. */
+export async function isSiteOwner(
+  token: string | null,
+  env: SupabaseConfig,
+  fetcher: typeof fetch = fetch,
+): Promise<boolean> {
+  if (!token || !TOKEN_RE.test(token) || !env.SUPABASE_URL || !env.SUPABASE_KEY) return false;
+  try {
+    const res = await fetcher(`${env.SUPABASE_URL}/rest/v1/rpc/is_site_owner`, {
+      method: 'POST',
+      headers: {
+        apikey: env.SUPABASE_KEY,
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: '{}',
+    });
+    return res.ok && (await res.json()) === true;
+  } catch {
+    return false;
+  }
+}
+
 export function encodeAccountHeader(account: Account): string {
   return encodeURIComponent(JSON.stringify(account));
 }

@@ -8,6 +8,7 @@ import {
   newConnData,
   type Account,
   type Conn,
+  type HubOptions,
   type QuotaCounter,
 } from '../server/src/hub';
 
@@ -34,6 +35,7 @@ function setup(
     maxPerRoom?: number;
     budget?: number;
     access?: (owner: string, token: string | null) => Promise<boolean>;
+    visits?: HubOptions['visits'];
   } = {},
 ) {
   let t = 1000;
@@ -50,6 +52,7 @@ function setup(
     maxPerHome: 3,
     exit: { room: 'hub', x: 11.9, y: 10.6 },
     checkHomeAccess: opts.access ?? (async () => false),
+    ...(opts.visits ? { visits: opts.visits } : {}),
   });
   const join = (id: string, x = 12, y = 21, room = 'hub', account: Account | null = null) => {
     const c = new FakeConn(newConnData(Math.random().toString(36).slice(2), 0, account));
@@ -542,5 +545,28 @@ describe('logements : entrée vérifiée par la base', () => {
     const a = join('aaaaaaaa11');
     say(a, { t: 'door', room: 'hub', ok: true });
     expect(a.data.strikes).toBe(1);
+  });
+});
+
+describe('historique des connexions', () => {
+  it('note les arrivées (pseudo du compte s’il y en a un) et les départs', () => {
+    const log: string[] = [];
+    const visits = {
+      arrive: (p: string, n: string, a: boolean) => log.push(`+${p}:${n}:${a}`),
+      leave: (p: string) => log.push(`-${p}`),
+    };
+    const { hub, join } = setup({ maxPerRoom: 1, visits });
+    const a = join('aaaaaaaa11');
+    join('bbbbbbbb22'); // en file d'attente : pas encore arrivé
+    const account = { id: '00000000-0000-4000-8000-0000000000cc', name: 'Compte' };
+    join(accountPlayerId(account.id)!, 5, 5, 'tour-1', account);
+    a.close(1000, 'parti');
+    hub.onClose(a);
+    expect(log).toEqual([
+      '+aaaaaaaa11:Joueur aaa:false',
+      `+${accountPlayerId(account.id)}:Compte:true`,
+      '-aaaaaaaa11',
+      '+bbbbbbbb22:Joueur bbb:false',
+    ]);
   });
 });

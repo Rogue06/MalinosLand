@@ -266,3 +266,19 @@ vérifié côté serveur. Ce qui s’écrit dans un logement ne doit être lu qu
   (limitée comme le chat). Le jeton de connexion transite dans les messages `enter` / `hello` sur
   la WebSocket chiffrée, n’est jamais relayé ni enregistré. L’éditeur de décoration (disposition
   enregistrée) viendra dans un lot suivant.
+
+## DEC-022 — Historique des connexions, visible par le responsable seulement (22/10/2026)
+
+**Contexte.** Le responsable veut savoir si des Malinos se connectent depuis l’ouverture.
+Jusqu’ici rien n’était conservé : impossible de le savoir pour les visiteurs.
+**Décision.** Le serveur temps réel note **une ligne par visite** (pseudo, compte ou visiteur,
+heures d’arrivée et de départ) dans le SQLite de son Durable Object (`server/src/visits.ts`) ;
+une reconnexion de moins de 2 minutes continue la même visite ; tout est **effacé au bout de
+90 jours** (choix du responsable). Ni adresse IP, ni position, ni message. Lecture par
+`GET /visits` sur le Worker : le jeton doit être celui du **responsable du site**, vérifié par la
+base (`is_site_owner`, table `site_owners`, migration `20261022120000_site_owner.sql`) — rôle
+distinct des modérateurs, pour que l’historique reste privé si l’équipe s’agrandit. Affichage :
+onglet « 📋 Connexions » de la page de modération, pour le responsable seulement.
+**Conséquences.** Deux écritures par visite dans le Durable Object (limite gratuite : 100 000
+par jour). Page de confidentialité et texte de l’écran d’accueil mis à jour. Rien n’existe pour
+les visites avant le 22/10/2026.

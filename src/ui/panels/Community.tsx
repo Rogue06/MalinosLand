@@ -28,6 +28,7 @@ import {
   type ReportReason,
 } from '../../services/moderation';
 import { inviteGuest } from '../../services/homes';
+import { listVisits, summarize, type Visit } from '../../services/visits';
 import { profileStore } from '../../services/profile';
 import { loadTurnstile, type TurnstileApi } from '../../services/turnstile';
 import { accountUuid } from '../../multiplayer/protocol';
@@ -394,7 +395,9 @@ function messagesOf(row: ReportRow): string[] {
 
 /** Modération : signalements reçus (accessible aux modérateurs, vérifié par la base). */
 export function ModerationPanel() {
-  const [section, setSection] = useState<'reports' | 'feedback'>('reports');
+  const account = useStore(accountStore);
+  const owner = account.status === 'signed-in' && account.owner;
+  const [section, setSection] = useState<'reports' | 'feedback' | 'visits'>('reports');
   return (
     <Modal title="Modération" icon="🛡️" wide>
       <div class="row start">
@@ -412,9 +415,85 @@ export function ModerationPanel() {
         >
           💡 Idées & bugs
         </button>
+        {owner && (
+          <button
+            type="button"
+            class={`btn small ${section === 'visits' ? 'primary' : 'ghost'}`}
+            onClick={() => setSection('visits')}
+          >
+            📋 Connexions
+          </button>
+        )}
       </div>
-      {section === 'reports' ? <ReportsList /> : <FeedbackList />}
+      {section === 'reports' ? (
+        <ReportsList />
+      ) : section === 'feedback' ? (
+        <FeedbackList />
+      ) : (
+        <VisitsList />
+      )}
     </Modal>
+  );
+}
+
+const DAY_FMT = new Intl.DateTimeFormat('fr-FR', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+});
+const TIME_FMT = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+/** Historique des connexions (responsable du site seulement, 90 derniers jours). */
+function VisitsList() {
+  const [rows, setRows] = useState<Visit[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    listVisits()
+      .then(setRows)
+      .catch((e) => setError(e instanceof AccountError ? e.message : 'Historique indisponible.'));
+  }, []);
+  if (error) return <p class="error small">{error}</p>;
+  if (!rows) return <p class="muted small">Chargement…</p>;
+  const now = Date.now();
+  const week = summarize(rows, now - 7 * 24 * 3600 * 1000);
+  const all = summarize(rows, 0);
+  const days = new Map<string, Visit[]>();
+  for (const v of rows) {
+    const key = DAY_FMT.format(v.arrived);
+    days.set(key, [...(days.get(key) ?? []), v]);
+  }
+  return (
+    <div class="visits">
+      <p>
+        <strong>7 derniers jours :</strong> {week.visits} visite(s), {week.people} Malino(s)
+        différent(s). <strong>90 jours :</strong> {all.visits} visite(s), {all.people} Malino(s).
+      </p>
+      <p class="muted small">
+        Visible par toi seul. Pseudo, compte (✓) ou visiteur, heures d’arrivée et de départ ; effacé
+        au bout de 90 jours. Rien n’était noté avant le 22/10/2026.
+      </p>
+      {rows.length === 0 && <p class="muted">Aucune connexion pour l’instant.</p>}
+      {[...days].map(([day, list]) => (
+        <section key={day}>
+          <h3 class="elevator-section">
+            {day} · {list.length}
+          </h3>
+          <ul class="players">
+            {list.map((v, i) => (
+              <li key={i} class="player-row">
+                <span class="player-name">
+                  {v.name}
+                  {v.account && <span title="Connecté à son compte"> ✓</span>}
+                </span>
+                <span class="muted small">
+                  {TIME_FMT.format(v.arrived)} → {v.left ? TIME_FMT.format(v.left) : 'en ligne'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
   );
 }
 

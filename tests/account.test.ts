@@ -32,7 +32,7 @@ describe('comptes joueurs', () => {
   it('la CSP n’autorise que le serveur temps réel et le projet Supabase', () => {
     const csp = buildCsp('wss://rt.example.workers.dev/ws', 'https://abc.supabase.co');
     expect(csp).toContain(
-      "connect-src 'self' wss://rt.example.workers.dev https://abc.supabase.co",
+      "connect-src 'self' wss://rt.example.workers.dev https://rt.example.workers.dev https://abc.supabase.co",
     );
     expect(buildCsp()).toContain("connect-src 'self';");
     expect(buildCsp()).not.toContain('challenges.cloudflare.com');
