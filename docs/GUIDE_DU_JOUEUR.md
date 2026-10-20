@@ -68,6 +68,15 @@ s’éclairent au survol de la souris.
 - **En bas à gauche** : la mini-carte (toi = point blanc).
 - **En bas à droite** : le chat et les émotes 👋 ☕ ✨ 😄 👍.
 
+### Le chat : à qui j’écris ?
+
+Tous les messages arrivent dans le même fil. Au-dessus, **« À : »** indique qui te lira :
+
+- **🌍 Tout le monde** (choix par défaut) : tous les Malinos connectés ;
+- **📍 Autour** : seulement les Malinos à moins de **8 cases** de toi (environ la largeur du hall
+  d’accueil), avec une bulle au-dessus de ta tête. Le nombre à côté indique combien de Malinos
+  te liront. Ces messages sont marqués 📍 dans le fil.
+
 ## 4. Visite du Hub
 
 ### Le hall d’accueil
@@ -190,7 +199,7 @@ Avec un compte (GitHub ou Google), tu as ton **studio** dans la Tour des Malinos
   personne à l’ascenseur si elle est chez toi.
 - **Visiter** : l’ascenseur liste les logements ouverts à tous et ceux où tu es invité.
 - **Discussion privée** : dans un logement, ce que tu écris n’est lu que par les personnes
-  présentes (onglet « Ici »). Le chat général du Hub, lui, continue d’arriver.
+  présentes (même un message « tout le monde »). Les messages du Hub, eux, continuent d’arriver.
 - 12 personnes au plus par logement. La décoration (déplacer, ajouter des meubles) arrive bientôt.
 
 ## 10. Quelqu’un te dérange ?

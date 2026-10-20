@@ -32,7 +32,8 @@ Les touches « haut/bas/gauche/droite » suivent l’écran (haut = vers le fond
   - _assise_ : chaises, fauteuils, canapés, bancs, transats (places multiples, occupation gérée).
 - **Indice contextuel** en bas de l’écran : « E · Parler à Joshua », « E · S’asseoir »…
 - **Objectifs « Premiers pas »** (8) : guident la découverte ; aucune récompense marchande.
-- **Chat** : onglets _Proximité_ (bulle au-dessus de la tête, même salle) et _Général_ ;
+- **Chat** : un seul fil ; on choisit à qui l’on écrit : _Tout le monde_ (par défaut) ou
+  _Autour_ (à moins de 8 cases, bulle au-dessus de la tête ; toute la pièce dans un logement) ;
   anti-spam (5 messages d’affilée puis 1 toutes les 2 s) ; 140 caractères max.
 - **Émotes** : 👋 ☕ ✨ 😄 👍 (liste fermée, transmise en démo multi-onglets).
 - **Zones** : nom affiché en haut, mini-carte en bas à gauche ; les zones « bientôt » indiquent la

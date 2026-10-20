@@ -548,6 +548,26 @@ describe('logements : entrée vérifiée par la base', () => {
   });
 });
 
+describe('chat « autour de moi »', () => {
+  it('seuls les joueurs à moins de 8 cases le lisent ; « tout le monde » va à tous', () => {
+    const { join, say } = setup();
+    const a = join('aaaaaaaa11', 12, 21);
+    const near = join('bbbbbbbb22', 17, 24); // ≈ 5,8 cases
+    const far = join('cccccccc33', 25, 25); // ≈ 13,6 cases
+    say(a, { t: 'chat', id: 'aaaaaaaa11', room: 'hub', scope: 'local', text: 'Psst' });
+    expect(near.of('chat').map((m) => m.text)).toEqual(['Psst']);
+    expect(far.of('chat')).toHaveLength(0);
+    say(a, {
+      t: 'chat',
+      id: 'aaaaaaaa11',
+      room: 'hub',
+      scope: 'global',
+      text: 'Salut tout le monde',
+    });
+    expect(far.of('chat').map((m) => m.text)).toEqual(['Salut tout le monde']);
+  });
+});
+
 describe('historique des connexions', () => {
   it('note les arrivées (pseudo du compte s’il y en a un) et les départs', () => {
     const log: string[] = [];

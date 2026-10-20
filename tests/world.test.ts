@@ -38,6 +38,20 @@ describe('cartes du contenu', () => {
         expect(reachable.has(`${tile!.x},${tile!.y}`), `${obj.id} inatteignable`).toBe(true);
       }
     });
+
+    it(`aucun objet ne barre un chemin de « ${id} »`, () => {
+      const world = loadWorld(id);
+      // La fontaine trône au milieu de sa place pavée : c'est voulu.
+      const allowed = new Set(['fountain']);
+      for (const obj of world.objects) {
+        if (obj.entry.flat || !obj.entry.blocking || allowed.has(obj.type)) continue;
+        for (let x = obj.x; x < obj.x + obj.w; x++)
+          for (let y = obj.y; y < obj.y + obj.d; y++) {
+            const floor = map.legend[map.tiles[y]![x]!]?.floor;
+            expect(floor, `${obj.id} posé sur le chemin en ${x},${y}`).not.toBe('path');
+          }
+      }
+    });
   }
 });
 

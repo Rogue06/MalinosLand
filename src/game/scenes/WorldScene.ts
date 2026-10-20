@@ -12,6 +12,7 @@ import { NetworkClient, type RemotePeer } from '../../multiplayer/NetworkClient'
 import { ServerTransport } from '../../multiplayer/ServerTransport';
 import {
   EMOTES,
+  LOCAL_CHAT_RADIUS,
   accountPlayerId,
   homeOwner,
   randomId,
@@ -37,6 +38,7 @@ import {
   dialogStore,
   hintStore,
   isInputLocked,
+  nearbyStore,
   panelStore,
   peersPosStore,
   playerPosStore,
@@ -633,6 +635,14 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
+  /** Ce joueur lirait-il un message « autour de moi » ? (même salle, moins de 8 cases) */
+  private withinEarshot(peer: RemotePeer): boolean {
+    if (peer.room !== this.room) return false;
+    if (homeOwner(this.room)) return true;
+    const p = this.player.pos;
+    return Math.hypot(peer.x - p.x, peer.y - p.y) <= LOCAL_CHAT_RADIUS;
+  }
+
   /** Nom affiché du lieu dans un logement. */
   private homeLabel(): string {
     return homeOwner(this.room) === this.selfId
@@ -743,6 +753,9 @@ export class WorldScene extends Phaser.Scene {
     // Joueur masqué : ni bulle, ni message, ni émote.
     on('chat', ({ peer, text, scope }) => {
       if (isHidden(peer.id)) return;
+      // « Autour de moi » : trop loin, on ne l'entend pas (le serveur filtre déjà en ligne ; ici
+      // pour la démo entre onglets).
+      if (scope === 'local' && !this.withinEarshot(peer)) return;
       if (scope === 'local') this.remotes.get(peer.id)?.view.say(text);
       const mention = mentions(text, profileStore.get()?.name ?? '');
       pushChat({
@@ -936,6 +949,10 @@ export class WorldScene extends Phaser.Scene {
     }
     if (time - this.lastStats > 500) {
       this.lastStats = time;
+      let nearby = 0;
+      for (const { peer } of this.remotes.values())
+        if (!isHidden(peer.id) && this.withinEarshot(peer)) nearby++;
+      if (nearbyStore.get() !== nearby) nearbyStore.set(nearby);
       statsStore.set({
         fps: Math.round(this.game.loop.actualFps),
         peers: this.remotes.size,

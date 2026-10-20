@@ -274,7 +274,7 @@ try {
     await waitFor((h) => window.__malinosDebug?.room() === h, home);
     await waitFor(() => window.__malinosDebug.state().zone === 'studio');
     await waitUi('.zone-chip', 'Chez');
-    await waitUi('.chat-private');
+    await waitUi('.chat-to', 'Logement');
     await page.screenshot({ path: `${outDir}/08-studio.png` });
     await dbg(() => window.__malinosDebug.travel('hub'));
     await waitFor(() => window.__malinosDebug?.room() === 'hub');

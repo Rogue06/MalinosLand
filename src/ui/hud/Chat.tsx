@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { CHAT_MAX_LENGTH } from '../../core/text';
-import { EMOTES, type ChatScope } from '../../multiplayer/protocol';
+import { EMOTES, LOCAL_CHAT_RADIUS, type ChatScope } from '../../multiplayer/protocol';
 import {
   chatStore,
   commands,
   dialogStore,
+  nearbyStore,
   panelStore,
   roomStore,
   statsStore,
   typingStore,
 } from '../../state';
-import { isTouchDevice } from '../../services/device';
 import { useStore } from '../hooks';
 
 interface ChatProps {
@@ -20,8 +20,10 @@ interface ChatProps {
 }
 
 /**
- * Chat : « Proximité » (même salle, bulle au-dessus de la tête) ou « Général ». Replié par
- * défaut sur petit écran : une ligne avec le dernier message et le nombre de messages non lus.
+ * Chat : un seul fil (les messages « autour de moi » sont marqués 📍) et un choix clair du
+ * destinataire : « Tout le monde » (par défaut) ou « Autour de moi » (à moins de 8 cases, avec
+ * le nombre de Malinos qui liront). Replié par défaut sur petit écran : une ligne avec le dernier
+ * message et le nombre de messages non lus.
  */
 export function Chat({ open, onToggle }: ChatProps) {
   const messages = useStore(chatStore);
@@ -29,7 +31,8 @@ export function Chat({ open, onToggle }: ChatProps) {
   // Dans un logement, tout ce qu'on écrit reste entre ses murs (imposé par le serveur).
   const inHome = useStore(roomStore).room.startsWith('home-');
   const [text, setText] = useState('');
-  const [scope, setScope] = useState<ChatScope>('local');
+  const [scope, setScope] = useState<ChatScope>('global');
+  const nearby = useStore(nearbyStore);
   const input = useRef<HTMLInputElement>(null);
   const log = useRef<HTMLDivElement>(null);
   // Dernier message vu chat déplié : les suivants comptent comme non lus.
@@ -58,15 +61,19 @@ export function Chat({ open, onToggle }: ChatProps) {
 
   const send = (e: Event) => {
     e.preventDefault();
-    if (text.trim()) commands.emit('chat-send', { text, scope });
-    if (inHome) setScope('local');
+    if (text.trim()) commands.emit('chat-send', { text, scope: inHome ? 'local' : scope });
     setText('');
     input.current?.blur();
   };
 
-  const visible = messages.filter(
-    (m) => m.kind === 'system' || m.scope === scope || m.kind === 'self',
-  );
+  const local = scope === 'local' && !inHome;
+  const placeholder = inHome
+    ? 'Message aux personnes présentes…'
+    : local
+      ? nearby > 0
+        ? `Message aux ${nearby} autour de toi…`
+        : 'Personne autour de toi…'
+      : 'Message à tout le monde…';
   const unread = messages.filter((m) => m.kind === 'peer' && m.id > seenId);
   const last = messages.at(-1);
   return (
@@ -98,21 +105,36 @@ export function Chat({ open, onToggle }: ChatProps) {
         </button>
       )}
       {open && (
-        <div class="chat-tabs" role="tablist">
-          {(['local', 'global'] as const).map((s) => (
-            <button
-              key={s}
-              role="tab"
-              aria-selected={scope === s}
-              class={scope === s ? 'active' : ''}
-              onClick={() => setScope(s)}
-            >
-              {s === 'local' ? (inHome ? 'Ici' : 'Proximité') : 'Général'}
-            </button>
-          ))}
-          <span class="chat-mode" title="Mode réseau actuel">
-            {stats.transport}
-          </span>
+        <div class="chat-tabs" role="radiogroup" aria-label="À qui j’écris">
+          {inHome ? (
+            <span class="chat-to">🔒 Logement : seules les personnes présentes te lisent</span>
+          ) : (
+            <>
+              <span class="chat-to" title={`Mode réseau : ${stats.transport}`}>
+                À :
+              </span>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={scope === 'global'}
+                class={scope === 'global' ? 'active' : ''}
+                onClick={() => setScope('global')}
+                title="Tous les Malinos connectés liront ton message"
+              >
+                🌍 Tout le monde
+              </button>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={scope === 'local'}
+                class={scope === 'local' ? 'active' : ''}
+                onClick={() => setScope('local')}
+                title={`Seuls les Malinos à moins de ${LOCAL_CHAT_RADIUS} cases liront ton message (et le verront dans une bulle)`}
+              >
+                📍 Autour · {nearby}
+              </button>
+            </>
+          )}
           <button
             type="button"
             class="chat-fold-btn"
@@ -126,16 +148,21 @@ export function Chat({ open, onToggle }: ChatProps) {
       )}
       {open && (
         <div class="chat-log" ref={log} aria-live="polite">
-          {visible.slice(-30).map((m) => (
+          {messages.slice(-40).map((m) => (
             <p key={m.id} class={`msg ${m.kind}${m.mention ? ' mention' : ''}`}>
+              {m.kind !== 'system' && m.scope === 'local' && !inHome && (
+                <span class="scope-tag" title="Message « autour de moi »">
+                  📍{' '}
+                </span>
+              )}
               <b>{m.from}</b> {m.text}
             </p>
           ))}
         </div>
       )}
-      {open && inHome && (
+      {open && local && nearby === 0 && (
         <p class="chat-private">
-          🔒 Ici, tes messages ne sont lus que par les personnes présentes.
+          Personne à moins de {LOCAL_CHAT_RADIUS} cases : approche-toi, ou écris à 🌍 tout le monde.
         </p>
       )}
       <form class="chat-input" onSubmit={send}>
@@ -144,7 +171,7 @@ export function Chat({ open, onToggle }: ChatProps) {
           type="text"
           value={text}
           maxLength={CHAT_MAX_LENGTH}
-          placeholder={isTouchDevice() ? 'Écrire un message…' : 'Entrée pour écrire…'}
+          placeholder={placeholder}
           aria-label="Message"
           onInput={(e) => setText((e.target as HTMLInputElement).value)}
           onFocus={() => typingStore.set(true)}
