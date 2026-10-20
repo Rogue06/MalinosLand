@@ -5,6 +5,17 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (parc, forêt et salle de jeux)
+
+- **Salle de jeux** au nord du parc : bornes d’arcade, ping-pong, baby-foot, table d’échecs,
+  poufs, jeux de société (mini-jeux à plusieurs : v0.5).
+- **Parc redessiné** : chemins qui serpentent, prairie fleurie autour de l’étang, petite place
+  devant la salle de jeux avec bancs et télescope.
+- **Forêt des Malinos** : forêt touffue, clairière avec **feu de camp** (étincelles et fumée) et
+  rondins pour s’asseoir.
+- 2 secrets de plus (10 au total). Nouveaux objets : ping-pong, baby-foot, table d’échecs, pouf,
+  fleurs, rocher, champignons, rondin, feu de camp.
+
 ### Modifié (chat plus clair)
 
 - Un seul fil de discussion ; on choisit **à qui l’on écrit** : « 🌍 Tout le monde » (par défaut)

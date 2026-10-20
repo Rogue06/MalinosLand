@@ -84,6 +84,9 @@ export class AmbientLife {
   private dropTimer = 0;
   private rippleTimer = 0;
   private steamSpots: Array<{ x: number; y: number; z: number; depth: number }> = [];
+  /** Feux de camp : étincelles et fumée. */
+  private fires: Array<{ x: number; y: number; depth: number }> = [];
+  private fireTimer = 0;
   private steamTimer = 0;
   private birds: Bird[] = [];
   private perches: Spot[] = [];
@@ -104,6 +107,9 @@ export class AmbientLife {
         const c = objectPoint(o, 1, 1);
         this.fountains.push({ ...c, depth: depthOf(o) + 0.5 });
         this.waters.push({ ...c, z: 0.27, r: 0.6, depth: depthOf(o) + 0.1 });
+      } else if (o.type === 'campfire') {
+        const c = objectPoint(o, 0.5, 0.5);
+        this.fires.push({ ...c, depth: depthOf(o) + 0.5 });
       } else if (o.type === 'pond') {
         const c = objectPoint(o, 1.5, 1.5);
         this.waters.push({ ...c, z: 0.13, r: 1.0, depth: depthOf(o) + 0.1 });
@@ -228,6 +234,7 @@ export class AmbientLife {
     this.updateFountains(dt);
     this.updateRipples(dt);
     this.updateSteam(dt);
+    this.updateFires(dt);
     this.updateBirds(dt);
     this.updateButterflies();
   }
@@ -317,6 +324,37 @@ export class AmbientLife {
       duration: 1800,
       onComplete: () => puff.destroy(),
     });
+  }
+
+  // ---------------------------------------------------------------- Feu de camp
+
+  private updateFires(dt: number): void {
+    if (this.fires.length === 0) return;
+    this.fireTimer -= dt;
+    if (this.fireTimer > 0) return;
+    this.fireTimer = rand(0.15, 0.4);
+    for (const f of this.fires) {
+      const p = project(f.x, f.y, 0.35);
+      const smoke = Math.random() < 0.25;
+      const dot = this.scene.add
+        .circle(
+          p.x + rand(-4, 4),
+          p.y,
+          smoke ? 3 : 1.3,
+          smoke ? 0x9a948a : pick([0xffb347, 0xffd25e, 0xff7a3d]),
+          smoke ? 0.35 : 0.95,
+        )
+        .setDepth(f.depth);
+      this.scene.tweens.add({
+        targets: dot,
+        y: p.y - (smoke ? 40 : rand(14, 26)),
+        x: dot.x + rand(-6, 6),
+        scale: smoke ? 2.4 : 0.4,
+        alpha: 0,
+        duration: smoke ? 2200 : rand(600, 1000),
+        onComplete: () => dot.destroy(),
+      });
+    }
   }
 
   // ---------------------------------------------------------------- Oiseaux

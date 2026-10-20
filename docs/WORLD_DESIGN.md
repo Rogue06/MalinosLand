@@ -12,7 +12,7 @@ petit et dense, puis on ouvre de nouvelles zones au fil des versions.
 
 ## 2. Le Hub (v0.1) — carte `hub`
 
-Repère : **x** vers le bas-droite de l’écran, **y** vers le bas-gauche. Carte de 48 × 38 tuiles (agrandie le 22/10/2026 : Parc des Malinos à l’est, verger et potager au sud).
+Repère : **x** vers le bas-droite de l’écran, **y** vers le bas-gauche. Carte de 48 × 38 tuiles (agrandie le 22/10/2026 : Parc des Malinos avec salle de jeux, Forêt des Malinos, verger et potager).
 
 ```
   x →  0         1         2         3

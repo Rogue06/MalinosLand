@@ -123,10 +123,19 @@ transats. À gauche, le **chantier de la Tour communautaire** annonce les étage
 
 ![Le Parc des Malinos](images/parc.jpg)
 
-À l’est, le **Parc des Malinos** : un étang avec ses nénuphars, des bancs pour discuter, un
-kiosque en bois avec tables à parasol et un télescope, et beaucoup d’arbres où se posent les
-oiseaux (approche-toi : ils s’envolent !). Au sud, la **promenade du verger** longe les arbres
+À l’est, le **Parc des Malinos** : des chemins qui serpentent dans une prairie fleurie, un étang
+avec ses nénuphars et ses bancs, un télescope, et beaucoup d’arbres où se posent les oiseaux
+(approche-toi : ils s’envolent !). Au sud-est, la **Forêt des Malinos** cache une clairière avec
+un feu de camp et des rondins pour s’asseoir. Au sud, la **promenade du verger** longe les arbres
 fruitiers jusqu’au **potager partagé**.
+
+### La salle de jeux
+
+![Salle de jeux](images/salle-de-jeux.jpg)
+
+Au nord du parc : deux bornes d’arcade, une table de ping-pong, un baby-foot, une table d’échecs,
+des poufs et des jeux de société. Pour l’instant on y joue « pour de faux » : les vrais
+**mini-jeux à plusieurs** arrivent avec la v0.5.
 
 ## 5. Les objectifs « Premiers pas »
 
@@ -136,7 +145,7 @@ bonjour dans le chat. Il n’y a **rien à gagner** : c’est juste pour bien d�
 
 ### Des secrets ?
 
-Le Hub cache **6 secrets**. Un indice : explore les recoins, touche ce qui sort de l’ordinaire,
+Le Hub cache **10 secrets**. Un indice : explore les recoins, touche ce qui sort de l’ordinaire,
 et n’hésite pas à essayer ce qui semble « pas encore prêt »… Le compteur **🔎 Secrets trouvés**
 est sous tes objectifs.
 
