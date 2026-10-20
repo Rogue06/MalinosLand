@@ -72,6 +72,6 @@ Un test automatique le vérifie pour chaque coiffure : si tu en ajoutes une, dé
 2. Vérifier les 4 rotations dans `/art-preview.html` (`npm run dev`).
 3. Respecter la palette et la lisibilité ; pas de copie d’une œuvre existante.
 
-**Licences des ressources.** Les graphismes générés par le code sont sous la licence du dépôt (MIT).
+**Licences des ressources.** Les graphismes générés par le code sont sous la licence du dépôt (AGPL-3.0).
 Toute ressource externe future (PNG, polices, sons) devra être sous licence libre compatible
 (CC0, CC BY 4.0, OFL…), créditée dans un fichier `CREDITS.md`, et validée en revue.
