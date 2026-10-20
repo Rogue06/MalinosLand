@@ -57,6 +57,45 @@ export const CATALOG: Record<string, CatalogEntry> = {
       { x: 1.45, y: 0.42, height: 0.38 },
     ],
   },
+  cat: {
+    name: 'Chat',
+    category: 'decor',
+    footprint: [1, 1],
+    blocking: true,
+    defaultInteraction: {
+      kind: 'emote',
+      label: 'Caresser le chat',
+      emoji: '🐈',
+      text: 'Ronron… C’est Pixel, le chat du Hub. Il ne quitte jamais son coussin.',
+      secret: 'pixel',
+    },
+  },
+  dirt_mound: {
+    name: 'Monticule de terre',
+    category: 'nature',
+    footprint: [1, 1],
+    blocking: true,
+    defaultInteraction: {
+      kind: 'emote',
+      label: 'Creuser ici',
+      emoji: '⏳',
+      text: 'Une capsule temporelle ! Dedans, un mot : « En 2026, MalinosLand n’était qu’un hall et un rêve. »',
+      secret: 'capsule',
+    },
+  },
+  gnome: {
+    name: 'Nain de jardin',
+    category: 'decor',
+    footprint: [1, 1],
+    blocking: true,
+    defaultInteraction: {
+      kind: 'emote',
+      label: 'Saluer le nain de jardin',
+      emoji: '😉',
+      text: 'Le nain de jardin te fait un clin d’œil. Tu es sûr de l’avoir vu bouger ?',
+      secret: 'nain',
+    },
+  },
   bed: {
     name: 'Lit',
     category: 'furniture',
@@ -202,7 +241,9 @@ export const CATALOG: Record<string, CatalogEntry> = {
       lines: [
         'INSERT COIN… La borne clignote mais aucun jeu n’est encore installé.',
         'Les mini-jeux multijoueurs sont prévus pour la version 0.5. Les contributeurs pourront en proposer !',
+        '↑ ↑ ↓ ↓ ← → ← → B A… L’écran s’illumine : « CODE SECRET ACCEPTÉ. Bienvenue, joueur 1. »',
       ],
+      secret: 'konami',
     },
     light: { color: 0xc17bff, radius: 1.1, z: 1.4 },
   },
@@ -320,6 +361,7 @@ export const CATALOG: Record<string, CatalogEntry> = {
       label: 'Faire un vœu',
       emoji: '✨',
       text: 'Tu lances une pièce imaginaire dans la fontaine. Vœu enregistré !',
+      secret: 'voeu',
     },
   },
   parasol_table: {

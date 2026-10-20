@@ -5,6 +5,15 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (ville plus vivante — lot 1)
+
+- **Vie du décor**, calculée dans le navigateur (aucun message réseau, rien pour les quotas) :
+  jets d’eau et ronds dans l’eau de la fontaine, oiseaux qui se posent dans les arbres, picorent
+  dans l’herbe et s’envolent quand on approche, papillons autour des massifs, vapeur du café.
+  Moins d’éléments en qualité « basse », rien si « Réduire les animations » est coché.
+- **6 secrets** à dénicher dans le Hub (compteur « 🔎 Secrets trouvés » sous les objectifs,
+  gardé dans le navigateur). Nouveaux objets : chat, monticule de terre, nain de jardin.
+
 ### Ajouté (historique des connexions)
 
 - Le serveur note chaque visite (pseudo, compte ✓ ou visiteur, arrivée, départ), effacée après

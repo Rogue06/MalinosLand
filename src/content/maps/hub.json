@@ -392,7 +392,14 @@
       "x": 11,
       "y": 1,
       "id": "shelf-cw-3",
-      "variant": 2
+      "variant": 2,
+      "interaction": {
+        "kind": "emote",
+        "label": "Fouiller l’étagère",
+        "emoji": "📓",
+        "text": "Coincé entre deux livres, un vieux carnet : « Premier prompt de MalinosLand : un monde gratuit, ouvert, et fait par nous. »",
+        "secret": "carnet"
+      }
     },
     {
       "type": "plant_big",
@@ -1125,6 +1132,24 @@
       "x": 10,
       "y": 23,
       "id": "site-sign"
+    },
+    {
+      "type": "cat",
+      "x": 1,
+      "y": 18,
+      "id": "pixel"
+    },
+    {
+      "type": "dirt_mound",
+      "x": 8,
+      "y": 26,
+      "id": "capsule"
+    },
+    {
+      "type": "gnome",
+      "x": 33,
+      "y": 0,
+      "id": "nain"
     }
   ],
   "wallDecor": [

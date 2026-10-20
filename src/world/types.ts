@@ -69,12 +69,16 @@ export type InteractionDef =
       speaker?: string;
       lines: string[];
       quest?: string;
+      /** Secret révélé par cette interaction (voir src/content/secrets.ts). */
+      secret?: string;
     }
   | {
       kind: 'panel';
       label: string;
       panel: PanelId;
       quest?: string;
+      /** Secret révélé par cette interaction (voir src/content/secrets.ts). */
+      secret?: string;
     }
   | {
       kind: 'emote';
@@ -82,6 +86,8 @@ export type InteractionDef =
       emoji: string;
       text: string;
       quest?: string;
+      /** Secret révélé par cette interaction (voir src/content/secrets.ts). */
+      secret?: string;
     };
 
 export interface PlacedObject {

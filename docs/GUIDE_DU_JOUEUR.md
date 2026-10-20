@@ -116,6 +116,12 @@ Huit petites missions pour découvrir le Hub : parler à Joshua, lire le panneau
 prendre un café, changer de style au miroir, appeler l’ascenseur, aller sur la terrasse et dire
 bonjour dans le chat. Il n’y a **rien à gagner** : c’est juste pour bien démarrer. 🙂
 
+### Des secrets ?
+
+Le Hub cache **6 secrets**. Un indice : explore les recoins, touche ce qui sort de l’ordinaire,
+et n’hésite pas à essayer ce qui semble « pas encore prêt »… Le compteur **🔎 Secrets trouvés**
+est sous tes objectifs.
+
 ## 6. Changer de style
 
 ![Panneau avatar](images/panneau-avatar.jpg)
