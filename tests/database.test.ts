@@ -300,3 +300,110 @@ describe('base de données : boîte à idées et bugs', () => {
     await expect(sendAsServer()).rejects.toThrow(/Trop de messages pour le moment/);
   });
 });
+
+describe('base de données : logements (v0.3)', () => {
+  const OWNER = '00000000-0000-4000-8000-0000000000f1';
+  const GUEST = '00000000-0000-4000-8000-0000000000f2';
+  const OTHER = '00000000-0000-4000-8000-0000000000f3';
+  const canEnter = async (who: string | null, owner = OWNER) =>
+    (await as<{ ok: boolean }>(who, 'select public.can_enter_home($1) as ok', [owner])).rows[0]!.ok;
+  const visitable = async (who: string | null) =>
+    (await as<{ owner_id: string; name: string }>(who, 'select * from public.visitable_homes()'))
+      .rows;
+
+  beforeAll(async () => {
+    await db.exec(
+      `insert into auth.users (id) values ('${OWNER}'), ('${GUEST}'), ('${OTHER}') on conflict do nothing`,
+    );
+    await as(OWNER, `insert into public.profiles (id, name, look) values ($1, 'Odile', '{}')`, [
+      OWNER,
+    ]);
+  });
+
+  it('mon logement est créé à la demande, privé par défaut ; un visiteur n’en a pas', async () => {
+    const r = await as<{ mode: string }>(OWNER, 'select public.my_home() as mode');
+    expect(r.rows[0]!.mode).toBe('private');
+    // Deuxième appel : rien n'est recréé.
+    expect(
+      (await as<{ mode: string }>(OWNER, 'select public.my_home() as mode')).rows[0]!.mode,
+    ).toBe('private');
+    await expect(as(null, 'select public.my_home()')).rejects.toThrow();
+  });
+
+  it('privé : seul le propriétaire entre ; il n’apparaît pas dans la liste', async () => {
+    expect(await canEnter(OWNER)).toBe(true);
+    expect(await canEnter(GUEST)).toBe(false);
+    expect(await canEnter(null)).toBe(false);
+    expect(await visitable(null)).toHaveLength(0);
+    // Le propriétaire entre aussi chez lui avant même d'avoir créé son logement.
+    expect(await canEnter(OTHER, OTHER)).toBe(true);
+  });
+
+  it('sur invitation : seuls les invités entrent et le voient dans la liste', async () => {
+    await as(OWNER, `update public.homes set access = 'invite'`);
+    await as(OWNER, 'insert into public.home_invites (guest_id) values ($1)', [GUEST]);
+    expect(await canEnter(GUEST)).toBe(true);
+    expect(await canEnter(OTHER)).toBe(false);
+    expect(await canEnter(null)).toBe(false);
+    expect((await visitable(GUEST)).map((h) => h.name)).toEqual(['Odile']);
+    expect(await visitable(OTHER)).toHaveLength(0);
+    const invites = await as<{ name: string }>(OWNER, 'select * from public.my_home_invites()');
+    expect(invites.rows).toHaveLength(1);
+    expect((await as(OTHER, 'select * from public.home_invites')).rows).toHaveLength(0);
+  });
+
+  it('ouvert à tous : tout le monde entre, même sans compte', async () => {
+    await as(OWNER, `update public.homes set access = 'public'`);
+    expect(await canEnter(OTHER)).toBe(true);
+    expect(await canEnter(null)).toBe(true);
+    expect((await visitable(null)).map((h) => h.owner_id)).toEqual([OWNER]);
+    // On ne se voit pas soi-même dans la liste des logements à visiter.
+    expect(await visitable(OWNER)).toHaveLength(0);
+  });
+
+  it('personne d’autre ne règle l’accès ni n’invite à la place du propriétaire', async () => {
+    const changed = await as(
+      OTHER,
+      `update public.homes set access = 'private' where owner_id = $1`,
+      [OWNER],
+    );
+    expect(changed.affectedRows).toBe(0);
+    await expect(
+      as(OTHER, 'insert into public.home_invites (owner_id, guest_id) values ($1, $2)', [
+        OWNER,
+        OTHER,
+      ]),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      as(null, `update public.homes set access = 'public' where owner_id = $1`, [OWNER]),
+    ).rejects.toThrow(/permission denied/);
+    await expect(as(OWNER, `update public.homes set access = 'ouvert'`)).rejects.toThrow(
+      /check constraint/,
+    );
+  });
+
+  it('l’invité peut refuser une invitation ; 50 invitations au plus', async () => {
+    await as(GUEST, 'delete from public.home_invites where owner_id = $1', [OWNER]);
+    expect((await as(OWNER, 'select * from public.home_invites')).rows).toHaveLength(0);
+    const ids = Array.from(
+      { length: 51 },
+      (_, i) => `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
+    );
+    await db.exec(`insert into auth.users (id) values ${ids.map((id) => `('${id}')`).join(',')}`);
+    for (const id of ids.slice(0, 50))
+      await as(OWNER, 'insert into public.home_invites (guest_id) values ($1)', [id]);
+    await expect(
+      as(OWNER, 'insert into public.home_invites (guest_id) values ($1)', [ids[50]]),
+    ).rejects.toThrow(/Trop d'invitations/);
+  });
+
+  it('supprimer son compte supprime son logement et ses invitations', async () => {
+    await as(OWNER, 'select public.delete_my_account()');
+    expect(
+      (await db.query('select * from public.homes where owner_id = $1', [OWNER])).rows,
+    ).toHaveLength(0);
+    expect(
+      (await db.query('select * from public.home_invites where owner_id = $1', [OWNER])).rows,
+    ).toHaveLength(0);
+  });
+});

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  checkHomeAccess,
   decodeAccountHeader,
   encodeAccountHeader,
   readProtocols,
@@ -53,5 +54,35 @@ describe('serveur : vérification du compte', () => {
     expect(decodeAccountHeader('%7B%22id%22%3A1%7D')).toBeNull();
     expect(decodeAccountHeader('%%%')).toBeNull();
     expect(decodeAccountHeader(null)).toBeNull();
+  });
+});
+
+describe('serveur : droit d’entrer dans un logement', () => {
+  const OWNER = '0b1c2d3e-0000-4000-8000-0000000000aa';
+
+  it('demande à la base, avec le jeton du joueur s’il en a un', async () => {
+    const { fn, calls } = fakeFetch(200, true);
+    expect(await checkHomeAccess(OWNER, TOKEN, env, fn)).toBe(true);
+    expect(calls[0]!.url).toBe('https://exemple.supabase.co/rest/v1/rpc/can_enter_home');
+    expect(JSON.parse(String(calls[0]!.init.body))).toEqual({ p_owner: OWNER });
+    expect((calls[0]!.init.headers as Record<string, string>).Authorization).toBe(
+      `Bearer ${TOKEN}`,
+    );
+    const visitor = fakeFetch(200, true);
+    await checkHomeAccess(OWNER, null, env, visitor.fn);
+    expect(
+      (visitor.calls[0]!.init.headers as Record<string, string>).Authorization,
+    ).toBeUndefined();
+  });
+
+  it('refus si la base dit non, répond mal, est injoignable ou absente', async () => {
+    expect(await checkHomeAccess(OWNER, TOKEN, env, fakeFetch(200, false).fn)).toBe(false);
+    expect(await checkHomeAccess(OWNER, TOKEN, env, fakeFetch(200, 'true').fn)).toBe(false);
+    expect(await checkHomeAccess(OWNER, TOKEN, env, fakeFetch(500, true).fn)).toBe(false);
+    const broken = (async () => {
+      throw new Error('réseau');
+    }) as unknown as typeof fetch;
+    expect(await checkHomeAccess(OWNER, TOKEN, env, broken)).toBe(false);
+    expect(await checkHomeAccess(OWNER, TOKEN, {}, fakeFetch(200, true).fn)).toBe(false);
   });
 });

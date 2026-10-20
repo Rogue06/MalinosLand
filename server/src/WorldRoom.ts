@@ -1,5 +1,7 @@
 import { DurableObject } from 'cloudflare:workers';
 import hub from '../../src/content/maps/hub.json';
+import studio from '../../src/content/maps/studio.json';
+import { HOME_EXIT, MAX_PER_HOME } from '../../src/content/rooms';
 import {
   CLOSE_CODES,
   RealtimeHub,
@@ -9,7 +11,13 @@ import {
   type QuotaCounter,
 } from './hub';
 import { encodeMessage } from '../../src/multiplayer/protocol';
-import { ACCOUNT_HEADER, WS_PROTOCOL, decodeAccountHeader, readProtocols } from './account';
+import {
+  ACCOUNT_HEADER,
+  WS_PROTOCOL,
+  checkHomeAccess,
+  decodeAccountHeader,
+  readProtocols,
+} from './account';
 import type { SupabaseConfig } from './account';
 
 export interface Env extends SupabaseConfig {
@@ -60,6 +68,10 @@ export class WorldRoom extends DurableObject<Env> {
       now: () => Date.now(),
       rooms: { [hub.id]: { width: hub.width, height: hub.height } },
       maxPerRoom: Number(env.MAX_PLAYERS_PER_ROOM) || 40,
+      homeRoom: { width: studio.width, height: studio.height },
+      maxPerHome: MAX_PER_HOME,
+      exit: { room: HOME_EXIT.room, x: HOME_EXIT.x, y: HOME_EXIT.y },
+      checkHomeAccess: (owner, token) => checkHomeAccess(owner, token, env),
       dailyBudget: Number(env.DAILY_MESSAGE_BUDGET) || 1_400_000,
       quota: counter,
     });

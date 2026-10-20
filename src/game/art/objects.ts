@@ -176,6 +176,17 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
     box(b, 1.02, 0.32, 0.3, 0.74, 0.58, 0.06, lighten(c, 0.12));
     box(b, 0.3, 0.22, 0.36, 0.3, 0.1, 0.22, P.sun);
   },
+  bed(b, v) {
+    const cover = pick([P.teal, P.violet, P.coral], v);
+    // Tête de lit contre le mur, cadre en bois, matelas, couette et deux oreillers.
+    box(b, 0.06, 0.04, 0, 1.88, 0.12, 0.86, P.woodDark);
+    box(b, 0.06, 0.16, 0, 1.88, 1.78, 0.26, P.wood);
+    box(b, 0.12, 0.2, 0.26, 1.76, 1.68, 0.14, P.white);
+    box(b, 0.1, 0.78, 0.4, 1.8, 1.12, 0.07, cover);
+    box(b, 0.1, 0.78, 0.47, 1.8, 0.16, 0.03, lighten(cover, 0.18), { outline: false });
+    box(b, 0.24, 0.26, 0.4, 0.66, 0.36, 0.12, '#f3efe6');
+    box(b, 1.1, 0.26, 0.4, 0.66, 0.36, 0.12, '#f3efe6');
+  },
   coffee_table(b) {
     for (const [x, y] of [
       [0.2, 0.25],

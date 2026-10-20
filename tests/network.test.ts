@@ -405,6 +405,47 @@ describe('ServerTransport', () => {
     expect(notices).toEqual(['full']);
   });
 
+  it('logements : demande d’entrée, réponse du serveur, jeton renvoyé à la reconnexion', async () => {
+    const sent: string[] = [];
+    const transport = {
+      kind: 'server' as const,
+      label: 'test',
+      connect: async () => {},
+      send: (p: string) => sent.push(p),
+      onMessage: () => () => {},
+      close: () => {},
+    };
+    const net = new NetworkClient(transport, 'cccccccc33', {
+      name: 'Cleo',
+      look: DEFAULT_APPEARANCE,
+      state: state(),
+    });
+    const doors: unknown[] = [];
+    net.events.on('door', (d) => doors.push(d));
+    const home = `home-${'a'.repeat(32)}`;
+    net.requestEnter(home, 'jeton.de.test.valide');
+    expect(JSON.parse(sent.at(-1)!)).toEqual({
+      t: 'enter',
+      id: 'cccccccc33',
+      room: home,
+      tok: 'jeton.de.test.valide',
+    });
+    net.receive(JSON.stringify({ t: 'door', room: home, ok: false, why: 'closed' }));
+    net.receive(JSON.stringify({ t: 'door', room: home, ok: true, why: 'n’importe quoi' }));
+    expect(doors).toEqual([
+      { room: home, ok: false, why: 'closed' },
+      { room: home, ok: true },
+    ]);
+    // Dans le logement d'un autre, la présentation (après une coupure) porte le jeton.
+    net.updateLocal({ ...state(), room: home });
+    await net.start();
+    expect(JSON.parse(sent.at(-1)!)).toMatchObject({
+      t: 'hello',
+      room: home,
+      tok: 'jeton.de.test.valide',
+    });
+  });
+
   it('file d’attente : silencieux en attendant, renvoie sa position dès son entrée', async () => {
     let t = 0;
     const { a, bus } = await pair(() => t);

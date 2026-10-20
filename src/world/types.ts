@@ -58,6 +58,7 @@ export const PANEL_IDS = [
   'avatar',
   'ideas',
   'bugs',
+  'home',
 ] as const;
 export type PanelId = (typeof PANEL_IDS)[number];
 

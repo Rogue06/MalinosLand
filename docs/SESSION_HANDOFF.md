@@ -36,6 +36,13 @@ Prochaine étape : v0.3 Logements.**
 
 ## Dernières sessions
 
+- **22/10** — v0.3 Logements, lot 1A (branche `feature/logements-acces`, DEC-021) : migration
+  `20261022090000_homes.sql` (**pas encore appliquée** sur Supabase : à appliquer après accord
+  de fusion), messages `enter` / `door` / `evict`, accès vérifié par la base, chat d’un logement
+  limité aux présents (demande du responsable), carte `studio` et objet lit. Lot 1B à suivre :
+  ascenseur « Mon logement » / « Visiter », changement de salle dans le jeu, panneau d’accès et
+  invitations.
+
 - **21/10 (suite)** — PR #19 (Turnstile) fusionnée et en ligne ; migration
   `20261021090000_feedback_turnstile.sql` appliquée **après** la mise en ligne (sous la forme
   `alter policy`, comme dans le fichier) : le rôle anonyme n’a plus aucun droit sur `feedback`

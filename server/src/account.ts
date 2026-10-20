@@ -68,6 +68,36 @@ export async function verifyAccount(
   }
 }
 
+/**
+ * Le joueur peut-il entrer dans le logement de `ownerUuid` ? On demande à la base
+ * (`can_enter_home`) avec le jeton du joueur, ou sans jeton pour un visiteur : c'est elle qui
+ * applique le mode d'accès et les invitations. Base injoignable ou erreur = entrée refusée.
+ */
+export async function checkHomeAccess(
+  ownerUuid: string,
+  token: string | null,
+  env: SupabaseConfig,
+  fetcher: typeof fetch = fetch,
+): Promise<boolean> {
+  if (!env.SUPABASE_URL || !env.SUPABASE_KEY) return false;
+  const jwt = token && token.length <= 4096 && TOKEN_RE.test(token) ? token : null;
+  try {
+    const res = await fetcher(`${env.SUPABASE_URL}/rest/v1/rpc/can_enter_home`, {
+      method: 'POST',
+      headers: {
+        apikey: env.SUPABASE_KEY,
+        ...(jwt ? { Authorization: `Bearer ${jwt}` } : {}),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ p_owner: ownerUuid }),
+    });
+    if (!res.ok) return false;
+    return (await res.json()) === true;
+  } catch {
+    return false;
+  }
+}
+
 export function encodeAccountHeader(account: Account): string {
   return encodeURIComponent(JSON.stringify(account));
 }

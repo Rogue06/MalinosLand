@@ -21,6 +21,11 @@ const VALID_TOKEN = 'aaaa.bbbb.cccc';
 const ACCOUNT = { id: '0b1c2d3e-0000-4000-8000-000000000001', name: 'Élodie' };
 const ACCOUNT_PLAYER = ACCOUNT.id.replaceAll('-', '');
 const fakeDb = createServer((req, res) => {
+  // Logements : seul le compte de test (son propre jeton) peut entrer ; un visiteur, non.
+  if (req.method === 'POST' && req.url === '/rest/v1/rpc/can_enter_home') {
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify(req.headers.authorization === `Bearer ${VALID_TOKEN}`));
+  }
   const ok =
     req.method === 'POST' &&
     req.url === '/rest/v1/rpc/my_profile' &&
@@ -211,6 +216,15 @@ try {
   check(
     seen?.name === 'Élodie' && seen?.v === true,
     'un joueur connecté garde le pseudo de son compte, avec la marque « vérifié »',
+  );
+  const HOME = `home-${ACCOUNT_PLAYER}`;
+  e.ws.send(JSON.stringify({ t: 'enter', id: ACCOUNT_PLAYER, room: HOME }));
+  a.ws.send(JSON.stringify({ t: 'enter', id: 'aaaaaaaa11', room: HOME }));
+  await sleep(800);
+  check(
+    of(e, 'door').some((m) => m.ok && m.room === HOME) &&
+      of(a, 'door').some((m) => !m.ok && m.why === 'closed'),
+    'logement : le propriétaire entre chez lui, un visiteur refusé par la base reste dehors',
   );
   e.ws.close(); // libère une place (limite 3) pour le visiteur suivant
   await sleep(400);

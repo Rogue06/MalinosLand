@@ -17,7 +17,8 @@ export function ambienceForZone(zoneId: string | null): Ambience {
   if (zoneId === 'garden' || zoneId === 'terrace' || zoneId === 'site') return 'outdoor';
   if (zoneId === 'coworking') return 'coworking';
   if (zoneId === 'hall') return 'hall';
-  if (zoneId === 'lounge') return 'lounge';
+  // Salon du Hub et studios : ambiance douce (cheminée, tasses).
+  if (zoneId === 'lounge' || zoneId === 'studio') return 'lounge';
   return null;
 }
 

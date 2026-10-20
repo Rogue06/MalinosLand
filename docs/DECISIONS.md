@@ -233,3 +233,29 @@ protège que les formulaires de connexion, pas une table) et les connexions anon
 **Conséquences.** Aucune nouvelle dépendance (le widget est chargé depuis Cloudflare). La fonction
 est mise en ligne à part (pas par le workflow « Mise en ligne »). La migration doit être appliquée
 après la mise en ligne du jeu qui utilise la fonction.
+
+## DEC-021 — Logements : un studio par compte, entrée vérifiée par la base (22/10/2026)
+
+**Contexte.** v0.3 « chez soi ». Choix du responsable : on rejoint son logement par l’ascenseur
+(« Mon logement »), un studio meublé de base, accès « personne / sur invitation / tout le monde »
+vérifié côté serveur. Ce qui s’écrit dans un logement ne doit être lu que par ceux qui y sont.
+**Décision.**
+
+- Un logement par compte, salle `home-<identifiant réseau du compte>` ; tous utilisent le même
+  gabarit de carte (`src/content/maps/studio.json`) en v0.3. Tables `homes` (mode d’accès) et
+  `home_invites` (invitations), migration `20261022090000_homes.sql`, règles RLS.
+- **Le droit d’entrer est décidé par la base** : le serveur temps réel appelle
+  `can_enter_home(propriétaire)` avec le jeton du joueur (ou sans jeton pour un visiteur), comme
+  pour `my_profile` : le serveur n’a toujours **aucun secret**. Le propriétaire entre chez lui sans
+  appel à la base. À la reconnexion dans le logement d’un autre, la présentation porte le jeton et
+  le droit est revérifié.
+- Le serveur refuse les déplacements vers un logement sans autorisation, limite un logement à
+  12 personnes, n’autorise la sortie que devant l’ascenseur du Hub, et laisse le propriétaire
+  **mettre à la porte** un joueur présent (message `evict`). Retirer une invitation ou fermer son
+  logement : le jeu du propriétaire fait sortir les personnes qui n’y ont plus droit.
+- **Discussion privée** : dans un logement, tout message (même « général ») n’est relayé qu’aux
+  personnes présentes. Le chat général du Hub, lui, y arrive toujours.
+  **Conséquences.** Une requête à la base par demande d’entrée d’un invité ou d’un visiteur
+  (limitée comme le chat). Le jeton de connexion transite dans les messages `enter` / `hello` sur
+  la WebSocket chiffrée, n’est jamais relayé ni enregistré. L’éditeur de décoration (disposition
+  enregistrée) viendra dans un lot suivant.

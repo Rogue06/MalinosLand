@@ -72,5 +72,6 @@ describe('ambiance sonore selon le lieu', () => {
     for (const id of Object.keys(expected)) expect(zones).toContain(id);
     for (const id of zones) expect(ambienceForZone(id)).toBe(expected[id] ?? null);
     expect(ambienceForZone(null)).toBeNull();
+    expect(ambienceForZone(MAPS.studio!.zones[0]!.id)).toBe('lounge');
   });
 });
