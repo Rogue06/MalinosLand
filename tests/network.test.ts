@@ -404,4 +404,25 @@ describe('ServerTransport', () => {
     expect(a.currentInterval()).toBe(1000);
     expect(notices).toEqual(['full']);
   });
+
+  it('file d’attente : silencieux en attendant, renvoie sa position dès son entrée', async () => {
+    let t = 0;
+    const { a, bus } = await pair(() => t);
+    const places: number[] = [];
+    a.events.on('queue', ({ pos }) => places.push(pos));
+    a.receive(JSON.stringify({ t: 'queue', pos: 2 }));
+    expect(a.isQueued).toBe(true);
+    const before = bus.sent;
+    t = 10_000;
+    a.updateLocal(state(3, 3));
+    a.setAway(true);
+    expect(a.sendChat('coucou', 'global')).toBe(true);
+    expect(bus.sent).toBe(before);
+    a.receive(JSON.stringify({ t: 'queue', pos: 0 }));
+    expect(a.isQueued).toBe(false);
+    expect(bus.sent).toBe(before + 1); // statut « absent » renvoyé
+    a.updateLocal(state(3, 3));
+    expect(bus.sent).toBe(before + 2); // position actuelle renvoyée aussitôt
+    expect(places).toEqual([2, 0]);
+  });
 });

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { SoundGate } from '../src/core/soundGate';
 import { mentions } from '../src/core/text';
+import { MAPS } from '../src/content/world';
+import { ambienceForZone } from '../src/services/audio';
 
 describe('mentions @pseudo', () => {
   it('reconnaît le pseudo, sans tenir compte des majuscules', () => {
@@ -53,5 +55,22 @@ describe('sons des messages', () => {
     expect(g.decide('bob', true)).toBe('message');
     at(5500);
     expect(g.decide('eve', true)).toBe('mention');
+  });
+});
+
+describe('ambiance sonore selon le lieu', () => {
+  it('chaque zone du Hub a l’ambiance prévue (et aucune faute dans les noms de zones)', () => {
+    const zones = MAPS.hub!.zones.map((z) => z.id);
+    const expected: Record<string, string | null> = {
+      garden: 'outdoor',
+      terrace: 'outdoor',
+      site: 'outdoor',
+      coworking: 'coworking',
+      hall: 'hall',
+      lounge: 'lounge',
+    };
+    for (const id of Object.keys(expected)) expect(zones).toContain(id);
+    for (const id of zones) expect(ambienceForZone(id)).toBe(expected[id] ?? null);
+    expect(ambienceForZone(null)).toBeNull();
   });
 });

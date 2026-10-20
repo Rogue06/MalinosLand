@@ -33,6 +33,8 @@ export interface NetworkEvents extends Record<string, unknown> {
   emote: { peer: RemotePeer; emote: Emote };
   /** Avis du serveur (salle pleine, maintenance…). */
   notice: { code: NoticeCode };
+  /** File d'attente du serveur : place dans la file, 0 quand on entre. */
+  queue: { pos: number };
 }
 
 export interface NetworkOptions {
@@ -73,6 +75,8 @@ export class NetworkClient {
   private serverInterval = 0;
   private readonly sessionKey: string | undefined;
   private away = false;
+  /** En file d'attente (salle pleine) : on ne transmet rien d'autre que son départ. */
+  private queued = false;
   /** Dernière demande de présentation envoyée, par pair inconnu. */
   private helloRequests = new Map<string, number>();
   bytesSent = 0;
@@ -99,12 +103,18 @@ export class NetworkClient {
     return this.transport.kind;
   }
 
+  /** Le serveur nous a mis en file d'attente (salle pleine). */
+  get isQueued(): boolean {
+    return this.queued;
+  }
+
   async start(): Promise<void> {
     this.unsubscribe = this.transport.onMessage((raw) => this.receive(raw));
     if (this.transport.onOpen) {
       // Transport qui se reconnecte : à chaque connexion, on repart d'une liste de pairs vide
       // (le serveur renvoie les présents) et on se présente.
       this.unsubscribeOpen = this.transport.onOpen(() => {
+        this.queued = false;
         for (const id of [...this.peers.keys()]) {
           this.peers.delete(id);
           this.events.emit('leave', { id });
@@ -193,6 +203,7 @@ export class NetworkClient {
   }
 
   private send(msg: NetMessage): void {
+    if (this.queued && msg.t !== 'bye' && msg.t !== 'hello') return;
     const payload = encodeMessage(msg);
     if (this.transport.kind !== 'offline') this.bytesSent += payload.length;
     this.sentLog.push(this.now());
@@ -241,6 +252,17 @@ export class NetworkClient {
     }
     if (msg.t === 'notice') {
       this.events.emit('notice', { code: msg.code });
+      return;
+    }
+    if (msg.t === 'queue') {
+      this.queued = msg.pos > 0;
+      if (!this.queued) {
+        // Entrée dans la salle : on renvoie aussitôt sa position actuelle (et son statut).
+        this.lastSent = null;
+        this.lastSentAt = -Infinity;
+        if (this.away) this.send({ t: 'away', id: this.selfId, on: true });
+      }
+      this.events.emit('queue', { pos: msg.pos });
       return;
     }
     if (msg.id === this.selfId) return;

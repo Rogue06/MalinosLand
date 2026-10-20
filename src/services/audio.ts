@@ -4,17 +4,20 @@ import { settingsStore } from './settings';
  * Sons du jeu, entièrement générés par le code (Web Audio) : aucun fichier à télécharger, comme
  * les graphismes. Volume discret, coupables dans les réglages.
  * - `playSound('message' | 'mention')` : arrivée d'un message (décidé par SoundGate) ;
- * - `setAmbience(lieu)` : ambiance selon la zone (oiseaux et vent dehors, clavier au coworking).
+ * - `setAmbience(lieu)` : ambiance selon la zone (oiseaux et vent dehors, clavier au coworking,
+ *   brouhaha et ascenseur dans le hall, cheminée et tasses au salon).
  * Les navigateurs n'autorisent le son qu'après une action du joueur : `unlockAudio` est appelé
  * au premier clic ou à la première touche.
  */
 
-export type Ambience = 'outdoor' | 'coworking' | null;
+export type Ambience = 'outdoor' | 'coworking' | 'hall' | 'lounge' | null;
 
 /** Zones extérieures et zones avec une ambiance particulière (carte du Hub). */
 export function ambienceForZone(zoneId: string | null): Ambience {
   if (zoneId === 'garden' || zoneId === 'terrace' || zoneId === 'site') return 'outdoor';
   if (zoneId === 'coworking') return 'coworking';
+  if (zoneId === 'hall') return 'hall';
+  if (zoneId === 'lounge') return 'lounge';
   return null;
 }
 
@@ -25,7 +28,8 @@ let current: Ambience = null;
 let wanted: Ambience = null;
 let paused = false;
 let timers: ReturnType<typeof setTimeout>[] = [];
-let wind: AudioBufferSourceNode | null = null;
+/** Fond sonore continu (vent, brouhaha, cheminée). */
+let bed: AudioBufferSourceNode | null = null;
 
 function audio(): AudioContext | null {
   if (ctx) return ctx;
@@ -154,15 +158,66 @@ function keyboardLoop(): void {
   later(3000 + Math.random() * 7000, keyboardLoop);
 }
 
+/** Fond continu : bruit filtré en boucle, très doux. */
+function startBed(c: AudioContext, filter: BiquadFilterType, freq: number, gain: number): void {
+  const src = c.createBufferSource();
+  src.buffer = noiseBuffer(c, 4);
+  src.loop = true;
+  const f = c.createBiquadFilter();
+  f.type = filter;
+  f.frequency.value = freq;
+  const g = c.createGain();
+  g.gain.value = gain;
+  src.connect(f).connect(g).connect(ambienceGain!);
+  src.start();
+  bed = src;
+}
+
+/** Hall : « ding » discret de l'ascenseur de temps en temps. */
+function elevatorLoop(): void {
+  const c = ctx;
+  if (!c || current !== 'hall') return;
+  const t = c.currentTime + 0.05;
+  tone(1046, t, 0.9, { type: 'sine', gain: 0.03, out: ambienceGain! });
+  tone(784, t + 0.35, 1.1, { type: 'sine', gain: 0.025, out: ambienceGain! });
+  later(25000 + Math.random() * 30000, elevatorLoop);
+}
+
+/** Salon : crépitements de cheminée et tintement de tasse. */
+function loungeLoop(): void {
+  const c = ctx;
+  if (!c || current !== 'lounge') return;
+  const buf = noiseBuffer(c, 0.012);
+  const t0 = c.currentTime + 0.05;
+  const pops = 2 + Math.floor(Math.random() * 6);
+  for (let i = 0; i < pops; i++) {
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 900 + Math.random() * 2200;
+    const g = c.createGain();
+    g.gain.value = 0.02 + Math.random() * 0.03;
+    src.connect(bp).connect(g).connect(ambienceGain!);
+    src.start(t0 + Math.random() * 1.5);
+  }
+  if (Math.random() < 0.12) {
+    const f = 2600 + Math.random() * 600;
+    tone(f, t0 + 0.4, 0.25, { type: 'triangle', gain: 0.02, out: ambienceGain! });
+    tone(f * 1.5, t0 + 0.42, 0.2, { type: 'sine', gain: 0.012, out: ambienceGain! });
+  }
+  later(900 + Math.random() * 2200, loungeLoop);
+}
+
 function stopAmbience(): void {
   for (const id of timers) clearTimeout(id);
   timers = [];
   try {
-    wind?.stop();
+    bed?.stop();
   } catch {
     /* déjà arrêté */
   }
-  wind = null;
+  bed = null;
   current = null;
 }
 
@@ -172,21 +227,16 @@ function startAmbience(kind: Ambience): void {
   if (!kind || paused || !c || c.state !== 'running' || !settingsStore.get().ambience) return;
   current = kind;
   if (kind === 'outdoor') {
-    // Vent : bruit filtré très doux.
-    const src = c.createBufferSource();
-    src.buffer = noiseBuffer(c, 4);
-    src.loop = true;
-    const lp = c.createBiquadFilter();
-    lp.type = 'lowpass';
-    lp.frequency.value = 380;
-    const g = c.createGain();
-    g.gain.value = 0.05;
-    src.connect(lp).connect(g).connect(ambienceGain!);
-    src.start();
-    wind = src;
+    startBed(c, 'lowpass', 380, 0.05); // vent
     later(800, birdLoop);
-  } else {
+  } else if (kind === 'coworking') {
     later(1500, keyboardLoop);
+  } else if (kind === 'hall') {
+    startBed(c, 'bandpass', 500, 0.018); // brouhaha lointain
+    later(6000, elevatorLoop);
+  } else {
+    startBed(c, 'lowpass', 160, 0.035); // souffle chaud de la cheminée
+    later(500, loungeLoop);
   }
 }
 

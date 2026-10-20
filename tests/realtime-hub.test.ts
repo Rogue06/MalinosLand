@@ -3,6 +3,7 @@ import { DEFAULT_APPEARANCE } from '../src/content/avatars';
 import { accountPlayerId, decodeMessage, type NetMessage } from '../src/multiplayer/protocol';
 import {
   CLOSE_CODES,
+  MAX_QUEUE,
   RealtimeHub,
   newConnData,
   type Account,
@@ -139,15 +140,80 @@ describe('serveur temps réel', () => {
     expect(b.of('chat')).toHaveLength(5);
   });
 
-  it('refuse un joueur quand la salle est pleine, ou un identifiant déjà connecté', () => {
+  it('refuse un identifiant déjà connecté', () => {
     const { join } = setup({ maxPerRoom: 2 });
     join('aaaaaaaa11');
-    join('bbbbbbbb22');
-    const c = join('cccccccc33');
-    expect(c.of('notice').map((m) => m.code)).toEqual(['full']);
-    expect(c.closed?.code).toBe(CLOSE_CODES.full);
     const d = join('aaaaaaaa11', 5, 5, 'tour-1');
     expect(d.closed?.code).toBe(CLOSE_CODES.duplicate);
+  });
+
+  describe('salle pleine : file d’attente', () => {
+    const leave = (hub: RealtimeHub, c: FakeConn) => {
+      c.close(1000, 'parti');
+      hub.onClose(c);
+    };
+
+    it('le joueur en trop attend son tour, invisible et silencieux', () => {
+      const { join, say } = setup({ maxPerRoom: 2 });
+      const a = join('aaaaaaaa11');
+      join('bbbbbbbb22');
+      const c = join('cccccccc33');
+      const d = join('dddddddd44');
+      expect(c.of('queue')).toEqual([{ t: 'queue', pos: 1 }]);
+      expect(d.of('queue')).toEqual([{ t: 'queue', pos: 2 }]);
+      expect(c.closed).toBeNull();
+      // Personne ne voit les joueurs en attente, et leurs messages ne sont pas relayés.
+      say(c, { t: 'chat', id: 'cccccccc33', room: 'hub', scope: 'global', text: 'coucou' });
+      expect(a.of('hello').map((m) => m.id)).toEqual(['bbbbbbbb22']);
+      expect(a.of('chat')).toHaveLength(0);
+      expect(c.data.strikes).toBe(0);
+    });
+
+    it('une place se libère : le premier de la file entre, les suivants avancent', () => {
+      const { hub, join, say, advance } = setup({ maxPerRoom: 2 });
+      const a = join('aaaaaaaa11');
+      const b = join('bbbbbbbb22');
+      const c = join('cccccccc33');
+      const d = join('dddddddd44');
+      leave(hub, a);
+      expect(c.of('queue').at(-1)).toEqual({ t: 'queue', pos: 0 });
+      expect(c.of('hello').map((m) => m.id)).toEqual(['bbbbbbbb22']);
+      expect(b.of('hello').map((m) => m.id)).toContain('cccccccc33');
+      expect(d.of('queue').at(-1)).toEqual({ t: 'queue', pos: 1 });
+      // Sa première position est acceptée même loin (il a pu marcher en solo en attendant).
+      advance(100);
+      say(c, { t: 'state', id: 'cccccccc33', room: 'hub', x: 25, y: 5, f: 'px', s: 0 });
+      expect(b.of('state').at(-1)).toMatchObject({ id: 'cccccccc33', x: 25, y: 5 });
+      // Ensuite, le contrôle de vitesse s'applique de nouveau.
+      advance(100);
+      say(c, { t: 'state', id: 'cccccccc33', room: 'hub', x: 2, y: 25, f: 'px', s: 0 });
+      expect(b.of('state').at(-1)).toMatchObject({ x: 25, y: 5 });
+    });
+
+    it('un joueur qui quitte la file fait avancer les suivants', () => {
+      const { hub, join } = setup({ maxPerRoom: 1 });
+      join('aaaaaaaa11');
+      const c = join('cccccccc33');
+      const d = join('dddddddd44');
+      leave(hub, c);
+      expect(d.of('queue').at(-1)).toEqual({ t: 'queue', pos: 1 });
+    });
+
+    it('file elle-même pleine : refus « salle pleine »', () => {
+      const { join } = setup({ maxPerRoom: 1 });
+      join('aaaaaaaa11');
+      for (let i = 0; i < MAX_QUEUE; i++) join(`file${String(i).padStart(6, '0')}`);
+      const late = join('tardif0001');
+      expect(late.of('notice').map((m) => m.code)).toEqual(['full']);
+      expect(late.closed?.code).toBe(CLOSE_CODES.full);
+    });
+
+    it('seul le serveur envoie « queue »', () => {
+      const { join, say } = setup();
+      const a = join('aaaaaaaa11');
+      say(a, { t: 'queue', pos: 0 });
+      expect(a.data.strikes).toBe(1);
+    });
   });
 
   it('ferme une connexion qui inonde le serveur', () => {

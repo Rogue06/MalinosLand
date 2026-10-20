@@ -137,7 +137,7 @@ Bouton 🗺️ : les prochaines versions résumées. Détails dans [ROADMAP.md](
 | **Réduire les animations**    | Pour un affichage plus calme.                                                                                                                              |
 | **Afficher les noms**         | Montre ou cache les pseudos au-dessus des têtes.                                                                                                           |
 | **Sons**                      | Petit son à l’arrivée d’un message et quand on te mentionne (@pseudo).                                                                                     |
-| **Ambiance sonore**           | Oiseaux et vent dehors, claviers au coworking.                                                                                                             |
+| **Ambiance sonore**           | Oiseaux et vent dehors, claviers au coworking, ascenseur dans le hall, cheminée au salon.                                                                  |
 | **Volume**                    | Volume de tous les sons du jeu.                                                                                                                            |
 | **Afficher les performances** | Montre les images par seconde (utile pour signaler un souci).                                                                                              |
 | **Compte**                    | Se connecter avec GitHub ou Google, se déconnecter, supprimer son compte.                                                                                  |
@@ -152,6 +152,12 @@ Bouton 🗺️ : les prochaines versions résumées. Détails dans [ROADMAP.md](
 - Tu passes sur un autre onglet plus de 20 secondes ? Les autres voient ton avatar pâle avec 💤
   (**absent**). Tout redevient normal dès ton retour.
 - Le navigateur n’autorise le son qu’après ton premier clic ou ta première touche.
+
+### Le Hub est plein ?
+
+Une salle accueille 40 Malinos à la fois. Si elle est pleine, tu passes dans la **file
+d’attente** : ta place s’affiche (« tu es 3e »), tu explores en solo en attendant, et tu entres
+tout seul dès qu’une place se libère.
 
 ## 9. Quelqu’un te dérange ?
 

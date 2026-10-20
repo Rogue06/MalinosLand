@@ -58,7 +58,9 @@ export type NetMessage =
   | { t: 'away'; id: string; on: boolean }
   // Messages émis uniquement par le serveur temps réel :
   | { t: 'rate'; ms: number }
-  | { t: 'notice'; code: NoticeCode };
+  | { t: 'notice'; code: NoticeCode }
+  /** File d'attente (salle pleine) : place dans la file, ou 0 quand c'est son tour d'entrer. */
+  | { t: 'queue'; pos: number };
 
 const ID_RE = /^[a-z0-9]{8,32}$/;
 const KEY_RE = /^[a-z0-9]{16,32}$/;
@@ -96,6 +98,12 @@ export function decodeMessage(raw: unknown): NetMessage | null {
     const ms = data.ms;
     return typeof ms === 'number' && Number.isFinite(ms) && ms >= 50 && ms <= 60000
       ? { t: 'rate', ms: Math.round(ms) }
+      : null;
+  }
+  if (data.t === 'queue') {
+    const pos = data.pos;
+    return typeof pos === 'number' && Number.isInteger(pos) && pos >= 0 && pos <= 1000
+      ? { t: 'queue', pos }
       : null;
   }
   if (data.t === 'notice') {

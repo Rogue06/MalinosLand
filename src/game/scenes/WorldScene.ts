@@ -69,7 +69,7 @@ function displayName(name: string, verified: boolean): string {
 
 /** Messages affichés pour les avis du serveur. */
 const NOTICE_TEXT: Record<NoticeCode, string> = {
-  full: 'Le Hub est plein pour le moment. Tu peux continuer à explorer en solo : nouvelle tentative dans une minute.',
+  full: 'Le Hub et sa file d’attente sont pleins pour le moment. Tu peux continuer à explorer en solo : nouvelle tentative dans une minute.',
   maintenance:
     'Le quota gratuit du jour est atteint : le multijoueur revient bientôt. Le jeu reste jouable en solo.',
   duplicate:
@@ -94,6 +94,8 @@ export class WorldScene extends Phaser.Scene {
   /** Sons des messages : un à la fois, jamais pour un joueur qui inonde le chat. */
   private readonly soundGate = new SoundGate();
   private awayTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Place dans la file d'attente du serveur (salle pleine), ou null. */
+  private lastQueuePos: number | null = null;
   private unreadMentions = 0;
   /** Clé de session de cet onglet : permet de reprendre sa place après une coupure. */
   private readonly sessionKey = randomId();
@@ -417,6 +419,15 @@ export class WorldScene extends Phaser.Scene {
     const text = sanitizeText(raw, CHAT_MAX_LENGTH);
     if (!text) return;
     const profile = profileStore.get();
+    if (this.net?.isQueued) {
+      pushChat({
+        from: 'MalinosLand',
+        text: 'Tu es dans la file d’attente : le chat s’ouvre dès que tu entres.',
+        kind: 'system',
+        scope,
+      });
+      return;
+    }
     if (this.net && !this.net.sendChat(text, scope)) {
       const wait = Math.ceil(this.net.chatCooldown());
       pushChat({
@@ -526,6 +537,23 @@ export class WorldScene extends Phaser.Scene {
     });
     net.events.on('emote', ({ peer, emote }) => {
       if (!isHidden(peer.id)) this.remotes.get(peer.id)?.view.say(emote, 3000);
+    });
+    net.events.on('queue', ({ pos }) => {
+      if (pos === 0) {
+        pushToast('C’est ton tour : bienvenue dans le Hub !', '🎉', 5000);
+        pushChat({
+          from: 'MalinosLand',
+          text: 'Une place s’est libérée : tu es entré, les autres te voient.',
+          kind: 'system',
+          scope: 'global',
+        });
+      } else {
+        const text = `Le Hub est plein : tu es ${pos === 1 ? '1er' : `${pos}e`} dans la file d’attente. Tu entres tout seul dès qu’une place se libère ; en attendant, explore en solo.`;
+        pushToast(text, '⏳', 7000);
+        if (this.lastQueuePos === null)
+          pushChat({ from: 'MalinosLand', text, kind: 'system', scope: 'global' });
+      }
+      this.lastQueuePos = pos === 0 ? null : pos;
     });
     net.events.on('notice', ({ code }) => {
       const text = NOTICE_TEXT[code];

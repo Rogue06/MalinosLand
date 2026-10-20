@@ -185,8 +185,8 @@ try {
   hello(d, 'dddddddd44');
   await sleep(600);
   check(
-    of(d, 'notice').some((m) => m.code === 'full') && d.closed === 4001,
-    'le 4e joueur est refusé : salle pleine (limite 3)',
+    of(d, 'queue').some((m) => m.pos === 1) && !d.closed,
+    'le 4e joueur attend son tour dans la file (limite 3)',
   );
 
   b.ws.close();
@@ -194,6 +194,10 @@ try {
   check(
     of(a, 'bye').some((m) => m.id === 'bbbbbbbb22'),
     'A est prévenu du départ de B',
+  );
+  check(
+    of(d, 'queue').some((m) => m.pos === 0) && of(a, 'hello').some((m) => m.id === 'dddddddd44'),
+    'une place se libère : le joueur en attente entre tout seul',
   );
 
   // Comptes : jeton vérifié par la base → pseudo du compte et marque « vérifié ».
@@ -208,13 +212,15 @@ try {
     seen?.name === 'Élodie' && seen?.v === true,
     'un joueur connecté garde le pseudo de son compte, avec la marque « vérifié »',
   );
+  e.ws.close(); // libère une place (limite 3) pour le visiteur suivant
+  await sleep(400);
   const g = await client(ORIGIN, ['malinos.v1', 'jwt.faux.jeton.x']);
   hello(g, 'gggggggg77');
   await sleep(600);
   const guest = of(a, 'hello').find((m) => m.id === 'gggggggg77');
   check(!!guest && guest.v === undefined, 'un jeton refusé par la base = simple visiteur');
 
-  for (const x of [a, d, e, g, evil]) x.ws.close();
+  for (const x of [a, d, g, evil]) x.ws.close();
 } catch (err) {
   errors.push(err.message);
   console.error(logs.slice(-3000));

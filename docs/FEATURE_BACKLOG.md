@@ -3,7 +3,7 @@
 > **En bref (version simple)** : la liste de toutes les fonctionnalités prévues, avec leur version, leur importance et ce dont elles dépendent. Pour une présentation plus simple, voir la [feuille de route](ROADMAP.md).
 
 Priorités : **P1** indispensable pour la version visée · **P2** important · **P3** bonus.
-Statut : ✅ fait · ⬜ à faire. Les dépendances renvoient aux identifiants.
+Statut : ✅ fait · 🔶 en partie · ⬜ à faire · ➖ abandonné. Les dépendances renvoient aux identifiants.
 
 | ID  | Fonctionnalité                                                                       | Version | Prio | Dépend de | Statut |
 | --- | ------------------------------------------------------------------------------------ | ------- | ---- | --------- | ------ |
@@ -15,10 +15,10 @@ Statut : ✅ fait · ⬜ à faire. Les dépendances renvoient aux identifiants.
 | F06 | Chat local + bulles, émotes                                                          | 0.1     | P2   | —         | ✅     |
 | F07 | Démo multijoueur locale (BroadcastChannel)                                           | 0.1     | P3   | F06       | ✅     |
 | F08 | Réglages qualité / FPS / animations                                                  | 0.1     | P2   | —         | ✅     |
-| F09 | Comptes (Supabase Auth) + Turnstile                                                  | 0.2     | P1   | DEC-006   | 🔶     |
+| F09 | Comptes (Supabase Auth) + Turnstile                                                  | 0.2     | P1   | DEC-006   | ✅     |
 | F10 | Serveur temps réel (Worker + Durable Object)                                         | 0.2     | P1   | DEC-006   | ✅     |
 | F11 | Présence en ligne, liste des membres connectés                                       | 0.2     | P1   | F10       | ✅     |
-| F12 | Chat général persistant (court historique)                                           | 0.2     | P2   | F10       | ⬜     |
+| F12 | Chat général persistant (court historique) — abandonné : rien n’est conservé         | —       | —    | F10       | ➖     |
 | F13 | Compteurs de quotas + dégradation contrôlée serveur                                  | 0.2     | P1   | F10       | ✅     |
 | F14 | Signaler / masquer un joueur                                                         | 0.2     | P1   | F09       | ✅     |
 | F15 | Suppression de compte et des données (RGPD)                                          | 0.2     | P1   | F09       | ✅     |
@@ -47,6 +47,7 @@ Statut : ✅ fait · ⬜ à faire. Les dépendances renvoient aux identifiants.
 | F38 | Ambiance sonore selon le lieu (oiseaux dehors…)                                      | 0.2+    | P3   | —         | ✅     |
 | F39 | Vêtements personnalisés, plus de choix de tenues (demande du responsable, plus tard) | 0.3+    | P3   | F02       | ⬜     |
 | F40 | Téléportation rapide depuis la mini-carte (écartée pour l’instant)                   | —       | P3   | —         | ⬜     |
+| F41 | File d’attente quand une salle est pleine (entrée automatique)                       | 0.2     | P2   | F10       | ✅     |
 
 ## Idées originales à creuser (non planifiées)
 
