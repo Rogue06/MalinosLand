@@ -68,7 +68,7 @@
     <main>
       <p><a href="./">← Retour au jeu</a></p>
       <h1>Politique de confidentialité</h1>
-      <p class="muted">MalinosLand — dernière mise à jour : 20 octobre 2026</p>
+      <p class="muted">MalinosLand — dernière mise à jour : 21 octobre 2026</p>
 
       <div class="card">
         <p>
@@ -136,7 +136,10 @@
         <strong>Boîte à idées et borne à bugs</strong> : ton message, ton pseudo, le lieu du jeu où
         tu te trouves et la taille de ton écran. Conservés dans la base, lisibles uniquement par
         l’équipe de modération, qui peut en tirer un ticket public sur GitHub (sans ton pseudo si tu
-        le demandes).
+        le demandes). Sans compte, une vérification anti-robots
+        <strong>Cloudflare Turnstile</strong>
+        s’affiche dans la boîte : elle analyse ton navigateur pour vérifier que tu n’es pas un
+        robot, sans publicité ni suivi (voir la politique de Cloudflare).
       </p>
       <p>
         Base légale : l’exécution du service que tu demandes (jouer, retrouver ton personnage).
@@ -145,14 +148,19 @@
 
       <h2>Cookies et traceurs</h2>
       <p>
-        Aucun cookie publicitaire, aucun outil de mesure d’audience, aucune ressource chargée chez
-        un tiers. Le jeu utilise seulement le stockage local de ton navigateur pour retenir ton
-        personnage, tes réglages et, si tu es connecté, ta session.
+        Aucun cookie publicitaire, aucun outil de mesure d’audience. Seule exception aux ressources
+        chargées chez un tiers : la vérification anti-robots Cloudflare Turnstile, uniquement quand
+        un visiteur sans compte ouvre la boîte à idées ou la borne à bugs. Le jeu utilise seulement
+        le stockage local de ton navigateur pour retenir ton personnage, tes réglages et, si tu es
+        connecté, ta session.
       </p>
 
       <h2>Prestataires</h2>
       <ul>
-        <li><strong>Cloudflare</strong> : hébergement du site et du serveur temps réel.</li>
+        <li>
+          <strong>Cloudflare</strong> : hébergement du site et du serveur temps réel ; vérification
+          anti-robots (Turnstile) de la boîte à idées pour les visiteurs.
+        </li>
         <li><strong>Supabase</strong> : comptes joueurs et base de données (Union européenne).</li>
         <li>
           <strong>GitHub</strong> et <strong>Google</strong> : seulement si tu choisis de te

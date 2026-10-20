@@ -8,15 +8,19 @@ import { loadEnv, type Plugin } from 'vite';
  * - fichier `_headers` pour l'hébergeur (format Cloudflare Pages), avec les autres en-têtes de
  *   sécurité.
  * Si VITE_REALTIME_URL (WebSocket du serveur) ou VITE_SUPABASE_URL (comptes) sont définis, leur
- * origine est ajoutée à `connect-src`, et seulement elle.
+ * origine est ajoutée à `connect-src`, et seulement elle. Avec VITE_TURNSTILE_SITEKEY, le script
+ * et le cadre de Cloudflare Turnstile (anti-robots de la boîte à idées) sont autorisés.
  */
-export function buildCsp(realtimeUrl?: string, supabaseUrl?: string): string {
+export const TURNSTILE_ORIGIN = 'https://challenges.cloudflare.com';
+
+export function buildCsp(realtimeUrl?: string, supabaseUrl?: string, turnstile = false): string {
   const connect = ["'self'"];
   if (realtimeUrl && /^wss?:\/\//.test(realtimeUrl)) connect.push(new URL(realtimeUrl).origin);
   if (supabaseUrl && /^https:\/\//.test(supabaseUrl)) connect.push(new URL(supabaseUrl).origin);
   return [
     "default-src 'self'",
-    "script-src 'self'",
+    turnstile ? `script-src 'self' ${TURNSTILE_ORIGIN}` : "script-src 'self'",
+    ...(turnstile ? [`frame-src ${TURNSTILE_ORIGIN}`] : []),
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     `connect-src ${connect.join(' ')}`,
@@ -26,8 +30,8 @@ export function buildCsp(realtimeUrl?: string, supabaseUrl?: string): string {
   ].join('; ');
 }
 
-function securityPlugin(realtimeUrl?: string, supabaseUrl?: string): Plugin {
-  const csp = buildCsp(realtimeUrl, supabaseUrl);
+function securityPlugin(realtimeUrl?: string, supabaseUrl?: string, turnstile = false): Plugin {
+  const csp = buildCsp(realtimeUrl, supabaseUrl, turnstile);
   return {
     name: 'malinosland-security',
     apply: 'build',
@@ -60,7 +64,9 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', 'VITE_');
   return {
     base: './',
-    plugins: [securityPlugin(env.VITE_REALTIME_URL, env.VITE_SUPABASE_URL)],
+    plugins: [
+      securityPlugin(env.VITE_REALTIME_URL, env.VITE_SUPABASE_URL, !!env.VITE_TURNSTILE_SITEKEY),
+    ],
     build: {
       target: 'es2022',
       chunkSizeWarningLimit: 1600,

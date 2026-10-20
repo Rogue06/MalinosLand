@@ -229,19 +229,25 @@ describe('base de données : signalements et modération', () => {
 describe('base de données : boîte à idées et bugs', () => {
   const MODO = '00000000-0000-4000-8000-0000000000c1';
   const EVE = '00000000-0000-4000-8000-0000000000e1';
-  const send = (who: string | null, kind = 'idee', message = 'Ajouter une piscine !') =>
-    as(
-      who,
-      `insert into public.feedback (kind, message, author_name, context) values ($1, $2, 'Eve', '{"zone":"hall"}')`,
-      [kind, message],
-    );
+  const INSERT = `insert into public.feedback (kind, message, author_name, context) values ($1, $2, 'Eve', '{"zone":"hall"}')`;
+  const send = (who: string, kind = 'idee', message = 'Ajouter une piscine !') =>
+    as(who, INSERT, [kind, message]);
+  /** Visiteur : écrit par la fonction Edge (après Turnstile), avec la clé serveur. */
+  const sendAsServer = async (kind = 'idee', message = 'Ajouter une piscine !') => {
+    await db.exec('reset role');
+    await db.query(`select set_config('request.jwt.claim.sub', '', false)`);
+    return db.query(INSERT, [kind, message]);
+  };
 
   beforeAll(async () => {
     await db.exec(`insert into auth.users (id) values ('${EVE}') on conflict do nothing`);
   });
 
-  it('un visiteur comme un joueur connecté peut envoyer une idée ou un bug', async () => {
-    await send(null, 'bug', 'Le banc du jardin flotte');
+  it('un joueur connecté envoie directement ; un visiteur passe par le serveur', async () => {
+    await expect(as(null, INSERT, ['bug', 'Le banc du jardin flotte'])).rejects.toThrow(
+      /permission denied/,
+    );
+    await sendAsServer('bug', 'Le banc du jardin flotte');
     await send(EVE);
     const rows = await db.query<{ author_id: string | null }>(
       'select author_id from public.feedback order by id',
@@ -259,7 +265,7 @@ describe('base de données : boîte à idées et bugs', () => {
     ).rejects.toThrow(/permission denied/);
     await expect(
       as(
-        null,
+        EVE,
         `insert into public.feedback (kind, message, status) values ('idee', 'Bonjour !', 'traite')`,
       ),
     ).rejects.toThrow(/permission denied/);
@@ -290,7 +296,7 @@ describe('base de données : boîte à idées et bugs', () => {
   it('limites : 10 par jour pour un joueur connecté, 30 par heure pour les visiteurs', async () => {
     for (let i = 0; i < 9; i++) await send(EVE);
     await expect(send(EVE)).rejects.toThrow(/Trop de messages aujourd/);
-    for (let i = 0; i < 29; i++) await send(null);
-    await expect(send(null)).rejects.toThrow(/Trop de messages pour le moment/);
+    for (let i = 0; i < 29; i++) await sendAsServer();
+    await expect(sendAsServer()).rejects.toThrow(/Trop de messages pour le moment/);
   });
 });

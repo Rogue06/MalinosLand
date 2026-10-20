@@ -280,24 +280,53 @@ export async function setReportStatus(id: number, status: 'ouvert' | 'traite'): 
 
 export type FeedbackKind = 'bug' | 'idee';
 
-/**
- * Envoie une idée ou un bug. Ouvert à tous : un visiteur passe par la clé publique (rôle
- * anonyme), un joueur connecté est reconnu par la base. Limites vérifiées par la base.
- */
-export async function sendFeedback(row: {
+export interface FeedbackDraft {
   kind: FeedbackKind;
   message: string;
   author_name: string | null;
   context: Record<string, string>;
-}): Promise<void> {
+}
+
+/**
+ * Envoie une idée ou un bug. Un joueur connecté écrit directement (reconnu par la base, 10 par
+ * jour). Un visiteur passe par la fonction Edge « feedback » avec son jeton Turnstile
+ * (`captchaToken`) : la fonction vérifie qu'il n'est pas un robot avant d'enregistrer.
+ */
+export async function sendFeedback(row: FeedbackDraft, captchaToken?: string): Promise<void> {
   if (!SUPABASE_URL || !SUPABASE_KEY)
     throw new AccountError('Envoi indisponible dans cette version.');
+  if (captchaToken !== undefined)
+    return sendAsVisitor(SUPABASE_URL, SUPABASE_KEY, row, captchaToken);
   const { db } = await load();
   const { error } = await db.from('feedback').insert(row);
   if (!error) return;
   if (/Trop de messages/.test(error.message ?? ''))
     throw new AccountError('Beaucoup de messages en ce moment : réessaie un peu plus tard.');
   throw explain(error);
+}
+
+async function sendAsVisitor(
+  url: string,
+  key: string,
+  row: FeedbackDraft,
+  token: string,
+): Promise<void> {
+  let res: Response;
+  try {
+    res = await fetch(`${url}/functions/v1/feedback`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', apikey: key },
+      body: JSON.stringify({ ...row, token }),
+    });
+  } catch {
+    throw new AccountError('Envoi impossible : vérifie ta connexion.');
+  }
+  if (res.ok) return;
+  if (res.status === 429)
+    throw new AccountError('Beaucoup de messages en ce moment : réessaie un peu plus tard.');
+  if (res.status === 403)
+    throw new AccountError('La vérification anti-robots n’est pas passée : réessaie.');
+  throw new AccountError('Envoi impossible pour le moment : réessaie plus tard.');
 }
 
 export interface FeedbackRow {

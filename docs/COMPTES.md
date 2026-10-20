@@ -123,6 +123,44 @@ d’e-mails gratuit de Supabase est réservé aux membres de l’équipe du proj
 GitHub → **Actions** → **Mise en ligne** → **Run workflow**. Les boutons « Se connecter avec
 GitHub / Google » apparaissent alors dans le jeu.
 
+## 2 bis. Anti-robots de la boîte à idées (Cloudflare Turnstile)
+
+**En bref :** la boîte à idées et la borne à bugs sont ouvertes aux visiteurs sans compte. Pour
+qu’un robot ne puisse pas les remplir de faux messages, un visiteur passe une petite vérification
+**Cloudflare Turnstile** (gratuite, le plus souvent invisible ou une simple case à cocher). Les
+joueurs connectés n’en ont pas besoin.
+
+Comment ça marche :
+
+1. Le jeu affiche le widget Turnstile (clé **publique** « sitekey », en clair dans
+   `.github/workflows/deploy.yml`) et obtient un jeton à usage unique.
+2. Il envoie le message et le jeton à la **fonction Edge** `feedback` de Supabase
+   (`supabase/functions/feedback/`).
+3. La fonction vérifie le jeton auprès de Cloudflare avec la clé **secrète**, puis enregistre le
+   message avec la clé serveur de Supabase (fournie automatiquement à la fonction). Le rôle
+   anonyme ne peut plus écrire directement dans la table (migration
+   `20261021090000_feedback_turnstile.sql`).
+
+**À faire par le responsable, une seule fois — ranger la clé secrète :**
+
+1. Supabase → projet **malinosland** → menu de gauche **Edge Functions** → onglet **Secrets**
+   (adresse directe : `https://supabase.com/dashboard/project/xezisaqffltiuyeblknt/functions/secrets`).
+2. **Add new secret** : nom `TURNSTILE_SECRET_KEY`, valeur : la **Secret Key** du widget
+   (Cloudflare → Turnstile → le widget → Settings). Enregistrer. Pas besoin de redéployer.
+3. Dans Cloudflare → Turnstile → le widget, vérifier que **Hostnames** contient
+   `malinosland.pages.dev` (et `localhost` pour tester sur son ordinateur).
+
+⚠️ Ne **pas** activer « Enable CAPTCHA protection » dans Supabase → Authentication : ce réglage
+protège les formulaires de connexion par e-mail, que MalinosLand n’utilise pas, et pourrait gêner
+la connexion. La clé secrète ne va jamais dans le dépôt, le chat ou le navigateur.
+
+Mettre à jour la fonction après une modification : `supabase functions deploy feedback
+--no-verify-jwt` (CLI Supabase) ou depuis une session IA reliée à Supabase. `--no-verify-jwt` est
+voulu : la fonction fait ses propres vérifications (origine du site, Turnstile).
+
+Tester sur son ordinateur : clé publique de test `1x00000000000000000000AA` (toujours acceptée)
+dans `VITE_TURNSTILE_SITEKEY` (voir `.env.example`).
+
 ## 3. Modérateurs
 
 Les signalements ne sont lisibles que par les modérateurs. Pour en ajouter un : Supabase →
@@ -139,6 +177,8 @@ ensuite le bouton **🛡️ Modération** dans ⚙️ Réglages (après recharge
 
 - Offre gratuite Supabase : 50 000 utilisateurs actifs par mois, base de 500 Mo — très
   au-dessus des besoins (un profil ≈ 0,5 Ko).
+- Fonctions Edge (anti-robots de la boîte à idées) : 500 000 appels par mois en gratuit ; un
+  appel par idée envoyée par un visiteur, déjà limitée à 30 par heure par la base.
 - Un compte gratuit Supabase a **2 projets actifs au maximum** (projets en pause non comptés) :
   le projet LaChillance a été mis en pause le 19/10/2026 pour faire de la place. Il peut être
   relancé depuis le tableau de bord pendant 90 jours (il faudrait alors en mettre un autre en

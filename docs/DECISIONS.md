@@ -215,3 +215,21 @@ simple coup d’œil ailleurs).
 **Conséquences.** Le navigateur n’autorise le son qu’après un premier clic ou une touche : le
 jeu « débloque » l’audio à ce moment-là. Les anciens clients ignorent simplement `away`. Réglages
 ajoutés : sons, ambiance, volume.
+
+## DEC-020 — Anti-robots de la boîte à idées : Turnstile vérifié par une fonction Edge (21/10/2026)
+
+**Contexte.** La boîte à idées et la borne à bugs sont ouvertes aux visiteurs sans compte, avec une
+limite globale de 30 messages par heure : un robot pouvait atteindre cette limite et bloquer les
+vrais joueurs. Le responsable a créé un widget Cloudflare Turnstile (gratuit).
+**Décision.** Les visiteurs passent par une **fonction Edge Supabase** (`supabase/functions/
+feedback`, logique pure dans `handler.ts`, testée) qui vérifie le jeton Turnstile avec la clé
+secrète (`TURNSTILE_SECRET_KEY`, secret des fonctions Edge) puis écrit avec la clé serveur ; le
+rôle anonyme perd le droit d’écrire dans `feedback`. Les joueurs connectés écrivent directement,
+sans vérification (ils sont déjà identifiés par GitHub ou Google). Le script Turnstile n’est
+chargé que lorsqu’un visiteur ouvre la boîte ; la CSP n’autorise `challenges.cloudflare.com` que
+si une clé publique est configurée. Écarté : la protection CAPTCHA de Supabase Auth (elle ne
+protège que les formulaires de connexion, pas une table) et les connexions anonymes Supabase
+(un utilisateur créé par visiteur).
+**Conséquences.** Aucune nouvelle dépendance (le widget est chargé depuis Cloudflare). La fonction
+est mise en ligne à part (pas par le workflow « Mise en ligne »). La migration doit être appliquée
+après la mise en ligne du jeu qui utilise la fonction.

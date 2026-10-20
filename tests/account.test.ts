@@ -35,5 +35,9 @@ describe('comptes joueurs', () => {
       "connect-src 'self' wss://rt.example.workers.dev https://abc.supabase.co",
     );
     expect(buildCsp()).toContain("connect-src 'self';");
+    expect(buildCsp()).not.toContain('challenges.cloudflare.com');
+    const withCaptcha = buildCsp(undefined, 'https://abc.supabase.co', true);
+    expect(withCaptcha).toContain("script-src 'self' https://challenges.cloudflare.com;");
+    expect(withCaptcha).toContain('frame-src https://challenges.cloudflare.com;');
   });
 });
