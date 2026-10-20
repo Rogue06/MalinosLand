@@ -48,6 +48,11 @@ export type NetMessage =
       k?: string;
       /** Absent (onglet caché depuis un moment) au moment de se présenter. */
       a?: true;
+      /**
+       * Jeton de connexion, seulement pour se présenter dans le logement d'un autre (reconnexion) :
+       * le serveur revérifie le droit d'entrer. Jamais relayé.
+       */
+      tok?: string;
     } & PeerState)
   | ({ t: 'state'; id: string } & PeerState)
   | { t: 'chat'; id: string; room: string; scope: ChatScope; text: string }
@@ -56,15 +61,30 @@ export type NetMessage =
   | { t: 'bye'; id: string }
   /** Statut « absent » (onglet caché) : activé ou désactivé. */
   | { t: 'away'; id: string; on: boolean }
+  /**
+   * Demande d'entrée dans un logement (`home-…`). `tok` : jeton de connexion du joueur, que le
+   * serveur transmet à la base pour vérifier son droit d'entrer (jamais relayé).
+   */
+  | { t: 'enter'; id: string; room: string; tok?: string }
+  /** Le propriétaire fait sortir un joueur de son logement. */
+  | { t: 'evict'; id: string; target: string }
   // Messages émis uniquement par le serveur temps réel :
   | { t: 'rate'; ms: number }
   | { t: 'notice'; code: NoticeCode }
   /** File d'attente (salle pleine) : place dans la file, ou 0 quand c'est son tour d'entrer. */
-  | { t: 'queue'; pos: number };
+  | { t: 'queue'; pos: number }
+  /** Réponse à `enter` (ou sortie forcée) : entrée permise, ou pourquoi elle est refusée. */
+  | { t: 'door'; room: string; ok: boolean; why?: DoorRefusal };
+
+/** Raisons d'un refus d'entrée dans un logement. */
+export const DOOR_REFUSALS = ['closed', 'full', 'evicted', 'error'] as const;
+export type DoorRefusal = (typeof DOOR_REFUSALS)[number];
 
 const ID_RE = /^[a-z0-9]{8,32}$/;
 const KEY_RE = /^[a-z0-9]{16,32}$/;
 const ROOM_RE = /^[a-z0-9-]{1,48}$/;
+const HOME_RE = /^home-[0-9a-f]{32}$/;
+const TOKEN_RE = /^[A-Za-z0-9_.-]{20,3500}$/;
 const MAX_COORD = 512;
 
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
@@ -85,7 +105,8 @@ function decodeState(r: Record<string, unknown>): PeerState | null {
 export function decodeMessage(raw: unknown): NetMessage | null {
   let data = raw;
   if (typeof raw === 'string') {
-    if (raw.length > 2048) return null;
+    // 4 Ko : la demande d'entrée dans un logement transporte le jeton de connexion.
+    if (raw.length > 4096) return null;
     try {
       data = JSON.parse(raw);
     } catch {
@@ -105,6 +126,11 @@ export function decodeMessage(raw: unknown): NetMessage | null {
     return typeof pos === 'number' && Number.isInteger(pos) && pos >= 0 && pos <= 1000
       ? { t: 'queue', pos }
       : null;
+  }
+  if (data.t === 'door') {
+    if (typeof data.room !== 'string' || !ROOM_RE.test(data.room)) return null;
+    const why = DOOR_REFUSALS.includes(data.why as DoorRefusal) ? (data.why as DoorRefusal) : null;
+    return { t: 'door', room: data.room, ok: data.ok === true, ...(why ? { why } : {}) };
   }
   if (data.t === 'notice') {
     return NOTICE_CODES.includes(data.code as NoticeCode)
@@ -128,6 +154,7 @@ export function decodeMessage(raw: unknown): NetMessage | null {
         ...(data.v === true ? { v: true as const } : {}),
         ...(typeof data.k === 'string' && KEY_RE.test(data.k) ? { k: data.k } : {}),
         ...(data.a === true ? { a: true as const } : {}),
+        ...(typeof data.tok === 'string' && TOKEN_RE.test(data.tok) ? { tok: data.tok } : {}),
       };
     }
     case 'state': {
@@ -160,6 +187,15 @@ export function decodeMessage(raw: unknown): NetMessage | null {
       return { t: 'bye', id };
     case 'away':
       return { t: 'away', id, on: data.on === true };
+    case 'enter': {
+      if (typeof data.room !== 'string' || !HOME_RE.test(data.room)) return null;
+      const tok = typeof data.tok === 'string' && TOKEN_RE.test(data.tok) ? data.tok : null;
+      return { t: 'enter', id, room: data.room, ...(tok ? { tok } : {}) };
+    }
+    case 'evict':
+      return typeof data.target === 'string' && ID_RE.test(data.target)
+        ? { t: 'evict', id, target: data.target }
+        : null;
     default:
       return null;
   }
@@ -191,4 +227,21 @@ export const ACCOUNT_ID_LENGTH = 32;
 export function accountPlayerId(userId: string): string | null {
   const id = userId.toLowerCase().replace(/-/g, '');
   return /^[0-9a-f]{32}$/.test(id) ? id : null;
+}
+
+/** Salle du logement d'un compte (`home-` + identifiant du compte sans tirets). */
+export function homeRoom(playerId: string): string {
+  return `home-${playerId}`;
+}
+
+/** Propriétaire d'une salle de logement (identifiant réseau du compte), ou null. */
+export function homeOwner(room: string): string | null {
+  return HOME_RE.test(room) ? room.slice(5) : null;
+}
+
+/** Identifiant de compte (UUID avec tirets) à partir d'un identifiant réseau de compte. */
+export function accountUuid(playerId: string): string | null {
+  if (!/^[0-9a-f]{32}$/.test(playerId)) return null;
+  const p = playerId;
+  return `${p.slice(0, 8)}-${p.slice(8, 12)}-${p.slice(12, 16)}-${p.slice(16, 20)}-${p.slice(20)}`;
 }

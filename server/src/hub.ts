@@ -12,16 +12,22 @@
  * - les déplacements trop rapides (téléportation) ou hors de la carte sont ignorés ;
  * - mouvements, émotes et chat de proximité ne sont relayés qu'aux joueurs de la même salle ;
  * - limites de débit (anti-spam), plafond de joueurs par salle, budget quotidien de messages ;
- * - salle pleine : file d'attente, le joueur entre tout seul dès qu'une place se libère.
+ * - salle pleine : file d'attente, le joueur entre tout seul dès qu'une place se libère ;
+ * - logements (`home-…`) : on n'y entre que si la base l'autorise (propriétaire, invité, ou
+ *   logement ouvert), le propriétaire peut faire sortir un joueur, et ce qui s'y écrit n'est lu
+ *   que par les personnes présentes.
  */
 import type { AvatarAppearance } from '../../src/content/avatars';
 import type { Facing } from '../../src/core/iso';
 import {
   ACCOUNT_ID_LENGTH,
   accountPlayerId,
+  accountUuid,
   decodeMessage,
   encodeMessage,
+  homeOwner,
   type AnimState,
+  type DoorRefusal,
   type NetMessage,
   type NoticeCode,
 } from '../../src/multiplayer/protocol';
@@ -68,6 +74,10 @@ export interface ConnData {
   queued: { hello: HelloMessage; at: number } | null;
   /** Sort de la file : sa prochaine position est acceptée sans contrôle de vitesse. */
   resync: boolean;
+  /** Logement dans lequel la base l'autorise à entrer (vérifié à sa demande). */
+  grant: string | null;
+  /** Présentation en attente de la vérification de la base (reconnexion dans un logement). */
+  pending: boolean;
 }
 
 export interface Conn {
@@ -94,6 +104,17 @@ export interface HubOptions {
   now: () => number;
   rooms: Record<string, RoomInfo>;
   maxPerRoom: number;
+  /** Dimensions d'un logement (même gabarit pour tous en v0.3). */
+  homeRoom: RoomInfo;
+  /** Nombre maximal de personnes dans un logement. */
+  maxPerHome: number;
+  /** Où va un joueur refusé ou mis à la porte d'un logement (devant l'ascenseur du Hub). */
+  exit: { room: string; x: number; y: number };
+  /**
+   * La base autorise-t-elle ce joueur à entrer chez `ownerUuid` ? `token` : jeton de connexion
+   * du joueur (null pour un visiteur). En cas d'erreur, l'entrée est refusée.
+   */
+  checkHomeAccess(ownerUuid: string, token: string | null): Promise<boolean>;
   /** Budget quotidien de messages entrants (fixé sous le quota gratuit réel). */
   dailyBudget: number;
   quota: QuotaCounter;
@@ -148,6 +169,8 @@ export function newConnData(key: string, now: number, account: Account | null = 
     strikes: 0,
     queued: null,
     resync: false,
+    grant: null,
+    pending: false,
   };
 }
 
@@ -223,7 +246,7 @@ export class RealtimeHub {
   }
 
   private inBounds(room: string, x: number, y: number): boolean {
-    const info = this.opts.rooms[room];
+    const info = homeOwner(room) ? this.opts.homeRoom : this.opts.rooms[room];
     return !!info && x >= 0 && y >= 0 && x <= info.width && y <= info.height;
   }
 
@@ -240,7 +263,7 @@ export class RealtimeHub {
     }
     const msg = decodeMessage(raw);
     // Les messages « rate », « notice » et « queue » ne peuvent venir que du serveur.
-    if (!msg || msg.t === 'rate' || msg.t === 'notice' || msg.t === 'queue') {
+    if (!msg || msg.t === 'rate' || msg.t === 'notice' || msg.t === 'queue' || msg.t === 'door') {
       this.strike(conn);
       conn.save();
       return;
@@ -265,7 +288,9 @@ export class RealtimeHub {
           this.reject(holder, 'duplicate');
         }
         if (!this.inBounds(msg.room, msg.x, msg.y)) return this.strike(conn);
-        if (d.queued) return; // déjà dans la file
+        if (d.queued || d.pending) return; // déjà dans la file, ou vérification en cours
+        const owner = homeOwner(msg.room);
+        if (owner) return this.helloInHome(conn, msg, owner, now);
         if (this.inRoom(msg.room, d.key) >= this.opts.maxPerRoom) {
           // Salle pleine : on attend son tour (sauf si la file elle-même est pleine).
           const waiting = this.waiting(msg.room).length;
@@ -281,7 +306,7 @@ export class RealtimeHub {
     }
 
     // En file d'attente : rien n'est relayé (seul le départ est pris en compte).
-    if (d.id === null && d.queued) {
+    if (d.id === null && (d.queued || d.pending)) {
       if (msg.t === 'bye') conn.close(1000, 'au revoir');
       return;
     }
@@ -294,6 +319,7 @@ export class RealtimeHub {
       case 'state': {
         if (!this.inBounds(msg.room, msg.x, msg.y)) return this.strike(conn);
         const sameRoom = msg.room === d.room;
+        if (!sameRoom && !this.mayMove(d, msg.room, msg.x, msg.y)) return;
         if (d.resync) {
           // Première position après la file d'attente : le joueur a pu bouger en solo.
           d.resync = false;
@@ -309,6 +335,7 @@ export class RealtimeHub {
         if (this.level() >= 3) return; // budget épuisé : plus de relais des mouvements
         const previousRoom = d.room;
         Object.assign(d, { room: msg.room, x: msg.x, y: msg.y, f: msg.f, s: msg.s, movedAt: now });
+        if (previousRoom !== d.room && homeOwner(previousRoom)) d.grant = null;
         conn.save();
         const targets = this.others(conn).filter(
           (c) => c.data.room === d.room || c.data.room === previousRoom,
@@ -323,11 +350,14 @@ export class RealtimeHub {
           return;
         }
         conn.save();
+        // Dans un logement, tout reste entre ses murs : même un message « général » n'est lu
+        // que par les personnes présentes.
+        const scope = homeOwner(d.room) ? 'local' : msg.scope;
         const targets =
-          msg.scope === 'global'
+          scope === 'global'
             ? this.others(conn)
             : this.others(conn).filter((c) => c.data.room === d.room);
-        this.send(targets, { t: 'chat', id: d.id, room: d.room, scope: msg.scope, text: msg.text });
+        this.send(targets, { t: 'chat', id: d.id, room: d.room, scope, text: msg.text });
         return;
       }
       case 'emote': {
@@ -362,10 +392,121 @@ export class RealtimeHub {
         this.send(this.others(conn), { t: 'away', id: d.id, on: msg.on });
         return;
       }
+      case 'enter': {
+        // Une demande coûte comme un message de chat (la base n'est pas interrogée en rafale).
+        if (!take(d.chat, CHAT_CAPACITY, CHAT_REFILL, now)) {
+          conn.save();
+          return;
+        }
+        conn.save();
+        const owner = homeOwner(msg.room)!;
+        if (this.isFull(msg.room, d)) return this.door(conn, msg.room, false, 'full');
+        if (owner === d.id) {
+          d.grant = msg.room;
+          conn.save();
+          return this.door(conn, msg.room, true);
+        }
+        this.askAccess(conn, owner, msg.tok ?? null, (c, ok) => {
+          if (ok) {
+            c.data.grant = msg.room;
+            c.save();
+          }
+          this.door(c, msg.room, ok, ok ? undefined : 'closed');
+        });
+        return;
+      }
+      case 'evict': {
+        // Seul le propriétaire, chez lui, peut faire sortir quelqu'un.
+        const target = this.others(conn).find((c) => c.data.id === msg.target);
+        if (!target || homeOwner(target.data.room) !== d.id) return;
+        this.evict(target);
+        return;
+      }
       case 'bye':
         conn.close(1000, 'au revoir');
         return;
     }
+  }
+
+  /** Changement de salle permis ? (logement : propriétaire ou autorisé ; sortie par l'ascenseur) */
+  private mayMove(d: ConnData, room: string, x: number, y: number): boolean {
+    const owner = homeOwner(room);
+    if (owner) return (owner === d.id || d.grant === room) && !this.isFull(room, d);
+    if (homeOwner(d.room)) {
+      // On sort d'un logement par l'ascenseur : arrivée devant lui, pas n'importe où.
+      const exit = this.opts.exit;
+      return room === exit.room && Math.hypot(x - exit.x, y - exit.y) <= 3;
+    }
+    return true;
+  }
+
+  /** Logement plein (le propriétaire entre toujours chez lui) ? */
+  private isFull(room: string, d: ConnData): boolean {
+    if (homeOwner(room) === d.id) return false;
+    return this.inRoom(room, d.key) >= this.opts.maxPerHome;
+  }
+
+  private door(conn: Conn, room: string, ok: boolean, why?: DoorRefusal): void {
+    conn.send(encodeMessage({ t: 'door', room, ok, ...(why ? { why } : {}) }));
+  }
+
+  /**
+   * Demande à la base si le joueur peut entrer chez `owner`. La réponse arrive plus tard : on
+   * retrouve alors la connexion (ses données ont pu changer entre-temps), si elle existe encore.
+   */
+  private askAccess(
+    conn: Conn,
+    owner: string,
+    token: string | null,
+    then: (conn: Conn, ok: boolean) => void,
+  ): void {
+    const key = conn.data.key;
+    const uuid = accountUuid(owner);
+    const check = uuid
+      ? this.opts.checkHomeAccess(uuid, conn.data.account ? token : null).catch(() => false)
+      : Promise.resolve(false);
+    void check.then((ok) => {
+      const current = this.connections().find((c) => c.data.key === key);
+      if (current) then(current, ok === true);
+    });
+  }
+
+  /** Présentation dans un logement (reconnexion) : vérifiée avant d'entrer. */
+  private helloInHome(conn: Conn, msg: HelloMessage, owner: string, now: number): void {
+    const d = conn.data;
+    if (owner === msg.id && d.account) {
+      d.grant = msg.room;
+      return this.admit(conn, msg, now);
+    }
+    d.pending = true;
+    conn.save();
+    this.askAccess(conn, owner, msg.tok ?? null, (c, ok) => {
+      c.data.pending = false;
+      if (ok && !this.isFull(msg.room, c.data)) {
+        c.data.grant = msg.room;
+        this.admit(c, msg, this.opts.now());
+        return;
+      }
+      // Refusé : il arrive devant l'ascenseur du Hub, et le jeu l'y conduit.
+      const exit = this.opts.exit;
+      this.admit(c, { ...msg, room: exit.room, x: exit.x, y: exit.y }, this.opts.now());
+      this.door(c, exit.room, false, 'closed');
+    });
+  }
+
+  /** Met un joueur à la porte d'un logement : il est replacé devant l'ascenseur du Hub. */
+  private evict(target: Conn): void {
+    const t = target.data;
+    const previousRoom = t.room;
+    const exit = this.opts.exit;
+    Object.assign(t, { room: exit.room, x: exit.x, y: exit.y, grant: null, resync: true });
+    t.movedAt = this.opts.now();
+    target.save();
+    this.door(target, exit.room, false, 'evicted');
+    const targets = this.others(target).filter(
+      (c) => c.data.room === exit.room || c.data.room === previousRoom,
+    );
+    this.send(targets, { t: 'state', id: t.id!, room: t.room, x: t.x, y: t.y, f: t.f, s: 0 });
   }
 
   /** Fermeture d'une connexion : les autres sont prévenus, la file d'attente avance. */

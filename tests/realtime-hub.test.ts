@@ -29,7 +29,13 @@ class FakeConn implements Conn {
   }
 }
 
-function setup(opts: { maxPerRoom?: number; budget?: number } = {}) {
+function setup(
+  opts: {
+    maxPerRoom?: number;
+    budget?: number;
+    access?: (owner: string, token: string | null) => Promise<boolean>;
+  } = {},
+) {
   let t = 1000;
   let count = 0;
   const conns: FakeConn[] = [];
@@ -40,6 +46,10 @@ function setup(opts: { maxPerRoom?: number; budget?: number } = {}) {
     maxPerRoom: opts.maxPerRoom ?? 40,
     dailyBudget: opts.budget ?? 1_000_000,
     quota,
+    homeRoom: { width: 11, height: 10 },
+    maxPerHome: 3,
+    exit: { room: 'hub', x: 11.9, y: 10.6 },
+    checkHomeAccess: opts.access ?? (async () => false),
   });
   const join = (id: string, x = 12, y = 21, room = 'hub', account: Account | null = null) => {
     const c = new FakeConn(newConnData(Math.random().toString(36).slice(2), 0, account));
@@ -371,5 +381,166 @@ describe('serveur temps réel', () => {
       say(a, { t: 'away', id: 'bbbbbbbb22', on: true });
       expect(b.of('away')).toHaveLength(0);
     });
+  });
+});
+
+describe('logements : entrée vérifiée par la base', () => {
+  const OWNER: Account = { id: '00000000-0000-4000-8000-0000000000aa', name: 'Odile' };
+  const GUEST: Account = { id: '00000000-0000-4000-8000-0000000000bb', name: 'Gaston' };
+  const ownerId = accountPlayerId(OWNER.id)!;
+  const guestId = accountPlayerId(GUEST.id)!;
+  const HOME = `home-${ownerId}`;
+  const flush = () => new Promise((r) => setTimeout(r, 0));
+  const inside = { t: 'state', room: HOME, x: 5.9, y: 2.6, f: 'py', s: 0 };
+
+  it('le propriétaire entre chez lui sans interroger la base', async () => {
+    const calls: string[] = [];
+    const { join, say } = setup({ access: async (o) => (calls.push(o), false) });
+    const o = join(ownerId, 12, 21, 'hub', OWNER);
+    const g = join(guestId, 12, 22, 'hub', GUEST);
+    say(o, { t: 'enter', id: ownerId, room: HOME });
+    expect(o.of('door')).toEqual([{ t: 'door', room: HOME, ok: true }]);
+    say(o, { ...inside, id: ownerId });
+    expect(o.data.room).toBe(HOME);
+    expect(g.of('state').at(-1)).toMatchObject({ id: ownerId, room: HOME });
+    expect(calls).toHaveLength(0);
+  });
+
+  it('sans autorisation : entrée refusée, et ses déplacements vers le logement sont ignorés', async () => {
+    const { join, say } = setup({ access: async () => false });
+    const o = join(ownerId, 12, 21, 'hub', OWNER);
+    const g = join(guestId, 12, 22, 'hub', GUEST);
+    say(o, { t: 'enter', id: ownerId, room: HOME });
+    say(o, { ...inside, id: ownerId });
+    say(g, { t: 'enter', id: guestId, room: HOME, tok: 'a'.repeat(30) });
+    await flush();
+    expect(g.of('door')).toEqual([{ t: 'door', room: HOME, ok: false, why: 'closed' }]);
+    say(g, { ...inside, id: guestId });
+    expect(g.data.room).toBe('hub');
+    expect(o.of('state').filter((m) => m.id === guestId && m.room === HOME)).toHaveLength(0);
+  });
+
+  it('autorisé par la base : il entre ; le jeton n’est transmis que pour un compte', async () => {
+    const seen: Array<[string, string | null]> = [];
+    const { join, say } = setup({
+      access: async (owner, token) => (seen.push([owner, token]), true),
+    });
+    const o = join(ownerId, 12, 21, 'hub', OWNER);
+    const g = join(guestId, 12, 22, 'hub', GUEST);
+    const v = join('visiteur01', 12, 23);
+    say(o, { t: 'enter', id: ownerId, room: HOME });
+    say(o, { ...inside, id: ownerId });
+    say(g, { t: 'enter', id: guestId, room: HOME, tok: 'jeton.de.test.valide' });
+    say(v, { t: 'enter', id: 'visiteur01', room: HOME, tok: 'jeton.de.test.valide' });
+    await flush();
+    expect(seen).toEqual([
+      [OWNER.id, 'jeton.de.test.valide'],
+      [OWNER.id, null],
+    ]);
+    expect(g.of('door').at(-1)).toMatchObject({ ok: true });
+    say(g, { ...inside, id: guestId, x: 6.5 });
+    expect(o.of('state').at(-1)).toMatchObject({ id: guestId, room: HOME });
+    // Sortie : seulement devant l'ascenseur du Hub, pas n'importe où.
+    say(g, { t: 'state', id: guestId, room: 'hub', x: 25, y: 25, f: 'py', s: 0 });
+    expect(g.data.room).toBe(HOME);
+    say(g, { t: 'state', id: guestId, room: 'hub', x: 11.9, y: 10.8, f: 'py', s: 0 });
+    expect(g.data.room).toBe('hub');
+    expect(g.data.grant).toBeNull();
+  });
+
+  it('logement plein : refus (le propriétaire entre toujours)', async () => {
+    const { join, say } = setup({ access: async () => true });
+    const o = join(ownerId, 12, 21, 'hub', OWNER);
+    const guests = ['gggggggg01', 'gggggggg02', 'gggggggg03', 'gggggggg04'].map((id, i) =>
+      join(id, 10 + i, 22),
+    );
+    for (const [i, g] of guests.entries()) {
+      say(g, { t: 'enter', id: g.data.id, room: HOME });
+      await flush();
+      if (g.of('door').at(-1)?.ok) say(g, { ...inside, id: g.data.id, x: 3 + i });
+    }
+    expect(guests.map((g) => g.of('door').at(-1)?.ok)).toEqual([true, true, true, false]);
+    expect(guests[3]!.of('door').at(-1)).toMatchObject({ why: 'full' });
+    say(o, { t: 'enter', id: ownerId, room: HOME });
+    expect(o.of('door').at(-1)).toMatchObject({ ok: true });
+  });
+
+  it('le propriétaire fait sortir un joueur ; personne d’autre ne le peut', async () => {
+    const { join, say } = setup({ access: async () => true });
+    const o = join(ownerId, 12, 21, 'hub', OWNER);
+    const g = join(guestId, 12, 22, 'hub', GUEST);
+    const other = join('autrejoueur', 12, 23);
+    say(g, { t: 'enter', id: guestId, room: HOME, tok: 'jeton.de.test.valide' });
+    await flush();
+    say(g, { ...inside, id: guestId });
+    say(other, { t: 'evict', id: 'autrejoueur', target: guestId });
+    expect(g.data.room).toBe(HOME);
+    say(o, { t: 'evict', id: ownerId, target: guestId });
+    expect(g.of('door').at(-1)).toEqual({ t: 'door', room: 'hub', ok: false, why: 'evicted' });
+    expect(g.data).toMatchObject({ room: 'hub', x: 11.9, y: 10.6, grant: null });
+    expect(other.of('state').at(-1)).toMatchObject({ id: guestId, room: 'hub', x: 11.9 });
+    // Il ne peut pas revenir sans redemander.
+    say(g, { ...inside, id: guestId });
+    expect(g.data.room).toBe('hub');
+  });
+
+  it('reconnexion dans un logement : revérifiée par la base avant d’entrer', async () => {
+    let allowed = true;
+    const { join, connect, say } = setup({ access: async () => allowed });
+    const o = join(ownerId, 12, 21, 'hub', OWNER);
+    const hello = (c: FakeConn, id: string) =>
+      say(c, {
+        t: 'hello',
+        id,
+        name: 'Revenant',
+        look: DEFAULT_APPEARANCE,
+        reply: false,
+        room: HOME,
+        x: 5,
+        y: 5,
+        f: 'py',
+        s: 0,
+        tok: 'jeton.de.test.valide',
+      });
+    const back = connect();
+    back.data.account = GUEST;
+    hello(back, guestId);
+    expect(back.data.id).toBeNull(); // en attente de la base
+    await flush();
+    expect(back.data.room).toBe(HOME);
+    expect(o.of('hello').at(-1)).toMatchObject({ id: guestId, room: HOME });
+    allowed = false;
+    const late = connect();
+    hello(late, 'visiteur02');
+    await flush();
+    expect(late.data).toMatchObject({ room: 'hub', x: 11.9, y: 10.6 });
+    expect(late.of('door').at(-1)).toMatchObject({ ok: false, why: 'closed' });
+  });
+
+  it('ce qui s’écrit dans un logement n’est lu que par les personnes présentes', async () => {
+    const { join, say } = setup({ access: async () => true });
+    const o = join(ownerId, 12, 21, 'hub', OWNER);
+    const g = join(guestId, 12, 22, 'hub', GUEST);
+    const outside = join('dehors0001', 12, 23);
+    say(o, { t: 'enter', id: ownerId, room: HOME });
+    say(o, { ...inside, id: ownerId });
+    say(g, { t: 'enter', id: guestId, room: HOME, tok: 'jeton.de.test.valide' });
+    await flush();
+    say(g, { ...inside, id: guestId, x: 6.5 });
+    say(o, { t: 'chat', id: ownerId, room: HOME, scope: 'global', text: 'Secret de salon' });
+    expect(g.of('chat')).toEqual([
+      { t: 'chat', id: ownerId, room: HOME, scope: 'local', text: 'Secret de salon' },
+    ]);
+    expect(outside.of('chat')).toHaveLength(0);
+    // Le chat général du Hub arrive toujours dans le logement.
+    say(outside, { t: 'chat', id: 'dehors0001', room: 'hub', scope: 'global', text: 'Coucou' });
+    expect(o.of('chat').at(-1)).toMatchObject({ text: 'Coucou', scope: 'global' });
+  });
+
+  it('seul le serveur envoie « door »', () => {
+    const { join, say } = setup();
+    const a = join('aaaaaaaa11');
+    say(a, { t: 'door', room: 'hub', ok: true });
+    expect(a.data.strikes).toBe(1);
   });
 });

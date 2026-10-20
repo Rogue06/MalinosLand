@@ -1,0 +1,195 @@
+{
+  "formatVersion": 1,
+  "id": "studio",
+  "name": "Studio — Tour des Malinos",
+  "width": 11,
+  "height": 10,
+  "spawn": {
+    "x": 5.9,
+    "y": 2.6,
+    "facing": "py"
+  },
+  "legend": {
+    "w": {
+      "floor": "wood"
+    },
+    "B": {
+      "wall": "brick",
+      "floor": "wood"
+    }
+  },
+  "tiles": [
+    "BBBBBBBBBBB",
+    "Bwwwwwwwwww",
+    "Bwwwwwwwwww",
+    "Bwwwwwwwwww",
+    "Bwwwwwwwwww",
+    "Bwwwwwwwwww",
+    "Bwwwwwwwwww",
+    "Bwwwwwwwwww",
+    "Bwwwwwwwwww",
+    "Bwwwwwwwwww"
+  ],
+  "zones": [
+    {
+      "id": "studio",
+      "name": "Studio",
+      "rect": {
+        "x": 1,
+        "y": 1,
+        "w": 10,
+        "h": 9
+      },
+      "status": "open",
+      "description": "Un studio de la Tour des Malinos : un chez-soi à décorer (bientôt)."
+    }
+  ],
+  "objects": [
+    {
+      "type": "desk_pc",
+      "x": 1,
+      "y": 1,
+      "variant": 2,
+      "id": "studio-desk"
+    },
+    {
+      "type": "chair",
+      "x": 1,
+      "y": 2,
+      "rot": 2
+    },
+    {
+      "type": "bookshelf",
+      "x": 3,
+      "y": 1,
+      "variant": 1,
+      "id": "studio-shelf-1"
+    },
+    {
+      "type": "elevator",
+      "x": 5,
+      "y": 1,
+      "id": "elevator",
+      "interaction": {
+        "kind": "panel",
+        "label": "Prendre l’ascenseur",
+        "panel": "elevator"
+      }
+    },
+    {
+      "type": "doormat",
+      "x": 5,
+      "y": 2
+    },
+    {
+      "type": "plant",
+      "x": 7,
+      "y": 1
+    },
+    {
+      "type": "bed",
+      "x": 8,
+      "y": 1,
+      "id": "bed"
+    },
+    {
+      "type": "lamp_floor",
+      "x": 10,
+      "y": 1
+    },
+    {
+      "type": "sofa",
+      "x": 1,
+      "y": 5,
+      "rot": 1,
+      "variant": 1
+    },
+    {
+      "type": "rug",
+      "x": 2,
+      "y": 5
+    },
+    {
+      "type": "coffee_table",
+      "x": 3,
+      "y": 5,
+      "id": "studio-table",
+      "interaction": {
+        "kind": "panel",
+        "label": "Accès et invités du logement",
+        "panel": "home"
+      }
+    },
+    {
+      "type": "armchair",
+      "x": 5,
+      "y": 5,
+      "rot": 3
+    },
+    {
+      "type": "armchair",
+      "x": 5,
+      "y": 6,
+      "rot": 3,
+      "variant": 1
+    },
+    {
+      "type": "mirror",
+      "x": 10,
+      "y": 5,
+      "rot": 3,
+      "id": "studio-mirror"
+    },
+    {
+      "type": "plant_big",
+      "x": 10,
+      "y": 9
+    },
+    {
+      "type": "plant",
+      "x": 1,
+      "y": 9
+    },
+    {
+      "type": "bookshelf",
+      "x": 10,
+      "y": 8,
+      "rot": 3,
+      "variant": 2,
+      "id": "studio-shelf-2"
+    }
+  ],
+  "wallDecor": [
+    {
+      "type": "window",
+      "x": 2,
+      "y": 0,
+      "side": "py"
+    },
+    {
+      "type": "poster",
+      "x": 4,
+      "y": 0,
+      "side": "py",
+      "variant": 1
+    },
+    {
+      "type": "window",
+      "x": 9,
+      "y": 0,
+      "side": "py"
+    },
+    {
+      "type": "window",
+      "x": 0,
+      "y": 3,
+      "side": "px"
+    },
+    {
+      "type": "window",
+      "x": 0,
+      "y": 7,
+      "side": "px"
+    }
+  ]
+}

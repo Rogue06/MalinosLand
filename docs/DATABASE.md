@@ -21,8 +21,16 @@
 - Visiteurs : profil, réglages et progression restent dans le `localStorage` (`src/services/`),
   versionnés (`{ v, data }`) et validés à la lecture.
 
-> Le schéma ci-dessous est la **cible** des versions suivantes ; seule la table `profiles` existe
-> (avec les colonnes `name`, `look`, `created_at`, `updated_at`).
+- **Logements** (migration `20261022090000_homes.sql`, v0.3) : `homes` (un par compte :
+  `owner_id`, `access` = `private` / `invite` / `public`), `home_invites` (`owner_id`, `guest_id`,
+  50 au plus par logement). Fonctions : `my_home()` (crée son logement au besoin, renvoie son
+  mode d’accès), `can_enter_home(owner)` (utilisée par le serveur temps réel avec le jeton du
+  joueur), `visitable_homes()` (logements ouverts ou où l’on est invité), `my_home_invites()`.
+  Le propriétaire seul règle l’accès et invite ; l’invité peut refuser une invitation.
+
+> Le schéma ci-dessous était la **cible** de départ : `profiles`, `reports`, `feedback`, `homes`
+> et `home_invites` existent désormais (sous une forme parfois différente, voir les migrations) ;
+> la galerie et les blocages côté serveur restent à faire.
 
 ## 2. Schéma envisagé
 

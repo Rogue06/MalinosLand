@@ -57,6 +57,18 @@ export const CATALOG: Record<string, CatalogEntry> = {
       { x: 1.45, y: 0.42, height: 0.38 },
     ],
   },
+  bed: {
+    name: 'Lit',
+    category: 'furniture',
+    footprint: [2, 2],
+    blocking: true,
+    defaultInteraction: {
+      kind: 'emote',
+      label: 'Faire une petite sieste',
+      emoji: '💤',
+      text: 'Une petite sieste bien méritée… puis on retourne créer !',
+    },
+  },
   coffee_table: {
     name: 'Table basse',
     category: 'furniture',

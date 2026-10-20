@@ -5,6 +5,19 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (v0.3 logements — accès vérifié)
+
+- Base : tables `homes` (un logement par compte, mode d’accès privé / sur invitation / ouvert) et
+  `home_invites` (50 invitations au plus), fonctions `my_home`, `can_enter_home`,
+  `visitable_homes`, `my_home_invites` (migration `20261022090000_homes.sql`).
+- Serveur temps réel : messages `enter` / `door` / `evict` ; entrée dans un logement vérifiée par
+  la base avec le jeton du joueur (revérifiée à la reconnexion), 12 personnes au plus, sortie
+  devant l’ascenseur du Hub, mise à la porte par le propriétaire. **Ce qui s’écrit dans un
+  logement n’est lu que par les personnes présentes.**
+- Contenu : gabarit de carte « studio » (lit, bureau, coin salon, miroir, ascenseur) et nouvel
+  objet **lit** (petite sieste 💤). Pas encore accessible dans le jeu : l’ascenseur arrive dans le
+  lot suivant.
+
 ### Modifié (licence)
 
 - Licence du projet : **GNU AGPL-3.0** au lieu de MIT (choix du responsable, DEC-009). Lien

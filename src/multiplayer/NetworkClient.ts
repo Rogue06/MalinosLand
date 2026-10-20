@@ -4,7 +4,9 @@ import { TokenBucket } from '../core/rateLimiter';
 import {
   decodeMessage,
   encodeMessage,
+  homeOwner,
   type ChatScope,
+  type DoorRefusal,
   type Emote,
   type NetMessage,
   type NoticeCode,
@@ -35,6 +37,8 @@ export interface NetworkEvents extends Record<string, unknown> {
   notice: { code: NoticeCode };
   /** File d'attente du serveur : place dans la file, 0 quand on entre. */
   queue: { pos: number };
+  /** Réponse du serveur à une demande d'entrée dans un logement (ou sortie forcée). */
+  door: { room: string; ok: boolean; why?: DoorRefusal };
 }
 
 export interface NetworkOptions {
@@ -77,6 +81,11 @@ export class NetworkClient {
   private away = false;
   /** En file d'attente (salle pleine) : on ne transmet rien d'autre que son départ. */
   private queued = false;
+  /**
+   * Jeton de connexion utilisé pour entrer dans le logement d'un autre : renvoyé dans la
+   * présentation après une reconnexion, pour que le serveur revérifie le droit d'y être.
+   */
+  private homeToken: string | null = null;
   /** Dernière demande de présentation envoyée, par pair inconnu. */
   private helloRequests = new Map<string, number>();
   bytesSent = 0;
@@ -167,6 +176,17 @@ export class NetworkClient {
     this.prune(t);
   }
 
+  /** Demande au serveur d'entrer dans un logement (réponse : événement `door`). */
+  requestEnter(room: string, token: string | null): void {
+    this.homeToken = token;
+    this.send({ t: 'enter', id: this.selfId, room, ...(token ? { tok: token } : {}) });
+  }
+
+  /** Le propriétaire fait sortir un joueur de son logement. */
+  evict(target: string): void {
+    this.send({ t: 'evict', id: this.selfId, target });
+  }
+
   /** Statut « absent » du joueur local (onglet caché depuis un moment). */
   setAway(on: boolean): void {
     if (this.away === on) return;
@@ -220,6 +240,12 @@ export class NetworkClient {
       ...this.self.state,
       ...(this.sessionKey ? { k: this.sessionKey } : {}),
       ...(this.away ? { a: true as const } : {}),
+      // Dans le logement d'un autre : le serveur revérifie le droit d'y être.
+      ...(this.homeToken &&
+      homeOwner(this.self.state.room) !== null &&
+      homeOwner(this.self.state.room) !== this.selfId
+        ? { tok: this.homeToken }
+        : {}),
     });
     // Le « hello » contient déjà l'état : inutile de le renvoyer aussitôt.
     this.lastSent = { ...this.self.state };
@@ -252,6 +278,14 @@ export class NetworkClient {
     }
     if (msg.t === 'notice') {
       this.events.emit('notice', { code: msg.code });
+      return;
+    }
+    if (msg.t === 'door') {
+      this.events.emit('door', {
+        room: msg.room,
+        ok: msg.ok,
+        ...(msg.why ? { why: msg.why } : {}),
+      });
       return;
     }
     if (msg.t === 'queue') {
