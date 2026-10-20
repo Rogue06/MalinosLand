@@ -5,6 +5,7 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+<<<<<<< HEAD
 ### Ajouté (parc, forêt et salle de jeux)
 
 - **Salle de jeux** au nord du parc : bornes d’arcade, ping-pong, baby-foot, table d’échecs,
@@ -16,6 +17,8 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 - 2 secrets de plus (10 au total). Nouveaux objets : ping-pong, baby-foot, table d’échecs, pouf,
   fleurs, rocher, champignons, rondin, feu de camp.
 
+=======
+>>>>>>> origin/main
 ### Modifié (chat plus clair)
 
 - Un seul fil de discussion ; on choisit **à qui l’on écrit** : « 🌍 Tout le monde » (par défaut)
