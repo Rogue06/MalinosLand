@@ -1193,3 +1193,9 @@ button.presence-chip {
     transition: none !important;
   }
 }
+
+/* Vérification anti-robots (Turnstile) de la boîte à idées. */
+.captcha {
+  min-height: 65px;
+  margin: 4px 0;
+}

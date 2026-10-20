@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'preact/hooks';
-import { SUPABASE_KEY, SUPABASE_URL } from '../../config';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import { SUPABASE_KEY, SUPABASE_URL, TURNSTILE_SITEKEY } from '../../config';
 import {
   AccountError,
   accountStore,
@@ -28,6 +28,7 @@ import {
   type ReportReason,
 } from '../../services/moderation';
 import { profileStore } from '../../services/profile';
+import { loadTurnstile, type TurnstileApi } from '../../services/turnstile';
 import {
   chatStore,
   panelStore,
@@ -213,6 +214,12 @@ export function FeedbackPanel({ kind }: { kind: FeedbackKind }) {
   const [sent, setSent] = useState(false);
   const text = FEEDBACK_TEXT[kind];
   const online = !!(SUPABASE_URL && SUPABASE_KEY);
+  const account = useStore(accountStore);
+  // Visiteur (sans compte) : vérification anti-robots avant l'envoi.
+  const needsCaptcha = online && !!TURNSTILE_SITEKEY && account.status !== 'signed-in';
+  const [captcha, setCaptcha] = useState<string | null>(null);
+  // Un jeton ne sert qu'une fois : on redemande une vérification après chaque envoi.
+  const [captchaRound, setCaptchaRound] = useState(0);
 
   const submit = async () => {
     const clean = cleanFeedback(message);
@@ -220,25 +227,33 @@ export function FeedbackPanel({ kind }: { kind: FeedbackKind }) {
       setError(`Écris au moins ${FEEDBACK_MIN} caractères.`);
       return;
     }
+    if (needsCaptcha && !captcha) {
+      setError('Patiente le temps de la vérification anti-robots.');
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
-      await sendFeedback({
-        kind,
-        message: clean,
-        author_name: profileStore.get()?.name ?? null,
-        context: {
-          lieu: zoneStore.get()?.name ?? 'inconnu',
-          version: '0.2',
-          ecran: `${window.innerWidth}×${window.innerHeight}`,
+      await sendFeedback(
+        {
+          kind,
+          message: clean,
+          author_name: profileStore.get()?.name ?? null,
+          context: {
+            lieu: zoneStore.get()?.name ?? 'inconnu',
+            version: '0.2',
+            ecran: `${window.innerWidth}×${window.innerHeight}`,
+          },
         },
-      });
+        needsCaptcha ? (captcha ?? undefined) : undefined,
+      );
       setSent(true);
       setMessage('');
       pushToast(kind === 'bug' ? 'Bug envoyé, merci !' : 'Idée envoyée, merci !', text.icon, 4000);
     } catch (e) {
       setError(e instanceof AccountError ? e.message : 'Envoi impossible.');
     }
+    if (needsCaptcha) setCaptchaRound((n) => n + 1);
     setBusy(false);
   };
 
@@ -276,12 +291,13 @@ export function FeedbackPanel({ kind }: { kind: FeedbackKind }) {
           <p class="muted small">
             Envoyé avec ton pseudo. Lu uniquement par l’équipe de modération.
           </p>
+          {needsCaptcha && <CaptchaBox key={captchaRound} onToken={setCaptcha} />}
           {error && <p class="error small">{error}</p>}
           <div class="row end">
             <button
               type="button"
               class="btn primary small"
-              disabled={busy}
+              disabled={busy || (needsCaptcha && !captcha)}
               onClick={() => void submit()}
             >
               Envoyer
@@ -300,6 +316,48 @@ export function FeedbackPanel({ kind }: { kind: FeedbackKind }) {
       </p>
     </Modal>
   );
+}
+
+/**
+ * Vérification Cloudflare Turnstile (visiteurs) : le plus souvent invisible ou une simple case.
+ * Le script n'est chargé qu'à l'ouverture de la boîte, par un visiteur.
+ */
+function CaptchaBox({ onToken }: { onToken: (token: string | null) => void }) {
+  const box = useRef<HTMLDivElement>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    let api: TurnstileApi | null = null;
+    let id: string | undefined;
+    onToken(null);
+    loadTurnstile()
+      .then((t) => {
+        if (!alive || !box.current || !TURNSTILE_SITEKEY) return;
+        api = t;
+        id = t.render(box.current, {
+          sitekey: TURNSTILE_SITEKEY,
+          theme: 'dark',
+          language: 'fr',
+          size: 'flexible',
+          callback: (token) => onToken(token),
+          'expired-callback': () => onToken(null),
+          'error-callback': () => onToken(null),
+        });
+      })
+      .catch(() => alive && setFailed(true));
+    return () => {
+      alive = false;
+      if (api && id) api.remove(id);
+    };
+  }, [onToken]);
+  if (failed)
+    return (
+      <p class="error small">
+        La vérification anti-robots ne se charge pas (bloqueur de contenu ?). Connecte-toi avec
+        GitHub ou Google pour envoyer sans vérification.
+      </p>
+    );
+  return <div ref={box} class="captcha" aria-label="Vérification anti-robots" />;
 }
 
 function messagesOf(row: ReportRow): string[] {

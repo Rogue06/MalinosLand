@@ -5,6 +5,14 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (anti-robots)
+
+- **Boîte à idées et borne à bugs protégées par Cloudflare Turnstile** pour les visiteurs sans
+  compte : une vérification souvent invisible avant l’envoi. Les joueurs connectés n’ont rien à
+  faire. Le script de Cloudflare n’est chargé qu’à l’ouverture de la boîte, par un visiteur.
+- Fonction Edge Supabase `feedback` (vérifie le jeton puis enregistre) et migration
+  `20261021090000_feedback_turnstile.sql` (le rôle anonyme n’écrit plus directement).
+
 ### Ajouté (confort mobile)
 
 - **Chat repliable** : sur petit écran, il tient sur une ligne (dernier message, nombre de non lus,

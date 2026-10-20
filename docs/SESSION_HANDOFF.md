@@ -36,6 +36,18 @@ sons, mentions @pseudo, ambiance sonore (PR #17).**
 
 ## Dernières sessions
 
+- **21/10** — PR #18 (confort mobile) fusionnée et en ligne. Anti-robots de la boîte à idées
+  (branche `feature/turnstile-boite-a-idees`, DEC-020) : widget Cloudflare Turnstile pour les
+  visiteurs (clé publique `0x4AAAAAAFc9aBbFft3ZX8LP` dans `deploy.yml`), fonction Edge Supabase
+  `feedback` **mise en ligne le 21/10** (version 1, `verify_jwt` désactivé : elle vérifie elle-même
+  l’origine et Turnstile). **Ordre de mise en service** : (1) le responsable range
+  `TURNSTILE_SECRET_KEY` dans Supabase → Edge Functions → Secrets ; (2) fusion de la PR + mise en
+  ligne du jeu ; (3) **ensuite seulement**, appliquer la migration
+  `20261021090000_feedback_turnstile.sql` (sinon les visiteurs ne peuvent plus rien envoyer
+  pendant l’intervalle). Testé : 7 tests de la fonction, base (PGlite), parcours dans le
+  navigateur avec un faux widget. **Pas testé avec le vrai Turnstile** (la session Claude ne
+  joint pas challenges.cloudflare.com).
+
 - **20/10 (soir)** — Texte de présentation pour la communauté (fourni dans la conversation, pas
   dans le dépôt). Branche `feature/confort-mobile` : chat repliable avec non lus, bouton d’action
   tactile (commande `use`), zoom à deux doigts, textes et aide adaptés au doigt, mise en page

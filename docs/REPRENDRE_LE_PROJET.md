@@ -103,7 +103,9 @@ Bitwarden), et activer la double authentification partout.
 | Clé publique Supabase (`sb_publishable_…`)       | Connexion du jeu et du serveur à la base (pas un secret)                                            | En clair dans `.github/workflows/deploy.yml`                    | ✅                                 |
 | Client secret GitHub OAuth (app « MalinosLand ») | Connexion avec GitHub                                                                               | Supabase → Sign In / Providers → GitHub                         | À créer ([COMPTES.md](COMPTES.md)) |
 | Client secret Google OAuth                       | Connexion avec Google                                                                               | Supabase → Sign In / Providers → Google                         | À créer ([COMPTES.md](COMPTES.md)) |
-| Clé `secret` / `service_role` Supabase           | Aucun usage aujourd’hui                                                                             | Reste dans Supabase : **jamais** dans le dépôt ni le navigateur | —                                  |
+| Clé `secret` / `service_role` Supabase           | Utilisée seulement par la fonction Edge `feedback`, qui la reçoit automatiquement de Supabase       | Reste dans Supabase : **jamais** dans le dépôt ni le navigateur | ✅ (automatique)                   |
+| Clé publique Turnstile (sitekey)                 | Widget anti-robots de la boîte à idées (pas un secret)                                              | En clair dans `.github/workflows/deploy.yml`                    | ✅                                 |
+| `TURNSTILE_SECRET_KEY`                           | Vérification anti-robots par la fonction Edge `feedback` ([COMPTES.md](COMPTES.md))                 | Supabase → Edge Functions → Secrets                             | À ranger par le responsable        |
 
 ### Réglage actuel de la protection de `main`
 

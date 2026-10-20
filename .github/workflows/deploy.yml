@@ -31,6 +31,9 @@ jobs:
       # vérifiés par la base (RLS). Ne JAMAIS mettre ici une clé « secret » ou « service_role ».
       SUPABASE_URL: https://xezisaqffltiuyeblknt.supabase.co
       SUPABASE_KEY: sb_publishable_3pEGlD_n2oskzf460JHjJg_gahrc6QQ
+      # Anti-robots de la boîte à idées : clé PUBLIQUE du widget Cloudflare Turnstile. La clé
+      # secrète est uniquement dans les secrets des fonctions Edge de Supabase.
+      TURNSTILE_SITEKEY: 0x4AAAAAAFc9aBbFft3ZX8LP
     steps:
       - name: Vérifier que les secrets sont configurés
         run: |
@@ -100,6 +103,7 @@ jobs:
         run: |
           export VITE_REALTIME_URL="wss://${WORKER_URL#https://}/ws"
           export VITE_SUPABASE_URL="$SUPABASE_URL" VITE_SUPABASE_PUBLISHABLE_KEY="$SUPABASE_KEY"
+          export VITE_TURNSTILE_SITEKEY="$TURNSTILE_SITEKEY"
           npm run build
 
       - name: Mettre en ligne le site

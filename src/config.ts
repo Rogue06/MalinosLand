@@ -23,6 +23,12 @@ export const SUPABASE_URL: string | null = parseHttpsUrl(import.meta.env.VITE_SU
 const supabaseKey: unknown = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 export const SUPABASE_KEY: string | null =
   typeof supabaseKey === 'string' && /^[A-Za-z0-9_.-]{20,}$/.test(supabaseKey) ? supabaseKey : null;
+/** Clé PUBLIQUE du widget Cloudflare Turnstile (anti-robots de la boîte à idées). */
+const turnstileKey: unknown = import.meta.env.VITE_TURNSTILE_SITEKEY;
+export const TURNSTILE_SITEKEY: string | null =
+  typeof turnstileKey === 'string' && /^[A-Za-z0-9_-]{10,}$/.test(turnstileKey)
+    ? turnstileKey
+    : null;
 /** Les comptes n'ont de sens qu'en ligne. */
 export const ACCOUNTS_ENABLED = !!(REALTIME_URL && SUPABASE_URL && SUPABASE_KEY);
 

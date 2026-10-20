@@ -14,8 +14,10 @@
 - **Modération** (migration `20261020090000_reports.sql`) : `moderators` (géré à la main),
   `is_moderator()`, `reports` (signalements : insertion par l’auteur connecté, 10 par jour ;
   lecture et changement de statut par les modérateurs).
-- **Idées et bugs** (migration `20261020120000_feedback.sql`) : table `feedback`, insertion par
-  tous (auteur imposé par la base), lecture et traitement par les modérateurs.
+- **Idées et bugs** (migration `20261020120000_feedback.sql`) : table `feedback`, lecture et
+  traitement par les modérateurs. Insertion directe par les joueurs connectés (auteur imposé par
+  la base) ; les visiteurs passent par la fonction Edge `feedback`, qui vérifie Cloudflare
+  Turnstile puis écrit avec la clé serveur (migration `20261021090000_feedback_turnstile.sql`).
 - Visiteurs : profil, réglages et progression restent dans le `localStorage` (`src/services/`),
   versionnés (`{ v, data }`) et validés à la lecture.
 
