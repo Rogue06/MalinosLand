@@ -208,8 +208,8 @@
         "lines": [
           "Bip bip ! Bienvenue au Hub de MalinosLand ! Je suis Joshua, le robot d’accueil.",
           "Ici, tout est gratuit, open source et construit par la communauté des Malinos.",
-          "Pour te déplacer : clique sur le sol, ou utilise ZQSD / WASD / les flèches.",
-          "Approche-toi d’un objet et appuie sur E (ou clique dessus) pour interagir.",
+          "Pour te déplacer : touche ou clique sur le sol. Au clavier : ZQSD, WASD ou les flèches.",
+          "Pour utiliser un objet, touche-le ou clique dessus. Tout près, le bouton en bas de l’écran (ou la touche E) marche aussi.",
           "Le coworking est au fond à gauche, la salle de conférence au fond à droite, le salon à gauche.",
           "Ta liste d’objectifs « Premiers pas » est en haut à droite. Bonne visite !"
         ]

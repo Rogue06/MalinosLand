@@ -19,6 +19,7 @@ import {
 import { accessToken, accountStore } from '../../services/account';
 import { hiddenStore, isHidden } from '../../services/moderation';
 import { ambienceForZone, playSound, setAmbience, setAudioPaused } from '../../services/audio';
+import { isTouchDevice } from '../../services/device';
 import {
   BroadcastChannelTransport,
   OfflineTransport,
@@ -174,6 +175,8 @@ export class WorldScene extends Phaser.Scene {
     );
     this.cleanups.push(commands.on('chat-send', ({ text, scope }) => this.sendChat(text, scope)));
     this.cleanups.push(commands.on('emote', ({ emoji }) => this.playEmote(emoji)));
+    // Bouton d'action de l'interface (indispensable au doigt, sans touche E).
+    this.cleanups.push(commands.on('use', () => !isInputLocked() && this.onUseKey()));
 
     void this.startNetwork(settings.multiTab);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.teardown());
@@ -188,7 +191,9 @@ export class WorldScene extends Phaser.Scene {
     this.exposeDebug();
     pushChat({
       from: 'MalinosLand',
-      text: 'Bienvenue au Hub ! Clique sur le sol pour te déplacer, approche-toi des objets et appuie sur E.',
+      text: isTouchDevice()
+        ? 'Bienvenue au Hub ! Touche le sol pour te déplacer, touche un objet pour l’utiliser. Deux doigts pour zoomer.'
+        : 'Bienvenue au Hub ! Clique sur le sol pour te déplacer, approche-toi des objets et appuie sur E.',
       kind: 'system',
       scope: 'local',
     });
@@ -248,6 +253,11 @@ export class WorldScene extends Phaser.Scene {
       Phaser.Input.Events.POINTER_DOWN,
       (pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
         if (!pointer.leftButtonDown() || isInputLocked()) return;
+        // Deuxième doigt posé : c'est un zoom, pas un déplacement.
+        if (this.input.pointer2?.isDown) {
+          this.player.cancel();
+          return;
+        }
         const id = over.map((o) => o.getData('objectId') as string | undefined).find(Boolean);
         const obj = id ? this.world.getObject(id) : undefined;
         if (obj) {
@@ -280,6 +290,24 @@ export class WorldScene extends Phaser.Scene {
         this.renderer3d.highlight(id, false);
       },
     );
+    // Zoom à deux doigts (pincer / écarter).
+    this.input.addPointer(1);
+    let pinch: { dist: number; zoom: number } | null = null;
+    this.input.on(Phaser.Input.Events.POINTER_MOVE, () => {
+      const a = this.input.pointer1;
+      const b = this.input.pointer2;
+      if (!a?.isDown || !b?.isDown) {
+        pinch = null;
+        return;
+      }
+      const dist = Phaser.Math.Distance.Between(a.x, a.y, b.x, b.y);
+      if (!pinch) {
+        pinch = { dist: Math.max(dist, 1), zoom: this.userZoom };
+        return;
+      }
+      this.userZoom = Phaser.Math.Clamp((pinch.zoom * dist) / pinch.dist, 0.6, 2.4);
+      this.updateZoom();
+    });
     this.input.on(
       Phaser.Input.Events.POINTER_WHEEL,
       (_p: Phaser.Input.Pointer, _o: unknown, _dx: number, dy: number) => {
@@ -785,9 +813,13 @@ export class WorldScene extends Phaser.Scene {
         this.cameras.main.centerOn(p.x, p.y - 30);
         return this.player.facing;
       },
-      zoom: (z: number) => {
-        this.userZoom = Phaser.Math.Clamp(z, 0.4, 2.4);
-        this.updateZoom();
+      /** Change le zoom (sans argument : le lit seulement). */
+      zoom: (z?: number) => {
+        if (z !== undefined) {
+          this.userZoom = Phaser.Math.Clamp(z, 0.4, 2.4);
+          this.updateZoom();
+        }
+        return this.userZoom;
       },
       peers: () => this.remotes.size,
       fps: () => Math.round(this.game.loop.actualFps),

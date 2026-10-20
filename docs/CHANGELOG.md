@@ -5,6 +5,24 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (confort mobile)
+
+- **Chat repliable** : sur petit écran, il tient sur une ligne (dernier message, nombre de non lus,
+  en jaune pour une mention) ; on le déplie d’un toucher, **▾** pour le replier (aussi sur
+  ordinateur).
+- **Bouton d’action** : l’étiquette « E · Parler à Joshua » est maintenant un bouton (👆 au doigt),
+  le seul moyen d’utiliser un objet proche sans clavier. Masquée pendant les dialogues.
+- **Zoom à deux doigts** (pincer / écarter) ; la page elle-même ne zoome plus par erreur.
+- Textes adaptés au doigt (accueil, aide, Joshua, objectifs, champ du chat) ; l’aide ❔ montre les
+  gestes au lieu des touches.
+- Téléphone en paysage : chat à droite, bouton et dialogues à gauche, mini-carte et objectifs
+  masqués au départ. Encoches d’écran respectées, champ du chat en 16 px (pas de zoom sur iPhone).
+- Test de bout en bout : nouvelle étape « téléphone » (écran tactile 390 × 844).
+
+### Corrigé
+
+- Aide ❔ : « Les comptes arrivent bientôt » remplacé (les comptes existent depuis le 19/10).
+
 ### Ajouté (confort)
 
 - **Statut « absent » 💤** : après 20 s sur un autre onglet, ton avatar devient pâle avec 💤 chez

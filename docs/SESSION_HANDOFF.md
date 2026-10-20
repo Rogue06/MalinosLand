@@ -36,6 +36,14 @@ sons, mentions @pseudo, ambiance sonore (PR #17).**
 
 ## Dernières sessions
 
+- **20/10 (soir)** — Texte de présentation pour la communauté (fourni dans la conversation, pas
+  dans le dépôt). Branche `feature/confort-mobile` : chat repliable avec non lus, bouton d’action
+  tactile (commande `use`), zoom à deux doigts, textes et aide adaptés au doigt, mise en page
+  paysage, étape « téléphone » dans le test e2e. Ordre décidé par le responsable : confort mobile,
+  puis **v0.3 Logements** (ascenseur → « Mon logement », studio meublé de base). Écartés pour
+  l’instant : historique du chat (inutile selon le responsable), file d’attente (40 par salle est
+  loin d’être atteint). Turnstile (anti-robots de la boîte à idées) : proposé, en attente.
+
 - **20/10 (fin, responsable absent — autorisation de fusionner)** — PR #16 : sièges en deux
   calques (`base` / `front`, DEC-018) : assis de dos, le personnage est devant l’assise et derrière
   le dossier ; positions signalées en rouge par le responsable corrigées. PR #17 (branche
@@ -128,13 +136,14 @@ sons, mentions @pseudo, ambiance sonore (PR #17).**
 - Le journal complet des jobs GitHub n’est pas lisible depuis une session Claude : les tests
   écrivent leurs étapes en annotations, lisibles via l’API.
 - **Performances non mesurées sur du vrai matériel** (seulement en rendu logiciel, sans GPU).
-- Phaser ≈ 357 Ko gzip (piste : build allégé, F33). Mobile jouable mais interface non optimisée.
+- Phaser ≈ 357 Ko gzip (piste : build allégé, F33). Mobile : chat repliable, bouton d’action, zoom à deux doigts (PR confort mobile) ; pas encore de joystick virtuel ni de vrai test sur téléphone.
 
 ## Prochaines étapes suggérées (dans l’ordre)
 
 1. Tester à plusieurs pour de vrai (ordinateurs + téléphones) et recueillir les retours.
 2. Signaler / masquer un joueur, modération minimale (v0.2).
-3. Interface mobile plus confortable (chat repliable, boutons tactiles).
+3. Tester sur de vrais téléphones (iPhone, Android) et ajuster ; ensuite v0.3 Logements
+   (choix validés : ascenseur → « Mon logement », studio meublé de base).
 4. Mesurer les performances sur 2–3 machines réelles (procédure dans [TESTING.md](TESTING.md)).
 
 ## Repères rapides pour reprendre
@@ -143,7 +152,7 @@ sons, mentions @pseudo, ambiance sonore (PR #17).**
 - Multijoueur local : `npm run server:install` une fois, `npm run server:dev`, `.env.local` copié de
   `.env.example`, puis `npm run dev` dans deux navigateurs.
 - Débogage / tests automatisés : ajouter `?debug` à l’URL expose `window.__malinosDebug`
-  (`pos()`, `state()`, `walkTo(x, y)`, `teleport(x, y, f)`, `zoom(z)`, `use(id)`, `useType(type)`,
+  (`pos()`, `state()`, `walkTo(x, y)`, `teleport(x, y, f)`, `zoom(z?)`, `use(id)`, `useType(type)`,
   `sit(type, n)`, `seated()`, `peers()`, `fps()`).
 - Fichiers centraux : `src/game/scenes/WorldScene.ts` (assemblage), `src/world/WorldModel.ts`,
   `src/world/PlayerController.ts`, `src/content/maps/hub.json`, `src/content/catalog.ts`,

@@ -70,21 +70,20 @@ context.setDefaultTimeout(TIMEOUT);
 // Qualité « basse » : ce test vérifie la logique et l'interface, pas les graphismes. Sur les
 // serveurs de CI sans carte graphique, le rendu complet sature le processeur (≈ 3 i/s) au point
 // de retarder la page. Les réglages ne sont posés qu'au premier chargement (si absents).
-if (process.env.E2E_QUALITY !== 'normal') {
-  await context.addInitScript(() => {
-    const key = 'malinosland:settings';
-    if (localStorage.getItem(key)) return;
-    const settings = {
-      quality: 'low',
-      fpsLimit: 30,
-      reducedMotion: true,
-      showNames: true,
-      showStats: false,
-      multiTab: true,
-    };
-    localStorage.setItem(key, JSON.stringify({ v: 1, data: settings }));
-  });
-}
+const lowQuality = () => {
+  const key = 'malinosland:settings';
+  if (localStorage.getItem(key)) return;
+  const settings = {
+    quality: 'low',
+    fpsLimit: 30,
+    reducedMotion: true,
+    showNames: true,
+    showStats: false,
+    multiTab: true,
+  };
+  localStorage.setItem(key, JSON.stringify({ v: 1, data: settings }));
+};
+if (process.env.E2E_QUALITY !== 'normal') await context.addInitScript(lowQuality);
 
 async function openPage(label) {
   const page = await context.newPage();
@@ -276,6 +275,52 @@ try {
     await waitFor(() => window.__malinosDebug.peers() > 0);
     await page.screenshot({ path: `${outDir}/08-multi-onglets.png` });
     await page2.close();
+  });
+
+  await step('téléphone : chat replié, bouton d’action, zoom à deux doigts', async () => {
+    const phone = await browser.newContext({
+      viewport: { width: 390, height: 844 },
+      isMobile: true,
+      hasTouch: true,
+    });
+    phone.setDefaultTimeout(TIMEOUT);
+    if (process.env.E2E_QUALITY !== 'normal') await phone.addInitScript(lowQuality);
+    const p = await phone.newPage();
+    p.on('pageerror', (e) => fail(`téléphone — erreur JS : ${e.message}`));
+    p.on('console', (m) => {
+      if (m.type() === 'error') fail(`téléphone — console : ${m.text()}`);
+    });
+    await p.goto(url, { waitUntil: 'networkidle' });
+    await p.getByPlaceholder('ex. Léa, Max_IA…').fill('Mobile');
+    await p.getByText('Entrer dans MalinosLand').click();
+    await pollPage(p, () => window.__malinosDebug !== undefined);
+    // Chat replié au départ sur petit écran.
+    await waitUi('.chat.collapsed .chat-peek', '', p);
+    // Près de Joshua, le bouton d'action remplace la touche E.
+    await p.evaluate(() => window.__malinosDebug.teleport(12, 15.2, 'nx'));
+    await waitUi('.hint', 'Joshua', p);
+    await p.locator('.hint').tap();
+    await pollPage(p, () => window.__malinosDebug.state().dialog !== null, null, 'dialogue ouvert');
+    await p.screenshot({ path: `${outDir}/09-telephone.png` });
+    await p.keyboard.press('Escape');
+    await pollPage(p, () => window.__malinosDebug.state().dialog === null, null, 'dialogue fermé');
+    await p.locator('.chat-peek').tap();
+    await waitUi('.chat-log', '', p);
+    // Pincer : deux doigts qui s'écartent.
+    const z0 = await p.evaluate(() => window.__malinosDebug.zoom());
+    const cdp = await phone.newCDPSession(p);
+    const fingers = (d) => [
+      { x: 195 - d, y: 300, id: 1 },
+      { x: 195 + d, y: 300, id: 2 },
+    ];
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: fingers(30) });
+    for (let d = 40; d <= 120; d += 20) {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: fingers(d) });
+      await p.waitForTimeout(60);
+    }
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await pollPage(p, (z) => window.__malinosDebug.zoom() > z, z0, 'zoom à deux doigts');
+    await phone.close();
   });
 
   const fps = await dbg(() => window.__malinosDebug.fps());

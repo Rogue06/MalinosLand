@@ -20,6 +20,10 @@
         background: #141a2b;
         overflow: hidden;
       }
+      /* Le jeu gère lui-même le doigt (déplacement, zoom à deux doigts) : pas de zoom de page. */
+      #game {
+        touch-action: none;
+      }
       #boot {
         position: fixed;
         inset: 0;
