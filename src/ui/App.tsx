@@ -10,9 +10,9 @@ import { DialogBox, Hint, Stats, Toasts } from './hud/Overlays';
 import { TopBar } from './hud/TopBar';
 import { Onboarding } from './Onboarding';
 import { FeedbackPanel, ModerationPanel, PlayersPanel } from './panels/Community';
+import { ElevatorPanel, HomePanel } from './panels/Homes';
 import {
   AvatarPanel,
-  ElevatorPanel,
   EventsPanel,
   HelpPanel,
   RoadmapPanel,
@@ -48,6 +48,8 @@ function ActivePanel() {
       return <FeedbackPanel kind="idee" />;
     case 'bugs':
       return <FeedbackPanel kind="bug" />;
+    case 'home':
+      return <HomePanel />;
     default:
       return null;
   }

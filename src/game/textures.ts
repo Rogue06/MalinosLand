@@ -52,7 +52,9 @@ export class TextureFactory {
       pageSize,
     );
     pages.forEach((page) => {
-      const key = `atlas:${this.atlasCount++}`;
+      let key = `atlas:${this.atlasCount++}`;
+      // Les textures de Phaser survivent aux changements de salle : nom jamais réutilisé.
+      while (this.scene.textures.exists(key)) key = `atlas:${this.atlasCount++}`;
       const canvas = document.createElement('canvas');
       canvas.width = page.width;
       canvas.height = page.height;
@@ -150,6 +152,8 @@ export class TextureFactory {
     size: number,
     scale: number,
   ): TextureInfo {
+    const cached = this.infos.get(key);
+    if (cached) return cached;
     const pad = 4;
     const hw = (TILE_W / 2) * scale;
     const hh = (TILE_H / 2) * scale;

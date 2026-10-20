@@ -42,6 +42,14 @@ Prochaine étape : v0.3 Logements.**
   limité aux présents (demande du responsable), carte `studio` et objet lit. Lot 1B à suivre :
   ascenseur « Mon logement » / « Visiter », changement de salle dans le jeu, panneau d’accès et
   invitations.
+- **22/10 (suite)** — Lot 1B (branche `feature/logements-jeu`, empilée sur 1A) : ascenseur
+  (Hub / Mon logement / Visiter), changement de salle sans couper le réseau (relance de la scène,
+  connexion transmise), panneau « table basse » (accès + invités), bouton « Inviter », onglet
+  « Ici » du chat, test e2e. **Pas testé en ligne** (comptes et vrai serveur nécessaires) : à
+  vérifier par le responsable avec un 2e compte ou un visiteur (logement « tout le monde »).
+  Demandes suivantes du responsable : ville plus vivante (fontaine, oiseaux, secrets, espaces
+  agrandis) et **historique des connexions visible seulement par son compte** (aujourd’hui :
+  1 seul compte en base, rien n’est conservé pour les visiteurs).
 
 - **21/10 (fin)** — PR #20 (finalisation v0.2) fusionnée et en ligne. Licence : **AGPL-3.0**
   choisie par le responsable (DEC-009, branche `docs/licence-agpl`). Connexion GitHub considérée

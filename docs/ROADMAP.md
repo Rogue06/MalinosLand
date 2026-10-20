@@ -6,7 +6,7 @@ concret et reste jouable : on ne construit pas tout d’un coup.
 ```mermaid
 flowchart LR
     A["✅ v0.1<br/>Prototype<br/><i>se promener</i>"] --> B["✅ v0.2<br/>Multijoueur<br/><i>se retrouver</i>"]
-    B --> C["🔜 v0.3<br/>Chez soi<br/><i>son logement</i>"]
+    B --> C["🔶 v0.3<br/>Chez soi<br/><i>son logement</i>"]
     C --> D["⏳ v0.4<br/>Expansion<br/><i>étages, galerie</i>"]
     D --> E["⏳ v0.5<br/>Vie communautaire<br/><i>événements, jeux</i>"]
     E --> F["⏳ v1.0<br/>Version stable"]
@@ -88,7 +88,7 @@ il ne coûtera **jamais** d’argent. Explications : [FREE_INFRASTRUCTURE.md](FR
 
 ---
 
-## 🔜 Version 0.3 — Les espaces personnels : « chez soi »
+## 🔶 Version 0.3 — Les espaces personnels : « chez soi »
 
 **En une phrase :** chaque Malino reçoit son propre logement dans la Tour communautaire.
 
@@ -103,6 +103,14 @@ il ne coûtera **jamais** d’argent. Explications : [FREE_INFRASTRUCTURE.md](FR
 
 **Sécurité :** les droits d’entrée sont vérifiés par le serveur, pas seulement par le jeu : impossible
 de forcer la porte d’un logement privé.
+
+**Où en est-on ?**
+
+- ✅ **Mon logement** : un studio meublé par compte, par l’ascenseur du hall.
+- ✅ **Accès** personne / sur invitation / tout le monde, **invitations**, retrait d’accès et mise
+  à la porte, vérifiés par le serveur et la base de données.
+- ✅ **Discussion privée** : ce qui s’écrit dans un logement n’est lu que par les présents.
+- ⬜ **Éditeur de décoration** et catalogue de meubles (prochain lot).
 
 ---
 
@@ -188,7 +196,8 @@ La feuille de route n’est pas figée : **elle bouge selon vos retours.**
 
 ### v0.3
 
-- ⬜ Logements, modes d’accès vérifiés côté serveur, invitations
+- ✅ Logements (studio), modes d’accès vérifiés côté serveur et par la base, invitations,
+  mise à la porte, discussion privée
 - ⬜ Éditeur de décoration, catalogue partagé, sauvegarde des dispositions
 
 ### v0.4

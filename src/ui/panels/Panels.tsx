@@ -1,6 +1,5 @@
 import { useState } from 'preact/hooks';
 import { PRIVACY_NOTE, REALTIME_URL } from '../../config';
-import { FLOORS } from '../../content/floors';
 import { REPO_URL, ROADMAP } from '../../content/roadmap';
 import { AI_TIPS, tipOfTheDay } from '../../content/tips';
 import { sanitizeName } from '../../core/text';
@@ -87,39 +86,6 @@ export function RoadmapPanel() {
           </li>
         ))}
       </ol>
-    </Modal>
-  );
-}
-
-export function ElevatorPanel() {
-  return (
-    <Modal title="Ascenseur" icon="🛗">
-      <p class="muted">Choisis un étage.</p>
-      <div class="elevator">
-        {FLOORS.map((f) => (
-          <button
-            key={f.id}
-            class={`elevator-floor ${f.status}`}
-            disabled={f.status === 'soon'}
-            onClick={() => {
-              panelStore.set(null);
-              pushToast('Tu es déjà au rez-de-chaussée, au cœur du Hub.', '🛗');
-            }}
-          >
-            <span class="floor-label">{f.label}</span>
-            <span class="floor-desc">{f.description}</span>
-            {f.status === 'soon' ? (
-              <span class="badge soon">bientôt · {f.plannedFor}</span>
-            ) : (
-              <span class="badge">vous êtes ici</span>
-            )}
-          </button>
-        ))}
-      </div>
-      <p class="muted small">
-        Les étages seront chargés à la demande : la tour pourra accueillir des centaines de
-        logements sans ralentir le jeu.
-      </p>
     </Modal>
   );
 }

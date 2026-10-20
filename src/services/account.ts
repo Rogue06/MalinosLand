@@ -48,7 +48,8 @@ export const accountStore = new Store<AccountState>({
 const STORAGE_KEY = 'malinos-auth';
 
 let clients: Promise<SupabaseClients> | null = null;
-function load(): Promise<SupabaseClients> {
+/** Clients Supabase, chargés à la première utilisation (aussi pour les visiteurs). */
+export function load(): Promise<SupabaseClients> {
   clients ??= import('./supabaseClients').then((m) =>
     m.createClients(SUPABASE_URL!, SUPABASE_KEY!, STORAGE_KEY),
   );

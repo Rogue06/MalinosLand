@@ -27,8 +27,10 @@ import {
   unhidePlayer,
   type ReportReason,
 } from '../../services/moderation';
+import { inviteGuest } from '../../services/homes';
 import { profileStore } from '../../services/profile';
 import { loadTurnstile, type TurnstileApi } from '../../services/turnstile';
+import { accountUuid } from '../../multiplayer/protocol';
 import {
   chatStore,
   panelStore,
@@ -116,9 +118,23 @@ function ReportForm({ player, onDone }: { player: PresenceEntry; onDone: () => v
 }
 
 /** Joueurs connectés : masquer quelqu'un (pour soi) ou le signaler aux modérateurs. */
+/** Inviter chez soi un joueur connecté à son compte (la base vérifie les droits). */
+async function invite(p: PresenceEntry): Promise<void> {
+  const uuid = accountUuid(p.id);
+  if (!uuid) return;
+  try {
+    await inviteGuest(uuid);
+    pushToast(`${p.name} est invité chez toi (logement « sur invitation »).`, '✉️', 5000);
+  } catch (e) {
+    pushToast(e instanceof AccountError ? e.message : 'Invitation impossible.', '⚠️', 5000);
+  }
+}
+
 export function PlayersPanel() {
   const presence = useStore(presenceStore);
   const hidden = useStore(hiddenStore);
+  const account = useStore(accountStore);
+  const canInvite = account.status === 'signed-in';
   const [reporting, setReporting] = useState<string | null>(null);
   const others = presence.filter((p) => !p.self);
   const offlineHidden = hidden.filter((h) => !others.some((p) => p.id === h.id));
@@ -141,6 +157,16 @@ export function PlayersPanel() {
                     {isHidden && <em class="muted"> · masqué</em>}
                   </span>
                   <span class="row-actions">
+                    {canInvite && p.verified && (
+                      <button
+                        type="button"
+                        class="btn ghost small"
+                        title="Lui permettre d’entrer dans ton logement"
+                        onClick={() => void invite(p)}
+                      >
+                        Inviter
+                      </button>
+                    )}
                     <button
                       type="button"
                       class="btn ghost small"

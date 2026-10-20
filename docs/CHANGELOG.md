@@ -5,6 +5,21 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (v0.3 logements — dans le jeu)
+
+- **Ascenseur** : « RDC — Le Hub », « 🏠 Mon logement » (avec un compte), « Visiter un logement »
+  (logements ouverts à tous ou où l’on est invité), étages de la Tour « bientôt ».
+- **Studio** : on y entre sans couper la connexion (la scène change de carte, le réseau continue).
+  Lieu affiché « Mon studio » ou « Chez … ». Sortie devant l’ascenseur du Hub.
+- **Table basse** : choisir qui peut entrer, voir et retirer ses invités ; les personnes qui n’ont
+  plus le droit d’être là sont raccompagnées à l’ascenseur. **Inviter** depuis la liste des
+  joueurs (comptes ✓).
+- **Chat d’un logement** : onglet « Ici » et rappel « tes messages ne sont lus que par les
+  personnes présentes ».
+- Test de bout en bout : aller au studio et revenir ; captures de documentation (studio).
+- Corrigé : badges de l’ascenseur masqués sur téléphone ; textures recréées en double au
+  changement de salle.
+
 ### Ajouté (v0.3 logements — accès vérifié)
 
 - Base : tables `homes` (un logement par compte, mode d’accès privé / sur invitation / ouvert) et

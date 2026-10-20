@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { CHAT_MAX_LENGTH } from '../../core/text';
 import { EMOTES, type ChatScope } from '../../multiplayer/protocol';
-import { chatStore, commands, dialogStore, panelStore, statsStore, typingStore } from '../../state';
+import {
+  chatStore,
+  commands,
+  dialogStore,
+  panelStore,
+  roomStore,
+  statsStore,
+  typingStore,
+} from '../../state';
 import { isTouchDevice } from '../../services/device';
 import { useStore } from '../hooks';
 
@@ -18,6 +26,8 @@ interface ChatProps {
 export function Chat({ open, onToggle }: ChatProps) {
   const messages = useStore(chatStore);
   const stats = useStore(statsStore);
+  // Dans un logement, tout ce qu'on écrit reste entre ses murs (imposé par le serveur).
+  const inHome = useStore(roomStore).room.startsWith('home-');
   const [text, setText] = useState('');
   const [scope, setScope] = useState<ChatScope>('local');
   const input = useRef<HTMLInputElement>(null);
@@ -49,6 +59,7 @@ export function Chat({ open, onToggle }: ChatProps) {
   const send = (e: Event) => {
     e.preventDefault();
     if (text.trim()) commands.emit('chat-send', { text, scope });
+    if (inHome) setScope('local');
     setText('');
     input.current?.blur();
   };
@@ -96,7 +107,7 @@ export function Chat({ open, onToggle }: ChatProps) {
               class={scope === s ? 'active' : ''}
               onClick={() => setScope(s)}
             >
-              {s === 'local' ? 'Proximité' : 'Général'}
+              {s === 'local' ? (inHome ? 'Ici' : 'Proximité') : 'Général'}
             </button>
           ))}
           <span class="chat-mode" title="Mode réseau actuel">
@@ -121,6 +132,11 @@ export function Chat({ open, onToggle }: ChatProps) {
             </p>
           ))}
         </div>
+      )}
+      {open && inHome && (
+        <p class="chat-private">
+          🔒 Ici, tes messages ne sont lus que par les personnes présentes.
+        </p>
       )}
       <form class="chat-input" onSubmit={send}>
         <input

@@ -129,8 +129,14 @@ const closeHud = (page) => page.evaluate(() => document.querySelector('.objectiv
   await page.keyboard.press('Escape');
   await teleport(page, 12.5, 10.6, 'ny');
   await page.evaluate(() => window.__malinosDebug.use('elevator'));
-  await page.getByText('Choisis un étage.').waitFor();
+  await page.getByText('Mon logement').first().waitFor();
   await shot(page, 'panneau-ascenseur');
+  await page.keyboard.press('Escape');
+  // 10. Un studio de la Tour (gabarit commun à tous les logements).
+  await page.evaluate(() => window.__malinosDebug.travel(`home-${'a'.repeat(32)}`));
+  await page.waitForFunction(() => window.__malinosDebug?.room?.().startsWith('home-'));
+  await page.waitForTimeout(1500);
+  await shot(page, 'studio');
   await page.context().close();
 }
 

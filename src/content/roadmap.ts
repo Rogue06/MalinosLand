@@ -36,8 +36,14 @@ export const ROADMAP: RoadmapStep[] = [
   {
     version: '0.3',
     title: 'Espaces personnels',
-    status: 'planned',
-    items: ['Logement privé', 'Invitations', 'Éditeur de décoration', 'Catalogue d’objets'],
+    status: 'current',
+    items: [
+      'Mon logement (studio) ✓',
+      'Accès : personne, invités, tout le monde ✓',
+      'Invitations ✓',
+      'Éditeur de décoration (bientôt)',
+      'Catalogue d’objets (bientôt)',
+    ],
   },
   {
     version: '0.4',

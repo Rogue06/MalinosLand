@@ -67,6 +67,16 @@ export const peersPosStore = new Store<Vec2[]>([]);
 export const statsStore = new Store<Stats>({ fps: 0, peers: 0, kbSent: 0, transport: '' });
 export const toastStore = new Store<Toast[]>([]);
 export const worldInfoStore = new Store<MapFile | null>(null);
+
+/** Salle où se trouve le joueur : le Hub, ou un logement (`home-…`). */
+export interface RoomInfo {
+  room: string;
+  /** Logement : pseudo du propriétaire (null dans le Hub). */
+  ownerName: string | null;
+  /** Le joueur est chez lui. */
+  mine: boolean;
+}
+export const roomStore = new Store<RoomInfo>({ room: 'hub', ownerName: null, mine: false });
 /** Vrai quand le joueur tape au clavier dans l'interface (chat, pseudo…). */
 export const typingStore = new Store<boolean>(false);
 
@@ -111,6 +121,13 @@ export interface Commands extends Record<string, unknown> {
   'look-changed': { name: string; look: AvatarAppearance };
   /** Utiliser l'objet le plus proche (bouton d'action, comme la touche E). */
   use: Record<string, never>;
+  /** Aller dans une salle : le Hub, son logement ou celui d'un autre (vérifié par le serveur). */
+  travel: { room: string; ownerName?: string };
+  /**
+   * Le propriétaire a changé l'accès ou ses invitations : le jeu fait sortir les personnes
+   * présentes qui n'y ont plus droit (`guests` : identifiants réseau des invités).
+   */
+  'home-access': { access: 'private' | 'invite' | 'public'; guests: string[] };
 }
 
 export const commands = new EventBus<Commands>();
