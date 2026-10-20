@@ -144,5 +144,10 @@ Stack : TypeScript, [Phaser 4](https://phaser.io) (moteur de jeu), [Preact](http
 
 ## Licence
 
-Code sous licence [MIT](LICENSE) (proposition en attente de validation). Les graphismes, générés par
-le code, suivent la même licence.
+MalinosLand est un **projet communautaire indépendant**, lancé bénévolement par Rogue06, membre de
+la communauté des Malinos.
+
+Code sous licence **[GNU AGPL-3.0](LICENSE)** (choix du responsable, DEC-009) : chacun peut
+utiliser, étudier, modifier et partager MalinosLand, à condition que toute version modifiée —
+**y compris une version mise en ligne sur un serveur** — reste libre, sous la même licence, avec
+son code source accessible. Les graphismes, générés par le code, suivent la même licence.
