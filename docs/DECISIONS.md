@@ -73,11 +73,18 @@ de dessin.
 **Conséquences.** +30 % d’images par seconde mesurées en rendu logiciel. Mémoire GPU raisonnable
 (sols en résolution ×1,5 en qualité normale).
 
-## DEC-009 — Licence MIT (18/10/2026) — **à valider**
+## DEC-009 — Licence GNU AGPL-3.0 (proposée le 18/10/2026, validée le 21/10/2026)
 
-**Proposition.** MIT pour le code ; les graphismes étant générés par le code, ils suivent la même
-licence. Simple et permissive, adaptée à un projet communautaire.
-**Alternative.** AGPL-3.0 si l’on veut obliger les forks hébergés à publier leurs modifications.
+**Contexte.** Le dépôt contenait une licence MIT proposée, en attente de validation.
+**Décision du responsable.** **AGPL-3.0** (`AGPL-3.0-only`) pour le code et les graphismes
+générés par le code. MalinosLand est un projet communautaire : les améliorations doivent rester
+libres. La GPL classique ne suffit pas pour un jeu en ligne (il n’est jamais « distribué », il est
+servi par un serveur) ; l’AGPL oblige aussi les versions **mises en ligne** à publier leur code.
+**Conséquences.** Le jeu affiche un lien « Code source (licence AGPL-3.0) » sur l’écran
+d’accueil et dans l’aide (article 13 de la licence). Les dépendances (Phaser, Preact, Vite… sous
+MIT) sont compatibles. Toute contribution est publiée sous AGPL-3.0. Changement fait avant toute
+contribution extérieure, donc sans accord à recueillir.
+**Écarté.** MIT : plus simple, mais permet une copie fermée et payante sans rien rendre.
 
 ## DEC-010 — Flux Git : `main` protégée (18/10/2026)
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { DEFAULT_APPEARANCE, randomAppearance } from '../content/avatars';
 import { PRIVACY_NOTE } from '../config';
+import { REPO_URL } from '../content/roadmap';
 import { NAME_MIN_LENGTH, sanitizeName } from '../core/text';
 import { AccountError, accountStore, saveRemoteProfile } from '../services/account';
 import { profileStore } from '../services/profile';
@@ -81,6 +82,10 @@ export function Onboarding() {
             {PRIVACY_NOTE}{' '}
             <a href="./confidentialite.html" target="_blank" rel="noopener noreferrer">
               Politique de confidentialité
+            </a>{' '}
+            ·{' '}
+            <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
+              Code source (licence AGPL-3.0)
             </a>
           </p>
           <button type="submit" class="btn primary big" disabled={busy}>

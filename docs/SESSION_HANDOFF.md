@@ -43,6 +43,10 @@ Prochaine étape : v0.3 Logements.**
   ascenseur « Mon logement » / « Visiter », changement de salle dans le jeu, panneau d’accès et
   invitations.
 
+- **21/10 (fin)** — PR #20 (finalisation v0.2) fusionnée et en ligne. Licence : **AGPL-3.0**
+  choisie par le responsable (DEC-009, branche `docs/licence-agpl`). Connexion GitHub considérée
+  comme bonne par le responsable (non testée). Démarrage de la v0.3 Logements.
+
 - **21/10 (suite)** — PR #19 (Turnstile) fusionnée et en ligne ; migration
   `20261021090000_feedback_turnstile.sql` appliquée **après** la mise en ligne (sous la forme
   `alter policy`, comme dans le fichier) : le rôle anonyme n’a plus aucun droit sur `feedback`
@@ -138,10 +142,9 @@ Prochaine étape : v0.3 Logements.**
 
 ## Ce qui n’est PAS fait (volontairement)
 
-- Comptes joueurs (Supabase), authentification sur le serveur temps réel, signaler / masquer,
-  file d’attente (aujourd’hui : « salle pleine » + nouvel essai automatique), collisions vérifiées
-  côté serveur (seule la vitesse et les limites de la carte le sont).
-- Galerie, tour, étages, logements : annoncés « bientôt » dans le jeu.
+- Collisions vérifiées côté serveur (seules la vitesse et les limites de la carte le sont).
+- Historique du chat : abandonné (rien n’est conservé).
+- Logements (v0.3, en cours), galerie, tour, étages : annoncés « bientôt » dans le jeu.
 
 ## Points en attente de décision du responsable
 
@@ -150,9 +153,8 @@ Prochaine étape : v0.3 Logements.**
    un visiteur depuis un compte.
 2. Écouter les sons et l’ambiance (régler le volume si besoin), vérifier le statut « absent »
    entre deux appareils. Choisir les prochaines « petites fonctionnalités de confort ».
-3. Tester la connexion GitHub (Google fonctionne).
-4. Supprimer les branches fusionnées sur GitHub et cocher « Automatically delete head branches ».
-5. **DEC-009** — licence MIT (ou AGPL-3.0).
+3. Supprimer la dernière ancienne branche `feature/initial-prototype` sur GitHub (la suppression
+   automatique après fusion est activée depuis le 21/10).
 
 ## Problèmes connus / limites
 
