@@ -46,6 +46,7 @@ Messages JSON courts (clés d’une lettre quand c’est utile). Positions arron
 | `emote` | `id, room, e`                                | Émote d’une liste fermée                                                    |
 | `look`  | `id, name, look`                             | Changement de pseudo/apparence                                              |
 | `away`  | `id, on`                                     | Statut « absent » (onglet caché depuis 20 s) ou retour                      |
+| `queue` | `pos`                                        | (serveur) Place dans la file d’attente, 0 = entrée dans la salle            |
 | `bye`   | `id`                                         | Départ                                                                      |
 
 Validation (`decodeMessage`) : taille ≤ 2 Ko, id `[a-z0-9]{8,32}`, salle `[a-z0-9-]`, coordonnées
@@ -98,7 +99,7 @@ Joueur ──WebSocket──▶ Worker (server/src/index.ts)
 | Carte               | Position hors de la carte ou salle inconnue : ignorée.                                                                                                                                                                                                                                                                                                                                                        |
 | Interest management | Mouvements, émotes et chat de proximité : seulement aux joueurs de la **même salle**. Chat général, arrivées, départs, changements de style : à tous.                                                                                                                                                                                                                                                         |
 | Anti-spam           | 20 messages/s (rafale de 40) par connexion ; chat et émotes : 5 d’affilée puis 1 toutes les 2 s. Plus de 30 infractions : déconnexion.                                                                                                                                                                                                                                                                        |
-| Plafond par salle   | `MAX_PLAYERS_PER_ROOM` (40 par défaut) : au-delà, avis « salle pleine ».                                                                                                                                                                                                                                                                                                                                      |
+| Plafond par salle   | `MAX_PLAYERS_PER_ROOM` (40 par défaut) : au-delà, **file d’attente** (`MAX_QUEUE` = 50) : message `queue` avec sa place, rien n’est relayé pour un joueur en attente, et il entre seul (`queue` 0) dès qu’une place se libère (départ ou changement de salle). File pleine : avis « salle pleine ».                                                                                                           |
 | Messages réservés   | Un client ne peut pas envoyer `rate` ni `notice`.                                                                                                                                                                                                                                                                                                                                                             |
 | Origine             | Seules les adresses de `ALLOWED_ORIGINS` peuvent se connecter.                                                                                                                                                                                                                                                                                                                                                |
 
@@ -170,4 +171,6 @@ envoyée aux nouveaux venus et ne relaie qu’un vrai changement.
 | Intégration du serveur | `cd server && npm run test:integration`               | Le vrai Worker lancé avec Wrangler + clients WebSocket : santé, origine refusée, présence, déplacement, anti-triche, chat, ping/pong, salle pleine, départ    |
 | Deux joueurs en ligne  | `npm run test:online` (voir [TESTING.md](TESTING.md)) | Deux navigateurs séparés se voient, se voient bouger, discutent et voient l’autre partir                                                                      |
 
-Tous tournent dans la CI GitHub à chaque pull request.
+Tous tournent dans la CI GitHub à chaque pull request. La file d’attente est vérifiée par les
+tests unitaires du serveur et du client, et par le test d’intégration (le 4e joueur attend, puis
+entre quand une place se libère).

@@ -5,6 +5,27 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+Rien pour l’instant : la suite (v0.3, logements) arrive ici.
+
+## [0.2.0] — 21/10/2026 — « se retrouver » (en ligne sur https://malinosland.pages.dev)
+
+### Ajouté (finalisation de la v0.2)
+
+- **File d’attente** quand une salle est pleine (40 joueurs) : au lieu d’être refusé, on attend
+  son tour (place affichée) en explorant en solo, et on entre tout seul dès qu’une place se
+  libère. File de 50 places par salle ; au-delà, l’ancien avis « salle pleine ». Nouveau message
+  serveur `queue` (place, ou 0 pour « entrée »).
+- **Ambiance sonore** du hall (brouhaha lointain, « ding » de l’ascenseur de temps en temps) et du
+  salon (cheminée, tintement de tasse), en plus du jardin, de la terrasse, du chantier et du
+  coworking.
+- Feuille de route (docs et bouton 🗺️ du jeu) : v0.2 terminée.
+
+### Vérifié
+
+- Quotas gratuits de Cloudflare relus le 21/10/2026 : 100 000 requêtes par jour (messages
+  WebSocket entrants comptés 1 pour 20, soit ≈ 2 millions), 13 000 Go·s par jour ; le budget de
+  1,4 million de messages reste à 70 %.
+
 ### Ajouté (anti-robots)
 
 - **Boîte à idées et borne à bugs protégées par Cloudflare Turnstile** pour les visiteurs sans

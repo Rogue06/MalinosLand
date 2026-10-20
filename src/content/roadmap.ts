@@ -22,12 +22,15 @@ export const ROADMAP: RoadmapStep[] = [
   {
     version: '0.2',
     title: 'Première expérience multijoueur',
-    status: 'current',
+    status: 'done',
     items: [
       'Joueurs en ligne ✓',
       'Chat local et général ✓',
       'Mise en ligne gratuite ✓',
-      'Comptes et profils (bientôt)',
+      'Comptes GitHub ou Google ✓',
+      'Masquer, signaler, modération ✓',
+      'Boîte à idées et borne à bugs ✓',
+      'Sons, mentions, confort mobile ✓',
     ],
   },
   {

@@ -3,9 +3,9 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 20/10/2026 — en ligne : comptes, masquer / signaler, modération,
-boîte à idées et borne à bugs, personnages assis de dos (PR #16), confort : statut « absent »,
-sons, mentions @pseudo, ambiance sonore (PR #17).**
+**Dernière mise à jour : 21/10/2026 — v0.2 terminée (voir CHANGELOG [0.2.0]) : comptes,
+modération, boîte à idées anti-robots, confort (sons, mentions, absent, mobile), file d’attente.
+Prochaine étape : v0.3 Logements.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -35,6 +35,14 @@ sons, mentions @pseudo, ambiance sonore (PR #17).**
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **21/10 (suite)** — PR #19 (Turnstile) fusionnée et en ligne ; migration
+  `20261021090000_feedback_turnstile.sql` appliquée **après** la mise en ligne (sous la forme
+  `alter policy`, comme dans le fichier) : le rôle anonyme n’a plus aucun droit sur `feedback`
+  (vérifié en SQL). Secret `TURNSTILE_SECRET_KEY` rangé par le responsable. Finalisation de la
+  v0.2 (branche `feature/finalisation-v0.2`) : file d’attente serveur (`queue`, 50 places,
+  entrée automatique, testée en intégration Wrangler), ambiance du hall et du salon, quotas
+  Cloudflare vérifiés, feuille de route et CHANGELOG [0.2.0].
 
 - **21/10** — PR #18 (confort mobile) fusionnée et en ligne. Anti-robots de la boîte à idées
   (branche `feature/turnstile-boite-a-idees`, DEC-020) : widget Cloudflare Turnstile pour les
@@ -130,8 +138,9 @@ sons, mentions @pseudo, ambiance sonore (PR #17).**
 
 ## Points en attente de décision du responsable
 
-1. Tester en ligne : envoyer une idée et un bug depuis le jeu, puis les voir dans ⚙️ Réglages →
-   🛡️ Modération ; signaler un visiteur depuis un compte (fenêtre privée).
+1. Tester en ligne : envoyer une idée **en navigation privée** (vérification Turnstile réelle,
+   jamais testée par la session Claude), puis la voir dans ⚙️ Réglages → 🛡️ Modération ; signaler
+   un visiteur depuis un compte.
 2. Écouter les sons et l’ambiance (régler le volume si besoin), vérifier le statut « absent »
    entre deux appareils. Choisir les prochaines « petites fonctionnalités de confort ».
 3. Tester la connexion GitHub (Google fonctionne).
@@ -141,7 +150,8 @@ sons, mentions @pseudo, ambiance sonore (PR #17).**
 ## Problèmes connus / limites
 
 - Quotas Cloudflare (≈ 2 millions de messages WebSocket entrants par jour en gratuit, d’où le
-  budget de 1,4 million) relevés via la documentation : **à re-vérifier** avant la mise en ligne.
+  budget de 1,4 million) : vérifiés le 21/10/2026 (100 000 requêtes/jour, messages entrants
+  comptés 1 pour 20).
 - Les visiteurs (sans compte) peuvent prendre n’importe quel pseudo libre : seuls les comptes ont
   la marque ✓ et un pseudo réservé.
 - Supabase gratuit : 2 projets actifs max (LaChillance en pause depuis le 19/10, relançable 90 j).
@@ -152,11 +162,10 @@ sons, mentions @pseudo, ambiance sonore (PR #17).**
 
 ## Prochaines étapes suggérées (dans l’ordre)
 
-1. Tester à plusieurs pour de vrai (ordinateurs + téléphones) et recueillir les retours.
-2. Signaler / masquer un joueur, modération minimale (v0.2).
-3. Tester sur de vrais téléphones (iPhone, Android) et ajuster ; ensuite v0.3 Logements
-   (choix validés : ascenseur → « Mon logement », studio meublé de base).
-4. Mesurer les performances sur 2–3 machines réelles (procédure dans [TESTING.md](TESTING.md)).
+1. **v0.3 Logements** (choix validés : ascenseur → « Mon logement », studio meublé de base, accès
+   « personne / sur invitation / tout le monde » vérifié par le serveur et la base).
+2. Tester à plusieurs pour de vrai (ordinateurs + téléphones) et recueillir les retours.
+3. Mesurer les performances sur 2–3 machines réelles (procédure dans [TESTING.md](TESTING.md)).
 
 ## Repères rapides pour reprendre
 

@@ -86,18 +86,22 @@ de fournisseur = écrire un nouveau transport et/ou migrer un dump Postgres.
 
 - ✅ Compteur interne des messages reçus par jour (UTC), stocké dans le Durable Object, avec un
   **plafond conservateur** : `DAILY_MESSAGE_BUDGET = 1 400 000`, soit 70 % du quota gratuit
-  d’environ 2 millions de messages WebSocket entrants par jour (à re-vérifier avant la mise en
-  ligne). Niveaux : > 70 % ralentir (400 ms), > 90 % ralentir fortement et couper les émotes
+  d’environ 2 millions de messages WebSocket entrants par jour (100 000 requêtes par jour, un
+  message entrant compté pour 1/20 de requête ; vérifié le 21/10/2026). Niveaux : > 70 % ralentir (400 ms), > 90 % ralentir fortement et couper les émotes
   (1 s), 100 % **maintenance** (plus de mouvements relayés, nouvelles connexions refusées).
 - ✅ Hibernation des WebSockets : le serveur ne consomme pas de temps de calcul quand personne ne
   parle ; les « ping » de maintien de connexion reçoivent une réponse automatique non facturée.
-- ✅ Plafond de 40 joueurs par salle, limites de débit par connexion.
+- ✅ Plafond de 40 joueurs par salle, puis **file d’attente** (50 places par salle) : le joueur
+  explore en solo et entre tout seul dès qu’une place se libère ; limites de débit par connexion.
+- ✅ Stockage du Durable Object : le compteur du jour est enregistré tous les 200 messages, soit
+  au plus ≈ 7 000 écritures par jour (limite gratuite : 100 000 lignes écrites par jour).
 - Temps de calcul du Durable Object : une **seule** instance éveillée au plus 24 h par jour reste
-  sous la durée gratuite quotidienne (≈ 13 000 Go·s, soit ≈ 28 h pour 128 Mo — à re-vérifier).
+  sous la durée gratuite quotidienne (13 000 Go·s, soit ≈ 28 h pour 128 Mo ; vérifié le
+  21/10/2026).
 - Mise en ligne : workflow GitHub « Mise en ligne », lancé à la main (voir
   [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md)).
-- Politique de saturation prévue, dans l’ordre (1, 2, 4 et 5 sont en place ; la file d’attente
-  est remplacée pour l’instant par un message « salle pleine » et un nouvel essai automatique) :
+- Politique de saturation, dans l’ordre (1, 2, 4 et 5 sont en place ; 3 viendra avec les
+  logements) :
   1. réduire la fréquence de synchronisation (ordre envoyé aux clients) ;
   2. limiter les interactions non essentielles (émotes) ;
   3. suspendre temporairement la création de nouveaux espaces ;

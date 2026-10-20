@@ -11,7 +11,8 @@
  *   identifiant réservé aux comptes ;
  * - les déplacements trop rapides (téléportation) ou hors de la carte sont ignorés ;
  * - mouvements, émotes et chat de proximité ne sont relayés qu'aux joueurs de la même salle ;
- * - limites de débit (anti-spam), plafond de joueurs par salle, budget quotidien de messages.
+ * - limites de débit (anti-spam), plafond de joueurs par salle, budget quotidien de messages ;
+ * - salle pleine : file d'attente, le joueur entre tout seul dès qu'une place se libère.
  */
 import type { AvatarAppearance } from '../../src/content/avatars';
 import type { Facing } from '../../src/core/iso';
@@ -31,6 +32,8 @@ export interface Bucket {
   tokens: number;
   at: number;
 }
+
+type HelloMessage = Extract<NetMessage, { t: 'hello' }>;
 
 /** Compte vérifié d'une connexion (identifiant du compte et pseudo enregistré). */
 export interface Account {
@@ -61,6 +64,10 @@ export interface ConnData {
   messages: Bucket;
   chat: Bucket;
   strikes: number;
+  /** En file d'attente (salle pleine) : sa présentation, gardée jusqu'à son entrée. */
+  queued: { hello: HelloMessage; at: number } | null;
+  /** Sort de la file : sa prochaine position est acceptée sans contrôle de vitesse. */
+  resync: boolean;
 }
 
 export interface Conn {
@@ -109,6 +116,8 @@ const MSG_REFILL = 20;
 const CHAT_CAPACITY = 5;
 const CHAT_REFILL = 0.5;
 const MAX_STRIKES = 30;
+/** Taille maximale de la file d'attente d'une salle (au-delà : « salle pleine »). */
+export const MAX_QUEUE = 50;
 
 function take(b: Bucket, capacity: number, perSecond: number, now: number): boolean {
   const elapsed = Math.max(0, now - b.at) / 1000;
@@ -137,6 +146,8 @@ export function newConnData(key: string, now: number, account: Account | null = 
     messages: { tokens: MSG_CAPACITY, at: now },
     chat: { tokens: CHAT_CAPACITY, at: now },
     strikes: 0,
+    queued: null,
+    resync: false,
   };
 }
 
@@ -228,8 +239,8 @@ export class RealtimeHub {
       return;
     }
     const msg = decodeMessage(raw);
-    // Les messages « rate » et « notice » ne peuvent venir que du serveur.
-    if (!msg || msg.t === 'rate' || msg.t === 'notice') {
+    // Les messages « rate », « notice » et « queue » ne peuvent venir que du serveur.
+    if (!msg || msg.t === 'rate' || msg.t === 'notice' || msg.t === 'queue') {
       this.strike(conn);
       conn.save();
       return;
@@ -254,30 +265,24 @@ export class RealtimeHub {
           this.reject(holder, 'duplicate');
         }
         if (!this.inBounds(msg.room, msg.x, msg.y)) return this.strike(conn);
-        const inRoom = this.others(conn).filter((c) => c.data.room === msg.room).length;
-        if (inRoom >= this.opts.maxPerRoom) return this.reject(conn, 'full');
-        Object.assign(d, {
-          id: msg.id,
-          secret: d.account ? null : (msg.k ?? null),
-          away: msg.a === true,
-          name: d.account?.name ?? msg.name,
-          look: msg.look,
-          room: msg.room,
-          x: msg.x,
-          y: msg.y,
-          f: msg.f,
-          s: msg.s,
-          movedAt: now,
-        });
-        conn.save();
-        // Le nouveau venu reçoit les présents ; les présents reçoivent le nouveau venu.
-        // reply = true : personne ne répond, le serveur connaît déjà tout le monde.
-        for (const other of this.others(conn))
-          conn.send(encodeMessage(this.presence(other.data, true)));
-        this.send(this.others(conn), this.presence(d, true));
-        const ms = RATE_BY_LEVEL[this.level()];
-        if (ms > 0) conn.send(encodeMessage({ t: 'rate', ms }));
+        if (d.queued) return; // déjà dans la file
+        if (this.inRoom(msg.room, d.key) >= this.opts.maxPerRoom) {
+          // Salle pleine : on attend son tour (sauf si la file elle-même est pleine).
+          const waiting = this.waiting(msg.room).length;
+          if (waiting >= MAX_QUEUE) return this.reject(conn, 'full');
+          d.queued = { hello: msg, at: now };
+          conn.save();
+          conn.send(encodeMessage({ t: 'queue', pos: waiting + 1 }));
+          return;
+        }
+        this.admit(conn, msg, now);
       }
+      return;
+    }
+
+    // En file d'attente : rien n'est relayé (seul le départ est pris en compte).
+    if (d.id === null && d.queued) {
+      if (msg.t === 'bye') conn.close(1000, 'au revoir');
       return;
     }
 
@@ -289,7 +294,10 @@ export class RealtimeHub {
       case 'state': {
         if (!this.inBounds(msg.room, msg.x, msg.y)) return this.strike(conn);
         const sameRoom = msg.room === d.room;
-        if (sameRoom) {
+        if (d.resync) {
+          // Première position après la file d'attente : le joueur a pu bouger en solo.
+          d.resync = false;
+        } else if (sameRoom) {
           const dt = Math.max(0.05, (now - d.movedAt) / 1000);
           const maxDist = WALK_SPEED * 1.6 * dt + 1.2;
           if (Math.hypot(msg.x - d.x, msg.y - d.y) > maxDist) {
@@ -306,6 +314,7 @@ export class RealtimeHub {
           (c) => c.data.room === d.room || c.data.room === previousRoom,
         );
         this.send(targets, { t: 'state', id: d.id, room: d.room, x: d.x, y: d.y, f: d.f, s: d.s });
+        if (previousRoom !== d.room) this.admitWaiting(previousRoom);
         return;
       }
       case 'chat': {
@@ -359,11 +368,89 @@ export class RealtimeHub {
     }
   }
 
-  /** Fermeture d'une connexion : les autres sont prévenus. */
+  /** Fermeture d'une connexion : les autres sont prévenus, la file d'attente avance. */
   onClose(conn: Conn): void {
-    const id = conn.data.id;
-    if (id === null) return;
+    const d = conn.data;
+    if (d.id === null) {
+      // Départ d'un joueur qui attendait : les suivants avancent d'une place.
+      if (d.queued) {
+        const room = d.queued.hello.room;
+        d.queued = null;
+        this.updateQueue(room);
+      }
+      return;
+    }
+    const id = d.id;
     this.send(this.others(conn), { t: 'bye', id });
-    conn.data.id = null;
+    d.id = null;
+    this.admitWaiting(d.room, d.key);
+  }
+
+  /** Joueurs présents dans une salle (hors connexion `except`). */
+  private inRoom(room: string, except?: string): number {
+    return this.connections().filter(
+      (c) => c.data.id !== null && c.data.key !== except && c.data.room === room,
+    ).length;
+  }
+
+  /** File d'attente d'une salle, dans l'ordre d'arrivée. */
+  private waiting(room: string): Conn[] {
+    return this.connections()
+      .filter((c) => c.data.id === null && c.data.queued?.hello.room === room)
+      .sort((a, b) => a.data.queued!.at - b.data.queued!.at);
+  }
+
+  /** Indique à chacun sa place dans la file. */
+  private updateQueue(room: string): void {
+    this.waiting(room).forEach((c, i) => c.send(encodeMessage({ t: 'queue', pos: i + 1 })));
+  }
+
+  /** Une place s'est libérée : on fait entrer les premiers de la file. */
+  private admitWaiting(room: string, leaving?: string): void {
+    const queue = this.waiting(room);
+    if (queue.length === 0) return;
+    let free = this.opts.maxPerRoom - this.inRoom(room, leaving);
+    for (const conn of queue) {
+      if (free <= 0) break;
+      const hello = conn.data.queued!.hello;
+      conn.data.queued = null;
+      // Entre-temps, le même identifiant a pu se connecter ailleurs.
+      if (this.others(conn).some((c) => c.data.id === hello.id)) {
+        conn.save();
+        this.reject(conn, 'duplicate');
+        continue;
+      }
+      conn.data.resync = true;
+      conn.send(encodeMessage({ t: 'queue', pos: 0 }));
+      this.admit(conn, hello, this.opts.now());
+      free--;
+    }
+    this.updateQueue(room);
+  }
+
+  /** Entrée dans la salle : présentation aux présents, et des présents au nouveau venu. */
+  private admit(conn: Conn, msg: HelloMessage, now: number): void {
+    const d = conn.data;
+    Object.assign(d, {
+      id: msg.id,
+      secret: d.account ? null : (msg.k ?? null),
+      away: msg.a === true,
+      name: d.account?.name ?? msg.name,
+      look: msg.look,
+      room: msg.room,
+      x: msg.x,
+      y: msg.y,
+      f: msg.f,
+      s: msg.s,
+      movedAt: now,
+    });
+    conn.save();
+    // Le nouveau venu reçoit les présents ; les présents reçoivent le nouveau venu.
+    // reply = true : personne ne répond, le serveur connaît déjà tout le monde.
+    for (const other of this.others(conn))
+      conn.send(encodeMessage(this.presence(other.data, true)));
+    this.send(this.others(conn), this.presence(d, true));
+    const ms = RATE_BY_LEVEL[this.level()];
+    if (ms > 0) conn.send(encodeMessage({ t: 'rate', ms }));
   }
 }

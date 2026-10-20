@@ -5,8 +5,8 @@ concret et reste jouable : on ne construit pas tout d’un coup.
 
 ```mermaid
 flowchart LR
-    A["✅ v0.1<br/>Prototype<br/><i>se promener</i>"] --> B["🔶 v0.2<br/>Multijoueur<br/><i>se retrouver</i>"]
-    B --> C["⏳ v0.3<br/>Chez soi<br/><i>son logement</i>"]
+    A["✅ v0.1<br/>Prototype<br/><i>se promener</i>"] --> B["✅ v0.2<br/>Multijoueur<br/><i>se retrouver</i>"]
+    B --> C["🔜 v0.3<br/>Chez soi<br/><i>son logement</i>"]
     C --> D["⏳ v0.4<br/>Expansion<br/><i>étages, galerie</i>"]
     D --> E["⏳ v0.5<br/>Vie communautaire<br/><i>événements, jeux</i>"]
     E --> F["⏳ v1.0<br/>Version stable"]
@@ -45,14 +45,14 @@ Tu peux aider : voir [TESTING.md](TESTING.md#protocole-de-mesure-manuel).
 
 ---
 
-## 🔶 Version 0.2 — Le multijoueur : « se retrouver »
+## ✅ Version 0.2 — Le multijoueur : « se retrouver »
 
 **En une phrase :** on se connecte avec un compte et on voit les autres Malinos bouger et parler
 en direct.
 
 **Pour les joueurs :**
 
-- connexion simple (lien reçu par e-mail, ou compte GitHub / Discord) ;
+- connexion simple et facultative avec un compte GitHub ou Google ;
 - ton avatar et ton pseudo sont sauvegardés et te suivent sur tous tes appareils ;
 - tu vois qui est en ligne, tu croises les autres dans le Hub ;
 - chat de proximité (les gens autour de toi) et chat général (tout le monde) ;
@@ -73,6 +73,12 @@ en direct.
   en un clic.
 - ✅ **Masquer** un joueur qui dérange, le **signaler** à l’équipe (avec un compte), page de
   modération pour l’équipe.
+- ✅ **Boîte à idées** et **borne à bugs** dans le hall, protégées des robots (Cloudflare
+  Turnstile) pour les visiteurs.
+- ✅ **Confort** : statut « absent », sons discrets, mentions @pseudo, ambiance sonore selon le
+  lieu, interface pensée pour le téléphone (chat repliable, bouton d’action, zoom à deux doigts).
+- ✅ **File d’attente** quand une salle est pleine (40 personnes) : on entre tout seul dès qu’une
+  place se libère.
 
 ![Deux joueurs connectés au serveur se retrouvent dans le hall](images/multijoueur-en-ligne.jpg)
 
@@ -82,7 +88,7 @@ il ne coûtera **jamais** d’argent. Explications : [FREE_INFRASTRUCTURE.md](FR
 
 ---
 
-## ⏳ Version 0.3 — Les espaces personnels : « chez soi »
+## 🔜 Version 0.3 — Les espaces personnels : « chez soi »
 
 **En une phrase :** chaque Malino reçoit son propre logement dans la Tour communautaire.
 
@@ -170,13 +176,14 @@ La feuille de route n’est pas figée : **elle bouge selon vos retours.**
 ### v0.2
 
 - ✅ Comptes facultatifs (Supabase Auth, GitHub + Google), profil en base, marque ✓ vérifiée
-  par le serveur · ⬜ anti-robots (Turnstile) plus tard
+  par le serveur · ✅ anti-robots (Turnstile) pour la boîte à idées des visiteurs
 - ✅ Serveur temps réel (Cloudflare Worker + Durable Object) et transport réseau associé
 - ✅ Présence, synchronisation des déplacements, chat local/général
 - ✅ Suppression de compte (RGPD) · ✅ masquer / signaler, page de modération
 - ✅ Compteur de messages quotidien et dégradation contrôlée, plafond par salle
-- ⬜ File d’attente quand une salle est pleine (aujourd’hui : message « salle pleine » et
-  nouvel essai automatique une minute plus tard)
+- ✅ File d’attente quand une salle est pleine (50 places, entrée automatique)
+- ✅ Boîte à idées / borne à bugs, statut « absent », sons et mentions, confort mobile
+- ➖ Historique du chat : abandonné (rien n’est conservé ; les mentions suffisent)
 - ✅ Mise en ligne gratuite (Cloudflare Pages + Worker) : https://malinosland.pages.dev
 
 ### v0.3

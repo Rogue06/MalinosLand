@@ -4,11 +4,15 @@
 -- Les joueurs connectés écrivent toujours directement (10 par jour, voir feedback_rate_limit).
 -- À appliquer APRÈS la mise en ligne du jeu qui utilise la fonction.
 
-drop policy "Tout le monde peut proposer une idée ou signaler un bug" on public.feedback;
+-- (Appliquée le 21/10/2026 sous cette forme : la règle existante est modifiée puis renommée.)
 
-create policy "Les joueurs connectés proposent une idée ou signalent un bug"
-  on public.feedback for insert
+alter policy "Tout le monde peut proposer une idée ou signaler un bug"
+  on public.feedback
   to authenticated
   with check (author_id = (select auth.uid()) and status = 'nouveau');
+
+alter policy "Tout le monde peut proposer une idée ou signaler un bug"
+  on public.feedback
+  rename to "Les joueurs connectés proposent une idée ou signalent un bug";
 
 revoke insert on public.feedback from anon;
