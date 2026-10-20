@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { QUESTS } from '../../content/quests';
+import { SECRETS } from '../../content/secrets';
 import { HOME_EXIT, HUB_ROOM, mapIdForRoom } from '../../content/rooms';
 import { loadWorld } from '../../content/world';
 import { project, screenInputToWorld, unproject, type Facing, type Vec2 } from '../../core/iso';
@@ -28,7 +29,7 @@ import {
   OfflineTransport,
   type Transport,
 } from '../../multiplayer/Transport';
-import { completeQuest, progressStore } from '../../services/progress';
+import { completeQuest, findSecret, progressStore, secretsStore } from '../../services/progress';
 import { profileStore, type Profile } from '../../services/profile';
 import { renderProfile, settingsStore, type Settings } from '../../services/settings';
 import {
@@ -52,6 +53,7 @@ import type { WorldModel, WorldObject } from '../../world/WorldModel';
 import { avatarDepth, DepthIndex } from '../../world/depth';
 import type { InteractionDef } from '../../world/types';
 import { AvatarView } from '../entities/AvatarView';
+import { AmbientLife } from '../life/AmbientLife';
 import { TextureFactory } from '../textures';
 import { BACKREST_DEPTH, WorldRenderer } from '../WorldRenderer';
 
@@ -140,6 +142,7 @@ export class WorldScene extends Phaser.Scene {
   private traveling = false;
   /** Abonnements aux événements réseau de cette scène (retirés à chaque changement de salle). */
   private netCleanups: Array<() => void> = [];
+  private life: AmbientLife | null = null;
   /** Demande d'entrée dans un logement en attente de la réponse du serveur. */
   private pendingDoor: { room: string; ownerName: string | null } | null = null;
 
@@ -155,6 +158,7 @@ export class WorldScene extends Phaser.Scene {
     this.cleanups = [];
     this.netCleanups = [];
     this.pendingDoor = null;
+    this.life = null;
     this.zoneId = null;
     this.hovered = null;
   }
@@ -180,6 +184,15 @@ export class WorldScene extends Phaser.Scene {
     });
     this.renderer3d.build();
     this.depthIndex = new DepthIndex(this.world.width, this.renderer3d.depthBoxes);
+    // Vie du décor (fontaine, oiseaux, papillons, vapeur) : rien n'est envoyé sur le réseau.
+    this.life = settings.reducedMotion
+      ? null
+      : new AmbientLife(this, this.world, this.renderer3d, {
+          effects: rp.effects,
+          texScale: rp.textureScale,
+          depthAt: (x, y) => this.depthFor(x, y, null, 'py'),
+          player: () => this.player.pos,
+        });
 
     const account = accountStore.get();
     this.selfVerified =
@@ -440,6 +453,22 @@ export class WorldScene extends Phaser.Scene {
         break;
     }
     if (it.quest) this.quest(it.quest);
+    if (it.secret) this.secret(it.secret);
+  }
+
+  private secret(id: string): void {
+    if (!findSecret(id)) return;
+    const s = SECRETS.find((x) => x.id === id);
+    const n = secretsStore.get().length;
+    this.time.delayedCall(900, () =>
+      pushToast(
+        n === SECRETS.length
+          ? `Dernier secret : ${s?.title} ! Tu connais tous les recoins du Hub 🕵️`
+          : `Secret trouvé : ${s?.title} (${n}/${SECRETS.length})`,
+        '🔎',
+        5000,
+      ),
+    );
   }
 
   private quest(id: string): void {
@@ -873,6 +902,7 @@ export class WorldScene extends Phaser.Scene {
     }
 
     const step = this.player.update(dt, this.readInput());
+    this.life?.update(delta);
     if (step.arrived) {
       const obj = this.world.getObject(step.arrived.objectId);
       if (obj) this.performAction(step.arrived.kind, obj);

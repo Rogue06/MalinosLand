@@ -1224,3 +1224,11 @@ button.presence-chip {
   color: var(--muted);
   border-top: 1px solid var(--line);
 }
+
+/* Compteur de secrets (sous les objectifs). */
+.objectives .secrets {
+  margin: 10px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+}

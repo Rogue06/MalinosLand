@@ -1,4 +1,5 @@
 import { QUESTS } from '../content/quests';
+import { SECRETS } from '../content/secrets';
 import { Store } from '../core/store';
 import { storage } from './storage';
 
@@ -24,4 +25,27 @@ export function completeQuest(id: string): boolean {
 
 export function resetProgress(): void {
   progressStore.set([]);
+}
+
+const SECRETS_KEY = 'secrets';
+const KNOWN_SECRETS = new Set(SECRETS.map((s) => s.id));
+
+export function parseSecrets(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  return [
+    ...new Set(raw.filter((id): id is string => typeof id === 'string' && KNOWN_SECRETS.has(id))),
+  ];
+}
+
+/** Secrets du Hub découverts (gardés dans ce navigateur, comme les objectifs). */
+export const secretsStore = new Store<string[]>(
+  storage.read(SECRETS_KEY, VERSION, parseSecrets) ?? [],
+);
+secretsStore.subscribe((found) => storage.write(SECRETS_KEY, VERSION, found));
+
+/** Note un secret découvert. Renvoie true s'il vient d'être trouvé. */
+export function findSecret(id: string): boolean {
+  if (!KNOWN_SECRETS.has(id) || secretsStore.get().includes(id)) return false;
+  secretsStore.set([...secretsStore.get(), id]);
+  return true;
 }

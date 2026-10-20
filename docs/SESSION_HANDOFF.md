@@ -36,6 +36,14 @@ Prochaine étape : v0.3 Logements.**
 
 ## Dernières sessions
 
+- **22/10 (nuit)** — PR #24 fusionnée, migration `site_owners` appliquée, compte du responsable
+  ajouté comme responsable du site, mise en ligne faite. Ville vivante lot 1 (branche
+  `feature/ville-vivante`) : `src/game/life/AmbientLife.ts` (fontaine, oiseaux, papillons,
+  vapeur ; local au navigateur) et 6 secrets (`src/content/secrets.ts`, compteur dans les
+  objectifs ; liste et emplacements à ne pas dévoiler aux joueurs). Lot 2 à faire : agrandir le
+  Hub (nouveau coin extérieur, pièces plus grandes). Rayon du chat « Proximité » : proposé, pas
+  encore validé.
+
 - **22/10 (soir)** — PR #21, #22, #23 fusionnées et en ligne ; migration logements appliquée sur
   Supabase (par morceaux, droits vérifiés). Historique des connexions (branche
   `feature/historique-connexions`, DEC-022) : journal dans le Durable Object, `GET /visits`

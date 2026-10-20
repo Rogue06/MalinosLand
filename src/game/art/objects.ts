@@ -176,6 +176,32 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
     box(b, 1.02, 0.32, 0.3, 0.74, 0.58, 0.06, lighten(c, 0.12));
     box(b, 0.3, 0.22, 0.36, 0.3, 0.1, 0.22, P.sun);
   },
+  cat(b) {
+    // Petit coussin et chat roulé en boule, la queue autour.
+    box(b, 0.15, 0.2, 0, 0.7, 0.62, 0.1, P.violet);
+    box(b, 0.28, 0.32, 0.1, 0.44, 0.36, 0.17, '#e8964f');
+    box(b, 0.58, 0.3, 0.12, 0.2, 0.2, 0.16, '#e8964f');
+    box(b, 0.61, 0.3, 0.28, 0.05, 0.05, 0.05, '#e8964f');
+    box(b, 0.72, 0.3, 0.28, 0.05, 0.05, 0.05, '#e8964f');
+    box(b, 0.3, 0.6, 0.1, 0.36, 0.08, 0.06, '#c9733a');
+    box(b, 0.34, 0.36, 0.27, 0.3, 0.06, 0.02, '#c9733a', { outline: false });
+  },
+  dirt_mound(b) {
+    box(b, 0.18, 0.2, 0, 0.64, 0.6, 0.12, '#7a5233');
+    box(b, 0.3, 0.3, 0.12, 0.4, 0.38, 0.08, '#8c6040');
+    // Une pelle plantée dans la terre.
+    box(b, 0.62, 0.42, 0.2, 0.04, 0.04, 0.42, P.woodDark);
+    box(b, 0.58, 0.4, 0.06, 0.12, 0.08, 0.16, P.metal);
+  },
+  gnome(b) {
+    box(b, 0.36, 0.38, 0, 0.28, 0.24, 0.1, P.metalDark);
+    box(b, 0.38, 0.4, 0.1, 0.24, 0.2, 0.2, '#3e6fd1');
+    box(b, 0.4, 0.42, 0.3, 0.2, 0.16, 0.12, '#f1c9a5');
+    box(b, 0.41, 0.52, 0.22, 0.18, 0.08, 0.14, P.white);
+    box(b, 0.39, 0.4, 0.42, 0.22, 0.2, 0.08, P.coral);
+    box(b, 0.43, 0.44, 0.5, 0.14, 0.12, 0.08, P.coral);
+    box(b, 0.47, 0.48, 0.58, 0.06, 0.05, 0.08, P.coral);
+  },
   bed(b, v) {
     const cover = pick([P.teal, P.violet, P.coral], v);
     // Tête de lit contre le mur, cadre en bois, matelas, couette et deux oreillers.

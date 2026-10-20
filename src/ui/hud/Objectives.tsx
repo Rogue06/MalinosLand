@@ -1,9 +1,11 @@
 import { QUESTS } from '../../content/quests';
-import { progressStore, resetProgress } from '../../services/progress';
+import { SECRETS } from '../../content/secrets';
+import { progressStore, resetProgress, secretsStore } from '../../services/progress';
 import { useStore } from '../hooks';
 
 export function Objectives({ onClose }: { onClose: () => void }) {
   const done = useStore(progressStore);
+  const secrets = useStore(secretsStore);
   const next = QUESTS.find((q) => !done.includes(q.id));
   const all = done.length === QUESTS.length;
   return (
@@ -44,6 +46,11 @@ export function Objectives({ onClose }: { onClose: () => void }) {
           </button>
         </div>
       )}
+      <p class="secrets" title="Des clins d’œil cachés un peu partout : explore, touche, fouille…">
+        🔎 Secrets trouvés : {secrets.length}/{SECRETS.length}
+        {secrets.length === 0 && <span class="muted"> · ouvre l’œil…</span>}
+        {secrets.length === SECRETS.length && <span> · tous ! 🕵️</span>}
+      </p>
     </aside>
   );
 }
