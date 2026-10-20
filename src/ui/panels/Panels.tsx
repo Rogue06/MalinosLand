@@ -7,6 +7,7 @@ import { sanitizeName } from '../../core/text';
 import { profileStore } from '../../services/profile';
 import { resetProgress } from '../../services/progress';
 import { settingsStore, type Settings } from '../../services/settings';
+import { isTouchDevice } from '../../services/device';
 import { panelStore, pushToast } from '../../state';
 import { AccountBox } from '../AccountBox';
 import { AvatarEditor } from '../AvatarEditor';
@@ -331,52 +332,86 @@ export function SettingsPanel() {
 export function HelpPanel() {
   return (
     <Modal title="Aide" icon="❔">
-      <table class="controls">
-        <tbody>
-          <tr>
-            <td>Se déplacer</td>
-            <td>
-              Clic sur le sol · <kbd>Z</kbd>
-              <kbd>Q</kbd>
-              <kbd>S</kbd>
-              <kbd>D</kbd> · <kbd>W</kbd>
-              <kbd>A</kbd>
-              <kbd>S</kbd>
-              <kbd>D</kbd> · flèches
-            </td>
-          </tr>
-          <tr>
-            <td>Interagir, s’asseoir</td>
-            <td>
-              Clic sur l’objet · <kbd>E</kbd> ou <kbd>Espace</kbd>
-            </td>
-          </tr>
-          <tr>
-            <td>Discuter</td>
-            <td>
-              <kbd>Entrée</kbd> puis <kbd>Entrée</kbd> pour envoyer
-            </td>
-          </tr>
-          <tr>
-            <td>Zoomer</td>
-            <td>Molette de la souris</td>
-          </tr>
-          <tr>
-            <td>Fermer une fenêtre</td>
-            <td>
-              <kbd>Échap</kbd>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      {isTouchDevice() ? (
+        <TouchControls />
+      ) : (
+        <table class="controls">
+          <tbody>
+            <tr>
+              <td>Se déplacer</td>
+              <td>
+                Clic sur le sol · <kbd>Z</kbd>
+                <kbd>Q</kbd>
+                <kbd>S</kbd>
+                <kbd>D</kbd> · <kbd>W</kbd>
+                <kbd>A</kbd>
+                <kbd>S</kbd>
+                <kbd>D</kbd> · flèches
+              </td>
+            </tr>
+            <tr>
+              <td>Interagir, s’asseoir</td>
+              <td>
+                Clic sur l’objet · <kbd>E</kbd> ou <kbd>Espace</kbd>
+              </td>
+            </tr>
+            <tr>
+              <td>Discuter</td>
+              <td>
+                <kbd>Entrée</kbd> puis <kbd>Entrée</kbd> pour envoyer
+              </td>
+            </tr>
+            <tr>
+              <td>Zoomer</td>
+              <td>Molette de la souris · deux doigts sur un écran tactile</td>
+            </tr>
+            <tr>
+              <td>Fermer une fenêtre</td>
+              <td>
+                <kbd>Échap</kbd>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      )}
       <h3>Ce qui fonctionne aujourd’hui</h3>
       <p>
         Exploration du Hub, avatar personnalisable, interactions, objectifs de découverte, chat et
         émotes.{' '}
         {REALTIME_URL
-          ? 'Tu croises en direct les autres Malinos connectés. Les comptes arrivent bientôt.'
+          ? 'Tu croises en direct les autres Malinos connectés. Avec un compte (GitHub ou Google), tu retrouves ton personnage partout.'
           : 'La démo multijoueur relie uniquement les onglets ouverts dans ce navigateur.'}
       </p>
     </Modal>
+  );
+}
+
+/** Commandes au doigt (téléphone, tablette) : pas de touches à expliquer. */
+function TouchControls() {
+  return (
+    <table class="controls">
+      <tbody>
+        <tr>
+          <td>Se déplacer</td>
+          <td>Touche le sol</td>
+        </tr>
+        <tr>
+          <td>Interagir, s’asseoir</td>
+          <td>Touche l’objet, ou le bouton 👆 en bas de l’écran quand tu es tout près</td>
+        </tr>
+        <tr>
+          <td>Discuter</td>
+          <td>Touche la ligne du chat pour le déplier, ▾ pour le replier</td>
+        </tr>
+        <tr>
+          <td>Zoomer</td>
+          <td>Écarte ou rapproche deux doigts</td>
+        </tr>
+        <tr>
+          <td>Fermer une fenêtre</td>
+          <td>Bouton ✕</td>
+        </tr>
+      </tbody>
+    </table>
   );
 }

@@ -109,6 +109,8 @@ export interface Commands extends Record<string, unknown> {
   'chat-send': { text: string; scope: ChatScope };
   emote: { emoji: Emote };
   'look-changed': { name: string; look: AvatarAppearance };
+  /** Utiliser l'objet le plus proche (bouton d'action, comme la touche E). */
+  use: Record<string, never>;
 }
 
 export const commands = new EventBus<Commands>();

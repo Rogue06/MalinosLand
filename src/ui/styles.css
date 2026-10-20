@@ -498,6 +498,51 @@ button.presence-chip {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.chat-fold-btn {
+  margin-left: 2px;
+}
+/* Chat replié : une ligne avec le dernier message et les non lus. */
+.chat-peek {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.chat-peek-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+}
+.chat-peek-text b {
+  color: var(--teal-light);
+}
+.chat-unread {
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 99px;
+  background: var(--teal);
+  color: #0b1a1a;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+}
+.chat-unread.mention {
+  background: var(--sun);
+}
+.chat-fold {
+  color: var(--muted);
+}
 .chat-log {
   height: 128px;
   overflow-y: auto;
@@ -575,8 +620,12 @@ button.presence-chip {
   padding: 8px 16px;
   font-weight: 700;
   font-size: 14px;
-  pointer-events: none;
+  color: var(--text);
+  cursor: pointer;
   animation: pop 0.18s ease;
+}
+.hint:hover {
+  border-color: var(--teal);
 }
 .toasts {
   position: absolute;
@@ -680,6 +729,7 @@ button.presence-chip {
 .modal {
   width: min(560px, 100%);
   max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
   display: flex;
   flex-direction: column;
   outline: none;
@@ -1049,20 +1099,90 @@ button.presence-chip {
     height: 34px;
     font-size: 16px;
   }
+  .topbar {
+    top: max(12px, env(safe-area-inset-top));
+  }
+  /* Sous la barre du haut, qui tient sur deux lignes. */
+  .toasts {
+    top: 104px;
+  }
   .objectives {
     width: calc(100vw - 24px);
     top: 100px;
     max-height: calc(100vh - 330px);
+    max-height: calc(100dvh - 330px);
     overflow-y: auto;
   }
   .chat {
     width: calc(100vw - 24px);
-    bottom: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+  }
+  /* Au-delà de 16 px, iOS ne zoome plus la page quand on touche le champ. */
+  .chat-input input {
+    font-size: 16px;
+  }
+  .emotes button {
+    font-size: 19px;
+    padding: 4px;
+  }
+  .chat-tabs button {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  /* Bouton d'action et dialogues au-dessus du chat (replié ou déplié). */
+  .hint {
+    bottom: calc(116px + env(safe-area-inset-bottom));
+    padding: 12px 20px;
+    font-size: 15px;
+  }
+  .dialog {
+    bottom: calc(116px + env(safe-area-inset-bottom));
+  }
+  .hud.chat-open .hint,
+  .hud.chat-open .dialog {
+    bottom: calc(262px + env(safe-area-inset-bottom));
   }
   .minimap {
     display: none;
   }
   .badge {
+    display: none;
+  }
+}
+
+/* Téléphone en paysage : peu de hauteur, on réduit le chat. */
+@media (max-height: 500px) {
+  .chat-log {
+    height: 84px;
+  }
+  .minimap {
+    display: none;
+  }
+  /* Bouton d'action et dialogues à gauche, le chat occupe la droite. */
+  .chat {
+    width: min(340px, 50vw);
+  }
+  .hint,
+  .dialog,
+  .hud.chat-open .hint,
+  .hud.chat-open .dialog {
+    left: max(12px, env(safe-area-inset-left));
+    transform: none;
+    bottom: 12px;
+    animation-name: fade-in;
+  }
+  .dialog {
+    width: min(620px, calc(100vw - min(340px, 50vw) - 36px));
+  }
+  .objectives {
+    max-height: calc(100dvh - 140px);
+    overflow-y: auto;
+  }
+}
+
+/* Au doigt, pas de touche E : on cache ce rappel dans les dialogues. */
+@media (pointer: coarse) {
+  .dialog-footer kbd {
     display: none;
   }
 }

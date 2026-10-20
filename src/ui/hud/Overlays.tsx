@@ -1,15 +1,24 @@
 import { useLayoutEffect } from 'preact/hooks';
 import { settingsStore } from '../../services/settings';
-import { dialogStore, hintStore, statsStore, toastStore } from '../../state';
+import { isTouchDevice } from '../../services/device';
+import { commands, dialogStore, hintStore, statsStore, toastStore } from '../../state';
 import { useStore } from '../hooks';
 
 export function Hint() {
   const hint = useStore(hintStore);
-  if (!hint) return null;
+  const dialog = useStore(dialogStore);
+  if (!hint || dialog) return null;
+  // Bouton : au doigt, c'est le seul moyen d'utiliser l'objet proche (pas de touche E).
   return (
-    <div class="hint" role="status">
-      <kbd>E</kbd> {hint}
-    </div>
+    <button
+      type="button"
+      class="hint"
+      // Pas de focus : la touche Espace utiliserait sinon l'objet deux fois.
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={() => commands.emit('use', {})}
+    >
+      {isTouchDevice() ? '👆' : <kbd>E</kbd>} {hint}
+    </button>
   );
 }
 

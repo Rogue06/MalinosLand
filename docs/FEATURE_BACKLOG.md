@@ -37,7 +37,7 @@ Statut : ✅ fait · ⬜ à faire. Les dépendances renvoient aux identifiants.
 | F28 | Bibliothèque de ressources IA                                                        | 0.5     | P3   | —         | ⬜     |
 | F29 | Assistant IA de construction (facultatif, sans API payante imposée)                  | 1.0+    | P3   | F19       | ⬜     |
 | F30 | Espaces thématiques (devs, artistes, automatisation…)                                | 0.5+    | P3   | F20       | ⬜     |
-| F31 | Support mobile / tactile soigné                                                      | 0.4+    | P2   | —         | ⬜     |
+| F31 | Support mobile / tactile soigné                                                      | 0.4+    | P2   | —         | 🔶     |
 | F32 | Sprites PNG optionnels via TextureInfo                                               | 0.3+    | P3   | —         | ⬜     |
 | F33 | Build Phaser allégé (modules inutilisés retirés)                                     | 0.2+    | P2   | —         | ⬜     |
 | F34 | Cycle jour/nuit léger basé sur l’heure réelle                                        | 0.3+    | P3   | —         | ⬜     |

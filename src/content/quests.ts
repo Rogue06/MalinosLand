@@ -12,13 +12,13 @@ export const QUESTS: QuestDef[] = [
   {
     id: 'talk_guide',
     title: 'Parle à Joshua, le robot d’accueil',
-    hint: 'Il t’attend dans le hall. Clique sur lui ou approche-toi et appuie sur E.',
+    hint: 'Il t’attend dans le hall : touche-le ou clique sur lui.',
   },
   { id: 'read_welcome', title: 'Lis le panneau de bienvenue', hint: 'Près de l’entrée du hall.' },
   {
     id: 'sit',
     title: 'Assieds-toi quelque part',
-    hint: 'Clique sur une chaise, un canapé ou un banc.',
+    hint: 'Touche ou clique sur une chaise, un canapé ou un banc.',
   },
   {
     id: 'coffee',
@@ -36,5 +36,9 @@ export const QUESTS: QuestDef[] = [
     title: 'Détends-toi sur la terrasse',
     hint: 'Elle est à droite du bâtiment : suis le chemin du jardin.',
   },
-  { id: 'chat', title: 'Dis bonjour dans le chat', hint: 'Appuie sur Entrée pour écrire.' },
+  {
+    id: 'chat',
+    title: 'Dis bonjour dans le chat',
+    hint: 'Écris un message en bas de l’écran (Entrée au clavier).',
+  },
 ];

@@ -42,8 +42,20 @@ Ce qui est enregistré : ton pseudo et ton apparence. Jamais tes messages ni tes
 | Écrire dans le chat | Je clique dans le champ du chat                  | **Entrée**, j’écris, **Entrée** pour envoyer                  |
 | Fermer une fenêtre  | Clic à côté, ou ✕                                | **Échap**                                                     |
 
-Quand tu es près d’un objet utilisable, une étiquette apparaît en bas de l’écran
-(par exemple **E · Parler à Joshua**). Les objets utilisables s’éclairent au survol de la souris.
+Quand tu es près d’un objet utilisable, un bouton apparaît en bas de l’écran
+(par exemple **E · Parler à Joshua**) : appuie sur **E** ou clique dessus. Les objets utilisables
+s’éclairent au survol de la souris.
+
+### Sur téléphone ou tablette
+
+- **Se déplacer** : touche le sol.
+- **Utiliser un objet, s’asseoir** : touche l’objet. Tout près, le bouton **👆** en bas de l’écran
+  fait la même chose (et **👆 Se lever** pour te relever).
+- **Zoomer** : écarte ou rapproche deux doigts.
+- **Chat** : il est replié sur une ligne (dernier message + nombre de messages non lus, en jaune si
+  on t’a mentionné). Touche cette ligne pour le déplier, **▾** pour le replier. Tu peux écrire
+  directement sans le déplier.
+- Le jeu marche aussi en paysage : le chat passe à droite, les boutons à gauche.
 
 ## 3. L’écran de jeu
 
