@@ -110,9 +110,7 @@ export function Chat({ open, onToggle }: ChatProps) {
             <span class="chat-to">🔒 Logement : seules les personnes présentes te lisent</span>
           ) : (
             <>
-              <span class="chat-to" title={`Mode réseau : ${stats.transport}`}>
-                À :
-              </span>
+              <span class="chat-to">À :</span>
               <button
                 type="button"
                 role="radio"
@@ -135,6 +133,9 @@ export function Chat({ open, onToggle }: ChatProps) {
               </button>
             </>
           )}
+          <span class="chat-mode" title={`Mode réseau : ${stats.transport}`}>
+            {stats.transport}
+          </span>
           <button
             type="button"
             class="chat-fold-btn"
