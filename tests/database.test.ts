@@ -407,3 +407,31 @@ describe('base de données : logements (v0.3)', () => {
     ).toHaveLength(0);
   });
 });
+
+describe('base de données : responsable du site', () => {
+  const BOSS = '00000000-0000-4000-8000-0000000000d1';
+  const MODO2 = '00000000-0000-4000-8000-0000000000d2';
+  const owner = async (who: string | null) =>
+    (await as<{ ok: boolean }>(who, 'select public.is_site_owner() as ok')).rows[0]!.ok;
+
+  beforeAll(async () => {
+    await db.exec(
+      `insert into auth.users (id) values ('${BOSS}'), ('${MODO2}') on conflict do nothing`,
+    );
+    await db.exec(`insert into public.site_owners (user_id) values ('${BOSS}')`);
+    await db.exec(`insert into public.moderators (user_id) values ('${MODO2}')`);
+  });
+
+  it('seul le responsable est reconnu (un modérateur ne l’est pas)', async () => {
+    expect(await owner(BOSS)).toBe(true);
+    expect(await owner(MODO2)).toBe(false);
+    expect(await owner(null)).toBe(false);
+  });
+
+  it('personne ne lit ni ne modifie la liste par l’API', async () => {
+    await expect(as(BOSS, 'select * from public.site_owners')).rejects.toThrow(/permission denied/);
+    await expect(
+      as(MODO2, 'insert into public.site_owners (user_id) values ($1)', [MODO2]),
+    ).rejects.toThrow(/permission denied/);
+  });
+});

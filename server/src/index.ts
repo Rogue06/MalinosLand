@@ -2,23 +2,14 @@
  * Serveur temps réel de MalinosLand (Cloudflare Worker).
  *   GET /health  → état du service
  *   GET /ws      → connexion WebSocket au monde (Durable Object « WorldRoom »)
+ *   GET /visits  → historique des connexions, pour le responsable du site seulement
  */
 import { ACCOUNT_HEADER, encodeAccountHeader, readProtocols, verifyAccount } from './account';
+import { originAllowed, visits, WORLD_NAME } from './routes';
 import type { Env } from './WorldRoom';
 
 export { WorldRoom } from './WorldRoom';
-
-/** Une seule instance de monde pour commencer (voir docs/REALTIME_NETWORK.md). */
-const WORLD_NAME = 'monde-1';
-
-export function originAllowed(origin: string | null, allowed: string): boolean {
-  const list = allowed
-    .split(',')
-    .map((o) => o.trim())
-    .filter(Boolean);
-  if (list.includes('*')) return true;
-  return origin !== null && list.includes(origin);
-}
+export { originAllowed } from './routes';
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -42,6 +33,7 @@ export default {
       const stub = env.WORLD.get(env.WORLD.idFromName(WORLD_NAME));
       return stub.fetch(new Request(request, { headers }));
     }
+    if (url.pathname === '/visits') return visits(request, env);
     return new Response('Introuvable', { status: 404 });
   },
 } satisfies ExportedHandler<Env>;

@@ -1,6 +1,6 @@
 # Sécurité et protection des joueurs
 
-> **En bref (version simple)** : on protège les joueurs contre les messages piégés, le spam et les liens dangereux. En ligne, seuls le pseudo, l’apparence, la position et les messages sont transmis aux autres joueurs, sans être conservés. Pour la suite, toutes les permissions seront vérifiées par le serveur, et des outils de modération (signaler, masquer, expulser) arriveront progressivement.
+> **En bref (version simple)** : on protège les joueurs contre les messages piégés, le spam et les liens dangereux. En ligne, seuls le pseudo, l’apparence, la position et les messages sont transmis aux autres joueurs, sans être conservés ; le serveur note seulement le pseudo et les heures de connexion (90 jours, visibles par le responsable du site). Pour la suite, toutes les permissions seront vérifiées par le serveur, et des outils de modération (signaler, masquer, expulser) arriveront progressivement.
 
 ## 1. Signaler une vulnérabilité
 

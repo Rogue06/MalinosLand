@@ -19,6 +19,7 @@ import {
   readProtocols,
 } from './account';
 import type { SupabaseConfig } from './account';
+import { VisitLog, type VisitRow, type VisitStore } from './visits';
 
 export interface Env extends SupabaseConfig {
   WORLD: DurableObjectNamespace<WorldRoom>;
@@ -46,6 +47,7 @@ export class WorldRoom extends DurableObject<Env> {
   private quota: QuotaState = { day: '', count: 0 };
   private unsaved = 0;
   private readonly hub: RealtimeHub;
+  private readonly visits: VisitLog;
 
   constructor(ctx: DurableObjectState, env: Env) {
     super(ctx, env);
@@ -64,6 +66,7 @@ export class WorldRoom extends DurableObject<Env> {
         if (++this.unsaved >= 200) this.persistQuota();
       },
     };
+    this.visits = new VisitLog(sqlVisitStore(ctx.storage.sql), () => Date.now());
     this.hub = new RealtimeHub(() => this.connections(), {
       now: () => Date.now(),
       rooms: { [hub.id]: { width: hub.width, height: hub.height } },
@@ -72,6 +75,7 @@ export class WorldRoom extends DurableObject<Env> {
       maxPerHome: MAX_PER_HOME,
       exit: { room: HOME_EXIT.room, x: HOME_EXIT.x, y: HOME_EXIT.y },
       checkHomeAccess: (owner, token) => checkHomeAccess(owner, token, env),
+      visits: this.visits,
       dailyBudget: Number(env.DAILY_MESSAGE_BUDGET) || 1_400_000,
       quota: counter,
     });
@@ -109,6 +113,9 @@ export class WorldRoom extends DurableObject<Env> {
   }
 
   async fetch(request: Request): Promise<Response> {
+    // Historique des connexions : le Worker n'appelle cette adresse qu'après avoir vérifié que
+    // le jeton est celui du responsable du site.
+    if (new URL(request.url).pathname === '/visits') return Response.json(this.visits.recent());
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair) as [WebSocket, WebSocket];
     this.ctx.acceptWebSocket(server);
@@ -140,4 +147,64 @@ export class WorldRoom extends DurableObject<Env> {
   async webSocketError(ws: WebSocket): Promise<void> {
     this.hub.onClose(this.wrap(ws));
   }
+}
+
+/** Historique des connexions dans le SQLite du Durable Object (quelques écritures par visite). */
+function sqlVisitStore(sql: SqlStorage): VisitStore {
+  sql.exec(
+    `create table if not exists visits (
+      id integer primary key autoincrement,
+      player text not null,
+      name text not null,
+      account integer not null,
+      arrived integer not null,
+      left_at integer
+    )`,
+  );
+  sql.exec('create index if not exists visits_player on visits (player, id)');
+  sql.exec('create index if not exists visits_arrived on visits (arrived)');
+  const toRow = (r: Record<string, SqlStorageValue>): VisitRow => ({
+    id: Number(r.id),
+    player: String(r.player),
+    name: String(r.name),
+    account: Number(r.account) === 1,
+    arrived: Number(r.arrived),
+    left: r.left_at === null ? null : Number(r.left_at),
+  });
+  return {
+    last: (player) => {
+      const rows = sql
+        .exec('select * from visits where player = ? order by id desc limit 1', player)
+        .toArray();
+      return rows[0] ? toRow(rows[0]) : null;
+    },
+    insert: (row) => {
+      sql.exec(
+        'insert into visits (player, name, account, arrived, left_at) values (?, ?, ?, ?, ?)',
+        row.player,
+        row.name,
+        row.account ? 1 : 0,
+        row.arrived,
+        row.left,
+      );
+    },
+    reopen: (id, name) => {
+      sql.exec('update visits set left_at = null, name = ? where id = ?', name, id);
+    },
+    close: (player, at) => {
+      sql.exec('update visits set left_at = ? where player = ? and left_at is null', at, player);
+    },
+    prune: (before) => {
+      sql.exec('delete from visits where arrived < ?', before);
+    },
+    list: (since, limit) =>
+      sql
+        .exec(
+          'select * from visits where arrived >= ? order by arrived desc, id desc limit ?',
+          since,
+          limit,
+        )
+        .toArray()
+        .map(toRow),
+  };
 }

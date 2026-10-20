@@ -38,6 +38,8 @@ export type AccountState =
       savedName: string | null;
       /** Modérateur (vérifié par la base, qui seule donne accès aux signalements). */
       moderator: boolean;
+      /** Responsable du site (historique des connexions ; vérifié aussi par le serveur). */
+      owner: boolean;
     };
 
 export const accountStore = new Store<AccountState>({
@@ -158,12 +160,13 @@ export async function initAccount(): Promise<void> {
     const res = await db.from('profiles').select('name, look').eq('id', user.id).maybeSingle();
     if (res.error) throw res.error;
     const remote = parseProfile(res.data);
-    const modo = await db.rpc('is_moderator');
+    const [modo, owner] = await Promise.all([db.rpc('is_moderator'), db.rpc('is_site_owner')]);
     accountStore.set({
       status: 'signed-in',
       user,
       savedName: remote?.name ?? null,
       moderator: modo.data === true,
+      owner: owner.data === true,
     });
     const plan = reconcileProfiles(profileStore.get(), remote);
     if (plan.use) {

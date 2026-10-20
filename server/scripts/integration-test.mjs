@@ -123,6 +123,12 @@ try {
   check(up, 'le serveur local démarre et répond sur /health');
   if (!up) throw new Error('serveur indisponible');
 
+  const noToken = await fetch(`${BASE}/visits`, { headers: { Origin: ORIGIN } });
+  check(
+    noToken.status === 403,
+    'l’historique des connexions est refusé sans le jeton du responsable',
+  );
+
   const evil = await client('https://site-pirate.example');
   check(
     evil.error || evil.ws.readyState !== WebSocket.OPEN,

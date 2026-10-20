@@ -21,6 +21,9 @@
 - Visiteurs : profil, réglages et progression restent dans le `localStorage` (`src/services/`),
   versionnés (`{ v, data }`) et validés à la lecture.
 
+- **Responsable du site** (migration `20261022120000_site_owner.sql`) : `site_owners`
+  (illisible par l’API), `is_site_owner()` (accès à l’historique des connexions, DEC-022). Ajout
+  à la main : `insert into public.site_owners (user_id) values ('<uuid>');`.
 - **Logements** (migration `20261022090000_homes.sql`, v0.3) : `homes` (un par compte :
   `owner_id`, `access` = `private` / `invite` / `public`), `home_invites` (`owner_id`, `guest_id`,
   50 au plus par logement). Fonctions : `my_home()` (crée son logement au besoin, renvoie son

@@ -36,6 +36,14 @@ Prochaine étape : v0.3 Logements.**
 
 ## Dernières sessions
 
+- **22/10 (soir)** — PR #21, #22, #23 fusionnées et en ligne ; migration logements appliquée sur
+  Supabase (par morceaux, droits vérifiés). Historique des connexions (branche
+  `feature/historique-connexions`, DEC-022) : journal dans le Durable Object, `GET /visits`
+  réservé au responsable (`site_owners`, migration `20261022120000_site_owner.sql` **à appliquer
+  après accord**, puis ajouter le compte du responsable dans `site_owners`). Ensuite : ville plus
+  vivante (fontaine, oiseaux, secrets, espaces agrandis), proposition d’un rayon pour le chat
+  « Proximité » (aujourd’hui : toute la salle).
+
 - **22/10** — v0.3 Logements, lot 1A (branche `feature/logements-acces`, DEC-021) : migration
   `20261022090000_homes.sql` (**pas encore appliquée** sur Supabase : à appliquer après accord
   de fusion), messages `enter` / `door` / `evict`, accès vérifié par la base, chat d’un logement

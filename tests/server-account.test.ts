@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { visits } from '../server/src/routes';
 import {
   checkHomeAccess,
+  isSiteOwner,
   decodeAccountHeader,
   encodeAccountHeader,
   readProtocols,
@@ -84,5 +86,43 @@ describe('serveur : droit d’entrer dans un logement', () => {
     }) as unknown as typeof fetch;
     expect(await checkHomeAccess(OWNER, TOKEN, env, broken)).toBe(false);
     expect(await checkHomeAccess(OWNER, TOKEN, {}, fakeFetch(200, true).fn)).toBe(false);
+  });
+});
+
+describe('serveur : historique des connexions (responsable seulement)', () => {
+  it('demande à la base si le jeton est celui du responsable', async () => {
+    const { fn, calls } = fakeFetch(200, true);
+    expect(await isSiteOwner(TOKEN, env, fn)).toBe(true);
+    expect(calls[0]!.url).toBe('https://exemple.supabase.co/rest/v1/rpc/is_site_owner');
+    expect(await isSiteOwner(TOKEN, env, fakeFetch(200, false).fn)).toBe(false);
+    expect(await isSiteOwner(null, env, fakeFetch(200, true).fn)).toBe(false);
+    expect(await isSiteOwner('pas-un-jeton', env, fakeFetch(200, true).fn)).toBe(false);
+  });
+
+  const world = {
+    idFromName: () => 'id',
+    get: () => ({ fetch: async () => Response.json([{ name: 'Alice' }]) }),
+  };
+  const workerEnv = {
+    ...env,
+    ALLOWED_ORIGINS: 'https://malinosland.pages.dev',
+    WORLD: world,
+  } as unknown as Parameters<typeof visits>[1];
+  const get = (auth?: string) =>
+    new Request('https://rt.example/visits', {
+      headers: {
+        Origin: 'https://malinosland.pages.dev',
+        ...(auth ? { Authorization: auth } : {}),
+      },
+    });
+
+  it('refuse sans le jeton du responsable, répond au responsable', async () => {
+    const no = await visits(get(), workerEnv, async () => false);
+    expect(no.status).toBe(403);
+    const ok = await visits(get(`Bearer ${TOKEN}`), workerEnv, async (t) => t === TOKEN);
+    expect(ok.status).toBe(200);
+    expect(ok.headers.get('Access-Control-Allow-Origin')).toBe('https://malinosland.pages.dev');
+    expect(ok.headers.get('Cache-Control')).toBe('no-store');
+    expect(await ok.json()).toEqual([{ name: 'Alice' }]);
   });
 });

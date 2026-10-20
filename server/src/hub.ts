@@ -115,6 +115,11 @@ export interface HubOptions {
    * du joueur (null pour un visiteur). En cas d'erreur, l'entrée est refusée.
    */
   checkHomeAccess(ownerUuid: string, token: string | null): Promise<boolean>;
+  /** Historique des connexions (arrivées et départs), lu seulement par le responsable. */
+  visits?: {
+    arrive(player: string, name: string, account: boolean): void;
+    leave(player: string): void;
+  };
   /** Budget quotidien de messages entrants (fixé sous le quota gratuit réel). */
   dailyBudget: number;
   quota: QuotaCounter;
@@ -522,6 +527,7 @@ export class RealtimeHub {
       return;
     }
     const id = d.id;
+    this.opts.visits?.leave(id);
     this.send(this.others(conn), { t: 'bye', id });
     d.id = null;
     this.admitWaiting(d.room, d.key);
@@ -572,6 +578,7 @@ export class RealtimeHub {
   /** Entrée dans la salle : présentation aux présents, et des présents au nouveau venu. */
   private admit(conn: Conn, msg: HelloMessage, now: number): void {
     const d = conn.data;
+    this.opts.visits?.arrive(msg.id, d.account?.name ?? msg.name, d.account !== null);
     Object.assign(d, {
       id: msg.id,
       secret: d.account ? null : (msg.k ?? null),

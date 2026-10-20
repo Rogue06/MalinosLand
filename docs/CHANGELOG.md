@@ -5,6 +5,13 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (historique des connexions)
+
+- Le serveur note chaque visite (pseudo, compte ✓ ou visiteur, arrivée, départ), effacée après
+  **90 jours**. Onglet **📋 Connexions** dans la page de modération, **réservé au responsable du
+  site** (table `site_owners`, vérifiée par la base et par le serveur). Page de confidentialité
+  et texte d’accueil mis à jour. Rien n’existe pour les visites d’avant le 22/10/2026.
+
 ### Ajouté (v0.3 logements — dans le jeu)
 
 - **Ascenseur** : « RDC — Le Hub », « 🏠 Mon logement » (avec un compte), « Visiter un logement »
