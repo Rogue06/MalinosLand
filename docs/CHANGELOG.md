@@ -5,7 +5,10 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
-Rien pour l’instant : la suite (v0.3, logements) arrive ici.
+### Modifié (licence)
+
+- Licence du projet : **GNU AGPL-3.0** au lieu de MIT (choix du responsable, DEC-009). Lien
+  « Code source (licence AGPL-3.0) » sur l’écran d’accueil et dans l’aide du jeu.
 
 ## [0.2.0] — 21/10/2026 — « se retrouver » (en ligne sur https://malinosland.pages.dev)
 

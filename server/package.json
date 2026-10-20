@@ -4,7 +4,7 @@
   "private": true,
   "description": "Serveur temps réel de MalinosLand (Cloudflare Worker + Durable Object).",
   "type": "module",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "dev": "wrangler dev --port 8787",
     "typecheck": "tsc --noEmit",
