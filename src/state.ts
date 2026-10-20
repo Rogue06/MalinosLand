@@ -68,6 +68,9 @@ export const statsStore = new Store<Stats>({ fps: 0, peers: 0, kbSent: 0, transp
 export const toastStore = new Store<Toast[]>([]);
 export const worldInfoStore = new Store<MapFile | null>(null);
 
+/** Nombre de Malinos qui liraient un message « autour de moi » (à moins de 8 cases). */
+export const nearbyStore = new Store<number>(0);
+
 /** Salle où se trouve le joueur : le Hub, ou un logement (`home-…`). */
 export interface RoomInfo {
   room: string;

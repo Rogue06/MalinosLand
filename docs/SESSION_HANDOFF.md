@@ -36,6 +36,12 @@ Prochaine étape : v0.3 Logements.**
 
 ## Dernières sessions
 
+- **23/10 (suite)** — PR #26 fusionnée et en ligne. Branche `feature/chat-proximite` : rayon de
+  8 cases pour « autour » (serveur + démo), chat en un seul fil avec choix « À : Tout le monde /
+  Autour · n » (défaut : tout le monde), buisson retiré du chemin + test. À suivre (demandes du
+  responsable) : parc et forêt plus attrayants (chemins moins rectilignes, clairière…) et un
+  **coin jeux** intérieur.
+
 - **23/10** — PR #25 (ville vivante lot 1) fusionnée et en ligne. Lot 2 (branche
   `feature/hub-agrandi`) : Hub 48 × 38 (Parc des Malinos, Verger et potager), étang et télescope
   (2 secrets de plus, 8 au total), ronds dans l’étang. Pièces intérieures **pas encore

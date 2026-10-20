@@ -24,11 +24,11 @@ export function TopBar({
           class="badge"
           title={
             REALTIME_URL
-              ? 'Version prototype en ligne : les comptes arrivent bientôt'
-              : 'Version prototype : fonctionne en local, sans serveur'
+              ? 'Version en ligne, en construction : la v0.3 (logements) est en cours'
+              : 'Version locale : fonctionne sans serveur'
           }
         >
-          v0.2 · prototype
+          v0.3 · en construction
         </span>
         {zone && (
           <span class={`zone-chip ${zone.status}`} title={zone.description}>

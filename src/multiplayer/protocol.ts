@@ -220,6 +220,12 @@ export function randomId(rnd: () => number = Math.random): string {
   return id;
 }
 
+/**
+ * Rayon du chat « autour de moi » (en cases) dans les salles communes : seuls les joueurs à
+ * cette distance lisent le message. Dans un logement, toute la pièce le lit.
+ */
+export const LOCAL_CHAT_RADIUS = 8;
+
 /** Longueur des identifiants réservés aux comptes (UUID sans tirets). */
 export const ACCOUNT_ID_LENGTH = 32;
 

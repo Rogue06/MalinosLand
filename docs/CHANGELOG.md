@@ -5,6 +5,18 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Modifié (chat plus clair)
+
+- Un seul fil de discussion ; on choisit **à qui l’on écrit** : « 🌍 Tout le monde » (par défaut)
+  ou « 📍 Autour » avec le nombre de Malinos qui liront. Les messages de proximité sont marqués 📍.
+- « Autour » = à moins de **8 cases** (vérifié par le serveur ; toute la pièce dans un logement).
+  Message d’aide quand personne n’est assez près.
+
+### Corrigé
+
+- Un buisson barrait le chemin principal du parc ; un test interdit désormais tout objet
+  bloquant sur un chemin.
+
 ### Ajouté (ville plus vivante — lot 2 : Hub agrandi)
 
 - Le Hub passe de 34 × 30 à **48 × 38 cases** : **Parc des Malinos** à l’est (étang avec

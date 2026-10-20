@@ -26,6 +26,7 @@ import {
   decodeMessage,
   encodeMessage,
   homeOwner,
+  LOCAL_CHAT_RADIUS,
   type AnimState,
   type DoorRefusal,
   type NetMessage,
@@ -357,11 +358,17 @@ export class RealtimeHub {
         conn.save();
         // Dans un logement, tout reste entre ses murs : même un message « général » n'est lu
         // que par les personnes présentes.
-        const scope = homeOwner(d.room) ? 'local' : msg.scope;
+        const home = homeOwner(d.room) !== null;
+        const scope = home ? 'local' : msg.scope;
+        // « Autour de moi » : même salle, et à moins de LOCAL_CHAT_RADIUS cases (sauf logement).
         const targets =
           scope === 'global'
             ? this.others(conn)
-            : this.others(conn).filter((c) => c.data.room === d.room);
+            : this.others(conn).filter(
+                (c) =>
+                  c.data.room === d.room &&
+                  (home || Math.hypot(c.data.x - d.x, c.data.y - d.y) <= LOCAL_CHAT_RADIUS),
+              );
         this.send(targets, { t: 'chat', id: d.id, room: d.room, scope, text: msg.text });
         return;
       }
