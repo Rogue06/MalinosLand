@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { QUESTS } from '../../content/quests';
+import { HOME_EXIT, HUB_ROOM, mapIdForRoom } from '../../content/rooms';
 import { loadWorld } from '../../content/world';
 import { project, screenInputToWorld, unproject, type Facing, type Vec2 } from '../../core/iso';
 import { facesCamera } from '../../core/rotation';
@@ -11,6 +12,7 @@ import { ServerTransport } from '../../multiplayer/ServerTransport';
 import {
   EMOTES,
   accountPlayerId,
+  homeOwner,
   randomId,
   type AnimState,
   type Emote,
@@ -20,6 +22,7 @@ import { accessToken, accountStore } from '../../services/account';
 import { hiddenStore, isHidden } from '../../services/moderation';
 import { ambienceForZone, playSound, setAmbience, setAudioPaused } from '../../services/audio';
 import { isTouchDevice } from '../../services/device';
+import { myHomeAccess, type HomeAccess } from '../../services/homes';
 import {
   BroadcastChannelTransport,
   OfflineTransport,
@@ -39,6 +42,7 @@ import {
   presenceStore,
   pushChat,
   pushToast,
+  roomStore,
   statsStore,
   worldInfoStore,
   zoneStore,
@@ -51,16 +55,25 @@ import { AvatarView } from '../entities/AvatarView';
 import { TextureFactory } from '../textures';
 import { BACKREST_DEPTH, WorldRenderer } from '../WorldRenderer';
 
+/** Arrivée devant l'ascenseur du Hub en sortant d'un logement. */
+const EXIT_SPAWN = { x: HOME_EXIT.x, y: HOME_EXIT.y, facing: HOME_EXIT.facing };
+
 export interface WorldSceneData {
   selfId: string;
+  /** Salle à charger : le Hub (par défaut) ou un logement (`home-…`). */
+  room?: string;
+  /** Logement d'un autre : pseudo du propriétaire, pour l'affichage. */
+  ownerName?: string;
+  /** Point d'arrivée (sinon le départ de la carte). */
+  spawn?: { x: number; y: number; facing: Facing };
+  /** Connexion conservée d'une salle à l'autre (la scène est relancée, pas le réseau). */
+  carry?: { net: NetworkClient | null; serverTransport: ServerTransport | null };
 }
 
 interface RemoteAvatar {
   peer: RemotePeer;
   view: AvatarView;
 }
-
-const ROOM = 'hub';
 
 /** Nom affiché : la marque ✓ signale un joueur connecté à son compte (garantie par le serveur). */
 function displayName(name: string, verified: boolean): string {
@@ -118,8 +131,32 @@ export class WorldScene extends Phaser.Scene {
     super('world');
   }
 
+  /** Salle actuelle, nom du propriétaire (logement) et arrivée demandée. */
+  private room = HUB_ROOM;
+  private ownerName: string | null = null;
+  private arrival: WorldSceneData['spawn'] | null = null;
+  private carry: WorldSceneData['carry'] | null = null;
+  /** Changement de salle en cours : la scène est relancée sans couper le réseau. */
+  private traveling = false;
+  /** Abonnements aux événements réseau de cette scène (retirés à chaque changement de salle). */
+  private netCleanups: Array<() => void> = [];
+  /** Demande d'entrée dans un logement en attente de la réponse du serveur. */
+  private pendingDoor: { room: string; ownerName: string | null } | null = null;
+
   init(data: WorldSceneData): void {
     this.selfId = data.selfId;
+    // Phaser réutilise la même scène à chaque relance : on repart d'un état propre.
+    this.room = data.room ?? HUB_ROOM;
+    this.ownerName = data.ownerName ?? null;
+    this.arrival = data.spawn ?? null;
+    this.carry = data.carry ?? null;
+    this.traveling = false;
+    this.remotes = new Map();
+    this.cleanups = [];
+    this.netCleanups = [];
+    this.pendingDoor = null;
+    this.zoneId = null;
+    this.hovered = null;
   }
 
   create(): void {
@@ -130,9 +167,12 @@ export class WorldScene extends Phaser.Scene {
     const rp = renderProfile(settings.quality);
     this.pixelRatio = rp.pixelRatio;
 
-    this.world = loadWorld('hub');
+    this.world = loadWorld(mapIdForRoom(this.room) ?? 'hub');
     worldInfoStore.set(this.world.map);
-    this.tex = new TextureFactory(this, rp.textureScale);
+    // Une seule fabrique pour toute la partie : les textures déjà dessinées (Hub, studio,
+    // avatars) sont réutilisées d'une salle à l'autre.
+    if (!this.tex || this.tex.texScale !== rp.textureScale)
+      this.tex = new TextureFactory(this, rp.textureScale);
     this.renderer3d = new WorldRenderer(this, this.world, this.tex, {
       effects: rp.effects,
       reducedMotion: settings.reducedMotion,
@@ -145,8 +185,14 @@ export class WorldScene extends Phaser.Scene {
     this.selfVerified =
       account.status === 'signed-in' && accountPlayerId(account.user.id) === this.selfId;
     this.savedName = account.status === 'signed-in' ? account.savedName : null;
-    const spawn = this.world.map.spawn;
+    const spawn = this.arrival ?? this.world.map.spawn;
     this.player = new PlayerController(this.world, this.selfId, spawn, spawn.facing);
+    const owner = homeOwner(this.room);
+    roomStore.set({
+      room: this.room,
+      ownerName: owner === this.selfId ? (profile.name ?? null) : this.ownerName,
+      mine: owner !== null && owner === this.selfId,
+    });
     this.avatar = new AvatarView(
       this,
       this.tex,
@@ -179,8 +225,15 @@ export class WorldScene extends Phaser.Scene {
     this.cleanups.push(commands.on('emote', ({ emoji }) => this.playEmote(emoji)));
     // Bouton d'action de l'interface (indispensable au doigt, sans touche E).
     this.cleanups.push(commands.on('use', () => !isInputLocked() && this.onUseKey()));
+    this.cleanups.push(
+      commands.on('travel', ({ room, ownerName }) => void this.goTo(room, ownerName ?? null)),
+    );
+    this.cleanups.push(
+      commands.on('home-access', ({ access, guests }) => this.enforceAccess(access, guests)),
+    );
 
-    void this.startNetwork(settings.multiTab);
+    if (this.carry) this.adoptNetwork(this.carry);
+    else void this.startNetwork(settings.multiTab);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.teardown());
     const onVisibility = () => this.onVisibilityChange(document.hidden);
     document.addEventListener('visibilitychange', onVisibility);
@@ -191,6 +244,10 @@ export class WorldScene extends Phaser.Scene {
 
     this.updatePresence();
     this.exposeDebug();
+    if (this.carry) {
+      this.announceArrival();
+      return;
+    }
     pushChat({
       from: 'MalinosLand',
       text: isTouchDevice()
@@ -216,7 +273,9 @@ export class WorldScene extends Phaser.Scene {
     const p = project(this.player.pos.x, this.player.pos.y);
     cam.centerOn(p.x, p.y - 30);
     cam.startFollow(this.avatar.sprite, false, 0.12, 0.12, 0, 20);
-    this.scale.on(Phaser.Scale.Events.RESIZE, () => this.updateZoom());
+    const onResize = () => this.updateZoom();
+    this.scale.on(Phaser.Scale.Events.RESIZE, onResize);
+    this.cleanups.push(() => this.scale.off(Phaser.Scale.Events.RESIZE, onResize));
   }
 
   private updateZoom(): void {
@@ -415,7 +474,9 @@ export class WorldScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- Chat & emotes
 
-  private sendChat(raw: string, scope: 'local' | 'global'): void {
+  private sendChat(raw: string, wanted: 'local' | 'global'): void {
+    // Dans un logement, tout reste entre ses murs (le serveur l'impose aussi).
+    const scope = homeOwner(this.room) ? 'local' : wanted;
     const text = sanitizeText(raw, CHAT_MAX_LENGTH);
     if (!text) return;
     const profile = profileStore.get();
@@ -446,6 +507,118 @@ export class WorldScene extends Phaser.Scene {
   private playEmote(emoji: Emote): void {
     this.avatar.say(emoji, 3000);
     this.net?.sendEmote(emoji);
+  }
+
+  // ---------------------------------------------------------------- Salles et logements
+
+  /** Le joueur demande à aller dans une salle (ascenseur). */
+  private async goTo(room: string, ownerName: string | null): Promise<void> {
+    if (this.traveling || this.pendingDoor) return;
+    if (room === this.room) {
+      pushToast('Tu y es déjà !', '🛗');
+      return;
+    }
+    if (room === HUB_ROOM) {
+      this.travel(HUB_ROOM, null, EXIT_SPAWN);
+      return;
+    }
+    const owner = homeOwner(room);
+    if (!owner) return;
+    const net = this.net;
+    if (!net || net.transportKind !== 'server') {
+      pushToast('Les logements se visitent dans la version en ligne du jeu.', '🏠', 5000);
+      return;
+    }
+    if (owner === this.selfId) {
+      // Le logement est créé en base à la première visite (pour pouvoir l'ouvrir ensuite).
+      void myHomeAccess().catch(() => {});
+      this.travel(room, null);
+      return;
+    }
+    const account = accountStore.get();
+    if (account.status === 'signed-in' && accountPlayerId(account.user.id) === owner) {
+      pushToast('Recharge la page pour entrer avec ton compte ✓.', '🔑', 6000);
+      return;
+    }
+    this.pendingDoor = { room, ownerName };
+    net.requestEnter(room, await accessToken());
+    this.time.delayedCall(8000, () => {
+      if (this.pendingDoor?.room !== room) return;
+      this.pendingDoor = null;
+      pushToast('Pas de réponse du serveur : réessaie dans un instant.', '🛗', 5000);
+    });
+  }
+
+  /** Relance la scène dans une autre salle, en gardant la connexion. */
+  private travel(room: string, ownerName: string | null, spawn?: WorldSceneData['spawn']): void {
+    if (this.traveling) return;
+    this.traveling = true;
+    panelStore.set(null);
+    dialogStore.set(null);
+    const data: WorldSceneData = {
+      selfId: this.selfId,
+      room,
+      ...(ownerName ? { ownerName } : {}),
+      ...(spawn ? { spawn } : {}),
+      carry: { net: this.net, serverTransport: this.serverTransport },
+    };
+    this.scene.restart(data);
+  }
+
+  /** Réponse du serveur : entrée permise ou refusée, ou sortie forcée d'un logement. */
+  private onDoor(room: string, ok: boolean, why?: string): void {
+    if (homeOwner(room)) {
+      const pending = this.pendingDoor;
+      this.pendingDoor = null;
+      if (ok && pending?.room === room) this.travel(room, pending.ownerName);
+      else if (!ok)
+        pushToast(
+          why === 'full'
+            ? 'Ce logement est plein pour le moment (12 personnes) : réessaie plus tard.'
+            : 'Ce logement est fermé, ou tu n’y es pas invité.',
+          '🚪',
+          5000,
+        );
+      return;
+    }
+    // Mis à la porte, ou plus le droit d'entrer après une coupure : retour devant l'ascenseur.
+    const owner = homeOwner(this.room);
+    if (!owner || owner === this.selfId) return;
+    pushToast(
+      why === 'evicted'
+        ? 'Le propriétaire t’a raccompagné jusqu’à l’ascenseur du Hub.'
+        : 'Ce logement n’est plus accessible : retour au Hub.',
+      '🛗',
+      6000,
+    );
+    this.travel(HUB_ROOM, null, EXIT_SPAWN);
+  }
+
+  /** Chez moi : fait sortir les personnes présentes qui n'ont plus le droit d'être là. */
+  private enforceAccess(access: HomeAccess, guests: string[]): void {
+    if (homeOwner(this.room) !== this.selfId || !this.net) return;
+    for (const { peer } of this.remotes.values()) {
+      if (peer.room !== this.room) continue;
+      const allowed = access === 'public' || (access === 'invite' && guests.includes(peer.id));
+      if (!allowed) this.net.evict(peer.id);
+    }
+  }
+
+  /** Nom affiché du lieu dans un logement. */
+  private homeLabel(): string {
+    return homeOwner(this.room) === this.selfId
+      ? 'Mon studio'
+      : `Chez ${this.ownerName ?? 'un Malino'}`;
+  }
+
+  private announceArrival(): void {
+    const owner = homeOwner(this.room);
+    const text = !owner
+      ? 'Retour au Hub !'
+      : owner === this.selfId
+        ? 'Bienvenue chez toi ! La table basse règle qui peut entrer. Ce qui s’écrit ici reste entre ces murs.'
+        : `Tu es chez ${this.ownerName ?? 'un Malino'}. Ce qui s’écrit ici n’est lu que par les personnes présentes.`;
+    pushChat({ from: 'MalinosLand', text, kind: 'system', scope: 'local' });
   }
 
   // ---------------------------------------------------------------- Réseau
@@ -480,7 +653,34 @@ export class WorldScene extends Phaser.Scene {
         : { stateIntervalMs: 100 },
     );
     this.net = net;
-    net.events.on('join', (peer) => {
+    this.attachNetwork(net);
+    try {
+      await net.start();
+    } catch (err) {
+      console.warn('[réseau] démarrage impossible, passage en solo', err);
+    }
+    this.updatePresence();
+  }
+
+  /** Reprend la connexion de la salle précédente (changement de salle). */
+  private adoptNetwork(carry: NonNullable<WorldSceneData['carry']>): void {
+    this.net = carry.net;
+    this.serverTransport = carry.serverTransport;
+    if (!this.net) return;
+    this.attachNetwork(this.net);
+    for (const peer of this.net.peers.values()) this.addRemote(peer);
+  }
+
+  /** Branche cette scène sur les événements réseau (abonnements retirés à la sortie). */
+  private attachNetwork(net: NetworkClient): void {
+    for (const off of this.netCleanups) off();
+    this.netCleanups = [];
+    const on: NetworkClient['events']['on'] = (type, handler) => {
+      const off = net.events.on(type, handler);
+      this.netCleanups.push(off);
+      return off;
+    };
+    on('join', (peer) => {
       this.addRemote(peer);
       if (isHidden(peer.id)) return;
       pushChat({
@@ -490,14 +690,14 @@ export class WorldScene extends Phaser.Scene {
         scope: 'global',
       });
     });
-    net.events.on('update', (peer) => {
+    on('update', (peer) => {
       if (!this.remotes.has(peer.id)) this.addRemote(peer);
     });
-    net.events.on('look', (peer) => {
+    on('look', (peer) => {
       this.remotes.get(peer.id)?.view.setLook(peer.look, displayName(peer.name, peer.verified));
       this.updatePresence();
     });
-    net.events.on('leave', ({ id }) => {
+    on('leave', ({ id }) => {
       const r = this.remotes.get(id);
       if (!r) return;
       if (!isHidden(id))
@@ -512,7 +712,7 @@ export class WorldScene extends Phaser.Scene {
       this.updatePresence();
     });
     // Joueur masqué : ni bulle, ni message, ni émote.
-    net.events.on('chat', ({ peer, text, scope }) => {
+    on('chat', ({ peer, text, scope }) => {
       if (isHidden(peer.id)) return;
       if (scope === 'local') this.remotes.get(peer.id)?.view.say(text);
       const mention = mentions(text, profileStore.get()?.name ?? '');
@@ -531,14 +731,14 @@ export class WorldScene extends Phaser.Scene {
         document.title = `(${this.unreadMentions}) MalinosLand`;
       }
     });
-    net.events.on('away', (peer) => {
+    on('away', (peer) => {
       this.remotes.get(peer.id)?.view.setAway(peer.away);
       this.updatePresence();
     });
-    net.events.on('emote', ({ peer, emote }) => {
+    on('emote', ({ peer, emote }) => {
       if (!isHidden(peer.id)) this.remotes.get(peer.id)?.view.say(emote, 3000);
     });
-    net.events.on('queue', ({ pos }) => {
+    on('queue', ({ pos }) => {
       if (pos === 0) {
         pushToast('C’est ton tour : bienvenue dans le Hub !', '🎉', 5000);
         pushChat({
@@ -555,17 +755,12 @@ export class WorldScene extends Phaser.Scene {
       }
       this.lastQueuePos = pos === 0 ? null : pos;
     });
-    net.events.on('notice', ({ code }) => {
+    on('notice', ({ code }) => {
       const text = NOTICE_TEXT[code];
       pushToast(text, '🌐', 7000);
       pushChat({ from: 'MalinosLand', text, kind: 'system', scope: 'global' });
     });
-    try {
-      await net.start();
-    } catch (err) {
-      console.warn('[réseau] démarrage impossible, passage en solo', err);
-    }
-    this.updatePresence();
+    on('door', ({ room, ok, why }) => this.onDoor(room, ok, why));
   }
 
   private addRemote(peer: RemotePeer): void {
@@ -589,7 +784,7 @@ export class WorldScene extends Phaser.Scene {
   private localState() {
     const s: AnimState = this.player?.seat ? 2 : this.avatar?.moving ? 1 : 0;
     return {
-      room: ROOM,
+      room: this.room,
       x: this.player?.pos.x ?? 0,
       y: this.player?.pos.y ?? 0,
       f: this.player?.facing ?? 'py',
@@ -607,7 +802,7 @@ export class WorldScene extends Phaser.Scene {
               name: profile.name,
               look: profile.look,
               self: true,
-              room: ROOM,
+              room: this.room,
               verified: this.selfVerified,
               away: false,
             },
@@ -705,7 +900,7 @@ export class WorldScene extends Phaser.Scene {
       playerPosStore.set({ x: av.x, y: av.y });
       peersPosStore.set(
         [...this.remotes.values()]
-          .filter((r) => r.peer.room === ROOM)
+          .filter((r) => r.peer.room === this.room)
           .map((r) => ({ x: r.view.x, y: r.view.y })),
       );
     }
@@ -738,7 +933,7 @@ export class WorldScene extends Phaser.Scene {
   private updateRemotes(delta: number): void {
     const k = 1 - Math.exp(-delta / 80);
     for (const { peer, view } of this.remotes.values()) {
-      const visible = peer.room === ROOM;
+      const visible = peer.room === this.room;
       view.sprite.setVisible(visible);
       if (!visible) continue;
       const dx = peer.x - view.x;
@@ -775,7 +970,7 @@ export class WorldScene extends Phaser.Scene {
     const id = zone?.id ?? null;
     if (id === this.zoneId) return;
     this.zoneId = id;
-    zoneStore.set(zone);
+    zoneStore.set(zone && homeOwner(this.room) ? { ...zone, name: this.homeLabel() } : zone);
     setAmbience(ambienceForZone(id));
     if (id === 'terrace') this.quest('terrace');
     if (id === 'hall' && !this.greeted) {
@@ -793,6 +988,13 @@ export class WorldScene extends Phaser.Scene {
     (window as unknown as Record<string, unknown>).__malinosDebug = {
       pos: () => ({ ...this.player.pos }),
       seated: () => this.player.seat !== null,
+      /** Salle actuelle, et changement de salle direct (sans demande au serveur). */
+      room: () => this.room,
+      travel: (room: string) => {
+        if (!mapIdForRoom(room)) return false;
+        this.travel(room, 'Test', room === HUB_ROOM ? EXIT_SPAWN : undefined);
+        return true;
+      },
       /** État de l'interface et du joueur, pour diagnostiquer un test qui échoue. */
       state: () => ({
         pos: { ...this.player.pos },
@@ -887,7 +1089,10 @@ export class WorldScene extends Phaser.Scene {
     if (this.awayTimer) clearTimeout(this.awayTimer);
     for (const c of this.cleanups) c();
     this.cleanups = [];
-    this.net?.stop();
+    for (const off of this.netCleanups) off();
+    this.netCleanups = [];
+    // Changement de salle : la connexion continue (elle est reprise par la nouvelle salle).
+    if (!this.traveling) this.net?.stop();
     this.net = null;
   }
 }

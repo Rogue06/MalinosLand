@@ -159,7 +159,26 @@ Une salle accueille 40 Malinos à la fois. Si elle est pleine, tu passes dans la
 d’attente** : ta place s’affiche (« tu es 3e »), tu explores en solo en attendant, et tu entres
 tout seul dès qu’une place se libère.
 
-## 9. Quelqu’un te dérange ?
+## 9. Ton logement (v0.3)
+
+![Un studio de la Tour des Malinos](images/studio.jpg)
+
+Avec un compte (GitHub ou Google), tu as ton **studio** dans la Tour des Malinos.
+
+- **Y aller** : prends l’ascenseur du hall → **🏠 Mon logement**. Pour revenir : l’ascenseur du
+  studio → **RDC — Le Hub** (tu arrives devant l’ascenseur du hall).
+- **Qui peut entrer ?** Touche la **table basse** du studio : **🔒 Personne**, **✉️ Sur
+  invitation** ou **🚪 Tout le monde** (même sans compte). C’est le serveur et la base de données
+  qui vérifient, pas seulement le jeu : impossible de forcer la porte.
+- **Inviter** : bouton « N Malinos » en haut de l’écran → **Inviter** à côté d’un joueur connecté
+  à son compte (✓). Retirer une invitation, ou fermer ton logement, raccompagne aussitôt la
+  personne à l’ascenseur si elle est chez toi.
+- **Visiter** : l’ascenseur liste les logements ouverts à tous et ceux où tu es invité.
+- **Discussion privée** : dans un logement, ce que tu écris n’est lu que par les personnes
+  présentes (onglet « Ici »). Le chat général du Hub, lui, continue d’arriver.
+- 12 personnes au plus par logement. La décoration (déplacer, ajouter des meubles) arrive bientôt.
+
+## 10. Quelqu’un te dérange ?
 
 Clique sur **« N Malinos »** en haut de l’écran : la liste des joueurs connectés s’ouvre.
 
@@ -168,7 +187,7 @@ Clique sur **« N Malinos »** en haut de l’écran : la liste des joueurs conn
 - **Signaler** (compte nécessaire) : choisis un motif, ajoute des précisions si tu veux. Ses
   derniers messages sont joints automatiquement. L’équipe de modération regarde chaque signalement.
 
-## 10. Une idée ? Un bug ?
+## 11. Une idée ? Un bug ?
 
 Dans le hall, près de l’entrée, la **Boîte à idées** 💡 et la **Borne à bugs** 🐞 t’attendent
 (aussi accessibles avec le bouton 💡 en haut de l’écran). Écris ton message, il arrive directement

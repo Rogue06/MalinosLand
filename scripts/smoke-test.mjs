@@ -242,7 +242,7 @@ try {
   await step('ascenseur', async () => {
     await teleport(12.5, 10.6, 'ny');
     await dbg(() => window.__malinosDebug.use('elevator'));
-    await waitUi('.modal', 'Choisis un étage.');
+    await waitUi('.modal', 'Mon logement');
     await page.screenshot({ path: `${outDir}/05-ascenseur.png` });
     await page.keyboard.press('Escape');
     await waitGone('.modal');
@@ -265,6 +265,23 @@ try {
     await teleport(29.5, 7.5, 'py');
     await waitUi('.zone-chip', 'Terrasse');
     await page.screenshot({ path: `${outDir}/07-terrasse.png` });
+  });
+
+  await step('logement : studio puis retour devant l’ascenseur du Hub', async () => {
+    await waitIdle();
+    const home = `home-${'a'.repeat(32)}`;
+    await dbg((h) => window.__malinosDebug.travel(h), home);
+    await waitFor((h) => window.__malinosDebug?.room() === h, home);
+    await waitFor(() => window.__malinosDebug.state().zone === 'studio');
+    await waitUi('.zone-chip', 'Chez');
+    await waitUi('.chat-private');
+    await page.screenshot({ path: `${outDir}/08-studio.png` });
+    await dbg(() => window.__malinosDebug.travel('hub'));
+    await waitFor(() => window.__malinosDebug?.room() === 'hub');
+    await waitFor(() => {
+      const p = window.__malinosDebug.pos();
+      return Math.hypot(p.x - 11.9, p.y - 10.6) < 0.5;
+    });
   });
 
   await step('démo multi-onglets', async () => {

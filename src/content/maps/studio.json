@@ -135,9 +135,9 @@
     },
     {
       "type": "mirror",
-      "x": 10,
-      "y": 5,
-      "rot": 3,
+      "x": 1,
+      "y": 3,
+      "rot": 1,
       "id": "studio-mirror"
     },
     {
@@ -146,17 +146,17 @@
       "y": 9
     },
     {
-      "type": "plant",
-      "x": 1,
-      "y": 9
-    },
-    {
       "type": "bookshelf",
-      "x": 10,
+      "x": 1,
       "y": 8,
-      "rot": 3,
+      "rot": 1,
       "variant": 2,
       "id": "studio-shelf-2"
+    },
+    {
+      "type": "plant",
+      "x": 10,
+      "y": 2
     }
   ],
   "wallDecor": [
@@ -182,14 +182,15 @@
     {
       "type": "window",
       "x": 0,
-      "y": 3,
+      "y": 5,
       "side": "px"
     },
     {
-      "type": "window",
+      "type": "poster",
       "x": 0,
       "y": 7,
-      "side": "px"
+      "side": "px",
+      "variant": 2
     }
   ]
 }

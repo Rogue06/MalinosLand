@@ -1,4 +1,4 @@
-/** Étages desservis par l'ascenseur. Seul le rez-de-chaussée existe en v0.1. */
+/** Étages desservis par l'ascenseur (les logements, eux, sont proposés directement). */
 export interface FloorDef {
   id: string;
   label: string;
@@ -17,10 +17,10 @@ export const FLOORS: FloorDef[] = [
   },
   {
     id: 'tour',
-    label: 'Étages 1 et + — Tour communautaire',
-    description: 'Les logements personnels des Malinos, chargés à la demande.',
+    label: 'Étages de la Tour communautaire',
+    description: 'Un couloir et une porte par logement, des espaces publics par étage.',
     status: 'soon',
-    plannedFor: 'v0.3 – v0.4',
+    plannedFor: 'v0.4',
   },
   {
     id: 'hub',
