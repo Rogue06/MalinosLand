@@ -79,6 +79,8 @@ const pick = <T>(list: readonly T[]): T => list[Math.floor(Math.random() * list.
 export class AmbientLife {
   private drops: Drop[] = [];
   private fountains: Array<{ x: number; y: number; depth: number }> = [];
+  /** Plans d'eau où naissent des ronds (fontaine : bassin bas ; étang). */
+  private waters: Array<{ x: number; y: number; z: number; r: number; depth: number }> = [];
   private dropTimer = 0;
   private rippleTimer = 0;
   private steamSpots: Array<{ x: number; y: number; z: number; depth: number }> = [];
@@ -101,6 +103,10 @@ export class AmbientLife {
       if (o.type === 'fountain') {
         const c = objectPoint(o, 1, 1);
         this.fountains.push({ ...c, depth: depthOf(o) + 0.5 });
+        this.waters.push({ ...c, z: 0.27, r: 0.6, depth: depthOf(o) + 0.1 });
+      } else if (o.type === 'pond') {
+        const c = objectPoint(o, 1.5, 1.5);
+        this.waters.push({ ...c, z: 0.13, r: 1.0, depth: depthOf(o) + 0.1 });
       } else if (o.type === 'coffee_bar') {
         const c = objectPoint(o, 0.98, 0.6);
         this.steamSpots.push({ ...c, z: 0.97, depth: depthOf(o) + 0.5 });
@@ -220,6 +226,7 @@ export class AmbientLife {
     const dt = Math.min(deltaMs, 100) / 1000;
     this.time += dt;
     this.updateFountains(dt);
+    this.updateRipples(dt);
     this.updateSteam(dt);
     this.updateBirds(dt);
     this.updateButterflies();
@@ -263,26 +270,30 @@ export class AmbientLife {
       const p = project(d.x, d.y, d.z);
       d.dot.setPosition(p.x, p.y);
     }
+  }
+
+  /** Ronds dans l'eau (fontaine et étangs). */
+  private updateRipples(dt: number): void {
+    if (this.waters.length === 0) return;
     this.rippleTimer -= dt;
-    if (this.rippleTimer <= 0) {
-      this.rippleTimer = rand(0.8, 1.6);
-      const f = pick(this.fountains);
-      const a = rand(0, Math.PI * 2);
-      const r = rand(0.45, 0.7);
-      const p = project(f.x + Math.cos(a) * r, f.y + Math.sin(a) * r, 0.27);
-      const ring = this.scene.add
-        .ellipse(p.x, p.y, 10, 5)
-        .setStrokeStyle(1, 0xe6fbff, 0.7)
-        .setDepth(f.depth - 0.4)
-        .setScale(0.3);
-      this.scene.tweens.add({
-        targets: ring,
-        scale: 1.4,
-        alpha: 0,
-        duration: 1200,
-        onComplete: () => ring.destroy(),
-      });
-    }
+    if (this.rippleTimer > 0) return;
+    this.rippleTimer = rand(0.6, 1.4);
+    const w = pick(this.waters);
+    const a = rand(0, Math.PI * 2);
+    const r = rand(0.1, w.r);
+    const p = project(w.x + Math.cos(a) * r, w.y + Math.sin(a) * r, w.z);
+    const ring = this.scene.add
+      .ellipse(p.x, p.y, 10, 5)
+      .setStrokeStyle(1, 0xe6fbff, 0.7)
+      .setDepth(w.depth)
+      .setScale(0.3);
+    this.scene.tweens.add({
+      targets: ring,
+      scale: 1.4,
+      alpha: 0,
+      duration: 1200,
+      onComplete: () => ring.destroy(),
+    });
   }
 
   // ---------------------------------------------------------------- Vapeur du café

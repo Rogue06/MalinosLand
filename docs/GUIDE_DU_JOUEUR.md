@@ -108,7 +108,16 @@ Canapés, fauteuils, **comptoir à café**, borne d’arcade (les mini-jeux arri
 ![Terrasse](images/terrasse.jpg)
 
 Autour du bâtiment : fontaine, bancs, jardinières, et une terrasse avec tables à parasol et
-transats. À gauche, le **chantier de la Tour communautaire** annonce les futurs logements (v0.3).
+transats. À gauche, le **chantier de la Tour communautaire** annonce les étages à venir (v0.4).
+
+### Le Parc des Malinos et le verger
+
+![Le Parc des Malinos](images/parc.jpg)
+
+À l’est, le **Parc des Malinos** : un étang avec ses nénuphars, des bancs pour discuter, un
+kiosque en bois avec tables à parasol et un télescope, et beaucoup d’arbres où se posent les
+oiseaux (approche-toi : ils s’envolent !). Au sud, la **promenade du verger** longe les arbres
+fruitiers jusqu’au **potager partagé**.
 
 ## 5. Les objectifs « Premiers pas »
 

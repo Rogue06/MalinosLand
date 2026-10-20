@@ -14,7 +14,7 @@ export type Ambience = 'outdoor' | 'coworking' | 'hall' | 'lounge' | null;
 
 /** Zones extérieures et zones avec une ambiance particulière (carte du Hub). */
 export function ambienceForZone(zoneId: string | null): Ambience {
-  if (zoneId === 'garden' || zoneId === 'terrace' || zoneId === 'site') return 'outdoor';
+  if (['garden', 'terrace', 'site', 'park', 'orchard'].includes(zoneId ?? '')) return 'outdoor';
   if (zoneId === 'coworking') return 'coworking';
   if (zoneId === 'hall') return 'hall';
   // Salon du Hub et studios : ambiance douce (cheminée, tasses).

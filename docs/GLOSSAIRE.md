@@ -10,7 +10,7 @@ Les mots techniques utilisés dans le projet, expliqués simplement.
 | **Voxel**       | Un style où tout est fait de petits cubes (comme des briques de construction). |
 | **Hub**         | Le bâtiment principal de MalinosLand, point de rencontre de tous.              |
 | **Zone**        | Une partie du monde : hall, coworking, salon, jardin…                          |
-| **Tuile**       | Une case du sol. Le Hub mesure 34 × 30 tuiles.                                 |
+| **Tuile**       | Une case du sol. Le Hub mesure 48 × 38 tuiles.                                 |
 | **Avatar**      | Ton personnage dans le jeu.                                                    |
 | **Émote**       | Une petite icône qui s’affiche au-dessus de la tête (👋, ☕…).                 |
 | **PNJ**         | Personnage non joueur, comme Joshua le robot.                                  |

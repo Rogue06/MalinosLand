@@ -16,4 +16,6 @@ export const SECRETS: SecretDef[] = [
   { id: 'carnet', title: 'Le carnet oublié du coworking' },
   { id: 'nain', title: 'Le nain de jardin farceur' },
   { id: 'konami', title: 'Le code de la borne d’arcade' },
+  { id: 'bouteille', title: 'La bouteille de l’étang' },
+  { id: 'telescope', title: 'La vue du télescope' },
 ];
