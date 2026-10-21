@@ -150,12 +150,32 @@ strong {
 }
 
 .btn-google {
+  /* Petit zoom avant / arrière, comme un bouton qui respire : il attire l'œil sans clignoter. */
+  animation: respire 2.8s ease-in-out infinite;
   --btn-felt: var(--felt-light);
   --btn-bg: #fff;
   --btn-edge: #d7cdb6;
   width: 100%;
   padding: 17px 24px;
   font-size: 20px;
+}
+
+@keyframes respire {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+/* Au survol (ou au clavier), le bouton s'arrête pour qu'on puisse cliquer tranquillement. */
+.btn-google:hover,
+.btn-google:focus-visible,
+.btn-google:active,
+.btn-google[disabled] {
+  animation: none;
 }
 
 /* Petit écusson « conseillé » cousu sur le bouton Google */
@@ -925,48 +945,6 @@ strong {
   color: var(--ink-soft);
 }
 
-/* Post-it */
-.postits {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 22px;
-}
-
-.postit {
-  margin: 0;
-  padding: 22px 18px 26px;
-  min-height: 150px;
-  font-size: 17px;
-  background: var(--felt), var(--pc);
-  box-shadow: 0 12px 18px rgba(42, 35, 66, 0.18);
-  clip-path: polygon(0 0, 100% 0, 100% 88%, 88% 100%, 0 100%);
-}
-
-.postit strong {
-  display: block;
-  font-size: 20px;
-}
-
-.p-jaune {
-  --pc: #ffe98a;
-  transform: rotate(-2deg);
-}
-
-.p-rose {
-  --pc: #ffc2cf;
-  transform: rotate(1.5deg);
-}
-
-.p-vert {
-  --pc: #c6f1a6;
-  transform: rotate(-1deg);
-}
-
-.p-bleu {
-  --pc: #b9e3ff;
-  transform: rotate(2deg);
-}
-
 .appel {
   margin-top: 46px;
   text-align: center;
@@ -1012,10 +990,6 @@ strong {
   .cartes,
   .album,
   .fil {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .postits {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1066,8 +1040,7 @@ strong {
 
   .cartes,
   .album,
-  .fil,
-  .postits {
+  .fil {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -1099,7 +1072,8 @@ strong {
   }
 
   .nuage-suspendu,
-  .sticker {
+  .sticker,
+  .btn-google {
     animation: none;
   }
 

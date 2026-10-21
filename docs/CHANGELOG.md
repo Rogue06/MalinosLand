@@ -8,10 +8,11 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 ### Ajouté (site d’accueil)
 
 - **Site d’accueil** à l’adresse principale : présentation du projet (le sens, la visite en
-  photos, la feuille de route, le « 0 € », comment participer), dans un style « fait main »
+  photos, la feuille de route, comment participer), dans un style « fait main »
   (feutrine, coutures, carton, nuages à spirales) avec nos propres personnages en autocollants.
 - Bouton **« Continuer avec Google »** mis en avant (GitHub en second, visite sans compte
-  toujours possible) ; après la connexion, on arrive directement dans le jeu.
+  toujours possible), avec un léger zoom avant / arrière qui attire l’œil (coupé si l’on
+  réduit les animations) ; après la connexion, on arrive directement dans le jeu.
 - Aperçu soigné quand on partage le lien (Discord, WhatsApp, réseaux).
 
 ### Modifié (site d’accueil)
