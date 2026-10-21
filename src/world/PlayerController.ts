@@ -30,7 +30,7 @@ export class PlayerController {
   private stuckTime = 0;
 
   constructor(
-    private readonly world: WorldModel,
+    private world: WorldModel,
     readonly id: string,
     spawn: Vec2,
     facing: Facing,
@@ -140,6 +140,13 @@ export class PlayerController {
   cancel(): void {
     this.waypoints = [];
     this.pending = null;
+  }
+
+  /** Nouvelle version de la salle (décoration changée) : on se relève et on s'arrête. */
+  setWorld(world: WorldModel): void {
+    this.standUp();
+    this.cancel();
+    this.world = world;
   }
 
   /** Avance d'un pas de simulation. `input` = direction clavier (monde). */

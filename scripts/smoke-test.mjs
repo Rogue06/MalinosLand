@@ -267,7 +267,7 @@ try {
     await page.screenshot({ path: `${outDir}/07-terrasse.png` });
   });
 
-  await step('logement : studio puis retour devant l’ascenseur du Hub', async () => {
+  await step('logement : studio', async () => {
     await waitIdle();
     const home = `home-${'a'.repeat(32)}`;
     await dbg((h) => window.__malinosDebug.travel(h), home);
@@ -276,6 +276,27 @@ try {
     await waitUi('.zone-chip', 'Chez');
     await waitUi('.chat-to', 'Logement');
     await page.screenshot({ path: `${outDir}/08-studio.png` });
+  });
+
+  await step('logement : éditeur de décoration (poser, refuser, annuler)', async () => {
+    const before = await dbg(() => window.__malinosDebug.decor().length);
+    await dbg(() => window.__malinosDebug.decorStart());
+    await page.locator('.decor-bar').waitFor();
+    await page.locator('.decor-item', { hasText: 'Pouf' }).click();
+    await dbg(() => window.__malinosDebug.decorTap(7, 6));
+    await waitFor((n) => window.__malinosDebug.decor().length === n + 1, before);
+    // Sur l'ascenseur : refusé, avec une explication.
+    await page.locator('.decor-item', { hasText: 'Canapé' }).click();
+    await dbg(() => window.__malinosDebug.decorTap(5, 1));
+    await waitUi('.decor-msg', 'entrée');
+    await page.screenshot({ path: `${outDir}/08-decoration.png` });
+    await page.keyboard.press('Escape');
+    await page.locator('.decor-head button', { hasText: 'Annuler' }).click();
+    await waitGone('.decor-bar');
+    await waitFor((n) => window.__malinosDebug.decor().length === n, before);
+  });
+
+  await step('logement : retour devant l’ascenseur du Hub', async () => {
     await dbg(() => window.__malinosDebug.travel('hub'));
     await waitFor(() => window.__malinosDebug?.room() === 'hub');
     await waitFor(() => {

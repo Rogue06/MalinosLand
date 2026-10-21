@@ -1,5 +1,5 @@
 import { REALTIME_URL } from '../../config';
-import { panelStore, presenceStore, zoneStore } from '../../state';
+import { commands, panelStore, presenceStore, roomStore, zoneStore } from '../../state';
 import { useStore } from '../hooks';
 
 export function TopBar({
@@ -11,6 +11,7 @@ export function TopBar({
 }) {
   const zone = useStore(zoneStore);
   const presence = useStore(presenceStore);
+  const room = useStore(roomStore);
   return (
     <header class="topbar">
       <div class="topbar-left">
@@ -50,6 +51,15 @@ export function TopBar({
         >
           <span class="dot" /> {presence.length} {presence.length > 1 ? 'Malinos' : 'Malino'}
         </button>
+        {room.mine && (
+          <button
+            class="icon-btn decor-btn"
+            onClick={() => commands.emit('decor', { action: 'start' })}
+            title="Décorer mon logement"
+          >
+            🛋️
+          </button>
+        )}
         <button
           class={`icon-btn ${objectivesOpen ? 'active' : ''}`}
           onClick={onToggleObjectives}

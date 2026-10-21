@@ -43,6 +43,8 @@ export class WorldRenderer {
   readonly objects = new Map<string, RenderedObject>();
   readonly depthBoxes: DepthBox[] = [];
   private labels: Phaser.GameObjects.Text[] = [];
+  /** Tout ce qui a été affiché pour la salle (pour pouvoir la reconstruire). */
+  private created: Phaser.GameObjects.GameObject[] = [];
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -60,12 +62,34 @@ export class WorldRenderer {
     for (const plan of plans) plan();
   }
 
+  /**
+   * Retire tout l'affichage de la salle : utilisé pour la reconstruire quand la décoration d'un
+   * logement change (les textures restent en cache).
+   */
+  destroy(): void {
+    for (const go of this.created) {
+      this.scene.tweens.killTweensOf(go);
+      go.destroy();
+    }
+    this.created = [];
+    this.objects.clear();
+    this.depthBoxes.length = 0;
+    this.labels = [];
+  }
+
+  private track<T extends Phaser.GameObjects.GameObject>(go: T): T {
+    this.created.push(go);
+    return go;
+  }
+
   private place(info: TextureInfo, x: number, y: number, z = 0): Phaser.GameObjects.Image {
     const p = project(x, y, z);
-    return this.scene.add
-      .image(p.x, p.y, info.key, info.frame)
-      .setOrigin(info.originX, info.originY)
-      .setScale(info.scale);
+    return this.track(
+      this.scene.add
+        .image(p.x, p.y, info.key, info.frame)
+        .setOrigin(info.originX, info.originY)
+        .setScale(info.scale),
+    );
   }
 
   private buildFloors(): void {
@@ -186,21 +210,23 @@ export class WorldRenderer {
     const cx = obj.x + obj.w / 2 + (light.dx ?? 0);
     const cy = obj.y + obj.d / 2 + (light.dy ?? 0);
     const halo = project(cx, cy, light.z);
-    this.scene.add
+    const haloImg = this.scene.add
       .image(halo.x, halo.y, glow.key, glow.frame)
       .setDisplaySize(light.radius * TILE_W * 0.9, light.radius * TILE_W * 0.9)
       .setTint(light.color)
       .setBlendMode(Phaser.BlendModes.ADD)
       .setAlpha(0.22)
       .setDepth(DEPTH_GLOW);
+    this.track(haloImg);
     const pool = project(cx, cy, 0);
-    this.scene.add
+    const poolImg = this.scene.add
       .image(pool.x, pool.y, glow.key, glow.frame)
       .setDisplaySize(light.radius * TILE_W * 1.6, light.radius * TILE_W * 0.8)
       .setTint(light.color)
       .setBlendMode(Phaser.BlendModes.ADD)
       .setAlpha(0.2)
       .setDepth(DEPTH_LIGHT_POOL);
+    this.track(poolImg);
   }
 
   private addLabel(obj: WorldObject): void {
@@ -217,7 +243,7 @@ export class WorldRenderer {
       })
       .setOrigin(0.5, 1)
       .setDepth(DEPTH_OVERLAY);
-    this.labels.push(label);
+    this.labels.push(this.track(label));
   }
 
   setLabelsVisible(visible: boolean): void {

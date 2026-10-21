@@ -110,7 +110,8 @@ de forcer la porte d’un logement privé.
 - ✅ **Accès** personne / sur invitation / tout le monde, **invitations**, retrait d’accès et mise
   à la porte, vérifiés par le serveur et la base de données.
 - ✅ **Discussion privée** : ce qui s’écrit dans un logement n’est lu que par les présents.
-- ⬜ **Éditeur de décoration** et catalogue de meubles (prochain lot).
+- ✅ **Éditeur de décoration** : catalogue de 21 meubles, poser / tourner / couleur / déplacer
+  / ranger, règles de passage, enregistrement en base, visiteurs mis à jour en direct.
 
 ---
 
@@ -198,7 +199,7 @@ La feuille de route n’est pas figée : **elle bouge selon vos retours.**
 
 - ✅ Logements (studio), modes d’accès vérifiés côté serveur et par la base, invitations,
   mise à la porte, discussion privée
-- ⬜ Éditeur de décoration, catalogue partagé, sauvegarde des dispositions
+- ✅ Éditeur de décoration, catalogue de meubles, sauvegarde des dispositions
 
 ### v0.4
 

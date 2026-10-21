@@ -25,7 +25,7 @@ Statut : ✅ fait · 🔶 en partie · ⬜ à faire · ➖ abandonné. Les dépe
 | F16 | Messagerie privée                                                                    | 0.3+    | P3   | F09, F14  | ⬜     |
 | F17 | Logement personnel + modes d’accès                                                   | 0.3     | P1   | F09       | ✅     |
 | F18 | Invitations, retrait d’accès, expulsion                                              | 0.3     | P1   | F17       | ✅     |
-| F19 | Éditeur de décoration sur grille                                                     | 0.3     | P1   | F17       | ⬜     |
+| F19 | Éditeur de décoration sur grille                                                     | 0.3     | P1   | F17       | ✅     |
 | F20 | Étages chargés à la demande + ascenseur                                              | 0.4     | P1   | F17       | ⬜     |
 | F21 | Galerie des Malinos (soumission, modération, fiches)                                 | 0.4     | P1   | F09, F14  | ⬜     |
 | F22 | Annuaire des membres                                                                 | 0.4     | P2   | F09       | ⬜     |

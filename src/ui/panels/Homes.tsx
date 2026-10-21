@@ -187,6 +187,16 @@ function MyHomeSettings() {
 
   return (
     <Modal title="Mon logement" icon="🏠">
+      <button
+        type="button"
+        class="btn primary decor-start"
+        onClick={() => {
+          panelStore.set(null);
+          commands.emit('decor', { action: 'start' });
+        }}
+      >
+        🛋️ Décorer mon logement
+      </button>
       <p>Qui peut entrer chez toi ?</p>
       {access === null && !error && <p class="muted small">Chargement…</p>}
       {access !== null && (

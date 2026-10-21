@@ -1,7 +1,8 @@
-import { useState } from 'preact/hooks';
+import { useEffect, useState } from 'preact/hooks';
+import type { FunctionComponent } from 'preact';
 import { profileStore } from '../services/profile';
 import { isSmallScreen } from '../services/device';
-import { panelStore } from '../state';
+import { decorEditorStore, panelStore } from '../state';
 import { useStore } from './hooks';
 import { Chat } from './hud/Chat';
 import { Minimap } from './hud/Minimap';
@@ -55,15 +56,26 @@ function ActivePanel() {
   }
 }
 
+/** Barre de l'éditeur de décoration : téléchargée seulement la première fois qu'on décore. */
+function DecorBarLoader() {
+  const active = useStore(decorEditorStore).active;
+  const [Bar, setBar] = useState<FunctionComponent | null>(null);
+  useEffect(() => {
+    if (active && !Bar) void import('./hud/DecorBar').then((m) => setBar(() => m.DecorBar));
+  }, [active, Bar]);
+  return active && Bar ? <Bar /> : null;
+}
+
 export function App() {
   const profile = useStore(profileStore);
+  const editing = useStore(decorEditorStore).active;
   // Petits écrans : la liste d'objectifs est repliée au départ (bouton 🎯 pour l'ouvrir).
   const [objectives, setObjectives] = useState(() => !isSmallScreen());
   // Petits écrans : chat replié au départ (dernier message + saisie), pour voir le monde.
   const [chatOpen, setChatOpen] = useState(() => !isSmallScreen());
   if (!profile) return <Onboarding />;
   return (
-    <div class={`hud${chatOpen ? ' chat-open' : ''}`}>
+    <div class={`hud${chatOpen ? ' chat-open' : ''}${editing ? ' editing' : ''}`}>
       <TopBar objectivesOpen={objectives} onToggleObjectives={() => setObjectives(!objectives)} />
       {objectives && <Objectives onClose={() => setObjectives(false)} />}
       <Toasts />
@@ -72,6 +84,7 @@ export function App() {
       <Hint />
       <Stats />
       <DialogBox />
+      <DecorBarLoader />
       <ActivePanel />
     </div>
   );

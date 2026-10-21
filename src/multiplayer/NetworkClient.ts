@@ -5,6 +5,7 @@ import {
   decodeMessage,
   encodeMessage,
   homeOwner,
+  homeRoom,
   type ChatScope,
   type DoorRefusal,
   type Emote,
@@ -39,6 +40,8 @@ export interface NetworkEvents extends Record<string, unknown> {
   queue: { pos: number };
   /** Réponse du serveur à une demande d'entrée dans un logement (ou sortie forcée). */
   door: { room: string; ok: boolean; why?: DoorRefusal };
+  /** Le propriétaire du logement où l'on se trouve a changé sa décoration. */
+  decor: { owner: string };
 }
 
 export interface NetworkOptions {
@@ -185,6 +188,11 @@ export class NetworkClient {
   /** Le propriétaire fait sortir un joueur de son logement. */
   evict(target: string): void {
     this.send({ t: 'evict', id: this.selfId, target });
+  }
+
+  /** Prévient les personnes présentes chez moi que la décoration a changé. */
+  decorChanged(): void {
+    this.send({ t: 'decor', id: this.selfId });
   }
 
   /** Statut « absent » du joueur local (onglet caché depuis un moment). */
@@ -364,6 +372,11 @@ export class NetworkClient {
       }
       case 'bye': {
         if (this.peers.delete(msg.id)) this.events.emit('leave', { id: msg.id });
+        break;
+      }
+      case 'decor': {
+        if (this.self.state.room !== homeRoom(msg.id)) return;
+        this.events.emit('decor', { owner: msg.id });
         break;
       }
     }

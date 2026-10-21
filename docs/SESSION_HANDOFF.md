@@ -36,6 +36,15 @@ Prochaine étape : v0.3 Logements.**
 
 ## Dernières sessions
 
+- **24/10 (suite)** — Branche `feature/editeur-decoration` (DEC-024), partie de `main` (sans le
+  site d’accueil de la PR #29 : au moment de fusionner la seconde, résoudre les conflits de
+  `scripts/smoke-test.mjs` (adresse `/jouer/`), CHANGELOG, DECISIONS, SESSION_HANDOFF).
+  Éditeur de décoration : `src/content/furniture.ts` (21 meubles), `src/world/decor.ts` (règles,
+  testées), `src/game/DecorEditor.ts`, `src/ui/hud/DecorBar.tsx` (chargée à la demande), message
+  réseau `decor`, migration `20261024090000_home_decor.sql` **à appliquer sur Supabase au moment
+  de la fusion** (pas avant : ne rien changer en ligne sans accord). **À tester en ligne** :
+  enregistrer, recharger, voir la décoration depuis un 2e compte présent dans le logement.
+
 - **23/10 (suite 2)** — Branche `feature/parc-foret-jeux` (empilée sur `feature/chat-proximite`) :
   partie est du Hub redessinée (générateur ponctuel, non conservé) : salle de jeux, chemins en
   lacets, prairie, étang, forêt dense et clairière avec feu de camp ; 9 nouveaux objets ;

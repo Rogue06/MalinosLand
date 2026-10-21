@@ -209,7 +209,26 @@ Avec un compte (GitHub ou Google), tu as ton **studio** dans la Tour des Malinos
 - **Visiter** : l’ascenseur liste les logements ouverts à tous et ceux où tu es invité.
 - **Discussion privée** : dans un logement, ce que tu écris n’est lu que par les personnes
   présentes (même un message « tout le monde »). Les messages du Hub, eux, continuent d’arriver.
-- 12 personnes au plus par logement. La décoration (déplacer, ajouter des meubles) arrive bientôt.
+- 12 personnes au plus par logement.
+
+### Décorer son logement
+
+![L’éditeur de décoration](images/decoration.jpg)
+
+Chez toi, touche le bouton **🛋️** en haut de l’écran (ou la table basse → **Décorer mon
+logement**). Une barre s’ouvre en bas avec le **catalogue de meubles** (assises, tables, chambre,
+déco, loisirs : 21 objets).
+
+- **Ajouter** : choisis un meuble, puis clique sur le sol. Au doigt : touche une première fois
+  pour viser, une deuxième fois pour poser. L’empreinte au sol est **verte** si c’est possible,
+  **rouge** sinon (avec l’explication).
+- **Modifier** : touche un meuble posé (contour jaune), puis **↻ Tourner** (R), **🎨 Couleur**
+  (C), **✥ Déplacer** (M) ou **🗑️ Ranger** (Suppr).
+- **Enregistrer** garde ta décoration ; **Annuler** remet tout comme avant ; **Studio
+  d’origine** remet les meubles de départ.
+- Quelques règles pour que tout le monde puisse circuler : l’entrée et l’ascenseur restent
+  dégagés, il reste toujours un passage vers chaque meuble, et 40 objets au plus.
+- Les personnes présentes voient la nouvelle décoration dès que tu enregistres.
 
 ## 10. Quelqu’un te dérange ?
 

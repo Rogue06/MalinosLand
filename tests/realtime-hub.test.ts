@@ -487,6 +487,23 @@ describe('logements : entrée vérifiée par la base', () => {
     expect(g.data.room).toBe('hub');
   });
 
+  it('décoration changée : relayée aux personnes présentes, par le propriétaire seulement', async () => {
+    const { join, say } = setup({ access: async () => true });
+    const o = join(ownerId, 12, 21, 'hub', OWNER);
+    const g = join(guestId, 12, 22, 'hub', GUEST);
+    const outside = join('dehorsjoueur', 12, 23);
+    say(o, { t: 'enter', id: ownerId, room: HOME });
+    say(o, { ...inside, id: ownerId });
+    say(g, { t: 'enter', id: guestId, room: HOME, tok: 'jeton.de.test.valide' });
+    await flush();
+    say(g, { ...inside, id: guestId });
+    say(g, { t: 'decor', id: guestId });
+    expect(o.of('decor')).toHaveLength(0);
+    say(o, { t: 'decor', id: ownerId });
+    expect(g.of('decor')).toEqual([{ t: 'decor', id: ownerId }]);
+    expect(outside.of('decor')).toHaveLength(0);
+  });
+
   it('reconnexion dans un logement : revérifiée par la base avant d’entrer', async () => {
     let allowed = true;
     const { join, connect, say } = setup({ access: async () => allowed });

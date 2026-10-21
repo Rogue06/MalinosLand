@@ -434,6 +434,20 @@ export class RealtimeHub {
         this.evict(target);
         return;
       }
+      case 'decor': {
+        // Seul le propriétaire connecté à son compte, chez lui, prévient ses visiteurs.
+        if (!d.account || homeOwner(d.room) !== d.id) return;
+        if (!take(d.chat, CHAT_CAPACITY, CHAT_REFILL, now)) {
+          conn.save();
+          return;
+        }
+        conn.save();
+        this.send(
+          this.others(conn).filter((c) => c.data.room === d.room),
+          { t: 'decor', id: d.id },
+        );
+        return;
+      }
       case 'bye':
         conn.close(1000, 'au revoir');
         return;

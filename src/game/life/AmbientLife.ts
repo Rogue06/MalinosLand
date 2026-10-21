@@ -228,6 +228,22 @@ export class AmbientLife {
     return { img, at, from: at, to: null, t: 0, dur: 0, next: rand(2, 10), flap: 0 };
   }
 
+  /** Retire les gouttes, oiseaux et papillons (la salle va être reconstruite). */
+  destroy(): void {
+    for (const d of this.drops) d.dot.destroy();
+    for (const b of this.birds) b.img.destroy();
+    for (const b of this.butterflies) b.img.destroy();
+    this.drops = [];
+    this.birds = [];
+    this.butterflies = [];
+    this.fountains = [];
+    this.waters = [];
+    this.steamSpots = [];
+    this.fires = [];
+    this.perches = [];
+    this.grounds = [];
+  }
+
   update(deltaMs: number): void {
     const dt = Math.min(deltaMs, 100) / 1000;
     this.time += dt;

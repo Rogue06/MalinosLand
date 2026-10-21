@@ -30,6 +30,11 @@
   mode d’accès), `can_enter_home(owner)` (utilisée par le serveur temps réel avec le jeton du
   joueur), `visitable_homes()` (logements ouverts ou où l’on est invité), `my_home_invites()`.
   Le propriétaire seul règle l’accès et invite ; l’invité peut refuser une invitation.
+- **Décoration des logements** (migration `20261024090000_home_decor.sql`, v0.3) : colonne
+  `homes.decor` (liste de meubles `{ t, x, y, r, v }`, null = studio d’origine), vérifiée par la
+  contrainte `valid_home_decor` (40 meubles au plus, types autorisés, cases du studio). Lecture :
+  `home_decor(owner)`, seulement pour ceux qui peuvent entrer. Le jeu revérifie chaque meuble
+  (passages libres, entrée dégagée : `src/world/decor.ts`).
 
 > Le schéma ci-dessous était la **cible** de départ : `profiles`, `reports`, `feedback`, `homes`
 > et `home_invites` existent désormais (sous une forme parfois différente, voir les migrations) ;

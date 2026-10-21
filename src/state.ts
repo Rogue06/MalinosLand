@@ -131,6 +131,48 @@ export interface Commands extends Record<string, unknown> {
    * présentes qui n'y ont plus droit (`guests` : identifiants réseau des invités).
    */
   'home-access': { access: 'private' | 'invite' | 'public'; guests: string[] };
+  /** Éditeur de décoration du logement (voir decorEditorStore). `type` : meuble choisi. */
+  decor: { action: DecorAction; type?: string };
 }
 
 export const commands = new EventBus<Commands>();
+
+/** Actions de l'éditeur de décoration (boutons de l'interface ou touches). */
+export type DecorAction =
+  | 'start'
+  | 'pick'
+  | 'rotate'
+  | 'color'
+  | 'move'
+  | 'remove'
+  | 'deselect'
+  | 'reset'
+  | 'save'
+  | 'cancel';
+
+/** État de l'éditeur de décoration, publié par le jeu pour l'interface. */
+export interface DecorEditorState {
+  active: boolean;
+  /** Meuble en main (type), en attente d'être posé. */
+  held: string | null;
+  /** Meuble sélectionné : son type et son nombre de couleurs. */
+  selected: { type: string; colors: number } | null;
+  count: number;
+  max: number;
+  /** Modifié depuis l'ouverture de l'éditeur. */
+  dirty: boolean;
+  saving: boolean;
+  /** Dernier conseil ou refus (« la place est prise »…), ou null. */
+  message: string | null;
+}
+
+export const decorEditorStore = new Store<DecorEditorState>({
+  active: false,
+  held: null,
+  selected: null,
+  count: 0,
+  max: 0,
+  dirty: false,
+  saving: false,
+  message: null,
+});
