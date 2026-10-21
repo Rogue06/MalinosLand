@@ -1,6 +1,6 @@
 import { Z_PX, TILE_H, TILE_W, type Vec2, type Vec3 } from '../../core/iso';
 import { rotatePoint, type Rotation } from '../../core/rotation';
-import { darken, lighten, rgba } from './color';
+import { darken, lighten, mix, rgba } from './color';
 
 /** Faces d'une boîte. Seules top, py (+y) et px (+x) sont visibles à l'écran. */
 export type Face = 'top' | 'py' | 'px' | 'ny' | 'nx';
@@ -152,6 +152,93 @@ export class IsoBuilder {
     return this;
   }
 
+  /**
+   * Boîte aux arêtes verticales arrondies (rayon `radius`, en tuiles) : tête de robot, meubles
+   * aux angles doux. Les faces visibles passent en douceur d'une teinte à l'autre dans l'arrondi.
+   */
+  roundedBox(spec: Omit<BoxSpec, 'decals'> & { radius: number }): this {
+    const a = this.tr({ x: spec.x, y: spec.y, z: spec.z });
+    const b = this.tr({ x: spec.x + spec.w, y: spec.y + spec.d, z: spec.z + spec.h });
+    const min = { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y), z: spec.z };
+    const max = { x: Math.max(a.x, b.x), y: Math.max(a.y, b.y), z: spec.z + spec.h };
+    const r = Math.min(spec.radius, (max.x - min.x) / 2, (max.y - min.y) / 2);
+    // Contour du dessus, dans le sens trigonométrique, avec la normale de chaque point.
+    const ring: Array<{ x: number; y: number; nx: number; ny: number }> = [];
+    const corners = [
+      { cx: max.x - r, cy: min.y + r, a0: -Math.PI / 2 },
+      { cx: max.x - r, cy: max.y - r, a0: 0 },
+      { cx: min.x + r, cy: max.y - r, a0: Math.PI / 2 },
+      { cx: min.x + r, cy: min.y + r, a0: Math.PI },
+    ];
+    const seg = 6;
+    for (const c of corners) {
+      for (let i = 0; i <= seg; i++) {
+        const ang = c.a0 + (i / seg) * (Math.PI / 2);
+        const nx = Math.cos(ang);
+        const ny = Math.sin(ang);
+        ring.push({ x: c.cx + nx * r, y: c.cy + ny * r, nx, ny });
+      }
+    }
+    const P = (x: number, y: number, z: number) => proj({ x, y, z });
+    const top = ring.map((p) => P(p.x, p.y, max.z));
+    const bottom = ring.map((p) => P(p.x, p.y, min.z));
+    this.extend([...top, ...bottom]);
+
+    const base = spec.color;
+    const cTop = spec.top ?? lighten(base, 0.14);
+    const cLeft = spec.side ?? base;
+    const cRight = darken(spec.side ?? base, 0.2);
+    const outline = spec.outline !== false;
+    // Côtés visibles : ceux qui regardent vers +x ou +y (vers la caméra).
+    const sides: Array<{ pts: Vec2[]; color: string }> = [];
+    for (let i = 0; i < ring.length; i++) {
+      const p = ring[i]!;
+      const q = ring[(i + 1) % ring.length]!;
+      const nx = (p.nx + q.nx) / 2;
+      const ny = (p.ny + q.ny) / 2;
+      if (nx <= 0.001 && ny <= 0.001) continue;
+      const t = Math.max(0, nx) / (Math.max(0, nx) + Math.max(0, ny));
+      sides.push({
+        pts: [P(p.x, p.y, min.z), P(q.x, q.y, min.z), P(q.x, q.y, max.z), P(p.x, p.y, max.z)],
+        color: mix(cLeft, cRight, t),
+      });
+    }
+    this.items.push({
+      layer: this.layer,
+      min,
+      max,
+      draw: (ctx) => {
+        for (const sd of sides) {
+          fillPoly(ctx, sd.pts, sd.color, null);
+          // Petit recouvrement pour qu'aucun fil clair ne passe entre deux bandes.
+          ctx.strokeStyle = sd.color;
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+        fillPoly(ctx, top, cTop, outline ? darken(cTop, 0.3) : null);
+        if (outline) {
+          // Contour léger de la silhouette du bas (comme les boîtes).
+          // Partie visible du contour : une seule suite continue de points.
+          const seen = ring.map((p) => p.nx > 0.01 || p.ny > 0.01);
+          const start = seen.findIndex((v, i) => !v && seen[(i + 1) % seen.length]);
+          ctx.beginPath();
+          let drawn = 0;
+          for (let k = 1; k <= ring.length; k++) {
+            const i = (start + k) % ring.length;
+            if (!seen[i]) break;
+            const pt = bottom[i]!;
+            if (drawn++ === 0) ctx.moveTo(pt.x, pt.y);
+            else ctx.lineTo(pt.x, pt.y);
+          }
+          ctx.strokeStyle = rgba(darken(cLeft, 0.35), 0.55);
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      },
+    });
+    return this;
+  }
+
   /** Calcule le polygone écran d'un décor collé sur une face d'une boîte. */
   private decalPolygon(s: BoxSpec, dc: Decal): { points: Vec2[]; color: string } | null {
     const face = this.rotFace(dc.face);
@@ -257,6 +344,64 @@ export class IsoBuilder {
         ctx.fillStyle = lighten(color, 0.16);
         ctx.beginPath();
         ctx.ellipse(pc.x, pc.y - hp, rx, ry, 0, 0, Math.PI * 2);
+        ctx.fill();
+      },
+    });
+    return this;
+  }
+
+  /**
+   * Volume de révolution vertical, lisse (œuf, vase…) : rayon `profile(t)` pour t de 0 (bas)
+   * à 1 (haut). Dessiné comme l'union d'ellipses empilées, avec un reflet doux.
+   */
+  ovoid(
+    cx: number,
+    cy: number,
+    z: number,
+    h: number,
+    profile: (t: number) => number,
+    color: string,
+  ): this {
+    const c = this.tr({ x: cx, y: cy, z });
+    const steps = 32;
+    const rings: Array<{ y: number; rx: number; ry: number }> = [];
+    const pc = proj({ x: c.x, y: c.y, z });
+    let rmax = 0;
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps;
+      const r = Math.max(0, profile(t));
+      rmax = Math.max(rmax, r);
+      rings.push({ y: pc.y - t * h * Z_PX, rx: r * HW * Math.SQRT2, ry: r * HH * Math.SQRT2 });
+    }
+    const rxMax = rmax * HW * Math.SQRT2;
+    this.extend([
+      { x: pc.x - rxMax, y: pc.y + rmax * HH * Math.SQRT2 },
+      { x: pc.x + rxMax, y: pc.y - h * Z_PX - rmax * HH * Math.SQRT2 },
+    ]);
+    this.items.push({
+      layer: this.layer,
+      min: { x: c.x - rmax, y: c.y - rmax, z },
+      max: { x: c.x + rmax, y: c.y + rmax, z: z + h },
+      draw: (ctx) => {
+        ctx.beginPath();
+        for (const ring of rings) {
+          if (ring.rx <= 0) continue;
+          ctx.moveTo(pc.x + ring.rx, ring.y);
+          ctx.ellipse(pc.x, ring.y, ring.rx, ring.ry, 0, 0, Math.PI * 2);
+        }
+        const grad = ctx.createLinearGradient(pc.x - rxMax, 0, pc.x + rxMax, 0);
+        grad.addColorStop(0, lighten(color, 0.06));
+        grad.addColorStop(0.42, color);
+        grad.addColorStop(1, darken(color, 0.26));
+        ctx.fillStyle = grad;
+        ctx.fill();
+        // Reflet en haut à gauche.
+        const hx = pc.x - rxMax * 0.35;
+        const hy = pc.y - h * Z_PX * 0.66;
+        const shine = ctx.createRadialGradient(hx, hy, 1, hx, hy, rxMax * 0.75);
+        shine.addColorStop(0, rgba('#ffffff', 0.6));
+        shine.addColorStop(1, rgba('#ffffff', 0));
+        ctx.fillStyle = shine;
         ctx.fill();
       },
     });

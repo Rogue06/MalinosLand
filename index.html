@@ -49,6 +49,22 @@
         <use href="#spirale" x="48" y="40" width="52" height="52" />
         <use href="#spirale" x="96" y="38" width="54" height="54" />
       </symbol>
+      <linearGradient id="onde-degrade" x1="0" x2="1" y1="0" y2="0">
+        <stop offset="0" stop-color="#7b6cf6" />
+        <stop offset="0.5" stop-color="#ff7a59" />
+        <stop offset="1" stop-color="#f5ab1b" />
+      </linearGradient>
+      <!-- Onde de voix (bulles de Joshua) -->
+      <symbol id="onde" viewBox="0 0 120 40">
+        <path
+          d="M0.0 20.0 L1.0 20.0 L2.0 19.8 L3.0 19.6 L4.0 19.5 L5.0 19.7 L6.0 20.2 L7.0 21.0 L8.0 21.8 L9.0 22.1 L10.0 21.8 L11.0 20.7 L12.0 19.0 L13.0 17.3 L14.0 16.1 L15.0 16.1 L16.0 17.4 L17.0 19.7 L18.0 22.2 L19.0 24.2 L20.0 24.9 L21.0 24.2 L22.0 22.2 L23.0 19.6 L24.0 17.3 L25.0 15.9 L26.0 15.9 L27.0 17.0 L28.0 18.9 L29.0 20.8 L30.0 22.2 L31.0 22.8 L32.0 22.5 L33.0 21.6 L34.0 20.3 L35.0 19.1 L36.0 18.1 L37.0 17.7 L38.0 17.8 L39.0 18.6 L40.0 20.0 L41.0 21.8 L42.0 23.5 L43.0 24.5 L44.0 24.1 L45.0 22.2 L46.0 18.9 L47.0 15.2 L48.0 12.2 L49.0 11.3 L50.0 13.1 L51.0 17.6 L52.0 23.7 L53.0 29.3 L54.0 32.7 L55.0 32.3 L56.0 28.1 L57.0 20.9 L58.0 13.2 L59.0 7.2 L60.0 5.0 L61.0 7.3 L62.0 13.4 L63.0 21.3 L64.0 28.5 L65.0 32.8 L66.0 33.1 L67.0 29.5 L68.0 23.5 L69.0 17.2 L70.0 12.5 L71.0 10.6 L72.0 11.7 L73.0 14.9 L74.0 19.0 L75.0 22.5 L76.0 24.6 L77.0 25.0 L78.0 23.8 L79.0 21.9 L80.0 19.9 L81.0 18.4 L82.0 17.6 L83.0 17.6 L84.0 18.2 L85.0 19.2 L86.0 20.4 L87.0 21.5 L88.0 22.3 L89.0 22.5 L90.0 22.0 L91.0 20.7 L92.0 18.9 L93.0 17.2 L94.0 16.2 L95.0 16.3 L96.0 17.6 L97.0 19.7 L98.0 22.2 L99.0 24.0 L100.0 24.7 L101.0 23.9 L102.0 22.0 L103.0 19.5 L104.0 17.4 L105.0 16.2 L106.0 16.2 L107.0 17.3 L108.0 19.1 L109.0 20.7 L110.0 21.9 L111.0 22.2 L112.0 21.8 L113.0 21.0 L114.0 20.2 L115.0 19.6 L116.0 19.5 L117.0 19.6 L118.0 19.8 L119.0 20.0 L120.0 20.0"
+          fill="none"
+          stroke="url(#onde-degrade)"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </symbol>
       <symbol id="logo-google" viewBox="0 0 48 48">
         <path
           fill="#EA4335"
@@ -114,14 +130,28 @@
             </h1>
           </div>
           <div class="hero-lead">
-            <p class="lead">
-              Un lieu virtuel rien qu’à nous, les passionnés d’IA : on s’y balade, on s’y croise, on
-              discute, on a son petit chez-soi… et bientôt, on y expose ses créations.
-            </p>
-            <p class="lead small">
-              Directement dans le navigateur, sur ordinateur comme sur téléphone. Rien à installer,
-              rien à payer, aucune publicité.
-            </p>
+            <!-- Joshua, le robot d'accueil (dessiné par le jeu) -->
+            <figure class="mascotte">
+              <span class="bulle bulle-texte" aria-hidden="true">Bip bip !</span>
+              <span class="bulle bulle-onde b1" aria-hidden="true">
+                <svg viewBox="0 0 120 40"><use href="#onde" /></svg>
+              </span>
+              <span class="bulle bulle-onde b2" aria-hidden="true">
+                <svg viewBox="0 0 120 40"><use href="#onde" /></svg>
+              </span>
+              <div class="mascotte-robot" data-mascotte></div>
+              <figcaption class="mascotte-nom">Joshua, le robot d’accueil</figcaption>
+            </figure>
+            <div class="lead-texte">
+              <p class="lead">
+                Un lieu virtuel rien qu’à nous, les passionnés d’IA : on s’y balade, on s’y croise,
+                on discute, on a son petit chez-soi… et bientôt, on y expose ses créations.
+              </p>
+              <p class="lead small">
+                Directement dans le navigateur, sur ordinateur comme sur téléphone. Rien à
+                installer, rien à payer, aucune publicité.
+              </p>
+            </div>
           </div>
 
           <!-- Étiquette de connexion -->

@@ -36,6 +36,11 @@ Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter
 
 ## Dernières sessions
 
+- **24/10 (fin)** — PR #29 et #30 fusionnées, migration `home_decor` appliquée, mise en ligne
+  faite. Branche `feature/robot-joshua` : Joshua redessiné façon Reachy Mini (robot de la
+  communauté), mis en avant en haut du site d’accueil ; formes `ovoid` et `roundedBox` dans
+  `src/game/art/iso3d.ts` ; section « 0 € » retirée de l’accueil (demande du responsable).
+
 - **24/10 (suite)** — Branche `feature/editeur-decoration` (DEC-024), partie de `main` (sans le
   site d’accueil de la PR #29 : au moment de fusionner la seconde, résoudre les conflits de
   `scripts/smoke-test.mjs` (adresse `/jouer/`), CHANGELOG, DECISIONS, SESSION_HANDOFF).

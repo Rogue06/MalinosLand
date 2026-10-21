@@ -346,7 +346,6 @@ export const CATALOG: Record<string, CatalogEntry> = {
     category: 'tech',
     footprint: [1, 1],
     blocking: true,
-    hover: true,
     light: { color: 0x5fe3d0, radius: 1.0, z: 1.0 },
   },
   arcade: {

@@ -329,6 +329,130 @@ strong {
 
 .hero-lead {
   grid-area: lead;
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+}
+
+/* ---------- Joshua, le robot d'accueil ---------- */
+.mascotte {
+  position: relative;
+  flex: none;
+  width: 116px;
+  margin: 0;
+  padding-top: 58px;
+  text-align: center;
+}
+
+.mascotte-robot canvas {
+  display: block;
+  width: 78px;
+  height: auto;
+  margin: 0 auto;
+  filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff)
+    drop-shadow(0 -3px 0 #fff) drop-shadow(0 10px 10px rgba(20, 50, 90, 0.35));
+  transform-origin: 50% 100%;
+  animation: penche 4.5s ease-in-out infinite;
+}
+
+@keyframes penche {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg) translateY(-4px);
+  }
+}
+
+.mascotte-nom {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 8px;
+  background: var(--felt), var(--cardboard);
+  border-radius: 6px;
+  box-shadow: 0 3px 0 var(--cardboard-dark);
+  font-size: 11px;
+  font-weight: 600;
+  color: #4a2a05;
+  transform: rotate(-2deg);
+}
+
+.bulle {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  background: var(--felt-light), #fff;
+  border-radius: 18px;
+  outline: 1.5px dashed rgba(42, 35, 66, 0.25);
+  outline-offset: -5px;
+  box-shadow: 0 6px 12px rgba(20, 50, 90, 0.25);
+  animation: bulle 3.6s ease-in-out infinite;
+}
+
+/* Petite queue de la bulle, vers le robot */
+.bulle::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  background: #fff;
+  transform: rotate(45deg);
+  border-radius: 3px;
+}
+
+.bulle > * {
+  position: relative;
+  z-index: 1;
+}
+
+.bulle-texte {
+  top: 0;
+  left: 50%;
+  margin-left: -48px;
+  width: 96px;
+  padding: 5px 6px;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--ink);
+  z-index: 1;
+}
+
+.bulle-onde {
+  width: 44px;
+  height: 24px;
+  padding: 4px 6px;
+}
+
+.bulle-onde svg {
+  width: 100%;
+  height: 100%;
+}
+
+.b1 {
+  top: 30px;
+  left: -16px;
+  animation-delay: -1.2s;
+}
+
+.b2 {
+  top: 34px;
+  right: -18px;
+  width: 38px;
+  animation-delay: -2.4s;
+}
+
+@keyframes bulle {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07) translateY(-3px);
+  }
 }
 
 .etiquette {
@@ -1038,6 +1162,26 @@ strong {
     font-size: 18px;
   }
 
+  /* Téléphone : Joshua en petit, à côté du texte, sans bulles. */
+  .hero-lead {
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mascotte {
+    width: 58px;
+    padding-top: 0;
+  }
+
+  .mascotte-robot canvas {
+    width: 54px;
+  }
+
+  .bulle,
+  .mascotte-nom {
+    display: none;
+  }
+
   .cartes,
   .album,
   .fil {
@@ -1073,7 +1217,9 @@ strong {
 
   .nuage-suspendu,
   .sticker,
-  .btn-google {
+  .btn-google,
+  .mascotte-robot canvas,
+  .bulle {
     animation: none;
   }
 

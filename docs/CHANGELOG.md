@@ -5,6 +5,16 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Modifié (Joshua, le robot d’accueil)
+
+- **Joshua redessiné**, inspiré du petit robot de bureau de la communauté (Reachy Mini) dans le
+  style du jeu : corps en œuf blanc sur socle noir, petites jambes, tête aux angles arrondis,
+  deux grands yeux reliés par une barre, deux antennes à ressort. Il ne flotte plus : il est posé.
+- Joshua accueille aussi les visiteurs sur le site d’accueil, **en petit**, à côté du texte de
+  présentation (petite bulle « Bip bip ! » sur ordinateur).
+- Moteur de dessin : deux nouvelles formes, l’œuf lisse (`ovoid`) et la boîte aux angles
+  arrondis (`roundedBox`), réutilisables pour d’autres objets.
+
 ### Ajouté (éditeur de décoration, v0.3 lot 2)
 
 - **Décorer son logement** (bouton 🛋️ chez soi) : catalogue de 21 meubles en 5 catégories,
