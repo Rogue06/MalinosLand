@@ -5,6 +5,11 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Modifié (site d’accueil)
+
+- Bouton **« Jouer »** animé : il frétille de temps en temps comme un écusson cousu, et fait
+  « boing » au survol avec une petite étoile qui pétille (coupé si l’on réduit les animations).
+
 ### Modifié (Joshua, le robot d’accueil)
 
 - **Joshua redessiné**, inspiré du petit robot de bureau de la communauté (Reachy Mini) dans le
