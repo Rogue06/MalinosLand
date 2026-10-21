@@ -17,6 +17,21 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 - Base : colonne `homes.decor`, contrainte `valid_home_decor`, fonction `home_decor()`
   (migration `20261024090000_home_decor.sql`).
 
+### Ajouté (site d’accueil)
+
+- **Site d’accueil** à l’adresse principale : présentation du projet (le sens, la visite en
+  photos, la feuille de route, comment participer), dans un style « fait main »
+  (feutrine, coutures, carton, nuages à spirales) avec nos propres personnages en autocollants.
+- Bouton **« Continuer avec Google »** mis en avant (GitHub en second, visite sans compte
+  toujours possible), avec un léger zoom avant / arrière qui attire l’œil (coupé si l’on
+  réduit les animations) ; après la connexion, on arrive directement dans le jeu.
+- Aperçu soigné quand on partage le lien (Discord, WhatsApp, réseaux).
+
+### Modifié (site d’accueil)
+
+- Le jeu est maintenant à l’adresse **`/jouer/`**.
+- Création du personnage : « Continuer avec Google » en premier et en évidence.
+
 ### Ajouté (parc, forêt et salle de jeux)
 
 - **Salle de jeux** au nord du parc : bornes d’arcade, ping-pong, baby-foot, table d’échecs,

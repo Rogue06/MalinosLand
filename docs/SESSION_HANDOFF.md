@@ -3,9 +3,9 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 21/10/2026 — v0.2 terminée (voir CHANGELOG [0.2.0]) : comptes,
-modération, boîte à idées anti-robots, confort (sons, mentions, absent, mobile), file d’attente.
-Prochaine étape : v0.3 Logements.**
+**Dernière mise à jour : 24/10/2026 — v0.3 lots 1 et 2 en ligne : logements, accès, invitations,
+éditeur de décoration (PR #30) ; site d’accueil à la racine, le jeu dans `/jouer/` (PR #29).
+Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter avec le responsable.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -41,9 +41,16 @@ Prochaine étape : v0.3 Logements.**
   `scripts/smoke-test.mjs` (adresse `/jouer/`), CHANGELOG, DECISIONS, SESSION_HANDOFF).
   Éditeur de décoration : `src/content/furniture.ts` (21 meubles), `src/world/decor.ts` (règles,
   testées), `src/game/DecorEditor.ts`, `src/ui/hud/DecorBar.tsx` (chargée à la demande), message
-  réseau `decor`, migration `20261024090000_home_decor.sql` **à appliquer sur Supabase au moment
-  de la fusion** (pas avant : ne rien changer en ligne sans accord). **À tester en ligne** :
+  réseau `decor`, migration `20261024090000_home_decor.sql` appliquée sur Supabase à la fusion
+  (accord du responsable). **À tester en ligne** :
   enregistrer, recharger, voir la décoration depuis un 2e compte présent dans le logement.
+
+- **24/10** — PR #27 et #28 fusionnées et en ligne. Branche `feature/site-accueil` (DEC-023) :
+  site d’accueil « fait main » (`index.html`, `src/landing/`), « Continuer avec Google » mis en
+  avant (aussi dans le jeu), jeu déplacé dans `jouer/index.html`, police Fredoka (OFL, servie
+  par le site), image d’aperçu des partages. Filet de sécurité : un retour de connexion arrivé
+  sur la racine est transmis au jeu. **À vérifier en ligne par le responsable** : connexion
+  Google depuis l’accueil (retour direct dans le jeu), aperçu du lien dans Discord/WhatsApp.
 
 - **23/10 (suite 2)** — Branche `feature/parc-foret-jeux` (empilée sur `feature/chat-proximite`) :
   partie est du Hub redessinée (générateur ponctuel, non conservé) : salle de jeux, chemins en

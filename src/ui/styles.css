@@ -120,6 +120,19 @@ a {
   background: rgba(255, 255, 255, 0.07);
   border: 1px solid var(--line);
 }
+.btn.google {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  color: #1f1f1f;
+  padding: 10px 18px;
+}
+.google-logo {
+  width: 20px;
+  height: 20px;
+  flex: none;
+}
 .btn.danger {
   background: #c94a4a;
   color: #fff;

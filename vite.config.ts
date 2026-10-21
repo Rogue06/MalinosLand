@@ -75,6 +75,8 @@ export default defineConfig(({ mode }) => {
       target: 'es2022',
       chunkSizeWarningLimit: 1600,
       rollupOptions: {
+        // Deux pages : le site d'accueil (racine, léger, sans Phaser) et le jeu (/jouer/).
+        input: { accueil: 'index.html', jouer: 'jouer/index.html' },
         output: {
           // Phaser change rarement : un chunk séparé reste en cache entre deux versions du jeu.
           manualChunks(id) {
