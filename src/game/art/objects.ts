@@ -524,22 +524,93 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
       fit: 0.36,
     });
   },
+  /**
+   * Joshua, le robot d'accueil : inspiré du petit robot de bureau de la communauté (corps en
+   * œuf blanc sur socle noir, petites jambes, tête arrondie, deux grands yeux reliés par une
+   * barre, deux antennes à ressort), redessiné dans le style du jeu.
+   */
   robot(b) {
-    box(b, 0.3, 0.32, 0.22, 0.4, 0.36, 0.4, P.white, {
-      decals: [decal('py', 0.3, 0.4, 0.7, 0.7, P.teal)],
+    const shell = '#f4f2ee';
+    const dark = '#23262f';
+    // Socle noir et corps en œuf, plus large un peu en dessous du milieu, ouvert en haut.
+    b.cylinder(0.5, 0.5, 0, 0.25, 0.07, dark);
+    b.ovoid(
+      0.5,
+      0.5,
+      0.06,
+      0.56,
+      (t) =>
+        t < 0.45
+          ? 0.24 + 0.045 * Math.sin((t / 0.45) * (Math.PI / 2))
+          : 0.285 * Math.sqrt(Math.max(0, 1 - ((t - 0.45) / 0.62) ** 2)),
+      shell,
+    );
+    b.disc(0.5, 0.5, 0.62, 0.12, '#3a3f4c');
+    // Petites jambes qui portent la tête.
+    for (const [x, y] of [
+      [0.43, 0.43],
+      [0.55, 0.43],
+      [0.43, 0.55],
+      [0.55, 0.55],
+    ] as const)
+      box(b, x, y, 0.61, 0.025, 0.025, 0.1, P.metal, { outline: false });
+    // Tête aux angles arrondis.
+    b.roundedBox({
+      x: 0.19,
+      y: 0.32,
+      z: 0.7,
+      w: 0.62,
+      d: 0.36,
+      h: 0.36,
+      radius: 0.07,
+      color: shell,
     });
-    box(b, 0.22, 0.38, 0.32, 0.08, 0.2, 0.26, P.teal);
-    box(b, 0.7, 0.38, 0.32, 0.08, 0.2, 0.26, P.teal);
-    box(b, 0.24, 0.28, 0.64, 0.52, 0.44, 0.38, P.white, {
-      decals: [
-        decal('py', 0.1, 0.14, 0.9, 0.86, '#13213b'),
-        decal('py', 0.24, 0.42, 0.4, 0.68, P.tealLight),
-        decal('py', 0.6, 0.42, 0.76, 0.68, P.tealLight),
-        decal('py', 0.38, 0.24, 0.62, 0.3, P.coral),
+    // Visage (face avant) : deux grands yeux noirs reliés par une barre.
+    const face = 0.685;
+    // `dy` : un rien plus en avant pour chaque couche (bord, œil, reflet).
+    const ring = (cx: number, cz: number, r: number, color: string, dy: number) => {
+      const pts = [];
+      for (let i = 0; i < 18; i++) {
+        const a = (i / 18) * Math.PI * 2;
+        pts.push({ x: cx + Math.cos(a) * r, y: face + dy, z: cz + Math.sin(a) * r * 1.05 });
+      }
+      b.poly(pts, color, { facing: 'py' });
+    };
+    b.poly(
+      [
+        { x: 0.44, y: face, z: 0.87 },
+        { x: 0.56, y: face, z: 0.87 },
+        { x: 0.56, y: face, z: 0.89 },
+        { x: 0.44, y: face, z: 0.89 },
       ],
-    });
-    box(b, 0.47, 0.47, 1.02, 0.06, 0.06, 0.14, P.metalDark);
-    box(b, 0.44, 0.44, 1.16, 0.12, 0.12, 0.1, P.coral);
+      dark,
+      { facing: 'py' },
+    );
+    for (const cx of [0.36, 0.64]) {
+      ring(cx, 0.88, 0.1, '#5b606d', 0);
+      ring(cx, 0.88, 0.079, '#0f1116', 0.004);
+      ring(cx - 0.026, 0.91, 0.021, '#ffffff', 0.008);
+    }
+    // Antennes à ressort, légèrement écartées.
+    for (const [x0, x1] of [
+      [0.33, 0.27],
+      [0.67, 0.73],
+    ] as const) {
+      b.poly(
+        [
+          { x: x0 - 0.012, y: 0.5, z: 1.05 },
+          { x: x0 + 0.012, y: 0.5, z: 1.05 },
+          { x: x1 + 0.01, y: 0.5, z: 1.55 },
+          { x: x1 - 0.01, y: 0.5, z: 1.55 },
+        ],
+        dark,
+      );
+      for (let i = 0; i < 5; i++) {
+        const t = 0.03 + i * 0.035;
+        b.disc(x0 + (x1 - x0) * t, 0.5, 1.07 + 0.5 * t, 0.028, '#7d8494', dark);
+      }
+      b.cylinder(x1, 0.5, 1.53, 0.018, 0.05, dark);
+    }
   },
   arcade(b) {
     box(b, 0.15, 0.22, 0, 0.7, 0.62, 1.55, P.violet, {

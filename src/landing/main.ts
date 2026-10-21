@@ -125,6 +125,19 @@ function stickerCanvas(spec: StickerSpec): HTMLCanvasElement | null {
   return b.render(3).canvas;
 }
 
+/** Joshua, le robot d'accueil, en grand en haut de la page. */
+function setupMascot(): void {
+  const host = document.querySelector<HTMLElement>('[data-mascotte]');
+  const art = OBJECT_ART.robot;
+  if (!host || !art) return;
+  const b = new IsoBuilder(0, 1, 1);
+  art(b, 0);
+  const canvas = b.render(4).canvas;
+  canvas.setAttribute('role', 'img');
+  canvas.setAttribute('aria-label', 'Joshua, le robot d’accueil de MalinosLand');
+  host.append(canvas);
+}
+
 function setupStickers(): void {
   const host = document.querySelector<HTMLElement>('[data-stickers]');
   if (!host) return;
@@ -169,5 +182,6 @@ function setupRoadmap(): void {
 if (!forwardLoginReturn()) {
   setupAccount();
   setupRoadmap();
+  setupMascot();
   setupStickers();
 }
