@@ -55,7 +55,7 @@ export function WelcomePanel() {
       </p>
       <p class="muted small">
         {PRIVACY_NOTE}{' '}
-        <ExternalLink href="./confidentialite.html">Politique de confidentialité</ExternalLink> ·{' '}
+        <ExternalLink href="../confidentialite.html">Politique de confidentialité</ExternalLink> ·{' '}
         <ExternalLink href={REPO_URL}>Code source (licence AGPL-3.0)</ExternalLink>
       </p>
     </Modal>

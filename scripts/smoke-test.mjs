@@ -15,9 +15,10 @@
 import { chromium } from 'playwright-core';
 import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
 
-const base = process.argv[2] || 'http://localhost:4173/';
+// Adresse du SITE (page d'accueil) ; le jeu est dans le dossier /jouer/.
+const site = (process.argv[2] || 'http://localhost:4173/').replace(/\/?$/, '/');
 // ?debug active l'accès de test (window.__malinosDebug), sans effet sur le jeu.
-const url = base + (base.includes('?') ? '&' : '?') + 'debug';
+const url = `${site}jouer/?debug`;
 const outDir = process.argv[3] || 'screenshots';
 const executablePath =
   process.env.CHROMIUM_PATH || ['/opt/pw-browsers/chromium'].find((p) => existsSync(p));
@@ -186,6 +187,20 @@ async function teleport(x, y, f = 'py') {
 }
 
 try {
+  await step('site d’accueil puis entrée en visiteur', async () => {
+    await page.goto(site, { waitUntil: 'networkidle' });
+    await page.locator('.patch-title').waitFor();
+    if ((await page.locator('[data-provider="google"]').count()) === 0)
+      throw new Error('bouton « Continuer avec Google » absent');
+    const steps = await page.locator('[data-roadmap] > li').count();
+    if (steps < 5) throw new Error(`feuille de route incomplète (${steps} étapes)`);
+    if ((await page.locator('canvas.sticker').count()) === 0)
+      throw new Error('personnages autocollants non dessinés');
+    await page.screenshot({ path: `${outDir}/00-site.png` });
+    await page.locator('.lien-visiteur').click();
+    await page.waitForURL(/\/jouer\/$/);
+  });
+
   await step('chargement de l’écran d’accueil', async () => {
     await page.goto(url, { waitUntil: 'networkidle' });
     await page.getByText('Entrer dans MalinosLand').waitFor();

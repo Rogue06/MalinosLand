@@ -40,7 +40,7 @@ async function openGame(progress = []) {
   );
   const page = await context.newPage();
   page.on('pageerror', (e) => console.error('Erreur de la page :', e.message));
-  await page.goto(`${base}?debug`, { waitUntil: 'networkidle' });
+  await page.goto(`${base}jouer/?debug`, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.__malinosDebug, null, { timeout: 30000 });
   await page.waitForTimeout(1500);
   return page;
@@ -58,11 +58,24 @@ const teleport = async (page, x, y, f = 'py') => {
 };
 const closeHud = (page) => page.evaluate(() => document.querySelector('.objectives')?.remove());
 
-// 1. Écran d'accueil (création du personnage)
+// 0. Site d'accueil (page racine), et son image d'aperçu pour les partages (1200 × 630)
 {
   const context = await browser.newContext({ viewport });
   const page = await context.newPage();
   await page.goto(base, { waitUntil: 'networkidle' });
+  await shot(page, 'site-accueil');
+  await page.setViewportSize({ width: 1200, height: 630 });
+  await page.waitForTimeout(450);
+  await page.screenshot({ path: 'public/accueil/partage.jpg', type: 'jpeg', quality: 80 });
+  console.log('✓ public/accueil/partage.jpg');
+  await context.close();
+}
+
+// 1. Écran d'accueil (création du personnage)
+{
+  const context = await browser.newContext({ viewport });
+  const page = await context.newPage();
+  await page.goto(`${base}jouer/`, { waitUntil: 'networkidle' });
   await page.getByPlaceholder('ex. Léa, Max_IA…').fill('Malino');
   await page.getByText('Styles prêts à porter').waitFor();
   await page.locator('.preset').nth(4).click();

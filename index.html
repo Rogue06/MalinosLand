@@ -4,43 +4,394 @@
     <meta charset="UTF-8" />
     <!-- CSP -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>MalinosLand — le petit monde fait main des Malinos</title>
     <meta
       name="description"
-      content="MalinosLand — monde virtuel gratuit, open source et communautaire des Malinos."
+      content="Un monde virtuel gratuit, open source et communautaire, à visiter dans le navigateur : se croiser, discuter, avoir son logement et, bientôt, exposer ses créations IA."
     />
-    <meta name="theme-color" content="#141a2b" />
+    <meta name="theme-color" content="#2f9fe0" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <title>MalinosLand</title>
-    <style>
-      html,
-      body {
-        margin: 0;
-        height: 100%;
-        background: #141a2b;
-        overflow: hidden;
-      }
-      /* Le jeu gère lui-même le doigt (déplacement, zoom à deux doigts) : pas de zoom de page. */
-      #game {
-        touch-action: none;
-      }
-      #boot {
-        position: fixed;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        color: #9fb2da;
-        font:
-          600 16px system-ui,
-          sans-serif;
-      }
-    </style>
+    <!-- Aperçu lors d'un partage (Discord, WhatsApp, réseaux) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content="MalinosLand" />
+    <meta property="og:title" content="MalinosLand — le petit monde fait main des Malinos" />
+    <meta
+      property="og:description"
+      content="Gratuit, sans pub, open source : venez vous balader, discuter et avoir votre propre logement dans le monde des passionnés d’IA."
+    />
+    <meta property="og:url" content="https://malinosland.pages.dev/" />
+    <meta property="og:image" content="https://malinosland.pages.dev/accueil/partage.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
-    <div id="game"></div>
-    <div id="ui"></div>
-    <div id="boot">Chargement de MalinosLand…</div>
-    <noscript>MalinosLand a besoin de JavaScript pour fonctionner.</noscript>
-    <script type="module" src="/src/main.ts"></script>
+    <!-- Dessins réutilisés : nuage à spirales, couture, logos. -->
+    <svg class="sprites" aria-hidden="true" focusable="false">
+      <symbol id="spirale" viewBox="-15 -15 30 30">
+        <circle r="13.5" fill="#fff" stroke="#9fdcf2" stroke-width="1.6" />
+        <path
+          d="M0 0a1.6 1.6 0 0 1 3.2 0a3.2 3.2 0 0 1-6.4 0a4.8 4.8 0 0 1 9.6 0a6.4 6.4 0 0 1-12.8 0a8 8 0 0 1 16 0"
+          fill="none"
+          stroke="#33b7dc"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          transform="translate(-1.2 0.6)"
+        />
+      </symbol>
+      <symbol id="nuage" viewBox="0 0 200 92">
+        <use href="#spirale" x="0" y="34" width="56" height="56" />
+        <use href="#spirale" x="36" y="6" width="66" height="66" />
+        <use href="#spirale" x="84" y="0" width="74" height="74" />
+        <use href="#spirale" x="140" y="30" width="58" height="58" />
+        <use href="#spirale" x="48" y="40" width="52" height="52" />
+        <use href="#spirale" x="96" y="38" width="54" height="54" />
+      </symbol>
+      <symbol id="logo-google" viewBox="0 0 48 48">
+        <path
+          fill="#EA4335"
+          d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+        />
+        <path
+          fill="#4285F4"
+          d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+        />
+        <path
+          fill="#FBBC05"
+          d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+        />
+        <path
+          fill="#34A853"
+          d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+        />
+      </symbol>
+      <symbol id="logo-github" viewBox="0 0 16 16">
+        <path
+          fill="currentColor"
+          d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38l-.01-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48l-.01 2.2c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+        />
+      </symbol>
+    </svg>
+
+    <a class="skip" href="#entrer">Aller directement à la connexion</a>
+
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="MalinosLand, accueil">
+        <span class="brand-mark">M</span>
+        <span class="brand-name">Malinos<b>Land</b></span>
+      </a>
+      <nav class="nav" aria-label="Sections">
+        <a href="#pourquoi">Le projet</a>
+        <a href="#visite">Visiter</a>
+        <a href="#feuille-de-route">Feuille de route</a>
+        <a href="#participer">Participer</a>
+      </nav>
+      <a class="btn btn-small btn-sun" href="./jouer/">Jouer</a>
+    </header>
+
+    <main>
+      <!-- ============ Ciel d'accueil ============ -->
+      <section class="hero" aria-labelledby="titre">
+        <div class="hero-sky" aria-hidden="true"></div>
+        <div class="nuage-suspendu n1" aria-hidden="true">
+          <svg><use href="#nuage" /></svg>
+        </div>
+        <div class="nuage-suspendu n2" aria-hidden="true">
+          <svg><use href="#nuage" /></svg>
+        </div>
+        <div class="nuage-suspendu n3" aria-hidden="true">
+          <svg><use href="#nuage" /></svg>
+        </div>
+
+        <div class="hero-inner">
+          <div class="hero-text">
+            <p class="ruban">Version 0.3 · en construction</p>
+            <h1 id="titre" class="patch">
+              <span class="patch-title">Malinos<b>Land</b></span>
+              <span class="patch-sub">le petit monde fait main des Malinos</span>
+            </h1>
+          </div>
+          <div class="hero-lead">
+            <p class="lead">
+              Un lieu virtuel rien qu’à nous, les passionnés d’IA : on s’y balade, on s’y croise, on
+              discute, on a son petit chez-soi… et bientôt, on y expose ses créations.
+            </p>
+            <p class="lead small">
+              Directement dans le navigateur, sur ordinateur comme sur téléphone. Rien à installer,
+              rien à payer, aucune publicité.
+            </p>
+          </div>
+
+          <!-- Étiquette de connexion -->
+          <div class="etiquette" id="entrer">
+            <span class="oeillet" aria-hidden="true"></span>
+            <div class="etiquette-guest" data-auth="guest">
+              <h2 class="etiquette-title">Entrez dans le monde</h2>
+              <button type="button" class="btn btn-google" data-provider="google">
+                <svg class="btn-logo" aria-hidden="true"><use href="#logo-google" /></svg>
+                Continuer avec Google
+                <span class="badge-reco" aria-hidden="true">conseillé</span>
+              </button>
+              <p class="etiquette-hint">
+                Votre personnage vous suit partout et vous avez votre propre logement.
+              </p>
+              <button type="button" class="btn btn-github" data-provider="github">
+                <svg class="btn-logo" aria-hidden="true"><use href="#logo-github" /></svg>
+                Continuer avec GitHub
+              </button>
+              <a class="lien-visiteur" href="./jouer/">ou entrer sans compte, en visiteur →</a>
+            </div>
+            <div class="etiquette-back" data-auth="back" hidden>
+              <h2 class="etiquette-title">Bon retour <span data-name>parmi nous</span> !</h2>
+              <a class="btn btn-sun btn-big" href="./jouer/">Reprendre ma visite →</a>
+              <p class="etiquette-hint">Votre personnage vous attend là où vous l’avez laissé.</p>
+            </div>
+            <p class="etiquette-error" role="alert" hidden></p>
+            <p class="etiquette-foot">Gratuit · sans pub · open source</p>
+          </div>
+        </div>
+
+        <!-- Petite scène : une vraie capture du jeu et nos personnages en autocollants -->
+        <div class="scene" aria-hidden="true">
+          <figure class="polaroid hero-photo">
+            <img
+              src="./accueil/hub.webp"
+              width="960"
+              height="545"
+              alt=""
+              fetchpriority="high"
+              decoding="async"
+            />
+          </figure>
+          <div class="stickers" data-stickers></div>
+        </div>
+        <svg class="colline" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0 60 C240 10 420 10 720 46 S1200 96 1440 40 V120 H0Z" fill="#79c94f" />
+          <path
+            d="M0 74 C240 24 420 24 720 60 S1200 110 1440 54"
+            fill="none"
+            stroke="#e9ffd6"
+            stroke-width="3"
+            stroke-dasharray="10 9"
+            stroke-linecap="round"
+          />
+        </svg>
+      </section>
+
+      <!-- ============ Le sens du projet ============ -->
+      <section class="section" id="pourquoi" aria-labelledby="t-pourquoi">
+        <h2 class="titre-section" id="t-pourquoi"><span>Pourquoi MalinosLand ?</span></h2>
+        <p class="intro">
+          Les Malinos, ce sont des curieux et des passionnés d’IA, de tous les métiers et de tous
+          les horizons. On échange beaucoup… dans des fils de discussion qui défilent et s’oublient.
+          MalinosLand, c’est l’envie d’avoir <strong>un vrai lieu</strong> : un endroit où l’on se
+          croise, où l’on s’installe pour papoter, où chacun a son coin et peut montrer ce qu’il
+          fabrique.
+        </p>
+        <div class="cartes">
+          <article class="feutre feutre-teal">
+            <span class="pastille" aria-hidden="true">🤝</span>
+            <h3>Se retrouver</h3>
+            <p>
+              Croiser d’autres Malinos en direct, discuter avec ceux qui sont à côté de vous ou avec
+              tout le monde, s’asseoir ensemble au salon ou en terrasse.
+            </p>
+          </article>
+          <article class="feutre feutre-coral">
+            <span class="pastille" aria-hidden="true">🖼️</span>
+            <h3>Montrer ce qu’on crée</h3>
+            <p>
+              Votre logement d’abord, puis la Galerie des Malinos : un musée de vos sites, applis et
+              projets IA, pour inspirer les autres (bientôt).
+            </p>
+          </article>
+          <article class="feutre feutre-violet">
+            <span class="pastille" aria-hidden="true">🧵</span>
+            <h3>Construire ensemble</h3>
+            <p>
+              Un projet bénévole, gratuit et ouvert : vos idées décident de la suite, et chacun peut
+              mettre la main à la pâte, avec ou sans compétences techniques.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============ Visite en photos ============ -->
+      <section class="section section-liege" id="visite" aria-labelledby="t-visite">
+        <h2 class="titre-section" id="t-visite"><span>Petite visite guidée</span></h2>
+        <p class="intro">
+          Tout est dessiné par le jeu lui-même, et chaque recoin a été pensé pour flâner. Indice :
+          une dizaine de <strong>secrets</strong> se cachent un peu partout…
+        </p>
+        <div class="album">
+          <figure class="polaroid">
+            <img
+              src="./accueil/parc.webp"
+              width="720"
+              height="428"
+              alt="Le parc et ses allées"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>Le parc, le verger et la forêt</figcaption>
+          </figure>
+          <figure class="polaroid">
+            <img
+              src="./accueil/salle-de-jeux.webp"
+              width="720"
+              height="428"
+              alt="La salle de jeux"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>La salle de jeux</figcaption>
+          </figure>
+          <figure class="polaroid">
+            <img
+              src="./accueil/studio.webp"
+              width="720"
+              height="428"
+              alt="Un studio meublé"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>Votre propre studio</figcaption>
+          </figure>
+          <figure class="polaroid">
+            <img
+              src="./accueil/coworking.webp"
+              width="720"
+              height="428"
+              alt="L’espace coworking"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>Le coworking</figcaption>
+          </figure>
+          <figure class="polaroid">
+            <img
+              src="./accueil/terrasse.webp"
+              width="720"
+              height="428"
+              alt="La terrasse"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>La terrasse au soleil</figcaption>
+          </figure>
+          <figure class="polaroid">
+            <img
+              src="./accueil/joshua.webp"
+              width="720"
+              height="428"
+              alt="Joshua, le robot d’accueil, dans le hall"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>Joshua, le robot d’accueil</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <!-- ============ Pourquoi se connecter ============ -->
+      <section class="section" id="compte" aria-labelledby="t-compte">
+        <h2 class="titre-section" id="t-compte"><span>Pourquoi se connecter ?</span></h2>
+        <div class="compte">
+          <article class="feutre feutre-creme">
+            <h3>Avec un compte Google, vous avez…</h3>
+            <ul class="coutures">
+              <li>
+                votre personnage <strong>sur tous vos appareils</strong>, ordinateur et téléphone ;
+              </li>
+              <li>
+                <strong>votre logement</strong> : un studio rien qu’à vous, ouvert à qui vous voulez
+                ;
+              </li>
+              <li>la possibilité d’<strong>inviter</strong> vos amis chez vous ;</li>
+              <li>
+                une petite marque <strong>✓</strong> à côté de votre pseudo : on sait que c’est bien
+                vous ;
+              </li>
+              <li>la boîte à idées sans vérification anti-robot.</li>
+            </ul>
+            <button type="button" class="btn btn-google" data-provider="google" data-auth="guest">
+              <svg class="btn-logo" aria-hidden="true"><use href="#logo-google" /></svg>
+              Continuer avec Google
+            </button>
+          </article>
+          <aside class="carton">
+            <h3>Et mes données ?</h3>
+            <p>
+              Google nous transmet seulement votre nom, votre adresse e-mail et un identifiant.
+              L’adresse sert uniquement à vous reconnaître : elle n’est
+              <strong>jamais affichée ni partagée</strong>.
+            </p>
+            <p>
+              Aucun accès à vos mails, vos fichiers ou vos contacts. Vous pouvez supprimer votre
+              compte à tout moment, en un clic, depuis le jeu.
+            </p>
+            <p><a href="./confidentialite.html">Lire la politique de confidentialité</a></p>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ============ Feuille de route (remplie depuis src/content/roadmap.ts) ============ -->
+      <section class="section section-liege" id="feuille-de-route" aria-labelledby="t-route">
+        <h2 class="titre-section" id="t-route"><span>La feuille de route</span></h2>
+        <p class="intro">
+          MalinosLand grandit petit à petit. Voici le chemin prévu, et rien n’est figé :
+          <strong>ce sont vos idées qui écriront la suite.</strong>
+        </p>
+        <ol class="fil" data-roadmap></ol>
+      </section>
+
+      <!-- ============ Participer ============ -->
+      <section class="section" id="participer" aria-labelledby="t-participer">
+        <h2 class="titre-section" id="t-participer"><span>Fait par nous, pour nous</span></h2>
+        <div class="cartes">
+          <article class="feutre feutre-sun">
+            <span class="pastille" aria-hidden="true">💡</span>
+            <h3>Proposer une idée</h3>
+            <p>
+              La Boîte à idées et la Borne à bugs vous attendent dans le hall, juste à l’entrée.
+            </p>
+          </article>
+          <article class="feutre feutre-teal">
+            <span class="pastille" aria-hidden="true">🧪</span>
+            <h3>Tester et raconter</h3>
+            <p>Sur ordinateur ou téléphone : dites-nous ce qui vous plaît et ce qui coince.</p>
+          </article>
+          <article class="feutre feutre-coral">
+            <span class="pastille" aria-hidden="true">🛠️</span>
+            <h3>Mettre les mains dedans</h3>
+            <p>
+              Tout le code est ouvert, avec un guide pour démarrer, même avec une IA :
+              <a href="https://github.com/Rogue06/MalinosLand" rel="noopener noreferrer"
+                >sur GitHub</a
+              >.
+            </p>
+          </article>
+        </div>
+        <div class="appel">
+          <a class="btn btn-sun btn-big" href="#entrer">Venir faire un tour →</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="pied">
+      <p>
+        <strong>MalinosLand</strong> · projet bénévole, indépendant et communautaire, fait par et
+        pour les Malinos.
+      </p>
+      <p>
+        <a href="./confidentialite.html">Confidentialité</a> ·
+        <a href="https://github.com/Rogue06/MalinosLand" rel="noopener noreferrer">Code source</a>
+        (licence AGPL-3.0) · <a href="./jouer/">Entrer dans le monde</a>
+      </p>
+    </footer>
+
+    <script type="module" src="/src/landing/main.ts"></script>
   </body>
 </html>

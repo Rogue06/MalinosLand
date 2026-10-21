@@ -71,6 +71,7 @@ limiter les appels de dessin. L’interface `TextureInfo` permettra d’utiliser
 | Moteur de rendu             | `src/game/` (Phaser) + `src/game/art/` (dessin canvas pur)                                                                      |
 | Logique du jeu              | `src/core/`, `src/world/` (sans Phaser ni DOM, testée)                                                                          |
 | Interfaces utilisateur      | `src/ui/` (Preact)                                                                                                              |
+| Site d’accueil              | `index.html` + `src/landing/` (page racine, sans Phaser ni Preact) ; le jeu est `jouer/index.html` (DEC-023)                    |
 | Données du monde            | `src/content/` (cartes JSON versionnées, catalogue)                                                                             |
 | Connexion / comptes         | `src/services/account.ts` (Supabase Auth, chargé à la demande), `src/ui/AccountBox.tsx` ; visiteurs : `src/services/profile.ts` |
 | Communications multijoueurs | `src/multiplayer/` (interface `Transport` remplaçable) + `server/`                                                              |
