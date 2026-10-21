@@ -306,3 +306,23 @@ seulement.
 « Reprendre ma visite » pour ceux qui sont déjà connectés). Les tests de bout en bout et les
 scripts de captures visent `/jouer/` ; le test e2e vérifie aussi l’accueil. Image d’aperçu des
 partages : `public/accueil/partage.jpg` (régénérée par `npm run docs:screenshots`).
+
+## DEC-024 — Éditeur de décoration : liste de meubles en base, revérifiée par le jeu (24/10/2026)
+
+**Contexte.** v0.3 lot 2 : chacun doit pouvoir meubler son studio simplement, sans pouvoir
+gêner ses visiteurs (enfermer quelqu’un, boucher l’ascenseur) ni charger la base.
+**Décision.** La décoration est une petite liste JSON de meubles `{ t, x, y, r, v }` (type,
+case, rotation, couleur) dans `homes.decor` ; null = studio d’origine. La base vérifie la forme,
+les types autorisés et le nombre (40 au plus) ; la lecture passe par `home_decor()`, réservée à
+ceux qui peuvent entrer. Les règles de placement (sol du studio, entrée et ascenseur dégagés,
+pas de chevauchement sauf un tapis sous un meuble, passage vers l’ascenseur et chaque meuble
+utilisable, personne sous un meuble) sont dans `src/world/decor.ts`, pures et testées, et
+**revérifiées à chaque chargement** : une liste trafiquée ne peut pas bloquer un visiteur. Les
+meubles ne débloquent ni quête ni secret. L’éditeur (`src/game/DecorEditor.ts`) travaille sur un
+brouillon ; rien n’est écrit avant « Enregistrer » (une seule requête). Le serveur temps réel
+relaie seulement un petit message `decor` du propriétaire aux présents, qui rechargent la liste :
+aucune donnée de décoration ne transite par le Durable Object. La salle est remeublée sans
+relancer la scène (`WorldRenderer.destroy()`). La barre de l’éditeur est chargée à la demande.
+**Conséquences.** Coût négligeable (une écriture par enregistrement, une lecture par entrée
+dans un logement). Catalogue extensible : ajouter un type dans `src/content/furniture.ts` **et**
+dans la liste de la migration (un test vérifie qu’elles sont identiques).

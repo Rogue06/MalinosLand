@@ -5,6 +5,18 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (éditeur de décoration, v0.3 lot 2)
+
+- **Décorer son logement** (bouton 🛋️ chez soi) : catalogue de 21 meubles en 5 catégories,
+  poser, tourner, changer de couleur, déplacer, ranger ; empreinte verte ou rouge avec
+  l’explication ; « Studio d’origine » ; enregistrement en un clic.
+- Règles qui protègent les visiteurs : entrée et ascenseur dégagés, passage vers chaque meuble,
+  40 objets au plus ; revérifiées à chaque chargement.
+- Les personnes présentes voient la nouvelle décoration aussitôt (petit message `decor` relayé
+  par le serveur ; la liste est lue dans la base).
+- Base : colonne `homes.decor`, contrainte `valid_home_decor`, fonction `home_decor()`
+  (migration `20261024090000_home_decor.sql`).
+
 ### Ajouté (site d’accueil)
 
 - **Site d’accueil** à l’adresse principale : présentation du projet (le sens, la visite en

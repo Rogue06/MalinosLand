@@ -408,6 +408,73 @@ describe('base de données : logements (v0.3)', () => {
   });
 });
 
+describe('base de données : décoration des logements (v0.3)', () => {
+  const HOST = '00000000-0000-4000-8000-0000000000d1';
+  const VISITOR = '00000000-0000-4000-8000-0000000000d2';
+  const SOFA = { t: 'sofa', x: 2, y: 3, r: 1, v: 2 };
+  const decorOf = async (who: string | null) =>
+    (await as<{ d: unknown }>(who, 'select public.home_decor($1) as d', [HOST])).rows[0]!.d;
+  const setDecor = (who: string, decor: unknown) =>
+    as(who, 'update public.homes set decor = $1 where owner_id = $2', [
+      decor === null ? null : JSON.stringify(decor),
+      HOST,
+    ]);
+
+  beforeAll(async () => {
+    await db.exec(
+      `insert into auth.users (id) values ('${HOST}'), ('${VISITOR}') on conflict do nothing`,
+    );
+    await as(HOST, 'select public.my_home()');
+  });
+
+  it('le propriétaire enregistre sa décoration ; d’origine, elle est vide (null)', async () => {
+    expect(await decorOf(HOST)).toBeNull();
+    await setDecor(HOST, [SOFA, { t: 'rug', x: 1, y: 9, r: 0, v: 0 }]);
+    expect(await decorOf(HOST)).toEqual([SOFA, { t: 'rug', x: 1, y: 9, r: 0, v: 0 }]);
+    await setDecor(HOST, []);
+    expect(await decorOf(HOST)).toEqual([]);
+  });
+
+  it('la base refuse les décorations mal formées', async () => {
+    const bad = [
+      [{ ...SOFA, t: 'elevator' }],
+      [{ ...SOFA, x: 0 }],
+      [{ ...SOFA, x: 11 }],
+      [{ ...SOFA, y: 10 }],
+      [{ ...SOFA, x: 2.5 }],
+      [{ ...SOFA, r: 4 }],
+      [{ ...SOFA, v: '1' }],
+      [{ ...SOFA, extra: true }],
+      [{ t: 'sofa', x: 2, y: 3, r: 1 }],
+      ['sofa'],
+      { t: 'sofa' },
+      Array(41).fill(SOFA),
+    ];
+    for (const decor of bad)
+      await expect(setDecor(HOST, decor), JSON.stringify(decor)).rejects.toThrow(
+        /check constraint/,
+      );
+    await setDecor(HOST, Array(40).fill(SOFA));
+  });
+
+  it('personne d’autre ne change la décoration', async () => {
+    const changed = await setDecor(VISITOR, [SOFA]);
+    expect(changed.affectedRows).toBe(0);
+    await expect(
+      setDecor(HOST, [SOFA]).then(() => as(null, 'update public.homes set decor = null')),
+    ).rejects.toThrow(/permission denied/);
+  });
+
+  it('la décoration se lit seulement si l’on peut entrer', async () => {
+    await setDecor(HOST, [SOFA]);
+    expect(await decorOf(VISITOR)).toBeNull();
+    expect(await decorOf(null)).toBeNull();
+    await as(HOST, `update public.homes set access = 'public' where owner_id = $1`, [HOST]);
+    expect(await decorOf(VISITOR)).toEqual([SOFA]);
+    expect(await decorOf(null)).toEqual([SOFA]);
+  });
+});
+
 describe('base de données : responsable du site', () => {
   const BOSS = '00000000-0000-4000-8000-0000000000d1';
   const MODO2 = '00000000-0000-4000-8000-0000000000d2';

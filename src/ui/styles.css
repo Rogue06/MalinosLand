@@ -1085,7 +1085,165 @@ button.presence-chip {
   border-color: var(--teal);
 }
 
+/* ---------- Éditeur de décoration du logement */
+.hud.editing .minimap,
+.hud.editing .objectives,
+.hud.editing .hint {
+  display: none;
+}
+.decor-btn {
+  border-color: rgba(255, 200, 87, 0.55);
+}
+.decor-start {
+  width: 100%;
+  margin-bottom: 14px;
+}
+.decor-bar {
+  position: absolute;
+  left: 12px;
+  right: 364px;
+  bottom: 12px;
+  max-width: 920px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--glass-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.decor-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.decor-title {
+  font-size: 15px;
+}
+.decor-count {
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.07);
+}
+.decor-count.full {
+  color: var(--night);
+  background: var(--sun);
+}
+.decor-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+.decor-msg {
+  margin: 0;
+  font-size: 13px;
+  color: var(--teal-light);
+}
+.decor-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(95, 227, 208, 0.08);
+  border: 1px solid rgba(95, 227, 208, 0.25);
+}
+.decor-current {
+  margin-right: 4px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.decor-tools kbd {
+  margin-left: 4px;
+  font-size: 10px;
+  opacity: 0.75;
+}
+.decor-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.decor-tab {
+  flex: none;
+  padding: 5px 12px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.decor-tab.active {
+  color: var(--text);
+  border-color: var(--teal);
+  background: rgba(34, 181, 166, 0.18);
+}
+.decor-items {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x proximity;
+}
+.decor-item {
+  flex: none;
+  width: 94px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  scroll-snap-align: start;
+  transition:
+    transform 0.1s ease,
+    border-color 0.15s ease;
+}
+.decor-item:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--teal);
+}
+.decor-item.active {
+  border-color: var(--sun);
+  background: rgba(255, 200, 87, 0.14);
+}
+.decor-item:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.decor-thumb {
+  width: 64px;
+  height: 52px;
+}
+.decor-name {
+  font-size: 11.5px;
+  line-height: 1.2;
+  text-align: center;
+}
+
 @media (max-width: 760px) {
+  .decor-bar {
+    left: 6px;
+    right: 6px;
+    bottom: 6px;
+    padding: 10px;
+  }
+  .hud.editing .chat {
+    display: none;
+  }
+  .decor-actions {
+    margin-left: 0;
+  }
   .avatar-editor {
     grid-template-columns: 1fr;
   }
@@ -1197,6 +1355,9 @@ button.presence-chip {
 
 /* Au doigt, pas de touche E : on cache ce rappel dans les dialogues. */
 @media (pointer: coarse) {
+  .decor-tools kbd {
+    display: none;
+  }
   .dialog-footer kbd {
     display: none;
   }

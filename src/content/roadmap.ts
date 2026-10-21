@@ -41,8 +41,8 @@ export const ROADMAP: RoadmapStep[] = [
       'Mon logement (studio) ✓',
       'Accès : personne, invités, tout le monde ✓',
       'Invitations ✓',
-      'Éditeur de décoration (bientôt)',
-      'Catalogue d’objets (bientôt)',
+      'Éditeur de décoration ✓',
+      'Catalogue de meubles ✓',
     ],
   },
   {

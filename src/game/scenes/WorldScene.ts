@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { QUESTS } from '../../content/quests';
 import { SECRETS } from '../../content/secrets';
 import { HOME_EXIT, HUB_ROOM, mapIdForRoom } from '../../content/rooms';
-import { loadWorld } from '../../content/world';
+import { HOME_RULES, loadHomeWorld, loadWorld } from '../../content/world';
 import { project, screenInputToWorld, unproject, type Facing, type Vec2 } from '../../core/iso';
 import { facesCamera } from '../../core/rotation';
 import { SoundGate } from '../../core/soundGate';
@@ -24,7 +24,7 @@ import { accessToken, accountStore } from '../../services/account';
 import { hiddenStore, isHidden } from '../../services/moderation';
 import { ambienceForZone, playSound, setAmbience, setAudioPaused } from '../../services/audio';
 import { isTouchDevice } from '../../services/device';
-import { myHomeAccess, type HomeAccess } from '../../services/homes';
+import { fetchDecor, myHomeAccess, saveMyDecor, type HomeAccess } from '../../services/homes';
 import {
   BroadcastChannelTransport,
   OfflineTransport,
@@ -47,17 +47,27 @@ import {
   pushToast,
   roomStore,
   statsStore,
+  typingStore,
   worldInfoStore,
   zoneStore,
+  type DecorAction,
 } from '../../state';
+import { parseDecor, type DecorItem } from '../../world/decor';
 import { PlayerController, USE_RANGE } from '../../world/PlayerController';
 import type { WorldModel, WorldObject } from '../../world/WorldModel';
 import { avatarDepth, DepthIndex } from '../../world/depth';
 import type { InteractionDef } from '../../world/types';
+import { DecorEditor } from '../DecorEditor';
 import { AvatarView } from '../entities/AvatarView';
 import { AmbientLife } from '../life/AmbientLife';
 import { TextureFactory } from '../textures';
 import { BACKREST_DEPTH, WorldRenderer } from '../WorldRenderer';
+
+/**
+ * Décorations des logements déjà chargées (par salle) : la salle s'affiche aussitôt meublée.
+ * null : studio d'origine.
+ */
+const decorCache = new Map<string, DecorItem[] | null>();
 
 /** Arrivée devant l'ascenseur du Hub en sortant d'un logement. */
 const EXIT_SPAWN = { x: HOME_EXIT.x, y: HOME_EXIT.y, facing: HOME_EXIT.facing };
@@ -147,6 +157,14 @@ export class WorldScene extends Phaser.Scene {
   private life: AmbientLife | null = null;
   /** Demande d'entrée dans un logement en attente de la réponse du serveur. */
   private pendingDoor: { room: string; ownerName: string | null } | null = null;
+  /** Meubles du logement affiché (vides au Hub). */
+  private decorItems: DecorItem[] = [];
+  /** Éditeur de décoration ouvert (chez soi seulement). */
+  private editor: DecorEditor | null = null;
+  /** Meuble mis en valeur par l'éditeur. */
+  private editorHighlight: string | null = null;
+  /** Chargement de la décoration avant d'entrer dans un logement. */
+  private loadingDecor = false;
 
   init(data: WorldSceneData): void {
     this.selfId = data.selfId;
@@ -163,6 +181,10 @@ export class WorldScene extends Phaser.Scene {
     this.life = null;
     this.zoneId = null;
     this.hovered = null;
+    this.decorItems = [];
+    this.editor = null;
+    this.editorHighlight = null;
+    this.loadingDecor = false;
   }
 
   create(): void {
@@ -173,28 +195,17 @@ export class WorldScene extends Phaser.Scene {
     const rp = renderProfile(settings.quality);
     this.pixelRatio = rp.pixelRatio;
 
-    this.world = loadWorld(mapIdForRoom(this.room) ?? 'hub');
-    worldInfoStore.set(this.world.map);
+    if (homeOwner(this.room)) {
+      // Logement : le studio meublé selon la décoration de son propriétaire.
+      const home = loadHomeWorld(decorCache.get(this.room) ?? null);
+      this.world = home.world;
+      this.decorItems = home.items;
+    } else this.world = loadWorld(mapIdForRoom(this.room) ?? 'hub');
     // Une seule fabrique pour toute la partie : les textures déjà dessinées (Hub, studio,
     // avatars) sont réutilisées d'une salle à l'autre.
     if (!this.tex || this.tex.texScale !== rp.textureScale)
       this.tex = new TextureFactory(this, rp.textureScale);
-    this.renderer3d = new WorldRenderer(this, this.world, this.tex, {
-      effects: rp.effects,
-      reducedMotion: settings.reducedMotion,
-      hiDpi: settings.quality === 'high',
-    });
-    this.renderer3d.build();
-    this.depthIndex = new DepthIndex(this.world.width, this.renderer3d.depthBoxes);
-    // Vie du décor (fontaine, oiseaux, papillons, vapeur) : rien n'est envoyé sur le réseau.
-    this.life = settings.reducedMotion
-      ? null
-      : new AmbientLife(this, this.world, this.renderer3d, {
-          effects: rp.effects,
-          texScale: rp.textureScale,
-          depthAt: (x, y) => this.depthFor(x, y, null, 'py'),
-          player: () => this.player.pos,
-        });
+    this.buildRoom();
 
     const account = accountStore.get();
     this.selfVerified =
@@ -246,6 +257,9 @@ export class WorldScene extends Phaser.Scene {
     this.cleanups.push(
       commands.on('home-access', ({ access, guests }) => this.enforceAccess(access, guests)),
     );
+    this.cleanups.push(
+      commands.on('decor', ({ action, type }) => this.onDecorCommand(action, type)),
+    );
 
     if (this.carry) this.adoptNetwork(this.carry);
     else void this.startNetwork(settings.multiTab);
@@ -273,17 +287,166 @@ export class WorldScene extends Phaser.Scene {
     });
   }
 
-  // ---------------------------------------------------------------- Caméra
+  /** Affiche la salle (sols, murs, objets) et la vie du décor, à partir de this.world. */
+  private buildRoom(): void {
+    const settings = settingsStore.get();
+    const rp = renderProfile(settings.quality);
+    worldInfoStore.set(this.world.map);
+    this.renderer3d = new WorldRenderer(this, this.world, this.tex, {
+      effects: rp.effects,
+      reducedMotion: settings.reducedMotion,
+      hiDpi: settings.quality === 'high',
+    });
+    this.renderer3d.build();
+    this.depthIndex = new DepthIndex(this.world.width, this.renderer3d.depthBoxes);
+    // Vie du décor (fontaine, oiseaux, papillons, vapeur) : rien n'est envoyé sur le réseau.
+    this.life = settings.reducedMotion
+      ? null
+      : new AmbientLife(this, this.world, this.renderer3d, {
+          effects: rp.effects,
+          texScale: rp.textureScale,
+          depthAt: (x, y) => this.depthFor(x, y, null, 'py'),
+          player: () => this.player.pos,
+        });
+  }
 
-  private setupCamera(): void {
+  /** Remeuble le logement affiché, sans relancer la scène (éditeur, visiteurs prévenus). */
+  private applyDecor(items: DecorItem[] | null): void {
+    const home = loadHomeWorld(items);
+    this.decorItems = home.items;
+    this.life?.destroy();
+    this.renderer3d.destroy();
+    this.hovered = null;
+    this.editorHighlight = null;
+    this.world = home.world;
+    this.buildRoom();
+    this.player.setWorld(this.world);
+  }
+
+  /** Charge la décoration d'un logement avant d'y entrer (4 s au plus, sinon celle connue). */
+  private async preloadDecor(room: string): Promise<void> {
+    const owner = homeOwner(room);
+    if (!owner) return;
+    this.loadingDecor = true;
+    try {
+      const raw = await Promise.race([
+        fetchDecor(owner),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('délai')), 4000)),
+      ]);
+      decorCache.set(room, parseDecor(raw, HOME_RULES));
+    } catch {
+      // On entre quand même : la décoration connue (ou d'origine) s'affiche.
+    } finally {
+      this.loadingDecor = false;
+    }
+  }
+
+  /** Le propriétaire du logement où l'on est a changé sa décoration. */
+  private async reloadDecor(owner: string): Promise<void> {
+    if (homeOwner(this.room) !== owner || this.editor) return;
+    const room = this.room;
+    await this.preloadDecor(room);
+    if (this.room !== room || this.traveling || !this.renderer3d) return;
+    this.applyDecor(decorCache.get(room) ?? null);
+    pushToast('La décoration a changé ✨', '🛋️', 3000);
+  }
+
+  // ---------------------------------------------------------------- Décoration
+
+  private onDecorCommand(action: DecorAction, type?: string): void {
+    if (action !== 'start') {
+      this.editor?.command(action, type);
+      return;
+    }
+    if (homeOwner(this.room) !== this.selfId) {
+      pushToast('Tu peux décorer ton propre logement (ascenseur → « Mon logement »).', '🛋️', 5000);
+      return;
+    }
+    this.openEditor();
+  }
+
+  /** Ouvre l'éditeur sur les meubles affichés (l'enregistrement exige un compte, chez soi). */
+  private openEditor(): void {
+    if (this.editor || !homeOwner(this.room)) return;
+    panelStore.set(null);
+    this.player.standUp();
+    this.player.cancel();
+    this.marker.setVisible(false);
+    this.editor = new DecorEditor(
+      {
+        scene: this,
+        tex: this.tex,
+        touch: isTouchDevice(),
+        apply: (items) => this.applyDecor(items),
+        people: () => [
+          this.player.pos,
+          ...[...this.remotes.values()]
+            .filter((r) => r.peer.room === this.room)
+            .map((r) => ({ x: r.peer.x, y: r.peer.y })),
+        ],
+        highlight: (index) => {
+          if (this.editorHighlight) this.renderer3d.highlight(this.editorHighlight, false);
+          this.editorHighlight = index === null ? null : `decor-${index}`;
+          if (this.editorHighlight) this.renderer3d.highlight(this.editorHighlight, true);
+        },
+        save: async (items) => {
+          await saveMyDecor(items);
+          decorCache.set(this.room, items);
+          this.net?.decorChanged();
+          pushToast('Décoration enregistrée ✨', '🛋️');
+        },
+        close: () => {
+          this.editor?.destroy();
+          this.editor = null;
+          this.frameRoom(false);
+        },
+      },
+      this.decorItems,
+    );
+    this.frameRoom(true);
+  }
+
+  /**
+   * Éditeur ouvert : la caméra montre toute la pièce au-dessus de la barre de décoration (qui
+   * occupe le bas de l'écran). Fermé : elle suit de nouveau le personnage.
+   */
+  private frameRoom(editing: boolean): void {
     const cam = this.cameras.main;
-    cam.setBackgroundColor('#141a2b');
+    if (!editing) {
+      this.setCameraBounds();
+      this.updateZoom();
+      cam.startFollow(this.avatar.sprite, false, 0.12, 0.12, 0, 20);
+      return;
+    }
     const { width: W, height: H } = this.world;
     const left = project(0, H).x;
     const right = project(W, 0).x;
     const top = project(0, 0, 3).y;
     const bottom = project(W, H).y;
-    cam.setBounds(left - 260, top - 200, right - left + 520, bottom - top + 400);
+    const cssW = this.scale.width / this.pixelRatio;
+    const cssH = this.scale.height / this.pixelRatio;
+    const topBar = 64;
+    const reserved = Math.max(250, cssH * 0.4);
+    const availH = Math.max(120, cssH - reserved - topBar);
+    const zoom = Math.min(
+      this.userZoom * 1.2,
+      availH / (bottom - top),
+      (cssW * 0.94) / (right - left),
+    );
+    cam.stopFollow();
+    cam.removeBounds();
+    cam.setZoom(zoom * this.pixelRatio);
+    // Centre de la pièce affiché au milieu de l'espace libre, entre l'en-tête et la barre.
+    const freeMiddle = topBar + availH / 2;
+    cam.centerOn((left + right) / 2, (top + bottom) / 2 + (cssH / 2 - freeMiddle) / zoom);
+  }
+
+  // ---------------------------------------------------------------- Caméra
+
+  private setupCamera(): void {
+    const cam = this.cameras.main;
+    cam.setBackgroundColor('#141a2b');
+    this.setCameraBounds();
     this.updateZoom();
     const p = project(this.player.pos.x, this.player.pos.y);
     cam.centerOn(p.x, p.y - 30);
@@ -291,6 +454,16 @@ export class WorldScene extends Phaser.Scene {
     const onResize = () => this.updateZoom();
     this.scale.on(Phaser.Scale.Events.RESIZE, onResize);
     this.cleanups.push(() => this.scale.off(Phaser.Scale.Events.RESIZE, onResize));
+  }
+
+  /** Limites de la caméra : la salle et une marge autour. */
+  private setCameraBounds(): void {
+    const { width: W, height: H } = this.world;
+    const left = project(0, H).x;
+    const right = project(W, 0).x;
+    const top = project(0, 0, 3).y;
+    const bottom = project(W, H).y;
+    this.cameras.main.setBounds(left - 260, top - 200, right - left + 520, bottom - top + 400);
   }
 
   private updateZoom(): void {
@@ -325,6 +498,12 @@ export class WorldScene extends Phaser.Scene {
       );
     }
 
+    // Éditeur de décoration : R tourner, C couleur, M déplacer, Suppr ranger, Échap.
+    kb.on('keydown', (e: KeyboardEvent) => {
+      if (!this.editor || typingStore.get()) return;
+      if (this.editor.key(e.code)) e.preventDefault();
+    });
+
     this.input.on(
       Phaser.Input.Events.POINTER_DOWN,
       (pointer: Phaser.Input.Pointer, over: Phaser.GameObjects.GameObject[]) => {
@@ -332,6 +511,14 @@ export class WorldScene extends Phaser.Scene {
         // Deuxième doigt posé : c'est un zoom, pas un déplacement.
         if (this.input.pointer2?.isDown) {
           this.player.cancel();
+          return;
+        }
+        if (this.editor) {
+          const wp = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+          const ids = over
+            .map((o) => o.getData('objectId') as string | undefined)
+            .filter((v): v is string => !!v);
+          this.editor.pointerDown(wp.x, wp.y, ids, pointer.wasTouch);
           return;
         }
         const id = over.map((o) => o.getData('objectId') as string | undefined).find(Boolean);
@@ -352,7 +539,7 @@ export class WorldScene extends Phaser.Scene {
       Phaser.Input.Events.GAMEOBJECT_OVER,
       (_p: Phaser.Input.Pointer, go: Phaser.GameObjects.GameObject) => {
         const id = go.getData('objectId') as string | undefined;
-        if (!id) return;
+        if (!id || this.editor) return;
         this.hovered = id;
         this.renderer3d.highlight(id, true);
       },
@@ -361,7 +548,7 @@ export class WorldScene extends Phaser.Scene {
       Phaser.Input.Events.GAMEOBJECT_OUT,
       (_p: Phaser.Input.Pointer, go: Phaser.GameObjects.GameObject) => {
         const id = go.getData('objectId') as string | undefined;
-        if (!id) return;
+        if (!id || this.editor) return;
         if (this.hovered === id) this.hovered = null;
         this.renderer3d.highlight(id, false);
       },
@@ -369,7 +556,11 @@ export class WorldScene extends Phaser.Scene {
     // Zoom à deux doigts (pincer / écarter).
     this.input.addPointer(1);
     let pinch: { dist: number; zoom: number } | null = null;
-    this.input.on(Phaser.Input.Events.POINTER_MOVE, () => {
+    this.input.on(Phaser.Input.Events.POINTER_MOVE, (pointer: Phaser.Input.Pointer) => {
+      if (this.editor && !this.input.pointer2?.isDown) {
+        const wp = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+        this.editor.pointerMove(wp.x, wp.y);
+      }
       const a = this.input.pointer1;
       const b = this.input.pointer2;
       if (!a?.isDown || !b?.isDown) {
@@ -394,7 +585,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private readInput(): Vec2 {
-    if (isInputLocked()) return { x: 0, y: 0 };
+    if (isInputLocked() || this.editor) return { x: 0, y: 0 };
     const k = this.keys;
     const up = k.W!.isDown || k.Z!.isDown || k.UP!.isDown;
     const down = k.S!.isDown || k.DOWN!.isDown;
@@ -561,8 +752,10 @@ export class WorldScene extends Phaser.Scene {
       return;
     }
     if (owner === this.selfId) {
+      if (this.loadingDecor) return;
       // Le logement est créé en base à la première visite (pour pouvoir l'ouvrir ensuite).
       void myHomeAccess().catch(() => {});
+      await this.preloadDecor(room);
       this.travel(room, null);
       return;
     }
@@ -601,7 +794,8 @@ export class WorldScene extends Phaser.Scene {
     if (homeOwner(room)) {
       const pending = this.pendingDoor;
       this.pendingDoor = null;
-      if (ok && pending?.room === room) this.travel(room, pending.ownerName);
+      if (ok && pending?.room === room)
+        void this.preloadDecor(room).then(() => this.travel(room, pending.ownerName));
       else if (!ok)
         pushToast(
           why === 'full'
@@ -655,7 +849,7 @@ export class WorldScene extends Phaser.Scene {
     const text = !owner
       ? 'Retour au Hub !'
       : owner === this.selfId
-        ? 'Bienvenue chez toi ! La table basse règle qui peut entrer. Ce qui s’écrit ici reste entre ces murs.'
+        ? 'Bienvenue chez toi ! Le bouton 🛋️ en haut sert à décorer, la table basse règle qui peut entrer. Ce qui s’écrit ici reste entre ces murs.'
         : `Tu es chez ${this.ownerName ?? 'un Malino'}. Ce qui s’écrit ici n’est lu que par les personnes présentes.`;
     pushChat({ from: 'MalinosLand', text, kind: 'system', scope: 'local' });
   }
@@ -803,6 +997,7 @@ export class WorldScene extends Phaser.Scene {
       pushChat({ from: 'MalinosLand', text, kind: 'system', scope: 'global' });
     });
     on('door', ({ room, ok, why }) => this.onDoor(room, ok, why));
+    on('decor', ({ owner }) => void this.reloadDecor(owner));
   }
 
   private addRemote(peer: RemotePeer): void {
@@ -908,6 +1103,7 @@ export class WorldScene extends Phaser.Scene {
     const dt = Math.min(delta, 250) / 1000;
     if (
       !isInputLocked() &&
+      !this.editor &&
       (Phaser.Input.Keyboard.JustDown(this.keys.E!) ||
         Phaser.Input.Keyboard.JustDown(this.keys.SPACE!))
     ) {
@@ -1042,6 +1238,17 @@ export class WorldScene extends Phaser.Scene {
         this.travel(room, 'Test', room === HUB_ROOM ? EXIT_SPAWN : undefined);
         return true;
       },
+      /** Meubles du logement affiché, et clic de l'éditeur de décoration sur une case. */
+      decor: () => this.decorItems.map((i) => ({ ...i })),
+      /** Ouvre l'éditeur dans n'importe quel logement (test local : rien n'est enregistré). */
+      decorStart: () => this.openEditor(),
+      decorTap: (x: number, y: number) => {
+        if (!this.editor) return false;
+        const p = project(x + 0.5, y + 0.5);
+        this.editor.pointerMove(p.x, p.y);
+        this.editor.pointerDown(p.x, p.y, [], false);
+        return true;
+      },
       /** État de l'interface et du joueur, pour diagnostiquer un test qui échoue. */
       state: () => ({
         pos: { ...this.player.pos },
@@ -1134,6 +1341,8 @@ export class WorldScene extends Phaser.Scene {
 
   private teardown(): void {
     if (this.awayTimer) clearTimeout(this.awayTimer);
+    this.editor?.destroy();
+    this.editor = null;
     for (const c of this.cleanups) c();
     this.cleanups = [];
     for (const off of this.netCleanups) off();

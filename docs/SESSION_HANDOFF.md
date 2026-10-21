@@ -3,9 +3,9 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 24/10/2026 — v0.3 en cours : logements en ligne (PR #21 à #28) ;
-site d’accueil à la racine, le jeu passe dans `/jouer/` (branche `feature/site-accueil`).
-Prochaine étape : éditeur de décoration du logement (v0.3 lot 2).**
+**Dernière mise à jour : 24/10/2026 — v0.3 lots 1 et 2 en ligne : logements, accès, invitations,
+éditeur de décoration (PR #30) ; site d’accueil à la racine, le jeu dans `/jouer/` (PR #29).
+Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter avec le responsable.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -35,6 +35,15 @@ Prochaine étape : éditeur de décoration du logement (v0.3 lot 2).**
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **24/10 (suite)** — Branche `feature/editeur-decoration` (DEC-024), partie de `main` (sans le
+  site d’accueil de la PR #29 : au moment de fusionner la seconde, résoudre les conflits de
+  `scripts/smoke-test.mjs` (adresse `/jouer/`), CHANGELOG, DECISIONS, SESSION_HANDOFF).
+  Éditeur de décoration : `src/content/furniture.ts` (21 meubles), `src/world/decor.ts` (règles,
+  testées), `src/game/DecorEditor.ts`, `src/ui/hud/DecorBar.tsx` (chargée à la demande), message
+  réseau `decor`, migration `20261024090000_home_decor.sql` appliquée sur Supabase à la fusion
+  (accord du responsable). **À tester en ligne** :
+  enregistrer, recharger, voir la décoration depuis un 2e compte présent dans le logement.
 
 - **24/10** — PR #27 et #28 fusionnées et en ligne. Branche `feature/site-accueil` (DEC-023) :
   site d’accueil « fait main » (`index.html`, `src/landing/`), « Continuer avec Google » mis en

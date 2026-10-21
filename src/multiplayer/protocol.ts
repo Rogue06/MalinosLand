@@ -68,6 +68,11 @@ export type NetMessage =
   | { t: 'enter'; id: string; room: string; tok?: string }
   /** Le propriétaire fait sortir un joueur de son logement. */
   | { t: 'evict'; id: string; target: string }
+  /**
+   * Le propriétaire a changé la décoration de son logement : les personnes présentes la
+   * rechargent depuis la base (relayé par le serveur au reste de la salle).
+   */
+  | { t: 'decor'; id: string }
   // Messages émis uniquement par le serveur temps réel :
   | { t: 'rate'; ms: number }
   | { t: 'notice'; code: NoticeCode }
@@ -196,6 +201,8 @@ export function decodeMessage(raw: unknown): NetMessage | null {
       return typeof data.target === 'string' && ID_RE.test(data.target)
         ? { t: 'evict', id, target: data.target }
         : null;
+    case 'decor':
+      return { t: 'decor', id };
     default:
       return null;
   }

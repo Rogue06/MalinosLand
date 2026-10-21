@@ -6,7 +6,8 @@
  */
 import { SUPABASE_KEY, SUPABASE_URL } from '../config';
 import { sanitizeName } from '../core/text';
-import { accountPlayerId, homeRoom } from '../multiplayer/protocol';
+import { accountPlayerId, accountUuid, homeRoom } from '../multiplayer/protocol';
+import type { DecorItem } from '../world/decor';
 import { AccountError, accountStore, load } from './account';
 
 export type HomeAccess = 'private' | 'invite' | 'public';
@@ -111,4 +112,29 @@ export function parseHomes(rows: unknown): HomeEntry[] {
         ]
       : [];
   });
+}
+
+/**
+ * Décoration brute d'un logement (identifiant réseau du propriétaire) : null pour le studio
+ * d'origine, ou si l'on n'a pas le droit d'entrer. Le jeu la lit et la revérifie avec
+ * `parseDecor` / `buildHomeMap` (src/world/decor.ts).
+ */
+export async function fetchDecor(ownerId: string): Promise<unknown> {
+  const uuid = accountUuid(ownerId);
+  if (!online() || !uuid) return null;
+  const { db } = await load();
+  const { data, error } = await db.rpc('home_decor', { p_owner: uuid });
+  if (error) throw fail();
+  return data as unknown;
+}
+
+/** Enregistre la décoration de mon logement (null : retour au studio d'origine). */
+export async function saveMyDecor(items: DecorItem[] | null): Promise<void> {
+  const account = accountStore.get();
+  if (account.status !== 'signed-in') throw new AccountError('Connecte-toi d’abord.');
+  const { db } = await load();
+  await myHomeAccess(); // le logement doit exister
+  const decor = items?.map(({ t, x, y, r, v }) => ({ t, x, y, r, v })) ?? null;
+  const { error } = await db.from('homes').update({ decor }).eq('owner_id', account.user.id);
+  if (error) throw fail();
 }
