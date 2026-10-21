@@ -1,0 +1,1110 @@
+/*
+ * Site d'accueil de MalinosLand — style « fait main » : feutrine, coutures, carton, photos
+ * scotchées et nuages à spirales suspendus. Tout est dessiné en CSS / SVG (aucune image de
+ * décor à télécharger) ; seules les captures du jeu sont des fichiers (public/accueil/).
+ */
+:root {
+  --sky-top: #1f8fdc;
+  --sky: #47b6ee;
+  --sky-light: #a9e0fb;
+  --paper: #eaf6ff;
+  --grid: rgba(43, 132, 199, 0.13);
+  --ink: #2a2342;
+  --ink-soft: #5b5375;
+  --white: #fffdf8;
+  --cream: #fff4dd;
+  --cardboard: #d9a866;
+  --cardboard-dark: #a87638;
+  --coral: #ff7a59;
+  --sun: #ffc23d;
+  --sun-dark: #e09a12;
+  --teal: #22b5a6;
+  --violet: #7b6cf6;
+  --grass: #79c94f;
+  --radius: 22px;
+  --stitch: 2.5px dashed rgba(255, 255, 255, 0.75);
+  /* Grain de feutrine (bruit SVG, aucune requête réseau). */
+  --felt: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  /* Grain plus discret pour les surfaces claires (sinon elles paraissent grises). */
+  --felt-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --font: 'Fredoka Variable', 'Fredoka', ui-rounded, 'Segoe UI', system-ui, sans-serif;
+  color: var(--ink);
+  font-family: var(--font);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 84px;
+}
+
+body {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.55;
+  background-color: var(--paper);
+  background-image:
+    var(--felt-light), linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:
+    180px 180px,
+    32px 32px,
+    32px 32px;
+  overflow-x: hidden;
+}
+
+a {
+  color: #1a6fb8;
+  font-weight: 600;
+}
+
+strong {
+  font-weight: 650;
+}
+
+.sprites {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.skip {
+  position: absolute;
+  left: -999px;
+  top: 8px;
+  z-index: 50;
+  background: var(--white);
+  padding: 8px 14px;
+  border-radius: 10px;
+}
+
+.skip:focus {
+  left: 12px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--sun);
+  outline-offset: 3px;
+}
+
+/* ---------- Boutons cousus ---------- */
+.btn {
+  --btn-bg: var(--white);
+  --btn-fg: var(--ink);
+  --btn-edge: #c9bfa9;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--btn-felt, var(--felt)), var(--btn-bg);
+  color: var(--btn-fg);
+  font: 650 18px/1.1 var(--font);
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow:
+    0 5px 0 var(--btn-edge),
+    0 10px 18px rgba(42, 35, 66, 0.22);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border: 2px dashed currentColor;
+  border-radius: inherit;
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.btn:hover {
+  transform: translateY(-2px) rotate(-0.6deg);
+}
+
+.btn:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 1px 0 var(--btn-edge),
+    0 4px 8px rgba(42, 35, 66, 0.2);
+}
+
+.btn[disabled] {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.btn-logo {
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+
+.btn-google {
+  --btn-felt: var(--felt-light);
+  --btn-bg: #fff;
+  --btn-edge: #d7cdb6;
+  width: 100%;
+  padding: 17px 24px;
+  font-size: 20px;
+}
+
+/* Petit écusson « conseillé » cousu sur le bouton Google */
+.badge-reco {
+  position: absolute;
+  top: -13px;
+  right: 14px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: var(--felt), var(--teal);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 650;
+  outline: 1.5px dashed rgba(255, 255, 255, 0.8);
+  outline-offset: -4px;
+  transform: rotate(4deg);
+}
+
+.btn-github {
+  --btn-bg: #2f2a3d;
+  --btn-fg: #fff;
+  --btn-edge: #17141f;
+  width: 100%;
+  padding: 11px 20px;
+  font-size: 16px;
+}
+
+.btn-sun {
+  --btn-bg: var(--sun);
+  --btn-edge: var(--sun-dark);
+}
+
+.btn-small {
+  padding: 8px 18px;
+  font-size: 16px;
+}
+
+.btn-big {
+  padding: 16px 30px;
+  font-size: 20px;
+}
+
+/* ---------- Barre du haut ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px max(16px, calc((100vw - 1180px) / 2));
+  background: rgba(31, 143, 220, 0.92);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  border-bottom: 3px dashed rgba(255, 255, 255, 0.45);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.brand b {
+  font-weight: 700;
+  color: var(--sun);
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--felt), var(--coral);
+  outline: 2px dashed rgba(255, 255, 255, 0.8);
+  outline-offset: -5px;
+  font-weight: 700;
+  transform: rotate(-6deg);
+}
+
+.nav {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.nav a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 550;
+  padding: 6px 12px;
+  border-radius: 999px;
+}
+
+.nav a:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* ---------- Ciel d'accueil ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 72px 16px 0;
+  color: var(--ink);
+}
+
+.hero-sky {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    var(--felt),
+    repeating-conic-gradient(
+      from 0deg at 72% -10%,
+      rgba(255, 255, 255, 0.13) 0deg 7deg,
+      transparent 7deg 16deg
+    ),
+    linear-gradient(rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(180deg, var(--sky-top), var(--sky) 55%, var(--sky-light));
+  background-size:
+    180px 180px,
+    auto,
+    36px 36px,
+    36px 36px,
+    auto;
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr);
+  grid-template-areas:
+    'texte etiquette'
+    'lead etiquette';
+  gap: 0 40px;
+  align-items: start;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.hero-text {
+  grid-area: texte;
+}
+
+.hero-lead {
+  grid-area: lead;
+}
+
+.etiquette {
+  grid-area: etiquette;
+}
+
+.ruban {
+  display: inline-block;
+  margin: 0 0 18px;
+  padding: 6px 18px;
+  background: var(--felt), var(--violet);
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  border-radius: 6px;
+  outline: var(--stitch);
+  outline-offset: -5px;
+  transform: rotate(-2deg);
+}
+
+.patch {
+  display: inline-flex;
+  flex-direction: column;
+  margin: 0 0 22px;
+  padding: 20px 34px 22px;
+  background: var(--felt), var(--coral);
+  border-radius: 28px;
+  outline: 3px dashed rgba(255, 255, 255, 0.8);
+  outline-offset: -10px;
+  box-shadow:
+    0 8px 0 #d65a3c,
+    0 18px 30px rgba(42, 35, 66, 0.28);
+  transform: rotate(-1.5deg);
+  color: #fff;
+}
+
+.patch-title {
+  font-size: clamp(46px, 8vw, 92px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  text-shadow: 0 4px 0 rgba(120, 30, 10, 0.35);
+}
+
+.patch-title b {
+  color: var(--sun);
+}
+
+.patch-sub {
+  margin-top: 6px;
+  font-size: clamp(17px, 2.4vw, 23px);
+  font-weight: 500;
+}
+
+.lead {
+  max-width: 34em;
+  margin: 0 0 12px;
+  font-size: 20px;
+  font-weight: 500;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(20, 70, 120, 0.35);
+}
+
+.lead.small {
+  font-size: 17px;
+  font-weight: 450;
+}
+
+/* Étiquette en carton, suspendue par un œillet */
+.etiquette {
+  position: relative;
+  padding: 34px 28px 22px;
+  background: var(--felt-light), var(--cream);
+  border-radius: 18px 18px 26px 26px;
+  box-shadow:
+    0 7px 0 #e1c99a,
+    0 22px 40px rgba(20, 50, 90, 0.35);
+  transform: rotate(1.2deg);
+  text-align: center;
+}
+
+.etiquette::before {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border: 2px dashed rgba(168, 118, 56, 0.45);
+  border-radius: 12px 12px 20px 20px;
+  pointer-events: none;
+}
+
+.oeillet {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  width: 26px;
+  height: 26px;
+  margin-left: -13px;
+  border-radius: 50%;
+  background: var(--sky);
+  border: 5px solid #c7c2b8;
+  box-shadow: 0 2px 0 #9d978c;
+}
+
+.etiquette-title {
+  margin: 0 0 18px;
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.etiquette-hint {
+  margin: 10px 0 18px;
+  font-size: 15px;
+  color: var(--ink-soft);
+}
+
+.lien-visiteur {
+  display: inline-block;
+  margin-top: 16px;
+  font-size: 16px;
+}
+
+.etiquette-error {
+  margin: 12px 0 0;
+  color: #b3261e;
+  font-weight: 600;
+}
+
+.etiquette-foot {
+  margin: 16px 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cardboard-dark);
+  letter-spacing: 0.02em;
+}
+
+/* Nuages à spirales suspendus à une ficelle */
+.nuage-suspendu {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  width: var(--w, 200px);
+  transform-origin: 50% 0;
+  animation: balance 7s ease-in-out infinite alternate;
+}
+
+.nuage-suspendu::before {
+  content: '';
+  display: block;
+  width: 5px;
+  height: var(--fil, 60px);
+  margin: 0 auto -6px;
+  border-radius: 3px;
+  background: repeating-linear-gradient(-45deg, #e5a24a 0 4px, #a8682a 4px 7px);
+}
+
+.nuage-suspendu svg {
+  display: block;
+  width: 100%;
+  aspect-ratio: 200 / 92;
+  filter: drop-shadow(0 8px 8px rgba(20, 70, 120, 0.25));
+}
+
+.n1 {
+  left: -20px;
+  --w: 210px;
+  --fil: 6px;
+  animation-delay: -2s;
+}
+
+.n2 {
+  left: 47%;
+  --w: 150px;
+  --fil: 26px;
+  animation-duration: 9s;
+}
+
+.n3 {
+  right: -30px;
+  --w: 230px;
+  --fil: 10px;
+  animation-delay: -5s;
+}
+
+@keyframes balance {
+  from {
+    transform: rotate(-3deg);
+  }
+  to {
+    transform: rotate(3deg);
+  }
+}
+
+/* Scène : la capture du Hub et nos personnages en autocollants */
+.scene {
+  position: relative;
+  z-index: 1;
+  max-width: 980px;
+  margin: 56px auto 0;
+  padding-bottom: 70px;
+}
+
+.hero-photo {
+  width: min(86%, 760px);
+  margin: 0 auto;
+  transform: rotate(-1.4deg);
+}
+
+.stickers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sticker {
+  position: absolute;
+  height: auto;
+  filter: drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff)
+    drop-shadow(0 -3px 0 #fff) drop-shadow(0 8px 8px rgba(20, 50, 90, 0.3));
+  animation: sautille 3.2s ease-in-out infinite;
+}
+
+@keyframes sautille {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--r, 0deg));
+  }
+  50% {
+    transform: translateY(-8px) rotate(var(--r, 0deg));
+  }
+}
+
+.colline {
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  z-index: 0;
+  width: 100%;
+  height: 120px;
+}
+
+/* ---------- Sections ---------- */
+.section {
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 72px 16px;
+}
+
+.section-liege {
+  max-width: none;
+  padding-left: max(16px, calc((100vw - 1180px) / 2));
+  padding-right: max(16px, calc((100vw - 1180px) / 2));
+  background: var(--felt-light), #f6e7c8;
+  border-top: 4px dashed rgba(168, 118, 56, 0.35);
+  border-bottom: 4px dashed rgba(168, 118, 56, 0.35);
+}
+
+.titre-section {
+  margin: 0 0 18px;
+  text-align: center;
+  font-size: clamp(30px, 4.6vw, 44px);
+  line-height: 1.1;
+}
+
+.titre-section span {
+  display: inline-block;
+  padding: 10px 30px;
+  background: var(--felt), var(--sky-top);
+  color: #fff;
+  border-radius: 14px;
+  outline: var(--stitch);
+  outline-offset: -7px;
+  box-shadow: 0 6px 0 #156aa6;
+  transform: rotate(-1deg);
+}
+
+.intro {
+  max-width: 46em;
+  margin: 18px auto 34px;
+  text-align: center;
+  font-size: 19px;
+  color: var(--ink-soft);
+}
+
+.cartes {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 26px;
+}
+
+.feutre {
+  --c: var(--teal);
+  --c-dark: #178b7f;
+  position: relative;
+  padding: 30px 26px 26px;
+  background: var(--felt), var(--c);
+  color: #fff;
+  border-radius: var(--radius);
+  outline: var(--stitch);
+  outline-offset: -10px;
+  box-shadow:
+    0 7px 0 var(--c-dark),
+    0 16px 26px rgba(42, 35, 66, 0.18);
+}
+
+.feutre:nth-child(2) {
+  transform: rotate(0.8deg);
+}
+
+.feutre:nth-child(3) {
+  transform: rotate(-0.8deg);
+}
+
+.feutre h3 {
+  margin: 8px 0 8px;
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+.feutre p {
+  margin: 0;
+  font-size: 17px;
+}
+
+.feutre a {
+  color: #fff;
+}
+
+.feutre-teal {
+  --c: var(--teal);
+  --c-dark: #178b7f;
+}
+
+.feutre-coral {
+  --c: var(--coral);
+  --c-dark: #d65a3c;
+}
+
+.feutre-violet {
+  --c: var(--violet);
+  --c-dark: #5546cf;
+}
+
+.feutre-sun {
+  --c: #f5ab1b;
+  --c-dark: #c9850a;
+}
+
+.feutre-creme {
+  background: var(--felt-light), var(--white);
+  --c: var(--white);
+  --c-dark: #ddd2bb;
+  color: var(--ink);
+  outline-color: rgba(168, 118, 56, 0.45);
+}
+
+.pastille {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  font-size: 30px;
+  border-radius: 50%;
+  background: var(--felt), var(--white);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* Photos scotchées */
+.album {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 34px 28px;
+}
+
+.polaroid {
+  position: relative;
+  margin: 0;
+  padding: 12px 12px 14px;
+  background: var(--white);
+  border-radius: 4px;
+  box-shadow: 0 14px 26px rgba(42, 35, 66, 0.25);
+  transform: rotate(var(--r, -1.5deg));
+  transition: transform 0.2s ease;
+}
+
+.polaroid::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  width: 96px;
+  height: 26px;
+  margin-left: -48px;
+  background: rgba(255, 238, 170, 0.78);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+  transform: rotate(-4deg);
+}
+
+.polaroid img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 2px;
+  background: #cfe6f5;
+}
+
+.polaroid figcaption {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 19px;
+  font-weight: 550;
+  color: var(--ink);
+}
+
+.album .polaroid:nth-child(3n + 1) {
+  --r: -2deg;
+}
+
+.album .polaroid:nth-child(3n + 2) {
+  --r: 1.5deg;
+}
+
+.album .polaroid:nth-child(3n) {
+  --r: -0.8deg;
+}
+
+.album .polaroid:hover {
+  transform: rotate(0deg) scale(1.03);
+}
+
+/* Compte */
+.compte {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 30px;
+  align-items: start;
+}
+
+.compte .btn-google {
+  margin-top: 18px;
+  max-width: 380px;
+}
+
+.coutures {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.coutures li {
+  position: relative;
+  margin: 10px 0;
+  padding-left: 40px;
+  font-size: 18px;
+}
+
+.coutures li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  top: -1px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--felt), var(--teal);
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  outline: 1.5px dashed rgba(255, 255, 255, 0.8);
+  outline-offset: -4px;
+}
+
+.carton {
+  position: relative;
+  padding: 28px 26px;
+  background:
+    var(--felt), repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.035) 0 3px, transparent 3px 7px),
+    var(--cardboard);
+  border-radius: 10px;
+  box-shadow:
+    0 6px 0 var(--cardboard-dark),
+    0 16px 26px rgba(42, 35, 66, 0.2);
+  transform: rotate(1deg);
+}
+
+.carton h3 {
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+
+.carton p {
+  margin: 0 0 10px;
+  font-size: 17px;
+}
+
+.carton a {
+  color: #5a2f00;
+}
+
+/* Feuille de route : un fil cousu et des boutons de couture */
+.fil {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 30px 26px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.etape {
+  position: relative;
+  padding: 24px 22px 20px 22px;
+  background: var(--felt-light), var(--white);
+  border-radius: 18px;
+  box-shadow:
+    0 6px 0 #ddd2bb,
+    0 12px 20px rgba(42, 35, 66, 0.14);
+}
+
+.etape::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 2px dashed rgba(42, 35, 66, 0.14);
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+.bouton-couture {
+  position: absolute;
+  top: -16px;
+  left: 18px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--felt), var(--btn, #c9c2d8);
+  box-shadow:
+    inset 0 0 0 4px rgba(255, 255, 255, 0.25),
+    0 4px 0 rgba(0, 0, 0, 0.18);
+}
+
+/* Les 4 trous du bouton */
+.bouton-couture::before {
+  content: '';
+  width: 14px;
+  height: 14px;
+  background:
+    radial-gradient(circle at 3px 3px, rgba(42, 35, 66, 0.55) 2.2px, transparent 2.6px),
+    radial-gradient(circle at 11px 3px, rgba(42, 35, 66, 0.55) 2.2px, transparent 2.6px),
+    radial-gradient(circle at 3px 11px, rgba(42, 35, 66, 0.55) 2.2px, transparent 2.6px),
+    radial-gradient(circle at 11px 11px, rgba(42, 35, 66, 0.55) 2.2px, transparent 2.6px);
+}
+
+.etape-done {
+  --btn: var(--teal);
+}
+
+.etape-current {
+  --btn: var(--coral);
+  outline: 3px solid var(--coral);
+  outline-offset: 3px;
+}
+
+.etape-planned {
+  --btn: #c9c2d8;
+}
+
+.etape-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 8px 0 6px;
+}
+
+.etape-version {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.etape-statut {
+  margin-left: auto;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 650;
+  background: #ece7f6;
+  color: var(--ink-soft);
+}
+
+.etape-done .etape-statut {
+  background: #d6f3ef;
+  color: #11685f;
+}
+
+.etape-current .etape-statut {
+  background: #ffe1d8;
+  color: #a7381d;
+}
+
+.etape h3 {
+  margin: 0 0 8px;
+  font-size: 19px;
+}
+
+.etape ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 16px;
+  color: var(--ink-soft);
+}
+
+/* Post-it */
+.postits {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.postit {
+  margin: 0;
+  padding: 22px 18px 26px;
+  min-height: 150px;
+  font-size: 17px;
+  background: var(--felt), var(--pc);
+  box-shadow: 0 12px 18px rgba(42, 35, 66, 0.18);
+  clip-path: polygon(0 0, 100% 0, 100% 88%, 88% 100%, 0 100%);
+}
+
+.postit strong {
+  display: block;
+  font-size: 20px;
+}
+
+.p-jaune {
+  --pc: #ffe98a;
+  transform: rotate(-2deg);
+}
+
+.p-rose {
+  --pc: #ffc2cf;
+  transform: rotate(1.5deg);
+}
+
+.p-vert {
+  --pc: #c6f1a6;
+  transform: rotate(-1deg);
+}
+
+.p-bleu {
+  --pc: #b9e3ff;
+  transform: rotate(2deg);
+}
+
+.appel {
+  margin-top: 46px;
+  text-align: center;
+}
+
+/* Pied de page */
+.pied {
+  padding: 34px 16px 44px;
+  text-align: center;
+  font-size: 16px;
+  color: #fff;
+  background: var(--felt), #2f2a3d;
+  border-top: 4px dashed rgba(255, 255, 255, 0.25);
+}
+
+.pied p {
+  margin: 6px 0;
+}
+
+.pied a {
+  color: var(--sun);
+}
+
+/* ---------- Écrans moyens et petits ---------- */
+@media (max-width: 960px) {
+  .hero-inner,
+  .compte {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Le bouton de connexion passe juste sous le titre, visible sans faire défiler. */
+  .hero-inner {
+    grid-template-areas: 'texte' 'etiquette' 'lead';
+  }
+
+  .etiquette {
+    max-width: 440px;
+    width: 100%;
+    margin: 6px auto 28px;
+    transform: none;
+  }
+
+  .cartes,
+  .album,
+  .fil {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .postits {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nav {
+    display: none;
+  }
+
+  .topbar .btn {
+    margin-left: auto;
+  }
+
+  .n2 {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  body {
+    font-size: 17px;
+  }
+
+  .hero {
+    padding-top: 40px;
+  }
+
+  .ruban {
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+
+  .patch {
+    padding: 14px 20px 16px;
+    margin-bottom: 18px;
+  }
+
+  .etiquette {
+    padding: 28px 18px 18px;
+  }
+
+  .etiquette-title {
+    font-size: 24px;
+    margin-bottom: 16px;
+  }
+
+  .lead {
+    font-size: 18px;
+  }
+
+  .cartes,
+  .album,
+  .fil,
+  .postits {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .section {
+    padding-top: 56px;
+    padding-bottom: 56px;
+  }
+
+  .hero-photo {
+    width: 100%;
+  }
+
+  .nuage-suspendu {
+    --w: 130px;
+  }
+
+  .n1 {
+    left: -40px;
+  }
+
+  .n3 {
+    right: -50px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .nuage-suspendu,
+  .sticker {
+    animation: none;
+  }
+
+  .btn,
+  .polaroid {
+    transition: none;
+  }
+}

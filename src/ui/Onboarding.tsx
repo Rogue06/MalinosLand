@@ -80,7 +80,7 @@ export function Onboarding() {
         <footer class="onboarding-footer">
           <p class="muted small">
             {PRIVACY_NOTE}{' '}
-            <a href="./confidentialite.html" target="_blank" rel="noopener noreferrer">
+            <a href="../confidentialite.html" target="_blank" rel="noopener noreferrer">
               Politique de confidentialité
             </a>{' '}
             ·{' '}

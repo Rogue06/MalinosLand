@@ -282,3 +282,27 @@ onglet « 📋 Connexions » de la page de modération, pour le responsable seul
 **Conséquences.** Deux écritures par visite dans le Durable Object (limite gratuite : 100 000
 par jour). Page de confidentialité et texte de l’écran d’accueil mis à jour. Rien n’existe pour
 les visites avant le 22/10/2026.
+
+## DEC-023 — Site d’accueil à la racine, le jeu dans /jouer/ (24/10/2026)
+
+**Contexte.** Des Malinos visitent le jeu sans se connecter : l’intérêt d’un compte n’était
+expliqué nulle part, et les boutons de connexion étaient discrets (« facultatif »). Le
+responsable estime que presque tous préfèrent Google à GitHub.
+**Décision.** Une vraie page d’accueil à la racine du site (`index.html` + `src/landing/`) :
+elle donne envie, donne du sens au projet et propose d’abord **« Continuer avec Google »**
+(GitHub en second, visiteur en lien). Le jeu passe dans `jouer/index.html` (build Vite à deux
+pages). La connexion part du site et revient directement dans le jeu (`/jouer/`, couvert par
+l’adresse de retour `https://malinosland.pages.dev/**` déjà autorisée dans Supabase). Style
+« fait main » (feutrine, coutures, carton, photos scotchées, nuages à spirales), inspiré de
+l’ambiance « bricolée » de certains jeux mais sans rien en reprendre : personnages et objets
+sont dessinés par **notre** générateur (`src/game/art/`). La page reste légère : ni Phaser ni
+Preact ; Supabase n’est téléchargé qu’au clic sur un bouton de connexion. Dans le jeu aussi,
+Google passe en premier et en évidence.
+**Dépendance ajoutée.** `@fontsource-variable/fredoka` (police ronde Fredoka, licence OFL) :
+servie par notre site (aucune requête vers Google Fonts, donc rien à changer à la CSP ni à la
+confidentialité) ; seul le fichier latin (30 Ko) est téléchargé. Utilisée par le site d’accueil
+seulement.
+**Conséquences.** Les anciens liens vers la racine arrivent sur l’accueil (un bouton
+« Reprendre ma visite » pour ceux qui sont déjà connectés). Les tests de bout en bout et les
+scripts de captures visent `/jouer/` ; le test e2e vérifie aussi l’accueil. Image d’aperçu des
+partages : `public/accueil/partage.jpg` (régénérée par `npm run docs:screenshots`).

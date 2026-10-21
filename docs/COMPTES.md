@@ -79,6 +79,7 @@ Supabase → **Authentication** → **URL Configuration** :
 
 - **Site URL** : `https://malinosland.pages.dev`
 - **Redirect URLs** : ajouter `https://malinosland.pages.dev/**` et `http://localhost:5173/**`
+  (le `/**` couvre le jeu, `/jouer/`, où revient une connexion lancée depuis le site d’accueil)
 
 ### Étape 3 — Connexion avec GitHub
 

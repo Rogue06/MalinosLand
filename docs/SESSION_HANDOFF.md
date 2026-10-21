@@ -3,9 +3,9 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 21/10/2026 — v0.2 terminée (voir CHANGELOG [0.2.0]) : comptes,
-modération, boîte à idées anti-robots, confort (sons, mentions, absent, mobile), file d’attente.
-Prochaine étape : v0.3 Logements.**
+**Dernière mise à jour : 24/10/2026 — v0.3 en cours : logements en ligne (PR #21 à #28) ;
+site d’accueil à la racine, le jeu passe dans `/jouer/` (branche `feature/site-accueil`).
+Prochaine étape : éditeur de décoration du logement (v0.3 lot 2).**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -35,6 +35,13 @@ Prochaine étape : v0.3 Logements.**
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **24/10** — PR #27 et #28 fusionnées et en ligne. Branche `feature/site-accueil` (DEC-023) :
+  site d’accueil « fait main » (`index.html`, `src/landing/`), « Continuer avec Google » mis en
+  avant (aussi dans le jeu), jeu déplacé dans `jouer/index.html`, police Fredoka (OFL, servie
+  par le site), image d’aperçu des partages. Filet de sécurité : un retour de connexion arrivé
+  sur la racine est transmis au jeu. **À vérifier en ligne par le responsable** : connexion
+  Google depuis l’accueil (retour direct dans le jeu), aperçu du lien dans Discord/WhatsApp.
 
 - **23/10 (suite 2)** — Branche `feature/parc-foret-jeux` (empilée sur `feature/chat-proximite`) :
   partie est du Hub redessinée (générateur ponctuel, non conservé) : salle de jeux, chemins en

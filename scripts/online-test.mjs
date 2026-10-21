@@ -10,7 +10,8 @@ import { chromium } from 'playwright-core';
 import { existsSync } from 'node:fs';
 
 const base = (process.argv[2] || 'http://localhost:4173/').replace(/\/?$/, '/');
-const url = `${base}?debug`;
+// Le jeu est dans le dossier /jouer/ du site.
+const url = `${base}jouer/?debug`;
 const executablePath =
   process.env.CHROMIUM_PATH || ['/opt/pw-browsers/chromium'].find((p) => existsSync(p));
 const TIMEOUT = 45000;

@@ -15,9 +15,10 @@ import type { SupabaseClients } from './supabaseClients';
 
 export type AccountProvider = 'github' | 'google';
 
+/** Google d'abord : c'est le compte que la plupart des Malinos ont déjà. */
 export const PROVIDERS: { id: AccountProvider; label: string }[] = [
-  { id: 'github', label: 'GitHub' },
   { id: 'google', label: 'Google' },
+  { id: 'github', label: 'GitHub' },
 ];
 
 export interface AccountUser {
@@ -58,7 +59,7 @@ export function load(): Promise<SupabaseClients> {
   return clients;
 }
 
-function hasStoredSession(): boolean {
+export function hasStoredSession(): boolean {
   try {
     return localStorage.getItem(STORAGE_KEY) !== null;
   } catch {
@@ -218,16 +219,23 @@ export async function accessToken(): Promise<string | null> {
   return data.session?.access_token ?? null;
 }
 
-export async function signIn(provider: AccountProvider): Promise<void> {
+/**
+ * Part vers Google / GitHub. `redirectTo` : page de retour (par défaut la page actuelle ; le
+ * site d'accueil renvoie vers le jeu). Elle doit être autorisée dans Supabase (docs/COMPTES.md).
+ * Renvoie false si le départ a échoué.
+ */
+export async function signIn(
+  provider: AccountProvider,
+  redirectTo = location.origin + location.pathname,
+): Promise<boolean> {
   try {
     const { auth } = await load();
-    const { error } = await auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: location.origin + location.pathname },
-    });
+    const { error } = await auth.signInWithOAuth({ provider, options: { redirectTo } });
     if (error) throw error;
+    return true;
   } catch {
     pushToast('Connexion impossible pour le moment.', '🔑', 6000);
+    return false;
   }
 }
 

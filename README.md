@@ -71,7 +71,8 @@ Pour le lancer sur ton ordinateur (pour contribuer au code) :
    npm run dev
    ```
 
-3. Ouvre **http://localhost:5173** dans ton navigateur, crée ton personnage… et bonne visite !
+3. Ouvre **http://localhost:5173** dans ton navigateur (le site d’accueil), puis « entrer sans
+   compte » (ou directement http://localhost:5173/jouer/), crée ton personnage… et bonne visite !
 
 > Astuce : en local, ouvre le jeu dans **deux onglets** du même navigateur pour voir deux
 > personnages se croiser (démonstration locale, rien ne passe par Internet). Pour tester le vrai
@@ -129,7 +130,7 @@ Le [plan de la documentation](docs/README.md) t’indique quoi lire selon ton pr
 
 | Commande                               | Rôle                                                                                     |
 | -------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `npm run dev`                          | Lance le jeu en mode développement (http://localhost:5173)                               |
+| `npm run dev`                          | Mode développement : accueil sur http://localhost:5173, jeu sur `/jouer/`                |
 | `npm run check`                        | Vérifie tout : types, style, tests, compilation — **à lancer avant chaque pull request** |
 | `npm test`                             | Tests automatiques                                                                       |
 | `npm run build` puis `npm run preview` | Version de production sur http://localhost:4173                                          |
