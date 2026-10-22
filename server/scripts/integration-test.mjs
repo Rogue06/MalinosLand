@@ -15,7 +15,7 @@ const check = (ok, label) => {
 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Fausse base : seul VALID_TOKEN correspond à un profil (comme `my_profile` dans Supabase).
+// Fausse base : seul VALID_TOKEN correspond à un profil (comme `my_account` dans Supabase).
 const DB_PORT = 8790;
 const VALID_TOKEN = 'aaaa.bbbb.cccc';
 const ACCOUNT = { id: '0b1c2d3e-0000-4000-8000-000000000001', name: 'Élodie' };
@@ -28,7 +28,7 @@ const fakeDb = createServer((req, res) => {
   }
   const ok =
     req.method === 'POST' &&
-    req.url === '/rest/v1/rpc/my_profile' &&
+    req.url === '/rest/v1/rpc/my_account' &&
     req.headers.apikey === 'sb_publishable_test_0123456789';
   const auth = req.headers.authorization;
   res.setHeader('Content-Type', 'application/json');
