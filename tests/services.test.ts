@@ -72,7 +72,10 @@ describe('profil et réglages', () => {
     expect(appearanceKey(DEFAULT_APPEARANCE)).toHaveLength(8);
     // Ancien profil sans barbe : « aucune » ; barbe et micro hors limites refusés.
     expect(sanitizeAppearance({ accessory: 3 }).beard).toBe(0);
-    expect(sanitizeAppearance({ accessory: 3, beard: 2 })).toMatchObject({ accessory: 3, beard: 2 });
+    expect(sanitizeAppearance({ accessory: 3, beard: 2 })).toMatchObject({
+      accessory: 3,
+      beard: 2,
+    });
     expect(sanitizeAppearance({ beard: 3 }).beard).toBe(0);
   });
 });
