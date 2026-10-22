@@ -29,6 +29,7 @@ import {
   playSound,
   setAmbience,
   setAudioPaused,
+  setDiscoLevel,
   setSpotSound,
   type SpotSound,
 } from '../../services/audio';
@@ -71,6 +72,7 @@ import type { InteractionDef } from '../../world/types';
 import { DecorEditor } from '../DecorEditor';
 import { AvatarView } from '../entities/AvatarView';
 import { AmbientLife } from '../life/AmbientLife';
+import { DanceFloor } from '../life/DanceFloor';
 import { JoshuaLife } from '../life/JoshuaLife';
 import { TextureFactory } from '../textures';
 import { BACKREST_DEPTH, WorldRenderer } from '../WorldRenderer';
@@ -171,6 +173,7 @@ export class WorldScene extends Phaser.Scene {
   private joshua: JoshuaLife | null = null;
   /** Rondes de champignons : qui s'y tient immobile danse (vu par tous, sans message réseau). */
   private danceRings: WorldObject[] = [];
+  private danceFloors: DanceFloor[] = [];
   private wasDancing = false;
   private danceNoteAt = 0;
   /** Demande d'entrée dans un logement en attente de la réponse du serveur. */
@@ -335,6 +338,10 @@ export class WorldScene extends Phaser.Scene {
       animate: !settings.reducedMotion,
     });
     this.danceRings = this.world.objects.filter((o) => o.type === 'mushroom_ring');
+    for (const f of this.danceFloors) f.destroy();
+    this.danceFloors = this.danceRings.map(
+      (r) => new DanceFloor(this, this.tex, r, !settings.reducedMotion),
+    );
   }
 
   /** Remeuble le logement affiché, sans relancer la scène (éditeur, visiteurs prévenus). */
@@ -343,6 +350,8 @@ export class WorldScene extends Phaser.Scene {
     this.decorItems = home.items;
     this.life?.destroy();
     this.joshua?.destroy();
+    for (const f of this.danceFloors) f.destroy();
+    this.danceFloors = [];
     this.renderer3d.destroy();
     this.hovered = null;
     this.editorHighlight = null;
@@ -630,6 +639,14 @@ export class WorldScene extends Phaser.Scene {
   // ---------------------------------------------------------------- Interactions
 
   private useObject(obj: WorldObject): void {
+    // La ronde de champignons : on va au milieu (on y danse), au lieu de rester à côté.
+    if (obj.type === 'mushroom_ring') {
+      if (this.player.walkTo({ x: obj.x + obj.w / 2, y: obj.y + obj.d / 2 })) {
+        const dest = this.player.destination;
+        if (dest) this.showMarker(dest);
+      }
+      return;
+    }
     const res = this.player.requestUse(obj);
     if (res === 'unreachable') {
       pushToast(
@@ -1193,6 +1210,7 @@ export class WorldScene extends Phaser.Scene {
       av.say('🎶', 1800);
     }
     this.wasDancing = av.dancing;
+    this.updateDanceFloors(delta, av.dancing);
     av.update(
       delta,
       this.depthFor(av.x, av.y, this.player.seat ? this.player.seat.objectId : null, av.facing),
@@ -1277,6 +1295,29 @@ export class WorldScene extends Phaser.Scene {
       view.dancing = peer.s !== 2 && !view.moving && this.inDanceRing(view.x, view.y);
       view.update(delta, this.depthFor(view.x, view.y, seatId, view.facing));
     }
+  }
+
+  /**
+   * Lumières et musique de la ronde : allumées dès que quelqu'un y danse ; la musique s'entend en
+   * s'approchant, et à fond quand on danse soi-même.
+   */
+  private updateDanceFloors(delta: number, selfDancing: boolean): void {
+    let music = 0;
+    for (const floor of this.danceFloors) {
+      const ring = floor.ringObject;
+      const cx = ring.x + ring.w / 2;
+      const cy = ring.y + ring.d / 2;
+      const inside = (x: number, y: number) =>
+        Math.hypot(x - cx, y - cy) < Math.min(ring.w, ring.d) * 0.42;
+      const active =
+        (selfDancing && inside(this.player.pos.x, this.player.pos.y)) ||
+        [...this.remotes.values()].some((r) => r.view.dancing && inside(r.view.x, r.view.y));
+      floor.update(delta, active);
+      if (!active) continue;
+      const dist = Math.hypot(this.player.pos.x - cx, this.player.pos.y - cy);
+      music = Math.max(music, selfDancing ? 1 : Math.max(0, 1 - dist / 9) * 0.7);
+    }
+    setDiscoLevel(music);
   }
 
   /** Le point est-il dans une ronde de champignons (cercle inscrit dans son empreinte) ? */
@@ -1449,6 +1490,7 @@ export class WorldScene extends Phaser.Scene {
 
   private teardown(): void {
     if (this.awayTimer) clearTimeout(this.awayTimer);
+    setDiscoLevel(0);
     this.editor?.destroy();
     this.editor = null;
     for (const c of this.cleanups) c();

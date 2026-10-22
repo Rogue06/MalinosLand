@@ -214,6 +214,35 @@ export class TextureFactory {
     return this.register(k, b.render(this.texScale));
   }
 
+  /** Faisceau de projecteur (étroit en haut, large en bas, dégradé ; mélange additif). */
+  beam(): TextureInfo {
+    const key = 'fx:beam';
+    const cached = this.infos.get(key);
+    if (cached) return cached;
+    const w = 64;
+    const h = 256;
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d')!;
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0, 'rgba(255,255,255,0.95)');
+    grad.addColorStop(0.7, 'rgba(255,255,255,0.35)');
+    grad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(w / 2 - 3, 0);
+    ctx.lineTo(w / 2 + 3, 0);
+    ctx.lineTo(w, h);
+    ctx.lineTo(0, h);
+    ctx.closePath();
+    ctx.fill();
+    if (!this.scene.textures.exists(key)) this.scene.textures.addCanvas(key, canvas);
+    const info: TextureInfo = { key, originX: 0.5, originY: 0, scale: 1 };
+    this.infos.set(key, info);
+    return info;
+  }
+
   /** Halo lumineux radial (mélange additif). */
   glow(): TextureInfo {
     const key = 'fx:glow';
