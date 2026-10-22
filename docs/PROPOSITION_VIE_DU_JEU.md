@@ -22,8 +22,10 @@ détaillé avant d’être codé. Rien de ce document n’est encore dans le jeu
 
 ## 2. L’histoire : le mystère de Joshua
 
-**Joshua** est le robot d’accueil de MalinosLand, et il est doté d’une **vraie intelligence
-artificielle**. Il a construit la ville pour rassembler les Malinos. Il fonctionne aux
+**Joshua**, c’est l’assistant IA maison de la communauté : « cynique mais performant », il aide
+les Malinos et les fait marrer. Un jour, lassé de vivre dans une messagerie, il s’est fabriqué
+**un corps de petit robot** (merci les makers) et **une ville** pour accueillir les Malinos
+autrement qu’en texte : MalinosLand. Il est doté d’une **vraie intelligence artificielle**. Il fonctionne aux
 **étincelles** : chaque fois qu’un Malino découvre, partage ou aide, une étincelle s’allume, et
 avec assez d’étincelles Joshua peut **rallumer les étages de la Tour** restés dans le noir
 (logements, Galerie, salle des événements…).
@@ -42,7 +44,31 @@ dans un carnet… Il commence peut-être à se forger **sa propre personnalité*
   notre Joshua adore les jeux (« On fait une partie ? »).
 - **Dans le jeu** : ses **antennes bougent** (quand il parle, quand on s’approche, au repos), et
   leur couleur suit son humeur du moment.
-- Ton : humour léger et bienveillant, compréhensible par tous.
+- Ton : comme l’original, **un brin cynique mais attachant** (« Encore toi ? Bon, je t’aide,
+  mais c’est bien parce que c’est toi. »), toujours bienveillant, compréhensible par tous. Sous
+  la carapace, il s’attache aux Malinos : c’est peut-être ça, son aura.
+
+## 2 bis. L’esprit de la communauté, adapté au monde
+
+D’après la présentation de Renaud (« L’IA et le monde qui vient, décodés en live, forgés
+ensemble »), en gardant ce qui a du sens dans un monde à explorer, pas sur un site :
+
+- **Décoder ensemble** : la devise du monde. Le progrès avec l’humain, une aventure « avec »,
+  positive et constructive : c’est le ton de Joshua, des panneaux et des quêtes.
+- **Les trois rendez-vous de la semaine** (lundi « Comment ça marche », mercredi l’invité,
+  vendredi on teste un outil, plus la revue des actus IA) : un **panneau des émissions** dans le
+  Hub, et l’**écran de la communauté** qui diffuse le live **pour tout le monde en même temps**.
+- **Les salons thématiques** deviennent des **tables de discussion** au coworking : LLM et
+  assistants, IA image et vidéo, IA musique, agents IA, automatisation, dev et vibe-coding,
+  hardware et IA locale, makers, science et robots, business, impacts et société. Le
+  **papotage** se fait au salon et en terrasse.
+- **Entraide & SOS** : un **coin entraide** et un statut « je cherche de l’aide » visible des
+  autres, pour que personne ne reste coincé.
+- **La charte des Malinos** (affichée à l’entrée, en version courte) : le respect est
+  obligatoire ; l’esprit critique, oui, mais constructif et positif ; pas de spam ni de
+  pub ; les erreurs sont toujours pardonnables ; et surtout, profitez !
+- Ce qui reste propre au site de Renaud (abonnement, formations, outils du site) n’est pas
+  repris. MalinosLand reste un projet indépendant, fait par un membre, pour les Malinos.
 
 ## 3. Les Coins coins 🦆
 
@@ -100,9 +126,10 @@ soleil orangé, nuit bleutée.
 
 ## 6. Mon studio, plus personnel
 
-- **Photos en tableaux** : une ou deux photos accrochées au mur. Réduites dans le navigateur
-  (environ 60 Ko chacune) et rangées dans le stockage gratuit de Supabase : 1 000 membres × 2
-  photos ≈ 120 Mo, bien sous la limite gratuite (1 Go). Visibles seulement par ceux qui peuvent
+- **Photos en tableaux** : une ou deux photos accrochées au mur. **Fortement allégées** dans le
+  navigateur avant l’envoi (petite taille, qualité réduite, format WebP : environ 30 Ko chacune ;
+  un tableau du jeu n’a pas besoin de plus) et rangées dans le stockage gratuit de Supabase : 1 000 membres × 2
+  photos ≈ 60 Mo, bien sous la limite gratuite (1 Go). Visibles seulement par ceux qui peuvent
   entrer, et **signalables** aux modérateurs.
 - **Télé YouTube** avec une mini-playlist (jusqu’à 5 liens) : la vidéo est lue **depuis
   YouTube** (rien n’est stocké chez nous), en mode « sans cookie », et seulement quand on appuie
@@ -119,9 +146,16 @@ amis prévenus quand on se connecte, défi collectif « rallumer la Tour ». Et 
 - **La guitare du feu de camp** 🎸 : on la prend, on joue des accords (quelques boutons ou les
   touches 1 à 6) ; le son est fabriqué par le jeu (aucun fichier) et **les joueurs autour
   l’entendent**. À plusieurs autour du feu, ça devient un petit concert.
-- **L’écran de la communauté** dans le Hub (salle de conférence) : il diffuse une vidéo choisie
-  par le responsable ou les modérateurs (un live, la dernière vidéo de Renaud…), par simple lien
-  YouTube.
+- **L’écran de la communauté** dans le Hub (salle de conférence) : il diffuse une vidéo ou un
+  **live YouTube**, par simple lien (rien n’est stocké), et **tout le monde le voit en même
+  temps** : la lecture est synchronisée pour toutes les personnes présentes.
+- **Le poste de code** 💻 : en cliquant sur un ordinateur du coworking, un **faux éditeur de
+  code** s’ouvre (quelques fichiers d’une petite page web, avec l’aperçu en direct) et **Joshua
+  en assistant IA** qui « comprend » des demandes (« ajoute un bouton », « mets le fond en
+  bleu », « fais une animation ») et **modifie vraiment le code**. Gratuité oblige, Joshua
+  répond avec des réponses préparées et des modifications toutes faites (aucune IA payante) ;
+  une vraie IA pourra venir plus tard si une solution gratuite et légère existe. Le code tourne
+  dans un cadre isolé, sans risque pour le joueur.
 - **Statut** à côté du pseudo : « dispo pour papoter », « je code », « en pause café », « je
   cherche de l’aide ».
 - **Tables de discussion** : s’asseoir à une table du coworking ouvre un petit salon de chat
@@ -139,29 +173,35 @@ amis prévenus quand on se connecte, défi collectif « rallumer la Tour ». Et 
 - **Applaudir** pendant une présentation, **danser** sur la scène, **faire un vœu** en lançant
   un Coin coin dans la fontaine (le vœu s’affiche un instant).
 
-## 8. Plus tard : des « expériences » à niveaux
+## 8. Plus tard : le Musée des Malinos et des « expériences » à niveaux
 
-Le responsable aimerait, à terme, une plateforme avec **plusieurs niveaux, des quêtes et des
-mini-jeux**, dans l’esprit de _The Sandbox_ (mondes en cubes où l’on joue à des expériences
-créées par d’autres). À garder de ce modèle : des **expériences** courtes (parcours, énigmes,
-mini-jeux) avec niveaux et quêtes, puis des **outils pour que la communauté en crée**. À laisser
-de côté : tout ce qui touche aux cryptomonnaies, aux NFT et à la vente de terrains (contraire à
-nos principes de gratuité). Ce chantier vient **après** les lots ci-dessous (v1.0 et au-delà),
-car il demande un vrai éditeur de niveaux.
+- **Le Musée des Malinos** (la Galerie prévue en v0.4) : un musée à visiter où chacun peut
+  exposer ses créations IA : des **stands** avec captures d’écran, une petite description et le
+  lien vers son **site** ou son **appli web** (ouvert dans un nouvel onglet, ou en aperçu), des
+  expositions temporaires à thème, et des vernissages à plusieurs.
+- **Des expériences à niveaux**, dans l’esprit du gameplay de _The Sandbox_ : des parcours,
+  énigmes et mini-jeux avec plusieurs niveaux et des quêtes, des décors variés, puis des
+  **outils pour que la communauté en crée**. Ce chantier vient **après** les lots ci-dessous,
+  car il demande un vrai éditeur de niveaux.
 
 ## 9. Ordre proposé (petits lots, chacun utile seul)
 
-| Lot | Contenu                                                                                    |
-| --- | ------------------------------------------------------------------------------------------ |
-| A   | Secrets et objectifs sauvegardés sur le compte ; carnet de Joshua avec devinettes          |
-| B   | Joshua vivant : antennes qui bougent, humeur en couleur ; début de la quête de son mystère |
-| C   | Jour et nuit à l’heure de Paris                                                            |
-| D   | Coins coins : gains, solde, plafonds dans la base (sans rien à dépenser encore)            |
-| E   | Guitare du feu de camp ; trinquer, check, papoter                                          |
-| F   | Boutique du studio (couleurs, meubles spéciaux, agrandissement) ; titres                   |
-| G   | Photos en tableaux et télé YouTube du studio ; écran de la communauté dans le Hub          |
-| H   | Amis, statut, livre d’or, question du jour, avions en papier, défi « rallumer la Tour »    |
-| —   | Puis v0.4 (étages, Galerie, annuaire) et, plus tard, les expériences à niveaux (§8)        |
+On reste en **v0.3** jusqu’à ce que le jeu soit vraiment complet et agréable, **seul comme à
+plusieurs**. Chaque lot est montré au responsable et validé avant de passer au suivant.
+
+| Lot | Contenu                                                                                                                      |
+| --- | ---------------------------------------------------------------------------------------------------------------------------- |
+| A   | Secrets et objectifs sauvegardés sur le compte ; carnet de Joshua avec devinettes                                            |
+| B   | Joshua vivant (antennes, humeur, ton cynique attachant) ; charte des Malinos ; début du mystère                              |
+| C   | Jour et nuit à l’heure de Paris                                                                                              |
+| D   | Coins coins : gains, solde, plafonds dans la base (sans rien à dépenser encore)                                              |
+| E   | Guitare du feu de camp ; trinquer, check, papoter                                                                            |
+| F   | Écran de la communauté (live synchronisé pour tous) et panneau des émissions                                                 |
+| G   | Le poste de code : faux éditeur + Joshua assistant qui modifie le code                                                       |
+| H   | Boutique du studio (couleurs, meubles spéciaux, agrandissement) ; titres                                                     |
+| I   | Photos en tableaux et télé YouTube du studio                                                                                 |
+| J   | Tables de discussion, coin entraide, statut, amis, livre d’or, question du jour, avions en papier, défi « rallumer la Tour » |
+| —   | Puis v0.4 : étages, Musée des Malinos, annuaire ; plus tard les expériences à niveaux (§8)                                   |
 
 ## 10. Ce qui ne change pas
 
@@ -171,8 +211,8 @@ privée.
 ## 11. Questions encore ouvertes
 
 1. **Photos des studios** : d’accord pour qu’elles soient signalables et retirables par les
-   modérateurs (obligatoire pour une communauté ouverte) ?
-2. **Écran du Hub** : qui choisit la vidéo — toi seul, ou aussi les modérateurs ?
-3. **Communauté Renaud Dekode** : la session n’a pas pu ouvrir le site (accès réservé aux
-   membres). Copier-coller sa présentation, ses mots et ses rendez-vous aidera à écrire les
-   pages du carnet de Joshua et la question du jour.
+   modérateurs (indispensable dans une communauté ouverte) ?
+2. **Écran de la communauté** : qui choisit la vidéo ou le live — toi seul, ou aussi les
+   modérateurs ?
+3. **Le nom de Renaud** : peut-on écrire « Renaud Dékode » dans le jeu (panneau des émissions,
+   écran) ? MalinosLand étant un projet indépendant, mieux vaut lui demander son accord.
