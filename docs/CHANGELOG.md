@@ -5,6 +5,13 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Modifié (liens)
+
+- Plus aucun lien vers le dépôt GitHub sur le site d’accueil, dans le jeu ni sur la page de
+  confidentialité (choix du responsable) : on y lit « Open source (licence AGPL-3.0) », et pour
+  participer on fait signe à Rogue06 ou on passe par la Boîte à idées. Les demandes RGPD passent
+  par Rogue06 ou la Boîte à idées.
+
 ### Ajouté (lot B : Joshua vivant et charte des Malinos)
 
 - **Joshua vivant** : ses antennes bougent (doucement au repos, davantage quand on s’approche,

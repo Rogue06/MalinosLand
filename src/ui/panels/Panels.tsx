@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
 import { PRIVACY_NOTE, REALTIME_URL } from '../../config';
-import { REPO_URL, ROADMAP } from '../../content/roadmap';
+import { ROADMAP } from '../../content/roadmap';
 import { AI_TIPS, tipOfTheDay } from '../../content/tips';
 import { sanitizeName } from '../../core/text';
 import { profileStore } from '../../services/profile';
@@ -59,14 +59,13 @@ export function WelcomePanel() {
       <p class="devise">{DEVISE}</p>
       <h3>Participer au développement</h3>
       <p>
-        Le code est ouvert à tous sur <ExternalLink href={REPO_URL}>GitHub</ExternalLink>.
-        Développeurs, graphistes ou simples curieux : chaque contribution passe par une proposition
-        (pull request) relue par l’équipe.
+        MalinosLand est open source. Développeurs, graphistes ou simples curieux : envie d’aider ?
+        Fais signe à Rogue06 dans la communauté, ou passe par la Boîte à idées (💡 en haut).
       </p>
       <p class="muted small">
         {PRIVACY_NOTE}{' '}
-        <ExternalLink href="../confidentialite.html">Politique de confidentialité</ExternalLink> ·{' '}
-        <ExternalLink href={REPO_URL}>Code source (licence AGPL-3.0)</ExternalLink>
+        <ExternalLink href="../confidentialite.html">Politique de confidentialité</ExternalLink> ·
+        Open source (licence AGPL-3.0)
       </p>
     </Modal>
   );
@@ -114,7 +113,7 @@ export function TipsPanel() {
         </button>
       </div>
       <p class="muted small">
-        Tu as une astuce à partager ? Propose-la sur GitHub dans src/content/tips.ts !
+        Tu as une astuce à partager ? Envoie-la par la Boîte à idées (💡 en haut) !
       </p>
     </Modal>
   );
