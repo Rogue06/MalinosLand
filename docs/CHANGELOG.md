@@ -5,6 +5,14 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Modifié (sons d’ambiance)
+
+- Hall d’accueil : **plus de brouhaha continu** (jugé pénible), seulement le « ding » de
+  l’ascenseur de temps en temps.
+- Salle de jeux : sa propre ambiance, une petite mélodie de borne d’arcade toutes les 20 à 45
+  secondes, au lieu du fond continu du hall.
+- Dehors : le vent souffle par rafales, plus bas ; cheminée du salon plus discrète.
+
 ### Modifié (site d’accueil)
 
 - Bouton **« Jouer »** animé : il frétille de temps en temps comme un écusson cousu, et fait
