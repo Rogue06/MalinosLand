@@ -160,8 +160,9 @@ plus à l’arrivée (seulement à l’ouverture, au plus une toutes les 5 minut
   outils, culture numérique) plutôt que sur l’actualité qui vieillit vite. Chaque question a une
   explication et, si possible, une source. **Rédigées par la session, à relire par le responsable
   et les modérateurs** avant d’être publiées ; la communauté peut en proposer par pull request.
-- **Scores** : meilleur score et défi fait gardés dans le navigateur (et sur le compte avec la
-  progression déjà existante). Pas de classement public au départ (§9).
+- **Scores** : meilleur score et défis faits gardés **uniquement dans le navigateur** en v0.35 :
+  **aucune synchronisation Supabase**, aucun classement (décision du 22/10). Une synchronisation
+  ou un tableau amical restent possibles plus tard, sans être développés maintenant.
 
 **Accepté si** : jouable seul en moins de 2 minutes, au clavier (touches 1 à 4), à la souris et
 au doigt ; lisible par un lecteur d’écran (questions et résultat annoncés) ; le défi de la
@@ -171,12 +172,25 @@ réseau pendant la partie.
 ### 4.4 Mesures de fréquentation (PR 6, petite)
 
 Dans la page « Historique des connexions » du responsable, un résumé calculé depuis le journal de
-90 jours **déjà existant** : visiteurs uniques par jour, part des joueurs revenus après 7 jours,
-durée médiane des visites. Aucune nouvelle collecte, aucun outil externe, aucune donnée de
-déplacement ni de conversation.
+90 jours **déjà existant**, sans nouvelle collecte. **Vérification faite** de ce que ce journal
+permet réellement (`server/src/visits.ts` : une ligne par visite avec identifiant réseau, pseudo,
+compte ou visiteur, arrivée, départ) :
+
+| Indicateur                                 | Calculable ?                                                                                                                            |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Visites et personnes par jour              | **Oui pour les comptes** ; pour les visiteurs, seulement un **nombre de visites** (leur identifiant change à chaque chargement de page) |
+| Retour après 7 jours                       | **Oui pour les comptes uniquement** (identifiant stable) ; impossible pour les visiteurs, et c’est voulu (aucun traçage)                |
+| Durée des visites                          | **Durée de connexion** (arrivée → départ) : un onglet laissé ouvert compte comme présent, car le statut « absent » n’est pas enregistré |
+| Part des nouveaux qui lancent une activité | **Non** : le journal ne sait rien des activités. Il faudrait une collecte nouvelle : **pas en PR 6** (à rediscuter si besoin)           |
+
+Les chiffres affichés le diront clairement (« comptes seulement », « durée de connexion »). Une
+amélioration possible, **non intrusive**, serait d’ajouter au journal le **temps passé « absent »**
+par visite (un seul nombre, aucune position ni message) pour distinguer temps actif et onglet
+oublié : à décider plus tard, pas dans la PR 6.
 
 **Accepté si** : les chiffres correspondent à un jeu d’essai (tests) ; rien de nouveau n’est
-enregistré ; seul le responsable y a accès (déjà vérifié par le serveur).
+enregistré ; seul le responsable y a accès (déjà vérifié par le serveur) ; les limites ci-dessus
+sont affichées avec les chiffres.
 
 ### 4.5 Musée des Malinos (PR 7 à PR 10)
 
@@ -242,22 +256,22 @@ ce document, **sans migration** tant que la communauté ne le demande pas.
 Chaque PR est indépendante, testée (`npm run check`, test de bout en bout), documentée
 (CHANGELOG, SESSION_HANDOFF) et **fusionnée seulement avec l’accord du responsable**.
 
-| PR  | Contenu                                                                             | Taille | Backend                   |
-| --- | ----------------------------------------------------------------------------------- | ------ | ------------------------- |
-| 1   | Finitions v0.3 : textes périmés, documentation, liste de tests en ligne             | S      | —                         |
-| 2   | Panneau « Que faire ? » : moteur de suggestions (testé), panneau, bouton 🧭         | M      | —                         |
-| 3   | Écran du hall dessiné + réplique de Joshua + étape du test de bout en bout          | S      | —                         |
-| 4   | Quiz : moteur (tirage, défi de la semaine, score), panneau accessible, 30 questions | M      | —                         |
-| 5   | Quiz : borne de la salle de jeux, 30 questions de plus, suggestion au panneau       | S      | —                         |
-| 6   | Mesures de fréquentation du responsable                                             | S      | —                         |
-| 7   | Musée : migration `projects` + règles + tests PGlite                                | M      | Migration (après accord)  |
-| 8   | Musée : « Exposer mon projet », « Mes projets », onglet de modération               | M      | —                         |
-| 9   | Musée : ouverture de la galerie, stands, affiches, fiche, liste                     | M      | —                         |
-| 10  | Musée : démo intégrée sur clic (CSP `frame-src`, `sandbox`) + signalement           | S      | En-tête de sécurité       |
-| 11  | Chantier « Futur Bâtiment des créations » + nouveautés du musée au panneau          | S      | —                         |
-| 12  | Coworking : ressources du jour                                                      | S      | —                         |
-| 13  | Feu de camp : rondins, histoires, guitare                                           | M      | 1 message réseau plafonné |
-| 14  | Secret de la semaine + studios ouverts mis en avant                                 | S      | —                         |
+| PR  | Contenu                                                                                       | Taille | Backend                   |
+| --- | --------------------------------------------------------------------------------------------- | ------ | ------------------------- |
+| 1   | Finitions v0.3 : textes périmés, documentation, liste de tests en ligne                       | S      | —                         |
+| 2   | Panneau « Que faire ? » : moteur de suggestions (testé), panneau, bouton 🧭                   | M      | —                         |
+| 3   | Écran du hall dessiné + réplique de Joshua + étape du test de bout en bout                    | S      | —                         |
+| 4   | Quiz : moteur (tirage, défi de la semaine, score), panneau accessible, 30 questions           | M      | —                         |
+| 5   | Quiz : borne de la salle de jeux, 30 questions de plus, suggestion au panneau                 | S      | —                         |
+| 6   | Mesures de fréquentation du responsable                                                       | S      | —                         |
+| 7   | Musée : migration `projects` + règles + tests PGlite                                          | M      | Migration (après accord)  |
+| 8   | Musée : « Exposer mon projet », « Mes projets », onglet de modération                         | M      | —                         |
+| 9   | Musée : ouverture de la galerie, stands, affiches, fiche, liste                               | M      | —                         |
+| 10  | Musée : démo sur clic dans une visionneuse isolée (CSP par projet), vérification, signalement | M      | Route du Worker           |
+| 11  | Chantier « Futur Bâtiment des créations » + nouveautés du musée au panneau                    | S      | —                         |
+| 12  | Coworking : ressources du jour                                                                | S      | —                         |
+| 13  | Feu de camp : rondins, histoires, guitare                                                     | M      | 1 message réseau plafonné |
+| 14  | Secret de la semaine + studios ouverts mis en avant                                           | S      | —                         |
 
 Ordre proposé : **1 → 2 → 3 → 4 → 5** (v0.35, sans toucher au serveur ni à la base), puis **6**,
 puis **7 → 8 → 9 → 10 → 11** (v0.4, musée), puis **12 → 14** (v0.45).
@@ -268,9 +282,10 @@ puis **7 → 8 → 9 → 10 → 11** (v0.4, musée), puis **12 → 14** (v0.45).
 
 - Tout texte venu d’un joueur (projets, motifs de refus) passe par `sanitizeText` ; aucun HTML
   interprété ; liens en `rel="noopener noreferrer"`.
-- Démo intégrée : chargement **sur clic**, `sandbox` restreint, `referrerpolicy="no-referrer"`,
-  avertissement de confidentialité ; politique de sécurité (CSP) élargie **seulement** pour les
-  cadres (`frame-src https:`), le reste inchangé.
+- Démo intégrée : chargement **sur clic**, `sandbox` minimal, aucune permission (`allow=""`),
+  `referrerpolicy="no-referrer"`, avertissement de confidentialité. La politique de sécurité (CSP)
+  du jeu **n’est pas élargie à tous les sites** : la démo passe par une petite page de
+  visionnage dont la CSP n’autorise **que l’origine du projet consulté** (voir PR 10).
 - Droits du musée vérifiés **par la base** (règles RLS et fonctions), jamais seulement dans
   l’interface ; modération avant publication, signalement et retrait.
 - Accessibilité : panneaux au clavier (Tab, Échap, touches 1–4 au quiz), annonces pour lecteurs
@@ -360,9 +375,10 @@ souvent. Si le musée est visité mais sans échanges : mettre en avant les aute
   identifiants uniques, explication présente.
 - `src/core/quiz.ts` (pur) : `freeRound(seed)`, `weeklyChallenge(semaine ISO)` (le même pour tous,
   rien de stocké), `score()`.
-- `src/services/quizStats.ts` : meilleur score et défis faits, **dans le navigateur seulement**
-  (stockage versionné existant). Le format est prévu pour rejoindre plus tard la progression du
-  compte ou un tableau amical, **sans le développer maintenant**.
+- `src/services/quizStats.ts` : meilleur score et défis faits, **dans le navigateur
+  uniquement** (stockage versionné existant). **Aucun appel à Supabase** en v0.35, ni lecture ni
+  écriture (vérifié par un test). Le format reste simple pour permettre plus tard une
+  synchronisation ou un tableau amical, **sans le développer maintenant**.
 - `src/ui/panels/Quiz.tsx` : 5 questions, explication après chaque réponse, touches 1 à 4,
   annonces pour lecteurs d’écran (`aria-live`), animations coupées si « réduire les animations ».
 - Tests : tirage, défi identique pour une même semaine et différent la suivante, score.
@@ -375,9 +391,11 @@ souvent. Si le musée est visité mais sans échanges : mettre en avant les aute
 
 ### PR 6 — Mesures de fréquentation (S, aucun backend nouveau)
 
-- `src/services/visits.ts` : `retention(visits)` (visiteurs uniques par jour, part revenue après
-  7 jours, durée médiane), calculée depuis le journal existant de 90 jours ; affichage dans la
-  page du responsable. Tests sur un jeu d’essai.
+- `src/services/visits.ts` : `retention(visits)` calculée depuis le journal existant de 90 jours,
+  **dans les limites vérifiées au §4.4** : personnes par jour et retour à 7 jours **pour les
+  comptes seulement**, nombre de visites des visiteurs, durée médiane **de connexion**. Rien de
+  nouveau n’est collecté ni envoyé. Affichage dans la page du responsable, avec ces limites
+  écrites à côté des chiffres. Tests sur un jeu d’essai.
 
 ### PR 7 — Musée : la base (M, migration après accord)
 
@@ -419,26 +437,56 @@ Migration `supabase/migrations/2026…_museum.sql` :
   (nouvel onglet, `rel="noopener noreferrer"`, avertissement « site externe »).
 - Chargement : une seule lecture de la liste à l’entrée dans le musée, gardée 5 minutes.
 
-### PR 10 — Musée : « Essayer ici » sécurisé (S à M)
+### PR 10 — Musée : « Essayer ici » sécurisé (M)
 
-- **Vérification technique de l’intégration** (au moment de la validation, par un modérateur) :
-  nouvelle route du Worker existant `POST /embed-check`, réservée aux modérateurs (jeton vérifié
-  par la base, comme l’historique des connexions). Elle fait **une seule** requête vers
-  l’adresse et lit seulement les en-têtes `X-Frame-Options` et `Content-Security-Policy`
-  (`frame-ancestors`). Protections : https uniquement, refus des adresses locales et privées,
-  3 redirections au plus, délai court, corps de page jamais lu ni renvoyé, quelques appels par
-  jour (négligeable sur 100 000). Résultat : `embed = ok` ou `refused`, enregistré par le
-  modérateur.
-- Si `refused`, ou si le modérateur décoche : **seulement « Ouvrir le site »**. On ne contourne
-  jamais un refus (pas de proxy, pas de copie, pas de réécriture d’en-têtes).
-- Si `ok` : bouton **« Essayer ici »**. Le cadre ne se charge **qu’après ce clic**, avec
-  `sandbox="allow-scripts allow-same-origin allow-forms allow-popups"`,
-  `referrerpolicy="no-referrer"`, sans accès caméra, micro ni position ; message « ce site
-  externe reçoit ton adresse IP » ; bouton « Ouvrir dans un onglet » toujours visible en repli.
-- Politique de sécurité du jeu (`vite.config.ts`) : `frame-src` passe de « Turnstile seulement »
-  à `https:` ; **tout le reste inchangé** (`frame-ancestors 'none'` gardé).
-- Tests : validation des adresses de la route, lecture des en-têtes (cas `DENY`, `SAMEORIGIN`,
-  `frame-ancestors`), refus d’un non-modérateur.
+**Principe** : une vérification des en-têtes ne garantit **ni** qu’une intégration fonctionne,
+**ni** qu’elle est sûre. Elle n’est qu’un premier filtre. La sûreté repose sur l’isolement de la
+démo, une CSP minimale, le clic volontaire, la validation humaine et la possibilité de retrait.
+
+1. **Validation en deux temps** (modérateur) : (a) vérification technique automatique, puis
+   (b) **essai réel** par le modérateur dans la visionneuse avant de cocher « intégrable ». Le
+   champ `embed` vaut `ok` seulement si les deux sont bons. Un signalement repasse le projet en
+   « à revérifier » ; le modérateur peut retirer l’intégration à tout moment.
+2. **Vérification technique** (`POST /embed-check` sur le Worker existant, réservée aux
+   modérateurs, jeton vérifié par la base) — protections contre les requêtes détournées (SSRF) :
+   - adresse `https` uniquement, port 443, **nom de domaine** obligatoire (refus des IP écrites
+     sous toutes leurs formes, IPv6, décimal, hexadécimal), refus de `localhost`, `.local`,
+     `.internal`, `.lan`, des domaines de MalinosLand et de Supabase ;
+   - **redirections suivies à la main** (`redirect: "manual"`), chaque étape revalidée avec les
+     mêmes règles, 3 au plus, refus si l’une sort des règles ou passe en `http` ;
+   - délai de 5 secondes, en-têtes seulement : le corps de la page n’est **jamais lu ni
+     renvoyé** ; réponse au modérateur limitée à « accepte / refuse / injoignable » et la raison ;
+   - au plus 20 vérifications par heure et par modérateur (quelques appels par jour au total sur
+     les 100 000 gratuits).
+   - Lecture de `X-Frame-Options` (`DENY`, `SAMEORIGIN` → refus) et de `frame-ancestors` dans
+     `Content-Security-Policy` (absent, `*` ou origine de MalinosLand → possible ; sinon refus).
+     **On ne contourne jamais un refus** : ni proxy, ni copie, ni réécriture d’en-têtes.
+3. **Visionneuse isolée et CSP minimale** : la CSP du jeu **n’est pas** élargie à `https:`.
+   La démo s’ouvre dans une petite page de visionnage servie par le Worker existant
+   (`/demo/:id`), dont la CSP est construite **pour ce seul projet** :
+   `default-src 'none'; frame-src <origine exacte du projet>; frame-ancestors <origine du jeu>`.
+   Le jeu, lui, n’autorise dans ses cadres que Turnstile et cette visionneuse. Coût : une
+   requête Worker et une lecture de la base par démo ouverte (négligeable). Si cette page pose
+   un problème technique, le repli est un simple lien externe, **pas** l’ouverture à `https:`.
+4. **Cadre au plus strict** :
+   - `sandbox="allow-scripts allow-same-origin allow-forms"` seulement : **pas**
+     d’`allow-top-navigation` (le site ne peut pas emmener le joueur ailleurs), pas
+     d’`allow-popups` ni de téléchargements, pas de fenêtres modales ;
+   - `allow-same-origin` ne donne accès **qu’à l’origine du projet** (jamais celle du jeu :
+     les adresses de MalinosLand sont refusées à la soumission), nécessaire pour que la plupart
+     des applications fonctionnent ;
+   - `allow=""` (aucune caméra, micro, position, paiement, presse-papiers, plein écran),
+     `referrerpolicy="no-referrer"`, `credentialless` quand le navigateur le permet ;
+   - chargement **uniquement après un clic** sur « Essayer ici », jamais automatique ;
+   - au-dessus du cadre : l’origine affichée en clair (« Tu es sur exemple.fr »), un rappel de
+     confidentialité (« ce site externe reçoit ton adresse IP »), et **« Ouvrir dans un
+     onglet »** toujours visible en repli.
+5. **Risques restants, dits honnêtement** : un site validé peut changer plus tard (contenu,
+   redirection interne au cadre) ; d’où l’origine affichée, le signalement, la revérification
+   et le retrait par les modérateurs.
+6. **Tests** : règles d’adresses (y compris IP déguisées et redirections), lecture des en-têtes
+   (`DENY`, `SAMEORIGIN`, `frame-ancestors` divers), refus d’un non-modérateur, CSP de la
+   visionneuse limitée à l’origine du projet, cadre jamais chargé sans clic.
 
 ### PR 11 — Chantier et nouveautés (S)
 
