@@ -24,6 +24,7 @@ Pas besoin de tout lire ! Choisis ton chemin.
 | --------------------------- | ----------------------------------------------------------------------- |
 | Mécaniques de jeu           | [GAME_DESIGN.md](GAME_DESIGN.md)                                        |
 | Proposition en discussion   | [Vie du jeu : histoire, étincelles, secrets](PROPOSITION_VIE_DU_JEU.md) |
+| Plan à valider              | [Évolution : panneau, quiz, musée](PLAN_EVOLUTION.md)                   |
 | Salles, cartes, étages      | [WORLD_DESIGN.md](WORLD_DESIGN.md)                                      |
 | Multijoueur                 | [REALTIME_NETWORK.md](REALTIME_NETWORK.md)                              |
 | Base de données             | [DATABASE.md](DATABASE.md)                                              |
