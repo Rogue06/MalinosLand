@@ -5,6 +5,17 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Modifié (finitions de la v0.3)
+
+- Textes du jeu remis à jour : le chantier annonce désormais le **Bâtiment des créations**
+  (agrandissement du futur Musée des Malinos), les bornes d’arcade annoncent le **Quiz IA**
+  (v0.35), les ordinateurs et les étagères du coworking les **ressources de la communauté**
+  (v0.45) ; le télescope, le studio et les étages de la tour ne promettent plus de date périmée.
+- **Feuille de route** du jeu et des documents mise à jour : v0.3 terminée, puis v0.35 (panneau
+  « Que faire maintenant ? » et quiz), v0.4 (musée), v0.45, v0.5, v0.6 (Coins coins).
+- Guide du joueur, liste des fonctionnalités et fiche de reprise à jour, avec la **liste des
+  tests à faire en ligne** par le responsable.
+
 ### Ajouté (lot C : jour et nuit)
 
 - Le monde suit **l’heure réelle de Paris** : aube rosée, plein jour, coucher de soleil orangé,

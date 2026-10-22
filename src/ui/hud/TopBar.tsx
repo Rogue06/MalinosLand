@@ -29,7 +29,7 @@ export function TopBar({
           class="badge"
           title={
             REALTIME_URL
-              ? 'Version en ligne, en construction : la v0.3 (logements) est en cours'
+              ? 'Version en ligne, en construction : v0.3 (logements) terminée, v0.35 (panneau « Que faire ? » et quiz IA) en préparation'
               : 'Version locale : fonctionne sans serveur'
           }
         >

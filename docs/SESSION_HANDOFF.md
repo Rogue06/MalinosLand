@@ -3,9 +3,10 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 24/10/2026 — v0.3 lots 1 et 2 en ligne : logements, accès, invitations,
-éditeur de décoration (PR #30) ; site d’accueil à la racine, le jeu dans `/jouer/` (PR #29).
-Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter avec le responsable.**
+**Dernière mise à jour : 22/10/2026 — v0.3 terminée (logements, décoration, carnet, rôles, jour
+et nuit). Plan validé pour la suite : [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) (v0.35 panneau
+« Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). En cours : PR 1 (finitions
+v0.3). Une PR à la fois, présentée au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -35,6 +36,14 @@ Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **22/10** — PR #42 (lot C, jour et nuit) fusionnée et en ligne. Audit et plan d’évolution
+  (PR #43, `docs/PLAN_EVOLUTION.md`) **validés par le responsable**, avec ses précisions (musée :
+  sécurité de la démo renforcée ; quiz : scores dans le navigateur seulement ; statistiques :
+  limites du journal vérifiées). Coins coins décalés en v0.6. Branche `fix/finitions-v03`
+  (PR 1 du plan) : textes périmés du jeu corrigés (chantier → Bâtiment des créations, bornes,
+  ordinateurs, étagères, télescope, studio, étages sans date), feuille de route du jeu et des
+  documents, liste des fonctionnalités, guide du joueur, tests à faire en ligne.
 
 - **26/10 (soir)** — PR #41 (lot B2, DEC-027) fusionnée et en ligne ; migration des rôles
   appliquée (`my_account` ajoutée, `my_profile` inchangée : l’outil MCP de Supabase n’exécute pas
@@ -249,17 +258,31 @@ Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter
 
 - Collisions vérifiées côté serveur (seules la vitesse et les limites de la carte le sont).
 - Historique du chat : abandonné (rien n’est conservé).
-- Logements (v0.3, en cours), galerie, tour, étages : annoncés « bientôt » dans le jeu.
+- Étages de la tour, toit-terrasse, annuaire : « bientôt », sans date (plus tard, à discuter).
+- Musée (v0.4), agenda (v0.5), Coins coins (v0.6) : prévus dans le plan, pas commencés.
+
+## Tests à faire en ligne
+
+Jamais faits par une session Claude (il faut de vrais comptes et de vrais navigateurs) ; à faire
+par le responsable, avec un 2ᵉ compte (David, Bloom…) :
+
+1. **Décoration** : décorer son studio, recharger, puis vérifier qu’un 2ᵉ compte présent voit les
+   changements en direct.
+2. **Invitations** : inviter un compte connecté → la carte « Y aller » apparaît chez lui et il
+   peut entrer ; retirer l’invitation le raccompagne.
+3. **Rôles** : 👥 Joueurs connectés → « 🛡️ Nommer modérateur » sur un compte connecté → le badge
+   apparaît chez tout le monde sans recharger ; retirer.
+4. **Anti-robots** : envoyer une idée **en navigation privée** (vérification Turnstile réelle),
+   puis la voir dans ⚙️ Réglages → 🛡️ Modération ; signaler un visiteur depuis un compte.
+5. **Sons et nuit** : écouter l’ambiance (grillons la nuit), régler le volume ; vérifier
+   « Toujours de jour ».
+6. **Téléphone** : jouer quelques minutes sur un vrai téléphone (chat, bouton d’action, zoom).
 
 ## Points en attente de décision du responsable
 
-1. Tester en ligne : envoyer une idée **en navigation privée** (vérification Turnstile réelle,
-   jamais testée par la session Claude), puis la voir dans ⚙️ Réglages → 🛡️ Modération ; signaler
-   un visiteur depuis un compte.
-2. Écouter les sons et l’ambiance (régler le volume si besoin), vérifier le statut « absent »
-   entre deux appareils. Choisir les prochaines « petites fonctionnalités de confort ».
-3. Supprimer la dernière ancienne branche `feature/initial-prototype` sur GitHub (la suppression
-   automatique après fusion est activée depuis le 21/10).
+1. Supprimer la dernière ancienne branche `feature/initial-prototype` sur GitHub.
+2. Titre affiché sous le pseudo doré : « Le Décodeur en chef » (choisi) ; à donner à Renaud
+   quand il aura un compte.
 
 ## Problèmes connus / limites
 
@@ -269,17 +292,24 @@ Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter
 - Les visiteurs (sans compte) peuvent prendre n’importe quel pseudo libre : seuls les comptes ont
   la marque ✓ et un pseudo réservé.
 - Supabase gratuit : 2 projets actifs max (LaChillance en pause depuis le 19/10, relançable 90 j).
+  L’outil MCP de Supabase n’exécute pas de suppression (`drop`) sans confirmation : préférer des
+  migrations qui ajoutent plutôt que remplacent.
 - Le journal complet des jobs GitHub n’est pas lisible depuis une session Claude : les tests
   écrivent leurs étapes en annotations, lisibles via l’API.
 - **Performances non mesurées sur du vrai matériel** (seulement en rendu logiciel, sans GPU).
-- Phaser ≈ 357 Ko gzip (piste : build allégé, F33). Mobile : chat repliable, bouton d’action, zoom à deux doigts (PR confort mobile) ; pas encore de joystick virtuel ni de vrai test sur téléphone.
+- Phaser ≈ 357 Ko gzip (piste : build allégé, F33). Mobile : pas encore de joystick virtuel ni de
+  vrai test sur téléphone.
 
 ## Prochaines étapes suggérées (dans l’ordre)
 
-1. **v0.3 Logements** (choix validés : ascenseur → « Mon logement », studio meublé de base, accès
-   « personne / sur invitation / tout le monde » vérifié par le serveur et la base).
-2. Tester à plusieurs pour de vrai (ordinateurs + téléphones) et recueillir les retours.
-3. Mesurer les performances sur 2–3 machines réelles (procédure dans [TESTING.md](TESTING.md)).
+Selon [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) §5 et §10, une PR à la fois, chacune présentée au
+responsable avant la suivante :
+
+1. PR 1 — finitions v0.3 (en cours).
+2. PR 2 et 3 — panneau « Que faire maintenant ? » (moteur de suggestions, écran du hall).
+3. PR 4 et 5 — Quiz IA (questions à faire relire avant fusion), borne de la salle de jeux.
+4. PR 6 — mesures de fréquentation (dans les limites du journal existant).
+5. PR 7 à 11 — Musée des Malinos (migration après accord).
 
 ## Repères rapides pour reprendre
 
@@ -287,8 +317,8 @@ Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter
 - Multijoueur local : `npm run server:install` une fois, `npm run server:dev`, `.env.local` copié de
   `.env.example`, puis `npm run dev` dans deux navigateurs.
 - Débogage / tests automatisés : ajouter `?debug` à l’URL expose `window.__malinosDebug`
-  (`pos()`, `state()`, `walkTo(x, y)`, `teleport(x, y, f)`, `zoom(z?)`, `use(id)`, `useType(type)`,
-  `sit(type, n)`, `seated()`, `peers()`, `fps()`).
+  (liste complète dans [`AGENTS.md`](../AGENTS.md) §9, dont `time(h)` pour voir la nuit et
+  `role(r)` pour l’aperçu du statut doré).
 - Fichiers centraux : `src/game/scenes/WorldScene.ts` (assemblage), `src/world/WorldModel.ts`,
   `src/world/PlayerController.ts`, `src/content/maps/hub.json`, `src/content/catalog.ts`,
   `src/game/art/objects.ts`, `src/game/art/characters.ts`, `src/multiplayer/NetworkClient.ts`,

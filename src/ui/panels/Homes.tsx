@@ -110,7 +110,7 @@ export function ElevatorPanel() {
           <button key={f.id} type="button" class="elevator-floor soon" disabled>
             <span class="floor-label">{f.label}</span>
             <span class="floor-desc">{f.description}</span>
-            <span class="badge soon">bientôt · {f.plannedFor}</span>
+            <span class="badge soon">bientôt{f.plannedFor ? ` · ${f.plannedFor}` : ''}</span>
           </button>
         ))}
       </div>
