@@ -5,6 +5,16 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Modifié (sons d’ambiance)
+
+- Hall d’accueil : **plus de brouhaha continu** (jugé pénible), seulement le « ding » de
+  l’ascenseur de temps en temps.
+- Salle de jeux : sa propre ambiance, une petite mélodie de borne d’arcade toutes les 20 à 45
+  secondes, au lieu du fond continu du hall.
+- Dehors : le vent reste comme avant ; cheminée du salon plus discrète.
+- **Sons de proximité** : en approchant du **feu de camp**, on entend ses crépitements, et près de
+  la **fontaine**, l’eau qui ruisselle ; le son grandit à mesure qu’on s’approche.
+
 ### Corrigé (invitations)
 
 - Un joueur invité est **prévenu aussitôt** : une petite carte « ✉️ X t’invite dans son

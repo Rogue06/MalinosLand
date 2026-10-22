@@ -23,7 +23,14 @@ import {
 } from '../../multiplayer/protocol';
 import { accessToken, accountStore } from '../../services/account';
 import { hiddenStore, isHidden } from '../../services/moderation';
-import { ambienceForZone, playSound, setAmbience, setAudioPaused } from '../../services/audio';
+import {
+  ambienceForZone,
+  playSound,
+  setAmbience,
+  setAudioPaused,
+  setSpotSound,
+  type SpotSound,
+} from '../../services/audio';
 import { isTouchDevice } from '../../services/device';
 import { fetchDecor, myHomeAccess, saveMyDecor, type HomeAccess } from '../../services/homes';
 import { checkPendingInvitations } from '../../services/invitations';
@@ -1164,6 +1171,7 @@ export class WorldScene extends Phaser.Scene {
     }
     if (time - this.lastStats > 500) {
       this.lastStats = time;
+      this.updateSpotSound();
       let nearby = 0;
       for (const { peer } of this.remotes.values())
         if (!isHidden(peer.id) && this.withinEarshot(peer)) nearby++;
@@ -1225,6 +1233,20 @@ export class WorldScene extends Phaser.Scene {
       } else view.seatHeight = null;
       view.update(delta, this.depthFor(view.x, view.y, seatId, view.facing));
     }
+  }
+
+  /** Son de la source la plus proche (feu de camp, fontaine), plus fort en s'approchant. */
+  private updateSpotSound(): void {
+    const SOURCES: Record<string, SpotSound> = { campfire: 'fire', fountain: 'water' };
+    const RADIUS = 6;
+    let best: { kind: SpotSound; dist: number } | null = null;
+    for (const o of this.world.objects) {
+      const kind = SOURCES[o.type];
+      if (!kind) continue;
+      const dist = Math.hypot(o.x + o.w / 2 - this.player.pos.x, o.y + o.d / 2 - this.player.pos.y);
+      if (dist < RADIUS && (!best || dist < best.dist)) best = { kind, dist };
+    }
+    setSpotSound(best?.kind ?? null, best ? (1 - best.dist / RADIUS) ** 1.5 : 0);
   }
 
   private updateZone(): void {

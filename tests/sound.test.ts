@@ -68,7 +68,7 @@ describe('ambiance sonore selon le lieu', () => {
       park: 'outdoor',
       orchard: 'outdoor',
       forest: 'outdoor',
-      games: 'hall',
+      games: 'games',
       coworking: 'coworking',
       hall: 'hall',
       lounge: 'lounge',
