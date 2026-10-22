@@ -6,17 +6,22 @@ concret et reste jouable : on ne construit pas tout d’un coup.
 ```mermaid
 flowchart LR
     A["✅ v0.1<br/>Prototype<br/><i>se promener</i>"] --> B["✅ v0.2<br/>Multijoueur<br/><i>se retrouver</i>"]
-    B --> C["🔶 v0.3<br/>Chez soi<br/><i>son logement</i>"]
-    C --> D["⏳ v0.4<br/>Expansion<br/><i>étages, galerie</i>"]
-    D --> E["⏳ v0.5<br/>Vie communautaire<br/><i>événements, jeux</i>"]
-    E --> F["⏳ v1.0<br/>Version stable"]
+    B --> C["✅ v0.3<br/>Chez soi<br/><i>son logement</i>"]
+    C --> D["🔶 v0.35<br/>Que faire ?<br/><i>panneau, quiz IA</i>"]
+    D --> E["⏳ v0.4<br/>Musée<br/><i>les créations</i>"]
+    E --> F["⏳ v0.45<br/>Lieux vivants"]
+    F --> G["⏳ v0.5<br/>Vie communautaire"]
+    G --> H["⏳ v0.6<br/>Personnalisation"]
+    H --> I["⏳ v1.0<br/>Version stable"]
 ```
 
 **Légende :** ✅ terminé · 🔶 en cours · 🔜 prochaine étape · ⏳ prévu plus tard.
 
 > **Pourquoi cet ordre ?** Il faut d’abord un monde agréable (0.1), puis pouvoir s’y retrouver à
-> plusieurs (0.2). Les logements (0.3) ont besoin des comptes, la galerie et les étages (0.4) ont
-> besoin des logements et de la modération, et les événements (0.5) ont besoin de monde !
+> plusieurs (0.2) et avoir un chez-soi (0.3). Ensuite, le plus important est que chacun sache
+> **quoi faire**, même seul (0.35), puis puisse **découvrir les créations** de la communauté (0.4).
+> Les événements (0.5) viendront quand la communauté le demandera. Plan détaillé :
+> [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md).
 
 ---
 
@@ -88,61 +93,95 @@ il ne coûtera **jamais** d’argent. Explications : [FREE_INFRASTRUCTURE.md](FR
 
 ---
 
-## 🔶 Version 0.3 — Les espaces personnels : « chez soi »
+## ✅ Version 0.3 — Les espaces personnels : « chez soi »
 
 **En une phrase :** chaque Malino reçoit son propre logement dans la Tour communautaire.
 
 **Pour les joueurs :**
 
-- un logement **privé par défaut** ;
-- tu choisis qui peut entrer : **personne**, **sur invitation** ou **tout le monde** ;
-- tu peux inviter des amis et retirer un accès à tout moment ;
-- un **éditeur de décoration** simple : choisir un meuble, le poser sur une grille, le tourner,
-  le supprimer, enregistrer — sans aucune connaissance technique ;
-- un catalogue de meubles partagé (bureaux, plantes, étagères, ordinateurs…).
+- ✅ **Mon logement** : un studio meublé par compte, par l’ascenseur du hall ;
+- ✅ accès **personne**, **sur invitation** ou **tout le monde**, **invitations** reçues en
+  direct, retrait d’accès et mise à la porte, vérifiés par le serveur et la base de données ;
+- ✅ **discussion privée** : ce qui s’écrit dans un logement n’est lu que par les présents ;
+- ✅ **éditeur de décoration** : 21 meubles, poser / tourner / couleur / déplacer / ranger,
+  visiteurs mis à jour en direct.
+
+**En plus, pendant cette version :** le **carnet de Joshua** (devinettes des 10 secrets, gardé
+sur le compte), **Joshua vivant** (humeurs, répliques), la **ronde des champignons**, le **statut
+doré** et les **modérateurs** nommés depuis le jeu, la **barbe** et le **micro** pour les
+avatars, et le **jour et la nuit** à l’heure de Paris.
 
 **Sécurité :** les droits d’entrée sont vérifiés par le serveur, pas seulement par le jeu : impossible
 de forcer la porte d’un logement privé.
 
-**Où en est-on ?**
-
-- ✅ **Mon logement** : un studio meublé par compte, par l’ascenseur du hall.
-- ✅ **Accès** personne / sur invitation / tout le monde, **invitations**, retrait d’accès et mise
-  à la porte, vérifiés par le serveur et la base de données.
-- ✅ **Discussion privée** : ce qui s’écrit dans un logement n’est lu que par les présents.
-- ✅ **Éditeur de décoration** : catalogue de 21 meubles, poser / tourner / couleur / déplacer
-  / ranger, règles de passage, enregistrement en base, visiteurs mis à jour en direct.
+**Reste à vérifier en ligne par le responsable** : voir la liste dans
+[SESSION_HANDOFF.md](SESSION_HANDOFF.md#tests-à-faire-en-ligne).
 
 ---
 
-## ⏳ Version 0.4 — L’expansion : « le monde s’agrandit »
+## 🔶 Version 0.35 — « Que faire maintenant ? »
 
-**En une phrase :** de nouveaux étages, un ascenseur qui fonctionne et la **Galerie des Malinos**.
+**En une phrase :** en arrivant, on sait tout de suite quoi faire, et on peut s’amuser même seul.
 
-![La galerie, encore fermée en v0.1](images/conference-et-galerie.jpg)
+- un **écran « Que faire maintenant ? »** près de Joshua (et un bouton 🧭) : 4 ou 5 idées du
+  moment (défi du quiz, prochain objectif, secret à chercher, studios ouverts, Malinos présents),
+  chacune avec un bouton **« Y aller »** ;
+- le **Quiz IA des Malinos** sur une borne de la salle de jeux : 5 questions avec explication, en
+  partie libre ou en **défi de la semaine** (le même pour tous) ; scores gardés dans ton
+  navigateur ;
+- des **mesures de fréquentation** simples pour le responsable, sans nouvelle collecte.
 
-**Pour les joueurs :**
+Rien de tout cela ne sollicite le serveur ni la base de données : c’est calculé dans le navigateur.
 
-- l’**ascenseur** mène aux étages de la tour (chargés seulement quand on y va : la tour peut
-  accueillir des centaines de logements sans ralentir le jeu) ;
-- la **Galerie des Malinos** : un musée de vos créations (sites, applis, projets IA, dépôts GitHub).
-  On s’approche d’une œuvre, on lit sa fiche, on ouvre le lien ;
-- un **annuaire** pour trouver un membre et découvrir ses espaces publics ;
-- de nouvelles salles proposées par la communauté.
+---
 
-**Sécurité :** les projets exposés sont **vérifiés avant publication** et les liens sont sécurisés.
+## ⏳ Version 0.4 — Le Musée des Malinos
+
+**En une phrase :** les Malinos exposent leurs créations (sites, applis, outils IA, jeux, projets
+open source) et tout le monde peut les découvrir dans le jeu.
+
+![La galerie, encore fermée](images/conference-et-galerie.jpg)
+
+- **exposer son projet** avec un compte : titre, résumé, adresse, catégorie ; **validé par les
+  modérateurs** avant d’apparaître, retiré quand on veut ;
+- le musée ouvre dans la **galerie déjà construite** à côté du hall : des **stands** avec une
+  **affiche dessinée par le jeu** pour chaque projet, et une borne qui liste toutes les créations ;
+- une **fiche** par projet, un bouton **« Ouvrir le site »**, et **« Essayer ici »** pour les
+  sites qui l’acceptent (chargé seulement après un clic, dans une fenêtre isolée) ;
+- le **chantier** devient la promesse du **Bâtiment des créations**, qui accueillera
+  l’agrandissement du musée.
+
+**Sécurité :** projets vérifiés avant publication, droits contrôlés par la base, signalement et
+retrait ; MalinosLand ne copie jamais le site d’un membre et ne sert jamais d’intermédiaire.
+
+---
+
+## ⏳ Version 0.45 — Des lieux plus vivants
+
+- les ordinateurs du **coworking** présentent des ressources choisies par la communauté ;
+- au **feu de camp** : des histoires de Joshua qui changent et la guitare ;
+- un **secret de la semaine** ;
+- les **studios ouverts** mis en avant.
 
 ---
 
 ## ⏳ Version 0.5 — La vie communautaire
 
-**En une phrase :** des choses à faire ensemble.
+**En une phrase :** des choses à faire ensemble, quand la communauté le souhaite.
 
-- **Événements** dans la salle de conférence (présentations, démos), avec un lien vers un outil de
-  visio gratuit externe ;
-- **expositions temporaires** dans la galerie (projets du mois, créations IA…) ;
-- **défis créatifs** (construction, développement) ;
-- premiers **mini-jeux** sur la borne d’arcade, ajoutés comme des modules indépendants.
+- **agenda des événements** dans la salle de conférence (présentations, démos, lives), avec un
+  lien vers un outil de visio gratuit externe : annoncé « bientôt » tant qu’il n’est pas utilisé ;
+- premiers **mini-jeux à plusieurs** ;
+- **défis créatifs** et expositions temporaires au musée.
+
+---
+
+## ⏳ Version 0.6 — La personnalisation
+
+- les **Coins coins** 🦆 : de petites récompenses personnelles pour débloquer des bonus
+  cosmétiques (jamais d’argent réel, aucun classement) ;
+- nouvelles décorations, suite du mystère de Joshua ;
+- plus tard, à discuter : étages de la Tour et annuaire des membres.
 
 ---
 
@@ -200,14 +239,23 @@ La feuille de route n’est pas figée : **elle bouge selon vos retours.**
 - ✅ Logements (studio), modes d’accès vérifiés côté serveur et par la base, invitations,
   mise à la porte, discussion privée
 - ✅ Éditeur de décoration, catalogue de meubles, sauvegarde des dispositions
+- ✅ Carnet de Joshua, progression sur le compte, Joshua vivant, ronde des champignons
+- ✅ Statut doré, modérateurs nommés depuis le jeu, barbe et micro, jour et nuit
 
-### v0.4
+### v0.35 — voir [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) §10, PR 2 à 6
 
-- ⬜ Étages chargés à la demande, ascenseur fonctionnel
-- ⬜ Galerie (soumission, modération, fiches), annuaire, outils d’administration
+- ⬜ Panneau « Que faire maintenant ? » (moteur de suggestions, écran du hall, bouton 🧭)
+- ⬜ Quiz IA des Malinos (borne de la salle de jeux, défi de la semaine)
+- ⬜ Mesures de fréquentation du responsable
 
-### v0.5
+### v0.4 — PR 7 à 11
 
-- ⬜ Événements, expositions, défis, mini-jeux modulaires
+- ⬜ Musée : base des projets, soumission, modération, stands, fiche, démo isolée
+
+### v0.45, v0.5, v0.6
+
+- ⬜ Coworking, feu de camp, secret de la semaine, studios ouverts
+- ⬜ Agenda, mini-jeux à plusieurs, défis
+- ⬜ Coins coins, décorations
 
 </details>

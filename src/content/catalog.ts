@@ -21,7 +21,7 @@ export const CATALOG: Record<string, CatalogEntry> = {
       label: 'Regarder l’écran',
       lines: [
         'Un poste de travail libre. L’écran affiche un éditeur de code et une tasse de café virtuelle.',
-        'Dans une prochaine version, les Malinos pourront épingler leurs projets en cours sur ces postes.',
+        'Bientôt (v0.45), ces postes présenteront les outils et les ressources préférés des Malinos.',
       ],
     },
     light: { color: 0x7fd7ff, radius: 0.9, z: 0.95, dx: 0, dy: -0.2 },
@@ -185,7 +185,7 @@ export const CATALOG: Record<string, CatalogEntry> = {
       kind: 'emote',
       label: 'Regarder dans le télescope',
       emoji: '🔭',
-      text: 'Au loin, des grues s’affairent : la Tour des Malinos grandit… Les étages arrivent en v0.4 !',
+      text: 'Au loin, des grues s’affairent sur le chantier : le Bâtiment des créations se prépare…',
       secret: 'telescope',
     },
   },
@@ -262,7 +262,7 @@ export const CATALOG: Record<string, CatalogEntry> = {
       label: 'Parcourir les livres',
       lines: [
         'Des livres sur l’IA, le code, le design et la créativité.',
-        'Une bibliothèque de ressources IA partagée par la communauté est prévue dans une version future.',
+        'Une sélection de ressources IA proposées par la communauté arrive bientôt au coworking (v0.45).',
       ],
     },
   },
@@ -371,7 +371,7 @@ export const CATALOG: Record<string, CatalogEntry> = {
       label: 'Jouer',
       lines: [
         'INSERT COIN… La borne clignote mais aucun jeu n’est encore installé.',
-        'Les mini-jeux multijoueurs sont prévus pour la version 0.5. Les contributeurs pourront en proposer !',
+        'Bientôt : un Quiz IA des Malinos sur la borne de la salle de jeux (v0.35), puis des mini-jeux à plusieurs (v0.5).',
         '↑ ↑ ↓ ↓ ← → ← → B A… L’écran s’illumine : « CODE SECRET ACCEPTÉ. Bienvenue, joueur 1. »',
       ],
       secret: 'konami',
@@ -536,9 +536,9 @@ export const CATALOG: Record<string, CatalogEntry> = {
       label: 'Lire le panneau',
       speaker: 'Chantier',
       lines: [
-        'Ici s’élèvera la Tour communautaire : un étage par groupe de Malinos, avec des logements personnels.',
-        'Ouverture prévue : version 0.3 (espaces privés) puis 0.4 (étages et ascenseur).',
-        'Chaque logement sera privé par défaut, sur invitation ou public, au choix de son propriétaire.',
+        'Ici s’élèvera le Bâtiment des créations : quand les stands du musée seront pleins, les projets des Malinos viendront s’exposer ici.',
+        'Le Musée des Malinos ouvrira d’abord dans la galerie, à côté du hall (version 0.4).',
+        'Ton logement, lui, est déjà prêt : prends l’ascenseur du hall, « Mon logement ».',
       ],
     },
   },

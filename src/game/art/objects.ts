@@ -946,13 +946,13 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
         decal('py', 0.8, 0, 0.95, 0.14, P.sun),
       ],
     });
-    b.text({ x: 0.5, y: 0.53, z: 1.2 }, 'py', 'TOUR', {
+    b.text({ x: 0.5, y: 0.53, z: 1.2 }, 'py', 'MUSÉE', {
       size: 8,
       color: P.ink,
       weight: 900,
       fit: 0.7,
     });
-    b.text({ x: 0.5, y: 0.53, z: 1.0 }, 'py', 'chantier · v0.3', {
+    b.text({ x: 0.5, y: 0.53, z: 1.0 }, 'py', 'agrandissement', {
       size: 4.5,
       color: P.ink,
       weight: 700,

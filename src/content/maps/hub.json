@@ -166,7 +166,7 @@
     },
     {
       "id": "site",
-      "name": "Chantier de la Tour communautaire",
+      "name": "Chantier du Bâtiment des créations",
       "rect": {
         "x": 0,
         "y": 24,
@@ -174,8 +174,8 @@
         "h": 6
       },
       "status": "soon",
-      "plannedFor": "v0.3",
-      "description": "Les futurs logements des Malinos."
+      "plannedFor": "v0.4",
+      "description": "Le futur Bâtiment des créations : le musée des Malinos s’agrandira ici."
     },
     {
       "id": "games",

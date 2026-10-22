@@ -13,14 +13,12 @@ export const FLOORS: FloorDef[] = [
     label: 'Toit-terrasse',
     description: 'Vue sur tout MalinosLand, événements en plein air.',
     status: 'soon',
-    plannedFor: 'v0.4',
   },
   {
     id: 'tour',
     label: 'Étages de la Tour communautaire',
     description: 'Un couloir et une porte par logement, des espaces publics par étage.',
     status: 'soon',
-    plannedFor: 'v0.4',
   },
   {
     id: 'hub',

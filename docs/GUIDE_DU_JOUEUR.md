@@ -2,10 +2,10 @@
 
 Bienvenue dans MalinosLand ! Pour jouer, ouvre **[malinosland.pages.dev](https://malinosland.pages.dev)** : rien à installer.
 
-> Rappel : c’est encore un **prototype** (v0.2 en cours). Il n’y a pas encore de compte : ton
-> personnage est enregistré **dans ton navigateur**. En ligne, ton pseudo, ton apparence, ta
-> position et tes messages sont transmis en direct aux autres joueurs connectés (le serveur ne les
-> conserve pas). Le badge « En ligne » en haut de l’écran indique que tu es connecté.
+> Rappel : MalinosLand est **en construction** (v0.3 terminée, v0.35 en préparation). Sans
+> compte, ton personnage est enregistré **dans ton navigateur** ; avec un compte Google ou
+> GitHub, il te suit partout. En ligne, ton pseudo, ton apparence, ta position et tes messages
+> sont transmis en direct aux autres joueurs connectés (le serveur ne les conserve pas).
 
 ## 1. Créer son personnage
 
@@ -88,8 +88,8 @@ de bienvenue, le tableau de la feuille de route et l’**ascenseur**.
 
 ![L’ascenseur](images/panneau-ascenseur.jpg)
 
-L’ascenseur montre les étages prévus. Seul le rez-de-chaussée existe pour l’instant : la tour des
-logements et le toit-terrasse sont marqués **« bientôt »**.
+L’ascenseur mène à **ton logement** et aux logements que tu peux visiter (voir §9). Les étages de
+la tour et le toit-terrasse sont encore marqués **« bientôt »**.
 
 ### L’espace coworking
 
@@ -102,22 +102,23 @@ Des bureaux pour travailler ensemble. Un des ordinateurs affiche **l’astuce IA
 ![Conférence et galerie](images/conference-et-galerie.jpg)
 
 La **salle de conférence** (scène, écran géant, sièges) accueillera des événements à partir de la
-v0.5. Juste devant, la **Galerie des Malinos** est encore fermée par une corde : elle ouvrira en
-v0.4 pour exposer les projets de la communauté.
+v0.5. Juste devant, la galerie est encore fermée par une corde : elle deviendra le **Musée des
+Malinos** en v0.4, pour exposer les créations de la communauté.
 
 ### Le salon détente
 
 ![Salon](images/salon-assis-cafe.jpg)
 
-Canapés, fauteuils, **comptoir à café**, borne d’arcade (les mini-jeux arrivent en v0.5) et le
-**miroir** pour changer de style.
+Canapés, fauteuils, **comptoir à café**, une borne d’arcade décorative et le **miroir** pour
+changer de style.
 
 ### Le jardin et la terrasse
 
 ![Terrasse](images/terrasse.jpg)
 
 Autour du bâtiment : fontaine, bancs, jardinières, et une terrasse avec tables à parasol et
-transats. À gauche, le **chantier de la Tour communautaire** annonce les étages à venir (v0.4).
+transats. À gauche, le **chantier du Bâtiment des créations** annonce l’agrandissement du futur
+musée.
 
 ### Le Parc des Malinos et le verger
 
@@ -134,8 +135,21 @@ fruitiers jusqu’au **potager partagé**.
 ![Salle de jeux](images/salle-de-jeux.jpg)
 
 Au nord du parc : deux bornes d’arcade, une table de ping-pong, un baby-foot, une table d’échecs,
-des poufs et des jeux de société. Pour l’instant on y joue « pour de faux » : les vrais
-**mini-jeux à plusieurs** arrivent avec la v0.5.
+des poufs et des jeux de société. Pour l’instant on y joue « pour de faux » : un **Quiz IA des
+Malinos** arrive bientôt sur une borne (v0.35), et les **mini-jeux à plusieurs** avec la v0.5.
+
+### Le jour et la nuit
+
+Le monde suit **l’heure réelle de Paris** : aube rosée, plein jour, coucher de soleil orangé et
+nuit bleutée (l’heure est affichée en haut de l’écran). La nuit, les réverbères s’allument, des
+étoiles et des lucioles apparaissent et on entend les grillons. Tu préfères qu’il fasse toujours
+jour ? ⚙️ Réglages → **Toujours de jour**.
+
+### Le carnet de Joshua et les secrets
+
+Dix **secrets** sont cachés dans le Hub. Le **carnet de Joshua** (bouton 🎯, puis le carnet) donne
+une **devinette** pour chacun ; une fois trouvé, il dévoile une page de l’histoire de Joshua. Avec
+un compte, tes découvertes te suivent sur tous tes appareils.
 
 ## 5. Les objectifs « Premiers pas »
 
