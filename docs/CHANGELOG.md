@@ -5,6 +5,15 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Corrigé et ajouté (la ronde des Malinos)
+
+- On peut maintenant **entrer dans la ronde à la souris ou au doigt** : toucher le cercle
+  emmène au milieu (avant, on s’arrêtait à côté et on ne dansait pas).
+- **Musique disco-house** fabriquée par le jeu (aucun fichier) : on l’entend en s’approchant
+  quand quelqu’un danse, à fond quand on danse soi-même (coupée avec l’ambiance sonore).
+- **Projecteurs colorés** qui balaient la ronde et taches de couleur qui tournent au sol, dès
+  que quelqu’un y danse (vus par tous, sans coût d’hébergement).
+
 ### Ajouté (lot B : Joshua vivant et charte des Malinos)
 
 - **Joshua vivant** : ses antennes bougent (doucement au repos, davantage quand on s’approche,
