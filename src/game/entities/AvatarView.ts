@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import type { AvatarAppearance } from '../../content/avatars';
 import { project, Z_PX, type Facing } from '../../core/iso';
-import { SIT_HEIGHT, frameName, type AvatarPose } from '../art/characters';
+import { AVATAR_FACINGS, SIT_HEIGHT, frameName, type AvatarPose } from '../art/characters';
 import type { TextureFactory } from '../textures';
 
 /** Calques d'affichage au-dessus du monde. */
@@ -28,6 +28,9 @@ export class AvatarView {
   moving = false;
   /** Hauteur d'assise si l'avatar est assis, sinon null. */
   seatHeight: number | null = null;
+  /** Dans la ronde de champignons : l'avatar danse (petits sauts, tour sur lui-même). */
+  dancing = false;
+  private danceTime = 0;
   private nameVisible = true;
   private baseName: string;
   private away = false;
@@ -90,17 +93,27 @@ export class AvatarView {
   /** Met à jour cadre, position écran et profondeur. */
   update(dtMs: number, depth: number): void {
     let pose: AvatarPose = 'idle';
+    let facing = this.facing;
+    let hop = 0;
+    const dancing = this.dancing && !this.moving && this.seatHeight === null;
     if (this.seatHeight !== null) pose = 'sit';
     else if (this.moving) {
       this.walkTime += dtMs;
       pose = WALK_FRAMES[Math.floor(this.walkTime / 110) % WALK_FRAMES.length]!;
     } else this.walkTime = 0;
-    this.sprite.setFrame(frameName(this.facing, pose));
+    if (dancing) {
+      // Petits pas, un tour sur soi-même toutes les deux secondes, et de petits sauts.
+      this.danceTime += dtMs;
+      pose = WALK_FRAMES[Math.floor(this.danceTime / 220) % WALK_FRAMES.length]!;
+      facing = AVATAR_FACINGS[Math.floor(this.danceTime / 500) % AVATAR_FACINGS.length]!;
+      hop = Math.abs(Math.sin(this.danceTime / 170)) * 6;
+    } else this.danceTime = 0;
+    this.sprite.setFrame(frameName(facing, pose));
 
     const p = project(this.x, this.y);
     const lift = this.seatHeight !== null ? (this.seatHeight - SIT_HEIGHT) * Z_PX : 0;
     const sitDrop = this.seatHeight !== null ? 10 : 0;
-    this.sprite.setPosition(p.x, p.y - lift).setDepth(depth);
+    this.sprite.setPosition(p.x, p.y - lift - hop).setDepth(depth);
     this.shadow
       .setPosition(p.x, p.y)
       .setDepth(depth - 0.5)

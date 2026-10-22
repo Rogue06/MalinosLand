@@ -12,6 +12,7 @@ import { AccountBox } from '../AccountBox';
 import { AvatarEditor } from '../AvatarEditor';
 import { useStore } from '../hooks';
 import { Modal } from './Modal';
+import { CHARTE, DEVISE } from '../../content/joshua';
 
 function ExternalLink({ href, children }: { href: string; children: string }) {
   return (
@@ -44,9 +45,18 @@ export function WelcomePanel() {
         </div>
         <div class="card">
           <h3>🌱 Pour toujours gratuit</h3>
-          <p>Pas d’abonnement, pas de monnaie à acheter. Juste la convivialité.</p>
+          <p>Pas d’abonnement, rien à acheter. Juste la convivialité.</p>
         </div>
       </div>
+      <h3>La charte des Malinos</h3>
+      <ul class="charte">
+        {CHARTE.map((c) => (
+          <li key={c.text}>
+            <span aria-hidden="true">{c.icon}</span> {c.text}
+          </li>
+        ))}
+      </ul>
+      <p class="devise">{DEVISE}</p>
       <h3>Participer au développement</h3>
       <p>
         Le code est ouvert à tous sur <ExternalLink href={REPO_URL}>GitHub</ExternalLink>.

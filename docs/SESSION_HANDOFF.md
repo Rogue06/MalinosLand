@@ -36,6 +36,12 @@ Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter
 
 ## Dernières sessions
 
+- **26/10** — PR #36 (lot A) fusionnée, migration `player_progress` appliquée, en ligne.
+  Branche `feature/joshua-vivant` (lot B) : antennes animées et humeur (`src/game/life/JoshuaLife.ts`,
+  `src/content/joshua.ts`), répliques dans son ton, charte des Malinos ; cercle de champignons
+  visible (`mushroom_ring`). Boutique de Renaud notée (droits : clins d’œil originaux seulement).
+  Suite : lot B2 (statut doré de Renaud, modérateurs, avatar barbe/micro, slogans).
+
 - **25/10 (suite)** — PR #33, #34, #35 fusionnées et en ligne. Branche
   `feature/carnet-joshua` (lot A, DEC-025) : carnet de Joshua (devinettes + pages),
   progression sur le compte (migration `20261025090000_player_progress.sql` **à appliquer sur

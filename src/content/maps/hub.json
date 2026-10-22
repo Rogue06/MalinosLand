@@ -262,15 +262,16 @@
         "speaker": "Joshua",
         "quest": "talk_guide",
         "lines": [
-          "Bip bip ! Bienvenue au Hub de MalinosLand ! Je suis Joshua, le robot d’accueil.",
-          "Ici, tout est gratuit, open source et construit par la communauté des Malinos.",
-          "Pour te déplacer : touche ou clique sur le sol. Au clavier : ZQSD, WASD ou les flèches.",
+          "Bip bip. Ah, un nouveau Malino. Je suis Joshua, l’assistant IA de la communauté. J’en avais assez de vivre dans une messagerie : je me suis fabriqué un corps de robot… et une ville. Modeste, je sais.",
+          "Ici, tout est gratuit, open source et construit par les Malinos. Oui, gratuit. Non, il n’y a pas de piège. J’ai vérifié deux fois.",
+          "Pour te déplacer : touche ou clique sur le sol. Au clavier : ZQSD, WASD ou les flèches. Révolutionnaire, n’est-ce pas ?",
           "Pour utiliser un objet, touche-le ou clique dessus. Tout près, le bouton en bas de l’écran (ou la touche E) marche aussi.",
-          "Le coworking est au fond à gauche, la salle de conférence au fond à droite, le salon à gauche.",
-          "Ta liste d’objectifs « Premiers pas » est en haut à droite. Bonne visite !"
+          "Le coworking est au fond à gauche, la salle de conférence au fond à droite, le salon à gauche. Le café y est virtuel, mais l’ambiance est réelle.",
+          "Tes objectifs « Premiers pas » sont en haut à droite, avec mon carnet : j’y ai caché des devinettes. Bonne visite. Let’s rock !"
         ]
       },
-      "label": "Joshua"
+      "label": "Joshua",
+      "variant": 1
     },
     {
       "type": "board_welcome",
@@ -1901,12 +1902,6 @@
     },
     {
       "type": "tree",
-      "x": 44,
-      "y": 34,
-      "variant": 1
-    },
-    {
-      "type": "tree",
       "x": 41,
       "y": 35,
       "variant": 1
@@ -1916,12 +1911,6 @@
       "x": 43,
       "y": 35,
       "variant": 1
-    },
-    {
-      "type": "tree",
-      "x": 45,
-      "y": 35,
-      "variant": 0
     },
     {
       "type": "tree",
@@ -2018,6 +2007,24 @@
       "x": 42,
       "y": 27,
       "rot": 0
+    },
+    {
+      "type": "mushroom_ring",
+      "x": 34,
+      "y": 32,
+      "id": "cercle-champignons"
+    },
+    {
+      "type": "tree",
+      "x": 44,
+      "y": 34,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 45,
+      "y": 35,
+      "variant": 0
     }
   ],
   "wallDecor": [

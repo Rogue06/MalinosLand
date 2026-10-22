@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { QUESTS } from '../../content/quests';
+import { followUpLines, moodLine } from '../../content/joshua';
 import { SECRETS } from '../../content/secrets';
 import { HOME_EXIT, HUB_ROOM, mapIdForRoom } from '../../content/rooms';
 import { HOME_RULES, loadHomeWorld, loadWorld } from '../../content/world';
@@ -70,6 +71,7 @@ import type { InteractionDef } from '../../world/types';
 import { DecorEditor } from '../DecorEditor';
 import { AvatarView } from '../entities/AvatarView';
 import { AmbientLife } from '../life/AmbientLife';
+import { JoshuaLife } from '../life/JoshuaLife';
 import { TextureFactory } from '../textures';
 import { BACKREST_DEPTH, WorldRenderer } from '../WorldRenderer';
 
@@ -165,6 +167,12 @@ export class WorldScene extends Phaser.Scene {
   /** Abonnements aux événements réseau de cette scène (retirés à chaque changement de salle). */
   private netCleanups: Array<() => void> = [];
   private life: AmbientLife | null = null;
+  /** Joshua vivant (antennes animées, humeur). */
+  private joshua: JoshuaLife | null = null;
+  /** Rondes de champignons : qui s'y tient immobile danse (vu par tous, sans message réseau). */
+  private danceRings: WorldObject[] = [];
+  private wasDancing = false;
+  private danceNoteAt = 0;
   /** Demande d'entrée dans un logement en attente de la réponse du serveur. */
   private pendingDoor: { room: string; ownerName: string | null } | null = null;
   /** Meubles du logement affiché (vides au Hub). */
@@ -323,6 +331,10 @@ export class WorldScene extends Phaser.Scene {
           depthAt: (x, y) => this.depthFor(x, y, null, 'py'),
           player: () => this.player.pos,
         });
+    this.joshua = new JoshuaLife(this, this.world, this.renderer3d, this.tex, {
+      animate: !settings.reducedMotion,
+    });
+    this.danceRings = this.world.objects.filter((o) => o.type === 'mushroom_ring');
   }
 
   /** Remeuble le logement affiché, sans relancer la scène (éditeur, visiteurs prévenus). */
@@ -330,6 +342,7 @@ export class WorldScene extends Phaser.Scene {
     const home = loadHomeWorld(items);
     this.decorItems = home.items;
     this.life?.destroy();
+    this.joshua?.destroy();
     this.renderer3d.destroy();
     this.hovered = null;
     this.editorHighlight = null;
@@ -648,7 +661,11 @@ export class WorldScene extends Phaser.Scene {
   private runInteraction(obj: WorldObject, it: InteractionDef): void {
     switch (it.kind) {
       case 'dialog':
-        dialogStore.set({ speaker: it.speaker ?? obj.entry.name, lines: it.lines, index: 0 });
+        dialogStore.set({
+          speaker: it.speaker ?? obj.entry.name,
+          lines: obj.id === 'joshua' ? this.joshuaLines(it.lines) : it.lines,
+          index: 0,
+        });
         break;
       case 'panel':
         panelStore.set(it.panel);
@@ -662,6 +679,18 @@ export class WorldScene extends Phaser.Scene {
     }
     if (it.quest) this.quest(it.quest);
     if (it.secret) this.secret(it.secret);
+  }
+
+  /**
+   * Répliques de Joshua : une phrase selon son humeur, puis la visite guidée la première fois,
+   * ensuite un mot sur le carnet de secrets. Ses antennes s'agitent pendant qu'il parle.
+   */
+  private joshuaLines(tour: string[]): string[] {
+    this.joshua?.talk(6);
+    const mood = this.joshua?.mood;
+    const first = mood ? [moodLine(mood, Math.floor(Math.random() * 10))] : [];
+    if (!progressStore.get().includes('talk_guide')) return [...first, ...tour];
+    return [...first, ...followUpLines(secretsStore.get().length, SECRETS.length)];
   }
 
   private secret(id: string): void {
@@ -1144,6 +1173,7 @@ export class WorldScene extends Phaser.Scene {
 
     const step = this.player.update(dt, this.readInput());
     this.life?.update(delta);
+    this.joshua?.update(delta, this.player.pos);
     if (step.arrived) {
       const obj = this.world.getObject(step.arrived.objectId);
       if (obj) this.performAction(step.arrived.kind, obj);
@@ -1156,6 +1186,13 @@ export class WorldScene extends Phaser.Scene {
     av.facing = this.player.facing;
     av.moving = step.moved;
     av.seatHeight = this.player.seat?.height ?? null;
+    av.dancing = !step.moved && !this.player.seat && this.inDanceRing(av.x, av.y);
+    if (av.dancing && !this.wasDancing) this.startDancing(time);
+    if (av.dancing && time > this.danceNoteAt) {
+      this.danceNoteAt = time + 5000;
+      av.say('🎶', 1800);
+    }
+    this.wasDancing = av.dancing;
     av.update(
       delta,
       this.depthFor(av.x, av.y, this.player.seat ? this.player.seat.objectId : null, av.facing),
@@ -1237,8 +1274,32 @@ export class WorldScene extends Phaser.Scene {
         view.seatHeight = seatObj?.seats[0]?.height ?? 0.42;
         view.moving = false;
       } else view.seatHeight = null;
+      view.dancing = peer.s !== 2 && !view.moving && this.inDanceRing(view.x, view.y);
       view.update(delta, this.depthFor(view.x, view.y, seatId, view.facing));
     }
+  }
+
+  /** Le point est-il dans une ronde de champignons (cercle inscrit dans son empreinte) ? */
+  private inDanceRing(x: number, y: number): boolean {
+    return this.danceRings.some(
+      (o) => Math.hypot(x - (o.x + o.w / 2), y - (o.y + o.d / 2)) < Math.min(o.w, o.d) * 0.42,
+    );
+  }
+
+  /** Entrée dans la ronde : on danse ; la première fois, c'est aussi un secret. */
+  private startDancing(time: number): void {
+    this.danceNoteAt = time + 5000;
+    const others = [...this.remotes.values()].filter(
+      (r) => r.peer.room === this.room && this.inDanceRing(r.view.x, r.view.y),
+    ).length;
+    pushToast(
+      others > 0
+        ? `🕺 Tu rejoins la ronde : vous êtes ${others + 1} à danser !`
+        : '🕺 Tu danses dans la ronde des Malinos ! Invite d’autres Malinos à te rejoindre.',
+      '🍄',
+      4000,
+    );
+    this.secret('champignons');
   }
 
   /** Son de la source la plus proche (feu de camp, fontaine), plus fort en s'approchant. */

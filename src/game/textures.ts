@@ -204,6 +204,16 @@ export class TextureFactory {
     return info;
   }
 
+  /** Pièce détachée dessinée à part (antennes de Joshua…) ; son origine est le point (0, 0, 0). */
+  part(key: string, draw: (b: IsoBuilder) => void): TextureInfo {
+    const k = `part:${key}`;
+    const cached = this.infos.get(k);
+    if (cached) return cached;
+    const b = new IsoBuilder(0, 1, 1);
+    draw(b);
+    return this.register(k, b.render(this.texScale));
+  }
+
   /** Halo lumineux radial (mélange additif). */
   glow(): TextureInfo {
     const key = 'fx:glow';
