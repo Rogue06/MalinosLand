@@ -3,10 +3,10 @@
  *
  * Le navigateur ne peut pas ajouter d'en-tête à une WebSocket : le jeton de connexion Supabase
  * voyage donc dans la liste des sous-protocoles (`Sec-WebSocket-Protocol`), jamais dans l'URL.
- * Le serveur n'a aucun secret : il demande à la base (`my_profile`, avec le jeton du joueur)
+ * Le serveur n'a aucun secret : il demande à la base (`my_account`, avec le jeton du joueur)
  * à quel profil correspond ce jeton. Un jeton absent, invalide ou expiré = visiteur.
  */
-import { accountPlayerId } from '../../src/multiplayer/protocol';
+import { accountPlayerId, ROLES, type Role } from '../../src/multiplayer/protocol';
 import { sanitizeName } from '../../src/core/text';
 import type { Account } from './hub';
 
@@ -41,7 +41,30 @@ export function parseAccount(raw: unknown): Account | null {
   const r = raw as Record<string, unknown>;
   const name = sanitizeName(r.name);
   if (typeof r.id !== 'string' || !accountPlayerId(r.id) || !name) return null;
-  return { id: r.id, name };
+  return { id: r.id, name, role: parseRole(r.role) };
+}
+
+function parseRole(raw: unknown): Role | null {
+  return ROLES.includes(raw as Role) ? (raw as Role) : null;
+}
+
+/**
+ * Rôle visible d'un compte (`account_role`, information publique : sans jeton). Lève une erreur
+ * si la base ne répond pas, pour que le hub garde le rôle connu.
+ */
+export async function fetchAccountRole(
+  uuid: string,
+  env: SupabaseConfig,
+  fetcher: typeof fetch = fetch,
+): Promise<Role | null> {
+  if (!env.SUPABASE_URL || !env.SUPABASE_KEY) throw new Error('base non configurée');
+  const res = await fetcher(`${env.SUPABASE_URL}/rest/v1/rpc/account_role`, {
+    method: 'POST',
+    headers: { apikey: env.SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_user: uuid }),
+  });
+  if (!res.ok) throw new Error(`base : ${res.status}`);
+  return parseRole(await res.json());
 }
 
 export async function verifyAccount(
@@ -51,7 +74,7 @@ export async function verifyAccount(
 ): Promise<Account | null> {
   if (!token || !env.SUPABASE_URL || !env.SUPABASE_KEY) return null;
   try {
-    const res = await fetcher(`${env.SUPABASE_URL}/rest/v1/rpc/my_profile`, {
+    const res = await fetcher(`${env.SUPABASE_URL}/rest/v1/rpc/my_account`, {
       method: 'POST',
       headers: {
         apikey: env.SUPABASE_KEY,

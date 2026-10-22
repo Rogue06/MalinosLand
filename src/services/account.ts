@@ -1,7 +1,7 @@
 import { ACCOUNTS_ENABLED, SUPABASE_KEY, SUPABASE_URL } from '../config';
 import { Store } from '../core/store';
 import { sanitizeName } from '../core/text';
-import { accountPlayerId } from '../multiplayer/protocol';
+import { accountPlayerId, accountUuid, ROLES, type Role } from '../multiplayer/protocol';
 import { pushToast } from '../state';
 import type { ReportDraft } from './moderation';
 import { parseProfile, profileStore, type Profile } from './profile';
@@ -41,6 +41,8 @@ export type AccountState =
       moderator: boolean;
       /** Responsable du site (historique des connexions ; vérifié aussi par le serveur). */
       owner: boolean;
+      /** Rôle visible dans le jeu (statut doré, badge de modérateur), donné par la base. */
+      role: Role | null;
     };
 
 export const accountStore = new Store<AccountState>({
@@ -161,13 +163,18 @@ export async function initAccount(): Promise<void> {
     const res = await db.from('profiles').select('name, look').eq('id', user.id).maybeSingle();
     if (res.error) throw res.error;
     const remote = parseProfile(res.data);
-    const [modo, owner] = await Promise.all([db.rpc('is_moderator'), db.rpc('is_site_owner')]);
+    const [modo, owner, role] = await Promise.all([
+      db.rpc('is_moderator'),
+      db.rpc('is_site_owner'),
+      db.rpc('account_role', { p_user: user.id }),
+    ]);
     accountStore.set({
       status: 'signed-in',
       user,
       savedName: remote?.name ?? null,
       moderator: modo.data === true,
       owner: owner.data === true,
+      role: ROLES.includes(role.data as Role) ? (role.data as Role) : null,
     });
     const plan = reconcileProfiles(profileStore.get(), remote);
     if (plan.use) {
@@ -282,6 +289,30 @@ export async function listReports(status: 'ouvert' | 'traite'): Promise<ReportRo
     .limit(50);
   if (error) throw explain(error);
   return (data ?? []) as ReportRow[];
+}
+
+/** Mon rôle a changé (annoncé par le serveur) : on le note, et le badge de modération suit. */
+export function setOwnRole(role: Role | null): void {
+  const s = accountStore.get();
+  if (s.status !== 'signed-in' || s.role === role) return;
+  // Statut doré : on ne sait pas s'il est aussi modérateur, on garde ce que la base a dit.
+  const moderator = role === 'mod' ? true : role === null ? s.owner && s.moderator : s.moderator;
+  accountStore.set({ ...s, role, moderator });
+}
+
+/**
+ * Le responsable donne ou retire un rôle à un joueur connecté à son compte (`playerId` :
+ * identifiant réseau). La base vérifie qu'il est bien le responsable.
+ */
+export async function setPlayerRole(playerId: string, role: Role, on: boolean): Promise<void> {
+  const uuid = accountUuid(playerId);
+  if (!uuid) throw new AccountError('Ce joueur n’est pas connecté à un compte.');
+  const { db } = await load();
+  const { error } = await db.rpc(role === 'gold' ? 'set_gold' : 'set_moderator', {
+    p_user: uuid,
+    p_on: on,
+  });
+  if (error) throw explain(error);
 }
 
 export async function setReportStatus(id: number, status: 'ouvert' | 'traite'): Promise<void> {

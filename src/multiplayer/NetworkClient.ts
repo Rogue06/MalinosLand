@@ -12,6 +12,7 @@ import {
   type NetMessage,
   type NoticeCode,
   type PeerState,
+  type Role,
 } from './protocol';
 import type { Transport } from './Transport';
 
@@ -24,6 +25,8 @@ export interface RemotePeer extends PeerState {
   verified: boolean;
   /** Absent : son onglet est caché depuis un moment. */
   away: boolean;
+  /** Rôle visible (statut doré, modérateur), garanti par le serveur temps réel. */
+  role: Role | null;
 }
 
 export interface NetworkEvents extends Record<string, unknown> {
@@ -44,6 +47,8 @@ export interface NetworkEvents extends Record<string, unknown> {
   decor: { owner: string };
   /** Un joueur m'invite dans son logement. */
   invite: { peer: RemotePeer };
+  /** Le serveur annonce mon propre rôle (il vient de changer dans la base). */
+  selfRole: { role: Role | null };
 }
 
 export interface NetworkOptions {
@@ -193,6 +198,11 @@ export class NetworkClient {
   }
 
   /** Prévient un joueur connecté que je l'ai invité chez moi. */
+  /** Le rôle de `target` vient de changer dans la base : le serveur le relit et prévient tous. */
+  roleChanged(target: string): void {
+    this.send({ t: 'role', id: this.selfId, target });
+  }
+
   inviteNotify(target: string): void {
     this.send({ t: 'invite', id: this.selfId, target });
   }
@@ -314,13 +324,22 @@ export class NetworkClient {
       this.events.emit('queue', { pos: msg.pos });
       return;
     }
-    if (msg.id === this.selfId) return;
+    if (msg.id === this.selfId) {
+      if (msg.t === 'look') this.events.emit('selfRole', { role: msg.r ?? null });
+      return;
+    }
     const t = this.now();
     const peer = this.peers.get(msg.id);
     switch (msg.t) {
       case 'hello': {
-        const { t: _t, reply, v, k: _k, a, ...rest } = msg;
-        const next: RemotePeer = { ...rest, lastSeen: t, verified: v === true, away: a === true };
+        const { t: _t, reply, v, r, k: _k, a, ...rest } = msg;
+        const next: RemotePeer = {
+          ...rest,
+          lastSeen: t,
+          verified: v === true,
+          away: a === true,
+          role: r ?? null,
+        };
         const isNew = !peer;
         this.helloRequests.delete(msg.id);
         this.peers.set(msg.id, next);
@@ -360,6 +379,7 @@ export class NetworkClient {
           look: msg.look,
           lastSeen: t,
           verified: msg.v === true,
+          role: msg.r ?? null,
         });
         this.events.emit('look', peer);
         break;

@@ -21,8 +21,10 @@ import {
   type AnimState,
   type Emote,
   type NoticeCode,
+  type Role,
 } from '../../multiplayer/protocol';
-import { accessToken, accountStore } from '../../services/account';
+import { accessToken, accountStore, setOwnRole } from '../../services/account';
+import { nameWithBadge } from '../../content/roles';
 import { hiddenStore, isHidden } from '../../services/moderation';
 import {
   ambienceForZone,
@@ -247,6 +249,7 @@ export class WorldScene extends Phaser.Scene {
       displayName(profile.name, this.selfVerified),
       true,
     );
+    this.avatar.setRole(this.selfRole());
 
     this.marker = this.add
       .ellipse(0, 0, 30, 15)
@@ -273,6 +276,7 @@ export class WorldScene extends Phaser.Scene {
     this.cleanups.push(
       commands.on('invite-notify', ({ target }) => this.net?.inviteNotify(target)),
     );
+    this.cleanups.push(commands.on('role-changed', ({ target }) => this.net?.roleChanged(target)));
     // Bouton d'action de l'interface (indispensable au doigt, sans touche E).
     this.cleanups.push(commands.on('use', () => !isInputLocked() && this.onUseKey()));
     this.cleanups.push(
@@ -789,7 +793,14 @@ export class WorldScene extends Phaser.Scene {
       return;
     }
     if (scope === 'local') this.avatar.say(text);
-    pushChat({ from: profile?.name ?? 'Moi', text, kind: 'self', scope });
+    const role = this.selfRole();
+    pushChat({
+      from: nameWithBadge(profile?.name ?? 'Moi', role),
+      text,
+      kind: 'self',
+      scope,
+      ...(role ? { role } : {}),
+    });
     this.quest('chat');
   }
 
@@ -994,9 +1005,12 @@ export class WorldScene extends Phaser.Scene {
       if (!this.remotes.has(peer.id)) this.addRemote(peer);
     });
     on('look', (peer) => {
-      this.remotes.get(peer.id)?.view.setLook(peer.look, displayName(peer.name, peer.verified));
+      const view = this.remotes.get(peer.id)?.view;
+      view?.setLook(peer.look, displayName(peer.name, peer.verified));
+      view?.setRole(peer.role);
       this.updatePresence();
     });
+    on('selfRole', ({ role }) => setOwnRole(role));
     on('leave', ({ id }) => {
       const r = this.remotes.get(id);
       if (!r) return;
@@ -1020,12 +1034,13 @@ export class WorldScene extends Phaser.Scene {
       if (scope === 'local') this.remotes.get(peer.id)?.view.say(text);
       const mention = mentions(text, profileStore.get()?.name ?? '');
       pushChat({
-        from: displayName(peer.name, peer.verified),
+        from: nameWithBadge(displayName(peer.name, peer.verified), peer.role),
         text,
         kind: 'peer',
         scope,
         peerId: peer.id,
         ...(mention ? { mention: true } : {}),
+        ...(peer.role ? { role: peer.role } : {}),
       });
       const sound = this.soundGate.decide(peer.id, mention);
       if (sound) playSound(sound);
@@ -1092,6 +1107,7 @@ export class WorldScene extends Phaser.Scene {
     view.setNameVisible(settingsStore.get().showNames);
     view.setHidden(isHidden(peer.id));
     view.setAway(peer.away);
+    view.setRole(peer.role);
     this.remotes.set(peer.id, { peer, view });
     this.updatePresence();
   }
@@ -1120,6 +1136,7 @@ export class WorldScene extends Phaser.Scene {
               room: this.room,
               verified: this.selfVerified,
               away: false,
+              role: this.selfRole(),
             },
           ]
         : []),
@@ -1131,6 +1148,7 @@ export class WorldScene extends Phaser.Scene {
         room: peer.room,
         verified: peer.verified,
         away: peer.away,
+        role: peer.role,
       })),
     ];
     presenceStore.set(list);
@@ -1158,8 +1176,16 @@ export class WorldScene extends Phaser.Scene {
   private savedName: string | null = null;
 
   /** Pseudo du compte enregistré ou modifié en base : le serveur doit le relire. */
+  /** Mon rôle visible : celui de mon compte, si je joue avec lui. */
+  private selfRole(): Role | null {
+    const s = accountStore.get();
+    return this.selfVerified && s.status === 'signed-in' ? s.role : null;
+  }
+
   private onAccountChanged(): void {
     const s = accountStore.get();
+    this.avatar?.setRole(this.selfRole());
+    this.updatePresence();
     const saved = s.status === 'signed-in' ? s.savedName : null;
     if (saved === this.savedName) return;
     const first = this.savedName === null;
@@ -1455,6 +1481,8 @@ export class WorldScene extends Phaser.Scene {
         return this.userZoom;
       },
       peers: () => this.remotes.size,
+      /** Aperçu local d'un rôle sur son propre avatar (captures) : rien n'est envoyé. */
+      role: (r: Role | null) => this.avatar.setRole(r),
       fps: () => Math.round(this.game.loop.actualFps),
       objects: () => this.children.length,
       hideAll: (filter?: string) => {

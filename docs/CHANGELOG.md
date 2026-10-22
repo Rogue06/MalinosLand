@@ -5,6 +5,19 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (lot B2 : rôles, avatar, slogans)
+
+- **Statut doré** : pseudo doré qui scintille, avec le titre **« Le Décodeur en chef »** au-dessus
+  (réservé à Renaud), aussi dans le chat et la liste des joueurs.
+- **Modérateurs** reconnaissables à leur badge 🛡️. Le responsable du site les **nomme ou les
+  retire depuis le jeu** (👥 Joueurs connectés), et donne de la même façon le statut doré : la
+  base vérifie que c'est bien lui, et tout le monde voit le changement aussitôt.
+- **Avatar** : choix d'une **barbe** (courte ou longue) et d'un **micro** de podcast en
+  accessoire, plus un style prêt à porter « Podcasteur ».
+- **Slogans de la communauté** : « Comprendre · Penser · Agir » sur le totem de l'entrée,
+  « Web · IA · Process · Impacts » à la salle de conférence, et « L'IA et le monde qui vient,
+  décodés en live, forgés ensemble, en mode fun, concret et avec vous » dans les événements.
+
 ### Modifié (page d’accueil privée)
 
 - La page d’accueil quitte le dépôt public : elle vit dans un dépôt privé et n’est assemblée

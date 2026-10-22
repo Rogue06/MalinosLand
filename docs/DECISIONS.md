@@ -354,3 +354,20 @@ l’installe en local avec `npm run accueil`. Plus aucun lien vers GitHub sur le
 **Conséquences.** Aucun coût : le dépôt privé n’a pas d’automatisation (pas de minutes
 d’Actions consommées). Les versions de la page publiées entre le 24 et le 26/10 restent dans
 l’historique public (choix du responsable : ne pas réécrire l’historique).
+
+## DEC-027 — Rôles visibles : statut doré et modérateurs, donnés depuis le jeu (26/10/2026)
+
+**Contexte.** Lot B2 : Renaud (fondateur de la communauté) doit être reconnaissable, et le
+responsable veut nommer des modérateurs sans passer par la base à la main. Choix du
+responsable : titre « Le Décodeur en chef », statut donné depuis le jeu, badge 🛡️ visible pour
+les modérateurs, aucun signe distinctif pour lui-même.
+**Décision.** Le rôle vit dans la base : table `gold_members` (statut doré) et table
+`moderators` existante. `account_role(uuid)` (public, comme le pseudo) donne `gold`, `mod` ou
+rien (jamais `mod` pour le responsable). Seul le responsable appelle `set_gold` /
+`set_moderator` (vérifié par la base). Le serveur temps réel lit le rôle avec le profil
+(`my_account`, nouvelle fonction : `my_profile` reste pour l’ancien serveur) et l'ajoute aux messages `hello` / `look` (`r`), comme la marque « vérifié » : un
+client ne peut pas se l'attribuer. Après un changement, le jeu du responsable envoie `role` ; le
+serveur relit le rôle dans la base et l'annonce à tous, sans reconnexion.
+**Conséquences.** Une requête à la base par changement de rôle : négligeable. Hors serveur
+(démo entre onglets), les rôles des autres ne s'affichent pas. Les options d'avatar barbe et
+micro sont ouvertes à tous (champ `beard` ajouté à l'apparence, absent = « aucune »).

@@ -5,12 +5,13 @@ import {
   isSiteOwner,
   decodeAccountHeader,
   encodeAccountHeader,
+  fetchAccountRole,
   readProtocols,
   verifyAccount,
 } from '../server/src/account';
 
 const TOKEN = 'eyJhbGciOiJFUzI1NiJ9.eyJzdWIiOiJ4In0.c2lnbmF0dXJl';
-const ROW = { id: '0b1c2d3e-0000-4000-8000-000000000001', name: 'Élodie' };
+const ROW = { id: '0b1c2d3e-0000-4000-8000-000000000001', name: 'Élodie', role: 'gold' as const };
 const env = { SUPABASE_URL: 'https://exemple.supabase.co', SUPABASE_KEY: 'sb_publishable_x' };
 
 function fakeFetch(status: number, body: unknown) {
@@ -33,7 +34,7 @@ describe('serveur : vérification du compte', () => {
   it('demande le profil à la base avec le jeton du joueur', async () => {
     const { fn, calls } = fakeFetch(200, [ROW]);
     expect(await verifyAccount(TOKEN, env, fn)).toEqual(ROW);
-    expect(calls[0]!.url).toBe('https://exemple.supabase.co/rest/v1/rpc/my_profile');
+    expect(calls[0]!.url).toBe('https://exemple.supabase.co/rest/v1/rpc/my_account');
     const headers = calls[0]!.init.headers as Record<string, string>;
     expect(headers.Authorization).toBe(`Bearer ${TOKEN}`);
     expect(headers.apikey).toBe('sb_publishable_x');
@@ -56,6 +57,22 @@ describe('serveur : vérification du compte', () => {
     expect(decodeAccountHeader('%7B%22id%22%3A1%7D')).toBeNull();
     expect(decodeAccountHeader('%%%')).toBeNull();
     expect(decodeAccountHeader(null)).toBeNull();
+    // Rôle inconnu : ignoré.
+    expect(decodeAccountHeader(encodeAccountHeader({ ...ROW, role: 'roi' as 'gold' }))).toEqual({
+      ...ROW,
+      role: null,
+    });
+  });
+
+  it('rôle visible : demandé sans jeton ; erreur si la base ne répond pas', async () => {
+    const { fn, calls } = fakeFetch(200, 'mod');
+    expect(await fetchAccountRole(ROW.id, env, fn)).toBe('mod');
+    expect(calls[0]!.url).toBe('https://exemple.supabase.co/rest/v1/rpc/account_role');
+    expect((calls[0]!.init.headers as Record<string, string>).Authorization).toBeUndefined();
+    expect(JSON.parse(String(calls[0]!.init.body))).toEqual({ p_user: ROW.id });
+    expect(await fetchAccountRole(ROW.id, env, fakeFetch(200, null).fn)).toBeNull();
+    expect(await fetchAccountRole(ROW.id, env, fakeFetch(200, 'admin').fn)).toBeNull();
+    await expect(fetchAccountRole(ROW.id, env, fakeFetch(500, {}).fn)).rejects.toThrow();
   });
 });
 

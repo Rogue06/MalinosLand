@@ -554,6 +554,7 @@ export const CATALOG: Record<string, CatalogEntry> = {
       lines: [
         'Bienvenue au Hub, le cœur de MalinosLand !',
         'Un monde gratuit, open source et construit par ses habitants, les Malinos.',
+        'Notre devise, celle de la communauté : Comprendre · Penser · Agir.',
       ],
     },
   },

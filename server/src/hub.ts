@@ -31,6 +31,7 @@ import {
   type DoorRefusal,
   type NetMessage,
   type NoticeCode,
+  type Role,
 } from '../../src/multiplayer/protocol';
 import { WALK_SPEED } from '../../src/world/PlayerController';
 
@@ -42,10 +43,11 @@ export interface Bucket {
 
 type HelloMessage = Extract<NetMessage, { t: 'hello' }>;
 
-/** Compte vérifié d'une connexion (identifiant du compte et pseudo enregistré). */
+/** Compte vérifié d'une connexion (identifiant du compte, pseudo enregistré et rôle visible). */
 export interface Account {
   id: string;
   name: string;
+  role?: Role | null;
 }
 
 /** Données d'une connexion, enregistrées avec la WebSocket (« attachment »). */
@@ -116,6 +118,8 @@ export interface HubOptions {
    * du joueur (null pour un visiteur). En cas d'erreur, l'entrée est refusée.
    */
   checkHomeAccess(ownerUuid: string, token: string | null): Promise<boolean>;
+  /** Rôle visible d'un compte, relu dans la base (null : aucun ; erreur : inchangé). */
+  accountRole?(uuid: string): Promise<Role | null>;
   /** Historique des connexions (arrivées et départs), lu seulement par le responsable. */
   visits?: {
     arrive(player: string, name: string, account: boolean): void;
@@ -247,6 +251,7 @@ export class RealtimeHub {
       f: c.f,
       s: c.s,
       ...(c.account ? { v: true as const } : {}),
+      ...(c.account?.role ? { r: c.account.role } : {}),
       ...(c.away ? { a: true as const } : {}),
     };
   }
@@ -394,6 +399,7 @@ export class RealtimeHub {
           name: d.name,
           look: msg.look,
           ...(d.account ? { v: true as const } : {}),
+          ...(d.account?.role ? { r: d.account.role } : {}),
         });
         return;
       }
@@ -449,6 +455,22 @@ export class RealtimeHub {
         this.send([target], { t: 'invite', id: d.id, target: msg.target });
         return;
       }
+      case 'role': {
+        // Le rôle d'un joueur a changé dans la base : on le relit (information publique) et on
+        // le transmet à tous, lui compris. Seul un compte peut le demander, à petite dose.
+        if (!d.account || !this.opts.accountRole) return;
+        const target = this.connections().find(
+          (c) => c.data.id === msg.target && c.data.account !== null,
+        );
+        if (!target) return;
+        if (!take(d.chat, CHAT_CAPACITY, CHAT_REFILL, now)) {
+          conn.save();
+          return;
+        }
+        conn.save();
+        this.refreshRole(target);
+        return;
+      }
       case 'decor': {
         // Seul le propriétaire connecté à son compte, chez lui, prévient ses visiteurs.
         if (!d.account || homeOwner(d.room) !== d.id) return;
@@ -485,6 +507,34 @@ export class RealtimeHub {
   private isFull(room: string, d: ConnData): boolean {
     if (homeOwner(room) === d.id) return false;
     return this.inRoom(room, d.key) >= this.opts.maxPerHome;
+  }
+
+  /** Relit le rôle d'un compte connecté dans la base, puis annonce son apparence à jour à tous. */
+  private refreshRole(conn: Conn): void {
+    const key = conn.data.key;
+    const account = conn.data.account;
+    if (!account || !this.opts.accountRole) return;
+    void this.opts
+      .accountRole(account.id)
+      .then((role) => {
+        const current = this.connections().find((c) => c.data.key === key);
+        const d = current?.data;
+        if (!current || !d?.account || !d.id || !d.look) return;
+        d.account = { ...d.account, role };
+        current.save();
+        this.send(
+          this.connections().filter((c) => c.data.id !== null),
+          {
+            t: 'look',
+            id: d.id,
+            name: d.name,
+            look: d.look,
+            v: true,
+            ...(role ? { r: role } : {}),
+          },
+        );
+      })
+      .catch(() => undefined); // base injoignable : rôle inchangé
   }
 
   private door(conn: Conn, room: string, ok: boolean, why?: DoorRefusal): void {

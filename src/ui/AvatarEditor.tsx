@@ -2,6 +2,7 @@ import { useState } from 'preact/hooks';
 import {
   ACCESSORIES,
   AVATAR_PRESETS,
+  BEARDS,
   BODY_SHAPES,
   BOTTOM_COLORS,
   HAIR_COLORS,
@@ -151,6 +152,7 @@ export function AvatarEditor({ name, look, onName, onLook, nameError }: AvatarEd
           value={look.hairColor}
           onPick={set('hairColor')}
         />
+        <Choices label="Barbe" options={BEARDS} value={look.beard} onPick={set('beard')} />
         <Swatches label="Haut" colors={TOP_COLORS} value={look.top} onPick={set('top')} />
         <Swatches label="Bas" colors={BOTTOM_COLORS} value={look.bottom} onPick={set('bottom')} />
         <Choices

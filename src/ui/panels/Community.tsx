@@ -8,6 +8,7 @@ import {
   sendFeedback,
   sendReport,
   setFeedbackStatus,
+  setPlayerRole,
   setReportStatus,
   type FeedbackKind,
   type FeedbackRow,
@@ -30,7 +31,8 @@ import { inviteGuest, myHomeAccess, setMyHomeAccess } from '../../services/homes
 import { listVisits, summarize, type Visit } from '../../services/visits';
 import { profileStore } from '../../services/profile';
 import { loadTurnstile, type TurnstileApi } from '../../services/turnstile';
-import { accountUuid } from '../../multiplayer/protocol';
+import { accountUuid, type Role } from '../../multiplayer/protocol';
+import { GOLD_TITLE, MOD_BADGE, ROLE_LABELS } from '../../content/roles';
 import {
   chatStore,
   commands,
@@ -150,11 +152,60 @@ async function invite(p: PresenceEntry): Promise<boolean> {
   }
 }
 
+/**
+ * Le responsable donne ou retire un rôle (la base vérifie que c'est bien lui), puis le serveur
+ * relit ce rôle et l'annonce à tous : le pseudo change aussitôt, sans reconnexion.
+ */
+async function changeRole(p: PresenceEntry, role: Role, on: boolean): Promise<void> {
+  try {
+    await setPlayerRole(p.id, role, on);
+    commands.emit('role-changed', { target: p.id });
+    const what = role === 'gold' ? `le statut doré (« ${GOLD_TITLE} »)` : 'le rôle de modérateur';
+    pushToast(on ? `${p.name} a maintenant ${what}.` : `${p.name} n’a plus ${what}.`, '✨', 5000);
+  } catch (e) {
+    pushToast(e instanceof AccountError ? e.message : 'Changement impossible.', '⚠️', 5000);
+  }
+}
+
+/** Boutons du responsable pour un joueur connecté à son compte. */
+function RoleActions({ player }: { player: PresenceEntry }) {
+  const [busy, setBusy] = useState(false);
+  const run = (role: Role, on: boolean) => {
+    setBusy(true);
+    void changeRole(player, role, on).finally(() => setBusy(false));
+  };
+  const gold = player.role === 'gold';
+  const mod = player.role === 'mod';
+  return (
+    <div class="role-actions">
+      <button
+        type="button"
+        class="btn ghost small"
+        disabled={busy}
+        onClick={() => run('gold', !gold)}
+      >
+        {gold ? ROLE_LABELS.gold.remove : ROLE_LABELS.gold.give}
+      </button>
+      {!gold && (
+        <button
+          type="button"
+          class="btn ghost small"
+          disabled={busy}
+          onClick={() => run('mod', !mod)}
+        >
+          {mod ? ROLE_LABELS.mod.remove : ROLE_LABELS.mod.give}
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function PlayersPanel() {
   const presence = useStore(presenceStore);
   const hidden = useStore(hiddenStore);
   const account = useStore(accountStore);
   const canInvite = account.status === 'signed-in';
+  const isOwner = account.status === 'signed-in' && account.owner;
   const [reporting, setReporting] = useState<string | null>(null);
   const [invited, setInvited] = useState<string[]>([]);
   const others = presence.filter((p) => !p.self);
@@ -172,10 +223,12 @@ export function PlayersPanel() {
               <li key={p.id}>
                 <div class="player-row">
                   <span class="player-name">
-                    {p.name}
+                    {p.role === 'mod' && <span title="Modérateur">{MOD_BADGE} </span>}
+                    <span class={p.role === 'gold' ? 'gold-name' : undefined}>{p.name}</span>
                     {p.verified && <span title="Connecté à son compte"> ✓</span>}
                     {p.away && <span class="muted"> · absent 💤</span>}
                     {isHidden && <em class="muted"> · masqué</em>}
+                    {p.role === 'gold' && <span class="role-title">{GOLD_TITLE}</span>}
                   </span>
                   <span class="row-actions">
                     {canInvite && p.verified && (
@@ -207,6 +260,7 @@ export function PlayersPanel() {
                     </button>
                   </span>
                 </div>
+                {isOwner && p.verified && <RoleActions player={p} />}
                 {reporting === p.id && <ReportForm player={p} onDone={() => setReporting(null)} />}
               </li>
             );

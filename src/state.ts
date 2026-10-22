@@ -2,7 +2,7 @@ import type { AvatarAppearance } from './content/avatars';
 import { EventBus } from './core/eventBus';
 import type { Vec2 } from './core/iso';
 import { Store } from './core/store';
-import type { ChatScope, Emote } from './multiplayer/protocol';
+import type { ChatScope, Emote, Role } from './multiplayer/protocol';
 import type { MapFile, PanelId, ZoneDef } from './world/types';
 
 /**
@@ -21,6 +21,8 @@ export interface ChatEntry {
   peerId?: string;
   /** Le message mentionne le joueur local (@pseudo). */
   mention?: boolean;
+  /** Rôle visible de l'auteur (pseudo doré, badge de modérateur). */
+  role?: Role;
 }
 
 export interface PresenceEntry {
@@ -33,6 +35,8 @@ export interface PresenceEntry {
   verified: boolean;
   /** Absent (onglet caché). */
   away: boolean;
+  /** Rôle visible (statut doré, modérateur). */
+  role: Role | null;
 }
 
 export interface DialogState {
@@ -133,6 +137,8 @@ export interface Commands extends Record<string, unknown> {
   'home-access': { access: 'private' | 'invite' | 'public'; guests: string[] };
   /** Prévenir un joueur connecté qu'on vient de l'inviter chez soi (avis en direct). */
   'invite-notify': { target: string };
+  /** Le responsable a changé le rôle d'un joueur connecté : le serveur le relit et prévient tous. */
+  'role-changed': { target: string };
   /** Éditeur de décoration du logement (voir decorEditorStore). `type` : meuble choisi. */
   decor: { action: DecorAction; type?: string };
 }

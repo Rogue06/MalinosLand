@@ -123,10 +123,40 @@ function buildAvatar(a: AvatarAppearance, facing: Facing, pose: AvatarPose): Iso
       { face: 'py', u0: 0.58, v0: 0.6, u1: 0.84, v1: 0.64, color: P.ink },
     );
   }
+  if (a.beard > 0) face.push(...beardDecals(darken(hairC, 0.12)));
   B(-0.135, -0.125, hz, 0.27, 0.25, 0.28, skin, face);
+  // Barbe longue : un peu de volume sous le menton.
+  if (a.beard === 2) B(-0.11, 0.08, hz - 0.07, 0.22, 0.06, 0.1, darken(hairC, 0.12));
   drawHair(B, a.hair, hairC, hz);
   if (a.accessory === 2) drawHeadphones(B, a.hair, hz, facing);
+  if (a.accessory === 3) drawMicrophone(B, tw, z0, sitting ? 0.04 : -swing * 0.05);
   return b;
+}
+
+/**
+ * Barbe courte : menton et joues sous la bouche (qui reste visible), et une bande le long de la
+ * mâchoire sur les côtés, à l'avant seulement.
+ */
+function beardDecals(c: string): Decal[] {
+  return [
+    { face: 'py', u0: 0.06, v0: 0, u1: 0.94, v1: 0.17, color: c },
+    { face: 'py', u0: 0.06, v0: 0.17, u1: 0.36, v1: 0.3, color: c },
+    { face: 'py', u0: 0.64, v0: 0.17, u1: 0.94, v1: 0.3, color: c },
+    { face: 'py', u0: 0, v0: 0, u1: 0.06, v1: 0.45, color: c },
+    { face: 'py', u0: 0.94, v0: 0, u1: 1, v1: 0.45, color: c },
+    { face: 'px', u0: 0, v0: 0, u1: 0.45, v1: 0.3, color: c },
+    { face: 'nx', u0: 0.55, v0: 0, u1: 1, v1: 0.3, color: c },
+  ];
+}
+
+/** Micro de podcast tenu dans la main droite : manche sombre et tête grillagée. */
+function drawMicrophone(B: BoxFn, tw: number, z0: number, dy: number): void {
+  B(tw + 0.02, 0.07 + dy, z0 + 0.06, 0.035, 0.035, 0.17, P.ink);
+  B(tw - 0.002, 0.05 + dy, z0 + 0.23, 0.08, 0.08, 0.1, '#5a6178', [
+    { face: 'py', u0: 0.15, v0: 0.2, u1: 0.85, v1: 0.85, color: '#b4bccd' },
+    { face: 'px', u0: 0.15, v0: 0.2, u1: 0.85, v1: 0.85, color: '#939cb0' },
+    { face: 'py', u0: 0, v0: 0.05, u1: 1, v1: 0.15, color: P.ink },
+  ]);
 }
 
 export type BoxFn = (

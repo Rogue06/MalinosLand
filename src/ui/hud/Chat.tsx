@@ -88,7 +88,8 @@ export function Chat({ open, onToggle }: ChatProps) {
           <span class="chat-peek-text">
             {last ? (
               <>
-                <b>{last.from}</b> {last.text}
+                <b class={last.role === 'gold' ? 'gold-name' : undefined}>{last.from}</b>{' '}
+                {last.text}
               </>
             ) : (
               'Discussion'
@@ -156,7 +157,7 @@ export function Chat({ open, onToggle }: ChatProps) {
                   📍{' '}
                 </span>
               )}
-              <b>{m.from}</b> {m.text}
+              <b class={m.role === 'gold' ? 'gold-name' : undefined}>{m.from}</b> {m.text}
             </p>
           ))}
         </div>

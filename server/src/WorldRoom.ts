@@ -16,6 +16,7 @@ import {
   WS_PROTOCOL,
   checkHomeAccess,
   decodeAccountHeader,
+  fetchAccountRole,
   readProtocols,
 } from './account';
 import type { SupabaseConfig } from './account';
@@ -75,6 +76,7 @@ export class WorldRoom extends DurableObject<Env> {
       maxPerHome: MAX_PER_HOME,
       exit: { room: HOME_EXIT.room, x: HOME_EXIT.x, y: HOME_EXIT.y },
       checkHomeAccess: (owner, token) => checkHomeAccess(owner, token, env),
+      accountRole: (uuid) => fetchAccountRole(uuid, env),
       visits: this.visits,
       dailyBudget: Number(env.DAILY_MESSAGE_BUDGET) || 1_400_000,
       quota: counter,
