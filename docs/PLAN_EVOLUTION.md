@@ -4,8 +4,8 @@
 > requests** pour trois priorités qui vont ensemble : un **panneau « Que faire maintenant ? »**
 > près de Joshua (savoir quoi faire), un **Quiz IA** sur une borne d’arcade (s’amuser tout de
 > suite, même seul) et le **Musée des Malinos** (découvrir les créations de la communauté). Tout
-> reste gratuit : les deux premiers ne touchent ni au serveur ni à la base. **Rien n’est codé
-> avant la validation du responsable** (§9 : décisions à prendre).
+> reste gratuit : les deux premiers ne touchent ni au serveur ni à la base. **Plan validé le
+> 22/10/2026** (§9 : décisions du responsable).
 
 Rédigé le 22/10/2026 à la demande du responsable (Rogue06), à partir de `AGENTS.md`,
 `SESSION_HANDOFF.md`, `PROJECT_VISION.md`, `ROADMAP.md`, `FEATURE_BACKLOG.md`,
@@ -297,16 +297,155 @@ souvent. Si le musée est visité mais sans échanges : mettre en avant les aute
 
 ---
 
-## 9. Décisions à prendre par le responsable
+## 9. Décisions du responsable (22/10/2026)
 
-1. **Ordre** : PR 1 → 5 (v0.35) puis le musée (v0.4) ? Coins coins décalés en v0.6 ?
-2. **Musée, lieu** : la galerie existante comme première salle, le chantier comme promesse ?
-3. **Musée, images** : affiches dessinées par le jeu (aucun fichier) au départ, miniatures plus
-   tard si besoin ?
-4. **Musée, démo intégrée** : n’importe quel site `https` validé par un modérateur (sur clic,
-   isolé), ou seulement quelques hébergeurs connus (GitHub Pages, Cloudflare Pages, Vercel,
-   Netlify) ?
-5. **Quiz** : scores seulement personnels au départ, ou petit tableau amical du défi de la
-   semaine ?
-6. **Quiz, questions** : d’accord pour que je rédige le premier lot, relu par toi ou un
-   modérateur avant publication ?
+1. **Ordre** : v0.35 pour le panneau « Que faire maintenant ? » et le quiz, puis v0.4 pour le
+   musée. Les **Coins coins** restent prévus pour la **v0.6**.
+2. **Images du musée — solution hybride** : des **affiches dessinées automatiquement** dans le
+   style de MalinosLand (titre, icône, catégorie, couleurs) pour tous les projets. C’est la
+   solution de base : gratuite, sans aucune image stockée. L’architecture **prévoit** une
+   miniature personnalisée plus tard (facultative, compressée, modérée), **sans la développer**
+   si elle ajoute de la complexité ou consomme des quotas.
+3. **Sites essayables** : tout site **HTTPS validé par un modérateur**, sans hébergeur imposé,
+   avec une **vérification technique** de l’intégration, des restrictions de sécurité, un
+   chargement **seulement après un clic volontaire** et un repli vers le site externe. **On ne
+   contourne jamais** les protections d’intégration des sites tiers.
+4. **Scores du quiz** : **personnels uniquement** pour commencer ; ni classement public ni
+   écriture en base. Une évolution est prévue dans la conception, pas développée maintenant.
+5. **Rappels** : préserver absolument les limites gratuites de Cloudflare et Supabase, aucun
+   service payant obligatoire, `main` protégée (pull requests validées avant fusion).
+6. **Musée, lieu** : la galerie existante comme première salle ; le chantier reste la promesse
+   visible du « Futur Bâtiment des créations ».
+
+---
+
+## 10. Plan technique détaillé (à valider avant de coder)
+
+### PR 1 — Finitions v0.3 (S, aucun backend)
+
+- `src/content/maps/hub.json` : description de la zone `site` (« Futur Bâtiment des créations,
+  bientôt »), `plannedFor` corrigé ; textes du panneau de chantier et du télescope
+  (`src/content/catalog.ts`).
+- `docs/ROADMAP.md`, `docs/FEATURE_BACKLOG.md` (F23 en partie, F34 fait, nouvelles lignes panneau,
+  quiz, musée), `docs/SESSION_HANDOFF.md` (prochaines étapes), liste de tests à faire en ligne.
+- Tests : la validation de la carte et le test de bout en bout existants.
+
+### PR 2 — Moteur de suggestions et panneau (M, aucun backend)
+
+- `src/world/activities.ts` (logique pure, sans Phaser ni DOM) :
+  `suggestActivities(contexte) → Suggestion[]` (5 au plus, triées par intérêt). Le contexte :
+  objectifs, secrets, défi du quiz fait ou non, présents par zone, phase du jour, studios ouverts
+  (si déjà chargés), plus tard nouveautés du musée et événement.
+- `Suggestion = { id, icon, title, detail, action }` avec `action` = « aller à l’objet X »,
+  « ouvrir le panneau Y » ou « prendre l’ascenseur ».
+- `src/ui/panels/Activities.tsx` (nouveau panneau `activities`), bouton 🧭 dans `TopBar.tsx`,
+  commande `go-to-object` dans `state.ts` (la scène utilise le chemin A\* existant).
+- Studios ouverts : `visitable_homes` (fonction existante), appelée **à l’ouverture du panneau
+  seulement**, résultat gardé 5 minutes.
+- Tests : `tests/activities.test.ts` (nouveau joueur, joueur qui a tout fini, nuit, présents).
+
+### PR 3 — Écran du hall et Joshua (S, aucun backend)
+
+- Nouvel objet `board_activities` : `src/content/catalog.ts` + dessin dans
+  `src/game/art/objects.ts` (écran mural lumineux, style du jeu) + placement près du tapis dans
+  `hub.json` (accessibilité testée par la validation de la carte).
+- Réplique de Joshua qui renvoie vers l’écran (`src/content/joshua.ts`).
+- Test de bout en bout : ouvrir l’écran, cliquer « Y aller », vérifier l’arrivée.
+
+### PR 4 — Moteur du quiz et premier lot de questions (M, aucun backend)
+
+- `src/content/quiz/` : questions typées
+  `{ id, theme, level, question, choices[4], answer, explain, source? }`, premier lot de 30,
+  **à relire avant fusion**. Un test vérifie la forme : 4 choix distincts, réponse valide,
+  identifiants uniques, explication présente.
+- `src/core/quiz.ts` (pur) : `freeRound(seed)`, `weeklyChallenge(semaine ISO)` (le même pour tous,
+  rien de stocké), `score()`.
+- `src/services/quizStats.ts` : meilleur score et défis faits, **dans le navigateur seulement**
+  (stockage versionné existant). Le format est prévu pour rejoindre plus tard la progression du
+  compte ou un tableau amical, **sans le développer maintenant**.
+- `src/ui/panels/Quiz.tsx` : 5 questions, explication après chaque réponse, touches 1 à 4,
+  annonces pour lecteurs d’écran (`aria-live`), animations coupées si « réduire les animations ».
+- Tests : tirage, défi identique pour une même semaine et différent la suivante, score.
+
+### PR 5 — La borne du quiz (S, aucun backend)
+
+- `arcade-jeux-1` ouvre le panneau du quiz (interaction propre à l’objet dans `hub.json`) ; la
+  seconde borne garde le code secret. 30 questions de plus (relues). Suggestion « défi de la
+  semaine » dans le panneau d’activités. Étape du test de bout en bout.
+
+### PR 6 — Mesures de fréquentation (S, aucun backend nouveau)
+
+- `src/services/visits.ts` : `retention(visits)` (visiteurs uniques par jour, part revenue après
+  7 jours, durée médiane), calculée depuis le journal existant de 90 jours ; affichage dans la
+  page du responsable. Tests sur un jeu d’essai.
+
+### PR 7 — Musée : la base (M, migration après accord)
+
+Migration `supabase/migrations/2026…_museum.sql` :
+
+- Table `projects` : `id`, `owner` (compte), `title` (2–60), `summary` (10–280), `url` (https,
+  ≤ 300), `category` (liste fermée : site, application, outil IA, jeu, création, open source),
+  `tags` (≤ 3 mots), `status` (`pending` / `approved` / `rejected` / `withdrawn`),
+  `reject_reason` (≤ 140), `embed` (`unknown` / `ok` / `refused`), `embed_checked_at`,
+  `thumbnail` (**facultatif, toujours vide en v0.4** : prévu pour la miniature future),
+  `created_at`, `approved_at`.
+- Règles (RLS) : tout le monde lit les projets **validés** ; l’auteur lit les siens ; l’auteur
+  crée (statut forcé à `pending`), modifie tant que c’est en attente, retire quand il veut ;
+  seuls les modérateurs changent le statut et le champ `embed`. Plafonds : 3 en attente, 10 au
+  total par compte. Adresses refusées : autre que `https`, `localhost`, IP littérales, ports.
+- Signalement d’un projet : réutilise la table des signalements avec un type « projet ».
+- Tests PGlite : droits de chacun, plafonds, adresses, cycle de vie complet.
+
+### PR 8 — Musée : exposer et modérer (M)
+
+- `src/services/museum.ts` : `submitProject`, `myProjects`, `withdrawProject`,
+  `listApproved(catégorie, page de 20)`, côté modérateurs `listPending`, `setStatus`.
+- `src/ui/panels/Museum*.tsx` : formulaire « Exposer mon projet » (compte obligatoire, aperçu de
+  l’affiche avant envoi), « Mes projets » (statut, motif de refus), onglet **Musée** dans le
+  panneau 🛡️ Modération existant.
+- Textes nettoyés par `sanitizeText` ; aucun HTML interprété.
+
+### PR 9 — Musée : la salle (M)
+
+- Zone `gallery` ouverte et renommée « Musée des Malinos » ; socles et cimaises deviennent des
+  **stands** : chacun montre un projet validé (les plus récents), et une borne « Toutes les
+  créations » liste, filtre par catégorie et pagine.
+- **Affiche générée** : `src/game/art/posters.ts` dessine l’affiche (couleur et icône de la
+  catégorie, titre, motif isométrique) à partir des données ; la même fonction sert à l’aperçu du
+  formulaire. Aucune image stockée.
+- Fiche du projet : titre, auteur, catégorie, mots-clés, résumé, bouton **« Ouvrir le site »**
+  (nouvel onglet, `rel="noopener noreferrer"`, avertissement « site externe »).
+- Chargement : une seule lecture de la liste à l’entrée dans le musée, gardée 5 minutes.
+
+### PR 10 — Musée : « Essayer ici » sécurisé (S à M)
+
+- **Vérification technique de l’intégration** (au moment de la validation, par un modérateur) :
+  nouvelle route du Worker existant `POST /embed-check`, réservée aux modérateurs (jeton vérifié
+  par la base, comme l’historique des connexions). Elle fait **une seule** requête vers
+  l’adresse et lit seulement les en-têtes `X-Frame-Options` et `Content-Security-Policy`
+  (`frame-ancestors`). Protections : https uniquement, refus des adresses locales et privées,
+  3 redirections au plus, délai court, corps de page jamais lu ni renvoyé, quelques appels par
+  jour (négligeable sur 100 000). Résultat : `embed = ok` ou `refused`, enregistré par le
+  modérateur.
+- Si `refused`, ou si le modérateur décoche : **seulement « Ouvrir le site »**. On ne contourne
+  jamais un refus (pas de proxy, pas de copie, pas de réécriture d’en-têtes).
+- Si `ok` : bouton **« Essayer ici »**. Le cadre ne se charge **qu’après ce clic**, avec
+  `sandbox="allow-scripts allow-same-origin allow-forms allow-popups"`,
+  `referrerpolicy="no-referrer"`, sans accès caméra, micro ni position ; message « ce site
+  externe reçoit ton adresse IP » ; bouton « Ouvrir dans un onglet » toujours visible en repli.
+- Politique de sécurité du jeu (`vite.config.ts`) : `frame-src` passe de « Turnstile seulement »
+  à `https:` ; **tout le reste inchangé** (`frame-ancestors 'none'` gardé).
+- Tests : validation des adresses de la route, lecture des en-têtes (cas `DENY`, `SAMEORIGIN`,
+  `frame-ancestors`), refus d’un non-modérateur.
+
+### PR 11 — Chantier et nouveautés (S)
+
+Panneau du chantier : « Futur Bâtiment des créations : le musée s’agrandira ici quand les
+stands seront pleins » ; suggestion « Nouveau au musée » dans le panneau d’activités (lecture
+déjà en cache).
+
+### Ce que ces PR ne font pas (volontairement)
+
+Miniatures envoyées par les auteurs, classement du quiz, commentaires et « j’aime » au musée,
+agenda ouvert, Coins coins : **prévus dans la conception, pas développés**, pour garder les
+quotas et la modération sous contrôle.
