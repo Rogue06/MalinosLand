@@ -23,7 +23,8 @@
     "docs:screenshots": "node scripts/doc-screenshots.mjs",
     "test:online": "node scripts/online-test.mjs",
     "server:install": "npm --prefix server install",
-    "server:dev": "npm --prefix server run dev"
+    "server:dev": "npm --prefix server run dev",
+    "accueil": "node scripts/accueil.mjs"
   },
   "dependencies": {
     "@fontsource-variable/fredoka": "^5.3.0",

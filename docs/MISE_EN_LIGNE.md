@@ -53,6 +53,25 @@ Sur GitHub, dans le dépôt : **Settings** → **Secrets and variables** → **A
 GitHub les garde chiffrés : personne (même pas toi) ne peut les relire, on peut seulement les
 remplacer. Ils restent sur GitHub même si tu changes d’ordinateur ou d’IA.
 
+### Étape 5 — La page d’accueil (dépôt privé)
+
+La page d’accueil du site (la présentation, à la racine) n’est **pas** dans ce dépôt public :
+elle est dans le dépôt **privé** `Rogue06/MalinosLand-accueil` (DEC-026). La mise en ligne la
+récupère avec une clé en **lecture seule** :
+
+1. GitHub → photo de profil → **Settings** → **Developer settings** → **Personal access
+   tokens** → **Fine-grained tokens** → **Generate new token**.
+2. Nom : `MalinosLand accueil (lecture)` ; expiration : 1 an (à renouveler) ; **Repository
+   access** → **Only select repositories** → `MalinosLand-accueil` ; **Permissions** →
+   **Repository permissions** → **Contents : Read-only** (rien d’autre).
+3. **Generate token**, copier la clé (elle ne s’affiche qu’une fois).
+4. Dans le dépôt public `MalinosLand` : **Settings** → **Secrets and variables** → **Actions**
+   → **New repository secret** : nom `ACCUEIL_TOKEN`, valeur : la clé copiée.
+
+Sans ce secret, la mise en ligne s’arrête avec un message clair (elle ne publie pas un site
+sans page d’accueil). Pour travailler sur la page d’accueil en local : cloner le dépôt privé à
+côté de ce projet, puis `npm run accueil` (les fichiers copiés sont ignorés par Git).
+
 ## Mettre en ligne (à chaque nouvelle version)
 
 1. Sur GitHub : onglet **Actions** → à gauche **Mise en ligne** → bouton **Run workflow** →

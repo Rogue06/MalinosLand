@@ -189,7 +189,12 @@ async function teleport(x, y, f = 'py') {
 try {
   await step('site d’accueil puis entrée en visiteur', async () => {
     await page.goto(site, { waitUntil: 'networkidle' });
-    await page.locator('.patch-title').waitFor();
+    // Version publique (sans le dépôt privé de la page d'accueil) : la racine mène au jeu.
+    if ((await page.locator('.patch-title').count()) === 0) {
+      await page.waitForURL(/\/jouer\/$/);
+      notice('Page d’accueil absente (dépôt public) : la racine redirige bien vers le jeu.');
+      return;
+    }
     if ((await page.locator('[data-provider="google"]').count()) === 0)
       throw new Error('bouton « Continuer avec Google » absent');
     const steps = await page.locator('[data-roadmap] > li').count();

@@ -36,6 +36,14 @@ Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter
 
 ## Dernières sessions
 
+- **26/10 (suite)** — PR #37 fusionnée et en ligne ; PR #38 (ronde : clic, musique, projecteurs)
+  et #39 (plus de lien GitHub) ouvertes. Branche `feature/accueil-prive` (DEC-026) : la page
+  d’accueil part dans le dépôt **privé** `Rogue06/MalinosLand-accueil`. **À faire par le
+  responsable** : créer ce dépôt (privé, vide), donner l’accès à l’app Claude GitHub, créer le
+  secret `ACCUEIL_TOKEN` (MISE_EN_LIGNE.md, étape 5). Ensuite : y pousser la page (copie prête),
+  fusionner, mettre en ligne. Ne pas fusionner `feature/accueil-prive` avant que le dépôt privé
+  contienne la page et que le secret existe.
+
 - **26/10** — PR #36 (lot A) fusionnée, migration `player_progress` appliquée, en ligne.
   Branche `feature/joshua-vivant` (lot B) : antennes animées et humeur (`src/game/life/JoshuaLife.ts`,
   `src/content/joshua.ts`), répliques dans son ton, charte des Malinos ; cercle de champignons

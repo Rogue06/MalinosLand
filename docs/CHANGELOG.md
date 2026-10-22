@@ -5,6 +5,11 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Modifié (page d’accueil privée)
+
+- La page d’accueil quitte le dépôt public : elle vit dans un dépôt privé et n’est assemblée
+  avec le jeu qu’au moment de la mise en ligne (DEC-026). Le site, lui, ne change pas.
+
 ### Ajouté (lot B : Joshua vivant et charte des Malinos)
 
 - **Joshua vivant** : ses antennes bougent (doucement au repos, davantage quand on s’approche,
