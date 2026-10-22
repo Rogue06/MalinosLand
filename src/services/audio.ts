@@ -378,3 +378,127 @@ export function setSpotSound(kind: SpotSound | null, level = 0): void {
   }
   spotGain.gain.setTargetAtTime(want ? Math.min(1, Math.max(0, level)) : 0, c.currentTime, 0.4);
 }
+
+// ---------------------------------------------------------------- Musique de la ronde
+
+/**
+ * Petite boucle disco-house fabriquée par le jeu (aucun fichier) : grosse caisse à chaque temps,
+ * claps sur 2 et 4, charleston entre les temps, basse qui saute d'octave et accords en la
+ * mineur. Jouée près de la ronde des Malinos quand quelqu'un y danse, plus fort si l'on danse.
+ */
+const BPM = 122;
+const STEP = 60 / BPM / 4; // une double croche
+/** Basse sur 16 pas (fréquences, 0 = silence). */
+const BASS = [55, 0, 110, 0, 55, 0, 110, 0, 65.4, 0, 130.8, 0, 49, 0, 98, 98];
+/** Accords (4 mesures) : Lam7, Fa maj7, Do, Sol. */
+const CHORDS = [
+  [220, 261.6, 329.6, 392],
+  [174.6, 220, 261.6, 329.6],
+  [261.6, 329.6, 392, 493.9],
+  [196, 246.9, 293.7, 392],
+];
+
+let discoGain: GainNode | null = null;
+let discoTimer: ReturnType<typeof setInterval> | null = null;
+let discoNext = 0;
+let discoStep = 0;
+let discoLevel = 0;
+let discoIdleSince = 0;
+let noiseShort: AudioBuffer | null = null;
+
+function discoVoice(
+  c: AudioContext,
+  t: number,
+  kind: 'kick' | 'clap' | 'hat' | 'bass' | 'stab',
+  f = 0,
+): void {
+  const out = discoGain!;
+  if (kind === 'kick') {
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.frequency.setValueAtTime(140, t);
+    o.frequency.exponentialRampToValueAtTime(42, t + 0.12);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.5, t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+    o.connect(g).connect(out);
+    o.start(t);
+    o.stop(t + 0.3);
+    return;
+  }
+  if (kind === 'clap' || kind === 'hat') {
+    noiseShort ??= noiseBuffer(c, 0.25);
+    const src = c.createBufferSource();
+    src.buffer = noiseShort;
+    const f2 = c.createBiquadFilter();
+    f2.type = kind === 'hat' ? 'highpass' : 'bandpass';
+    f2.frequency.value = kind === 'hat' ? 7000 : 1500;
+    const g = c.createGain();
+    const len = kind === 'hat' ? 0.05 : 0.16;
+    g.gain.setValueAtTime(kind === 'hat' ? 0.09 : 0.22, t);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+    src.connect(f2).connect(g).connect(out);
+    src.start(t);
+    src.stop(t + len + 0.02);
+    return;
+  }
+  // Basse (dent de scie filtrée) ou accord (triangle doux).
+  const o = c.createOscillator();
+  o.type = kind === 'bass' ? 'sawtooth' : 'triangle';
+  o.frequency.value = f;
+  const lp = c.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = kind === 'bass' ? 700 : 2200;
+  const g = c.createGain();
+  const len = kind === 'bass' ? STEP * 0.9 : STEP * 3;
+  const peak = kind === 'bass' ? 0.12 : 0.035;
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(peak, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+  o.connect(lp).connect(g).connect(out);
+  o.start(t);
+  o.stop(t + len + 0.02);
+}
+
+function discoTick(): void {
+  const c = ctx;
+  if (!c || !discoGain) return;
+  // Silence depuis un moment : on arrête l'horloge (rien ne tourne pour rien).
+  if (discoLevel <= 0 && c.currentTime - discoIdleSince > 3) {
+    if (discoTimer) clearInterval(discoTimer);
+    discoTimer = null;
+    return;
+  }
+  while (discoNext < c.currentTime + 0.12) {
+    const t = Math.max(discoNext, c.currentTime + 0.01);
+    const i = discoStep % 16;
+    const bar = Math.floor(discoStep / 16) % 4;
+    if (i % 4 === 0) discoVoice(c, t, 'kick');
+    if (i === 4 || i === 12) discoVoice(c, t, 'clap');
+    if (i % 4 === 2) discoVoice(c, t, 'hat');
+    const b = BASS[i]!;
+    if (b) discoVoice(c, t, 'bass', b);
+    if (i === 2 || i === 10) for (const f of CHORDS[bar]!) discoVoice(c, t, 'stab', f);
+    discoNext += STEP;
+    discoStep++;
+  }
+}
+
+/** Volume de la musique de la ronde : 0 (coupée) à 1 (on danse au milieu). */
+export function setDiscoLevel(level: number): void {
+  const c = ctx;
+  if (!c || !master) return;
+  const want = paused || !settingsStore.get().ambience ? 0 : Math.min(1, Math.max(0, level));
+  if (!discoGain) {
+    discoGain = c.createGain();
+    discoGain.gain.value = 0;
+    discoGain.connect(master);
+  }
+  if (want > 0 && !discoTimer && c.state === 'running') {
+    discoNext = c.currentTime + 0.05;
+    discoTimer = setInterval(discoTick, 25);
+  }
+  if (want <= 0 && discoLevel > 0) discoIdleSince = c.currentTime;
+  discoLevel = want;
+  discoGain.gain.setTargetAtTime(want * 0.55, c.currentTime, 0.3);
+}

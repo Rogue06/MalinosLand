@@ -10,6 +10,22 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 - La page d’accueil quitte le dépôt public : elle vit dans un dépôt privé et n’est assemblée
   avec le jeu qu’au moment de la mise en ligne (DEC-026). Le site, lui, ne change pas.
 
+### Modifié (liens)
+
+- Plus aucun lien vers le dépôt GitHub sur le site d’accueil, dans le jeu ni sur la page de
+  confidentialité (choix du responsable) : on y lit « Open source (licence AGPL-3.0) », et pour
+  participer on fait signe à Rogue06 ou on passe par la Boîte à idées. Les demandes RGPD passent
+  par Rogue06 ou la Boîte à idées.
+
+### Corrigé et ajouté (la ronde des Malinos)
+
+- On peut maintenant **entrer dans la ronde à la souris ou au doigt** : toucher le cercle
+  emmène au milieu (avant, on s’arrêtait à côté et on ne dansait pas).
+- **Musique disco-house** fabriquée par le jeu (aucun fichier) : on l’entend en s’approchant
+  quand quelqu’un danse, à fond quand on danse soi-même (coupée avec l’ambiance sonore).
+- **Projecteurs colorés** qui balaient la ronde et taches de couleur qui tournent au sol, dès
+  que quelqu’un y danse (vus par tous, sans coût d’hébergement).
+
 ### Ajouté (lot B : Joshua vivant et charte des Malinos)
 
 - **Joshua vivant** : ses antennes bougent (doucement au repos, davantage quand on s’approche,
