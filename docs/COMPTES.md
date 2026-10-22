@@ -16,7 +16,7 @@
 | Projet Supabase             | `malinosland` (région Paris, offre gratuite), créé le 19/10/2026      |
 | Table des profils et règles | `supabase/migrations/` (testé par `tests/database.test.ts`)           |
 | Connexion dans le jeu       | `src/services/account.ts`, `src/ui/AccountBox.tsx`                    |
-| Vérification par le serveur | `server/src/account.ts` (fonction `my_profile` de la base)            |
+| Vérification par le serveur | `server/src/account.ts` (fonction `my_account` de la base)            |
 | Base gardée active          | workflow GitHub « Maintien de la base des comptes » (1 fois par jour) |
 
 ### Ce qui est enregistré
@@ -38,7 +38,7 @@
 
 1. Le jeu envoie son **jeton de connexion** en ouvrant la WebSocket (dans les sous-protocoles,
    jamais dans l’adresse).
-2. Le Worker demande à la base « à qui appartient ce jeton ? » (`my_profile`). C’est la base qui
+2. Le Worker demande à la base « à qui appartient ce jeton ? » (`my_account`). C’est la base qui
    vérifie la signature : **le serveur n’a aucun secret**.
 3. Si le jeton est bon, le joueur garde l’**identifiant et le pseudo de son compte** et reçoit la
    marque ✓. Sinon, il joue en visiteur. Un visiteur ne peut pas prendre l’identifiant d’un compte.

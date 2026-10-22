@@ -40,8 +40,8 @@ Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter
   dépôt privé, secret `ACCUEIL_TOKEN` en place, vérifié par le responsable). Branche
   `feature/lot-b2-roles` (DEC-027) : statut doré « Le Décodeur en chef » et badge 🛡️ des
   modérateurs, donnés par le responsable depuis 👥 Joueurs connectés ; barbe et micro pour les
-  avatars ; slogans. **Migration `20261026090000_roles.sql` à appliquer sur Supabase avant la
-  mise en ligne** (le serveur lit le rôle avec `my_profile`). Renaud n'a pas encore de compte :
+  avatars ; slogans. **Migration `20261026090000_roles.sql` appliquée sur Supabase avant la
+  mise en ligne** (le serveur lit le rôle avec `my_account`, déjà appliquée). Renaud n'a pas encore de compte :
   le responsable lui donnera le statut doré quand il viendra. Suite proposée : lot C
   (jour et nuit à l'heure de Paris).
 

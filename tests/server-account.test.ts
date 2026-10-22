@@ -34,7 +34,7 @@ describe('serveur : vérification du compte', () => {
   it('demande le profil à la base avec le jeton du joueur', async () => {
     const { fn, calls } = fakeFetch(200, [ROW]);
     expect(await verifyAccount(TOKEN, env, fn)).toEqual(ROW);
-    expect(calls[0]!.url).toBe('https://exemple.supabase.co/rest/v1/rpc/my_profile');
+    expect(calls[0]!.url).toBe('https://exemple.supabase.co/rest/v1/rpc/my_account');
     const headers = calls[0]!.init.headers as Record<string, string>;
     expect(headers.Authorization).toBe(`Bearer ${TOKEN}`);
     expect(headers.apikey).toBe('sb_publishable_x');

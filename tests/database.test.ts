@@ -134,7 +134,9 @@ describe('base de données : profils', () => {
 describe('base de données : my_profile (serveur temps réel)', () => {
   it('renvoie le profil du joueur connecté, rien pour un visiteur', async () => {
     const me = await as<{ id: string; name: string }>(ALICE, 'select * from public.my_profile()');
-    expect(me.rows).toEqual([{ id: ALICE, name: 'Alice2', role: null }]);
+    expect(me.rows).toEqual([{ id: ALICE, name: 'Alice2' }]);
+    const acc = await as(ALICE, 'select * from public.my_account()');
+    expect(acc.rows).toEqual([{ id: ALICE, name: 'Alice2', role: null }]);
     const guest = await as(null, 'select * from public.my_profile()');
     expect(guest.rows).toEqual([]);
   });
@@ -593,7 +595,7 @@ describe('base de données : rôles visibles (statut doré, modérateurs)', () =
     expect(await role(RENAUD)).toBe('gold');
     expect(await role(MODO3)).toBe('mod');
     expect(await role(CHEF)).toBeNull();
-    const me = await as<{ role: string }>(RENAUD, 'select role from public.my_profile()');
+    const me = await as<{ role: string }>(RENAUD, 'select role from public.my_account()');
     expect(me.rows[0]!.role).toBe('gold');
     await as(CHEF, 'select public.set_moderator($1, false)', [MODO3]);
     expect(await role(MODO3)).toBeNull();

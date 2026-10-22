@@ -365,7 +365,7 @@ les modérateurs, aucun signe distinctif pour lui-même.
 `moderators` existante. `account_role(uuid)` (public, comme le pseudo) donne `gold`, `mod` ou
 rien (jamais `mod` pour le responsable). Seul le responsable appelle `set_gold` /
 `set_moderator` (vérifié par la base). Le serveur temps réel lit le rôle avec le profil
-(`my_profile`) et l'ajoute aux messages `hello` / `look` (`r`), comme la marque « vérifié » : un
+(`my_account`, nouvelle fonction : `my_profile` reste pour l’ancien serveur) et l'ajoute aux messages `hello` / `look` (`r`), comme la marque « vérifié » : un
 client ne peut pas se l'attribuer. Après un changement, le jeu du responsable envoie `role` ; le
 serveur relit le rôle dans la base et l'annonce à tous, sans reconnexion.
 **Conséquences.** Une requête à la base par changement de rôle : négligeable. Hors serveur

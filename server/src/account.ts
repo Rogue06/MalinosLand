@@ -3,7 +3,7 @@
  *
  * Le navigateur ne peut pas ajouter d'en-tête à une WebSocket : le jeton de connexion Supabase
  * voyage donc dans la liste des sous-protocoles (`Sec-WebSocket-Protocol`), jamais dans l'URL.
- * Le serveur n'a aucun secret : il demande à la base (`my_profile`, avec le jeton du joueur)
+ * Le serveur n'a aucun secret : il demande à la base (`my_account`, avec le jeton du joueur)
  * à quel profil correspond ce jeton. Un jeton absent, invalide ou expiré = visiteur.
  */
 import { accountPlayerId, ROLES, type Role } from '../../src/multiplayer/protocol';
@@ -74,7 +74,7 @@ export async function verifyAccount(
 ): Promise<Account | null> {
   if (!token || !env.SUPABASE_URL || !env.SUPABASE_KEY) return null;
   try {
-    const res = await fetcher(`${env.SUPABASE_URL}/rest/v1/rpc/my_profile`, {
+    const res = await fetcher(`${env.SUPABASE_URL}/rest/v1/rpc/my_account`, {
       method: 'POST',
       headers: {
         apikey: env.SUPABASE_KEY,

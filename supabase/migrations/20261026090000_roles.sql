@@ -36,9 +36,10 @@ $$;
 revoke execute on function public.account_role(uuid) from public;
 grant execute on function public.account_role(uuid) to anon, authenticated;
 
--- my_profile renvoie aussi le rôle (le serveur temps réel l'ajoute aux messages du joueur).
-drop function public.my_profile();
-create function public.my_profile()
+-- Profil et rôle du joueur connecté, pour le serveur temps réel (qui ajoute le rôle à ses
+-- messages). Nouvelle fonction plutôt que de modifier my_profile : l'ancien serveur continue de
+-- fonctionner pendant la mise en ligne.
+create function public.my_account()
 returns table (id uuid, name text, role text)
 language sql
 stable
@@ -49,7 +50,7 @@ as $$
   where p.id = (select auth.uid());
 $$;
 
-grant execute on function public.my_profile() to anon, authenticated;
+grant execute on function public.my_account() to anon, authenticated;
 
 -- Le responsable nomme ou retire un modérateur (le compte doit avoir un profil).
 create function public.set_moderator(p_user uuid, p_on boolean)
