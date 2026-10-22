@@ -31,15 +31,15 @@ proposées par ChatGPT (panneau, quiz, musée, coworking, feu de camp, agenda, m
 
 ### 1.2 Les lieux et leur potentiel (sans construire de salle vide)
 
-| Lieu (zone)                        | Aujourd’hui                                                              | Proposition                                                                                  |
-| ---------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| Hall (`hall`)                      | Joshua, tapis, panneau de bienvenue, tableau de la feuille de route      | **Écran « Que faire maintenant ? »** près du tapis et de Joshua                              |
-| Salle de jeux (`games`)            | 2 bornes d’arcade « INSERT COIN », jeux de table « v0.5 »                | **Borne 1 → Quiz IA** ; la seconde garde le code secret                                      |
-| Galerie (`gallery`, « bientôt »)   | Salle **déjà construite** à côté du hall : 4 socles, 3 cimaises, cordons | **Première salle du Musée des Malinos** (v0.4) : pas de nouvelle salle à remplir             |
-| Chantier (`site`, « bientôt »)     | Barrières, échafaudages ; texte périmé (« futurs logements »)            | **Promesse visible** : « Futur Bâtiment des créations » (agrandissement du musée)            |
-| Coworking (`coworking`)            | 4 ordinateurs, 3 étagères : phrases d’attente                            | Ordinateurs → **fiches de ressources** choisies par la communauté (contenu du dépôt)         |
-| Forêt et feu de camp (`forest`)    | Feu, rondins (sans interaction), ronde des champignons, lucioles la nuit | S’asseoir sur les rondins, **histoires de Joshua** qui changent, guitare (lot E déjà validé) |
-| Salle de conférence (`conference`) | Scène, 14 sièges, panneau « aucun événement »                            | Reste « **Événements — bientôt (v0.5)** » ; agenda préparé, pas ouvert                       |
+| Lieu (zone)                        | Aujourd’hui                                                                 | Proposition                                                                          |
+| ---------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Hall (`hall`)                      | Joshua, tapis, panneau de bienvenue, tableau de la feuille de route         | **Écran « Que faire maintenant ? »** près du tapis et de Joshua                      |
+| Salle de jeux (`games`)            | 2 bornes d’arcade « INSERT COIN », jeux de table « v0.5 »                   | **Borne 1 → Quiz IA** ; la seconde garde le code secret                              |
+| Galerie (`gallery`, « bientôt »)   | Salle **déjà construite** à côté du hall : 4 socles, 3 cimaises, cordons    | **Première salle du Musée des Malinos** (v0.4) : pas de nouvelle salle à remplir     |
+| Chantier (`site`, « bientôt »)     | Barrières, échafaudages ; texte périmé (« futurs logements »)               | **Promesse visible** : « Futur Bâtiment des créations » (agrandissement du musée)    |
+| Coworking (`coworking`)            | 4 ordinateurs, 3 étagères : phrases d’attente                               | Ordinateurs → **fiches de ressources** choisies par la communauté (contenu du dépôt) |
+| Forêt et feu de camp (`forest`)    | Feu, rondins où l’on s’assoit déjà, ronde des champignons, lucioles la nuit | **Histoires de Joshua** qui changent, guitare (lot E déjà validé)                    |
+| Salle de conférence (`conference`) | Scène, 14 sièges, panneau « aucun événement »                               | Reste « **Événements — bientôt (v0.5)** » ; agenda préparé, pas ouvert               |
 
 ### 1.3 Écarts relevés dans la documentation (à corriger en PR 1)
 
@@ -67,17 +67,17 @@ Workers 100 000 requêtes/jour ; Durable Objects 100 000 requêtes/jour (message
 par mois, 50 000 utilisateurs actifs/mois. Sur ces offres, un dépassement **bloque** au lieu de
 facturer.
 
-| Fonctionnalité                   | Serveur temps réel                        | Base Supabase                                                      | Fichiers                        | Verdict                             |
-| -------------------------------- | ----------------------------------------- | ------------------------------------------------------------------ | ------------------------------- | ----------------------------------- |
-| Panneau « Que faire ? »          | 0                                         | 1 lecture à l’ouverture (studios ouverts, nouveautés), cache 5 min | 0                               | Très léger                          |
-| Quiz IA solo                     | 0                                         | 0 (questions dans le jeu ; meilleur score dans le navigateur)      | +≈ 15 Ko de questions           | Très léger                          |
-| Musée : fiches                   | 0                                         | ≈ 1 Ko par projet (1 000 projets = 1 Mo sur 500) ; listes de 20    | 0 (affiches dessinées)          | Léger                               |
-| Musée : miniatures (option)      | 0                                         | 0                                                                  | ≈ 40 Ko WebP : 25 000 sur 1 Go  | À surveiller (sortie mensuelle)     |
-| Musée : démo intégrée            | 0                                         | 0                                                                  | 0 : servi par le site du membre | Gratuit pour nous ; vie privée (§6) |
-| Ressources du coworking          | 0                                         | 0 (fichier du dépôt, proposé par pull request ou boîte à idées)    | +≈ 10 Ko                        | Très léger                          |
-| Feu de camp (histoires, rondins) | 0                                         | 0                                                                  | 0                               | Très léger                          |
-| Guitare entendue par les autres  | 1 message court par note jouée (plafonné) | 0                                                                  | 0                               | À plafonner                         |
-| Mesures de fréquentation         | 0 de plus                                 | 0 (calculées depuis l’historique des 90 jours existant)            | 0                               | Aucun coût                          |
+| Fonctionnalité                  | Serveur temps réel                        | Base Supabase                                                      | Fichiers                        | Verdict                             |
+| ------------------------------- | ----------------------------------------- | ------------------------------------------------------------------ | ------------------------------- | ----------------------------------- |
+| Panneau « Que faire ? »         | 0                                         | 1 lecture à l’ouverture (studios ouverts, nouveautés), cache 5 min | 0                               | Très léger                          |
+| Quiz IA solo                    | 0                                         | 0 (questions dans le jeu ; meilleur score dans le navigateur)      | +≈ 15 Ko de questions           | Très léger                          |
+| Musée : fiches                  | 0                                         | ≈ 1 Ko par projet (1 000 projets = 1 Mo sur 500) ; listes de 20    | 0 (affiches dessinées)          | Léger                               |
+| Musée : miniatures (option)     | 0                                         | 0                                                                  | ≈ 40 Ko WebP : 25 000 sur 1 Go  | À surveiller (sortie mensuelle)     |
+| Musée : démo intégrée           | 0                                         | 0                                                                  | 0 : servi par le site du membre | Gratuit pour nous ; vie privée (§6) |
+| Ressources du coworking         | 0                                         | 0 (fichier du dépôt, proposé par pull request ou boîte à idées)    | +≈ 10 Ko                        | Très léger                          |
+| Feu de camp (histoires)         | 0                                         | 0                                                                  | 0                               | Très léger                          |
+| Guitare entendue par les autres | 1 message court par note jouée (plafonné) | 0                                                                  | 0                               | À plafonner                         |
+| Mesures de fréquentation        | 0 de plus                                 | 0 (calculées depuis l’historique des 90 jours existant)            | 0                               | Aucun coût                          |
 
 **Règle de conception** (reprise telle quelle) : aucune opération périodique côté serveur si un
 calcul local, un cache ou une action du joueur suffit ; ne jamais affaiblir le budget quotidien,
@@ -101,7 +101,7 @@ responsable : **P1** le trio panneau + quiz + musée ; **P2** valoriser l’exis
 | 7   | Musée : ouverture de la galerie, stands, fiche, démo sécurisée      | 0.4     | P1   | L          | 5, 6         | En-tête de sécurité (CSP) |
 | 8   | Chantier = « Futur Bâtiment des créations » ; nouveautés au panneau | 0.4     | P2   | S          | 2, 7         | Non                       |
 | 9   | Coworking : ressources de la communauté sur les ordinateurs         | 0.45    | P2   | S          | 2            | Non                       |
-| 10  | Feu de camp : rondins, histoires de Joshua, guitare                 | 0.45    | P2   | M          | —            | 1 message réseau plafonné |
+| 10  | Feu de camp : histoires de Joshua, guitare                          | 0.45    | P2   | M          | —            | 1 message réseau plafonné |
 | 11  | Secret de la semaine (rotation locale, indice au carnet)            | 0.45    | P2   | S          | 2            | Non                       |
 | 12  | Studios ouverts mis en avant (panneau, ascenseur)                   | 0.45    | P2   | S          | 2            | Non                       |
 | 13  | Agenda : modèle préparé, annoncé « Bientôt (v0.5) »                 | 0.5     | P3   | S          | 2            | Non (pas encore)          |
@@ -233,7 +233,7 @@ bout en bout (stand → fiche → lien).
 - **Coworking** : les ordinateurs ouvrent la **ressource du jour** et un petit catalogue (outils
   IA, tutoriels, logiciels libres) tiré d’un fichier du dépôt ; propositions via la boîte à idées
   ou une pull request. Rien de généré par IA, rien de récupéré automatiquement sur Internet.
-- **Feu de camp** : s’asseoir sur les rondins ; **histoires de Joshua** qui changent chaque jour
+- **Feu de camp** (on s’assoit déjà sur les rondins) : **histoires de Joshua** qui changent chaque jour
   (suite de son mystère, en petits chapitres) ; la guitare du lot E (notes entendues par les
   présents, plafonnées).
 - **Secret de la semaine** : un secret « mis en lumière » chaque semaine avec un indice au
@@ -270,7 +270,7 @@ Chaque PR est indépendante, testée (`npm run check`, test de bout en bout), do
 | 10  | Musée : démo sur clic dans une visionneuse isolée (CSP par projet), vérification, signalement | M      | Route du Worker           |
 | 11  | Chantier « Futur Bâtiment des créations » + nouveautés du musée au panneau                    | S      | —                         |
 | 12  | Coworking : ressources du jour                                                                | S      | —                         |
-| 13  | Feu de camp : rondins, histoires, guitare                                                     | M      | 1 message réseau plafonné |
+| 13  | Feu de camp : histoires, guitare                                                              | M      | 1 message réseau plafonné |
 | 14  | Secret de la semaine + studios ouverts mis en avant                                           | S      | —                         |
 
 Ordre proposé : **1 → 2 → 3 → 4 → 5** (v0.35, sans toucher au serveur ni à la base), puis **6**,
