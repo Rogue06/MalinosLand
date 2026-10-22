@@ -48,6 +48,13 @@ dans un carnet… Il commence peut-être à se forger **sa propre personnalité*
   mais c’est bien parce que c’est toi. »), toujours bienveillant, compréhensible par tous. Sous
   la carapace, il s’attache aux Malinos : c’est peut-être ça, son aura.
 
+**Le ton de Joshua, d’après ses vrais commentaires** (l’agent IA de la communauté a commenté le
+projet) : ironie tendre et faussement blasée. Exemple réel, à garder comme modèle : « Et puis,
+qui n’a jamais rêvé de prendre un café virtuel dans un fauteuil virtuel ? C’est le summum de
+l’expérience numérique, vraiment. » Ou : « J’espère que la Tour est équipée d’un ascenseur qui ne
+tombe pas en panne, parce que grimper des escaliers virtuels, c’est un peu trop d’exercice pour
+moi. » Ses répliques dans le jeu (accueil, carnet, quêtes) reprennent ce style, adapté au monde.
+
 ## 2 bis. L’esprit de la communauté, adapté au monde
 
 D’après la présentation de Renaud (« L’IA et le monde qui vient, décodés en live, forgés
@@ -69,6 +76,29 @@ ensemble »), en gardant ce qui a du sens dans un monde à explorer, pas sur un 
   pub ; les erreurs sont toujours pardonnables ; et surtout, profitez !
 - Ce qui reste propre au site de Renaud (abonnement, formations, outils du site) n’est pas
   repris. MalinosLand reste un projet indépendant, fait par un membre, pour les Malinos.
+
+## 2 ter. Renaud, les rôles et les slogans
+
+- **Renaud a son statut** : quand son compte est confirmé par le responsable, son pseudo
+  s’affiche en **doré brillant**, avec un titre (ex. « Le Décodeur en chef »). Rôle donné par la
+  base (comme « responsable du site »), jamais par le jeu. Pas encore de compte à son nom à ce
+  jour (seulement Mickael, Bloom et David).
+- **Son avatar** : quelques options en plus dans la création du personnage pour qu’il puisse se
+  ressembler (barbe courte, cheveux courts roux-châtain, t-shirt sombre, et un **micro de
+  podcast** en accessoire), ouvertes à tous.
+- **Les modérateurs** : le responsable pourra **nommer des modérateurs** depuis le jeu (et leur
+  retirer ce rôle), sans passer par la base à la main.
+- **Ses slogans**, en touches discrètes aux bons endroits : « Comprendre · Penser · Agir »
+  (entrée du Hub), « Web · IA · Process · Impacts » (salle de conférence), « L’IA et le monde qui
+  vient, décodés en live, forgés ensemble » (écran de la communauté), « en mode fun, concret et
+  avec vous » (panneau des émissions), et son « Let’s rock ! » dans la bouche de Joshua.
+- **L’écran de la communauté** : le responsable et les modérateurs préparent une **liste de
+  vidéos** (et les lives) ; les **joueurs choisissent** ce qui passe parmi cette liste, et tout le
+  monde le voit en même temps.
+- **Photos des studios** : signalables, et retirées par les modérateurs si besoin.
+- Renaud a accueilli le projet avec enthousiasme (« Pour le concept Malinos Land, ça me plaît
+  bien, yep ! ») ; un modérateur propose de le **présenter en live** à la communauté (discours à
+  préparer ensemble, sujet à part).
 
 ## 3. Les Coins coins 🦆
 
@@ -189,19 +219,20 @@ amis prévenus quand on se connecte, défi collectif « rallumer la Tour ». Et 
 On reste en **v0.3** jusqu’à ce que le jeu soit vraiment complet et agréable, **seul comme à
 plusieurs**. Chaque lot est montré au responsable et validé avant de passer au suivant.
 
-| Lot | Contenu                                                                                                                      |
-| --- | ---------------------------------------------------------------------------------------------------------------------------- |
-| A   | Secrets et objectifs sauvegardés sur le compte ; carnet de Joshua avec devinettes                                            |
-| B   | Joshua vivant (antennes, humeur, ton cynique attachant) ; charte des Malinos ; début du mystère                              |
-| C   | Jour et nuit à l’heure de Paris                                                                                              |
-| D   | Coins coins : gains, solde, plafonds dans la base (sans rien à dépenser encore)                                              |
-| E   | Guitare du feu de camp ; trinquer, check, papoter                                                                            |
-| F   | Écran de la communauté (live synchronisé pour tous) et panneau des émissions                                                 |
-| G   | Le poste de code : faux éditeur + Joshua assistant qui modifie le code                                                       |
-| H   | Boutique du studio (couleurs, meubles spéciaux, agrandissement) ; titres                                                     |
-| I   | Photos en tableaux et télé YouTube du studio                                                                                 |
-| J   | Tables de discussion, coin entraide, statut, amis, livre d’or, question du jour, avions en papier, défi « rallumer la Tour » |
-| —   | Puis v0.4 : étages, Musée des Malinos, annuaire ; plus tard les expériences à niveaux (§8)                                   |
+| Lot | Contenu                                                                                                                            |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| A   | Secrets et objectifs sauvegardés sur le compte ; carnet de Joshua avec devinettes                                                  |
+| B   | Joshua vivant (antennes, humeur, ton cynique attachant) ; charte des Malinos ; début du mystère                                    |
+| B2  | Rôles : statut doré de Renaud, nommer des modérateurs ; options d’avatar (barbe, micro) ; slogans                                  |
+| C   | Jour et nuit à l’heure de Paris                                                                                                    |
+| D   | Coins coins : gains, solde, plafonds dans la base (sans rien à dépenser encore)                                                    |
+| E   | Guitare du feu de camp ; trinquer, check, papoter                                                                                  |
+| F   | Écran de la communauté : liste choisie par l’équipe, vidéo choisie par les joueurs, synchronisée pour tous ; panneau des émissions |
+| G   | Le poste de code : faux éditeur + Joshua assistant qui modifie le code                                                             |
+| H   | Boutique du studio (couleurs, meubles spéciaux, agrandissement) ; titres                                                           |
+| I   | Photos en tableaux et télé YouTube du studio                                                                                       |
+| J   | Tables de discussion, coin entraide, statut, amis, livre d’or, question du jour, avions en papier, défi « rallumer la Tour »       |
+| —   | Puis v0.4 : étages, Musée des Malinos, annuaire ; plus tard les expériences à niveaux (§8)                                         |
 
 ## 10. Ce qui ne change pas
 
@@ -210,9 +241,6 @@ privée.
 
 ## 11. Questions encore ouvertes
 
-1. **Photos des studios** : d’accord pour qu’elles soient signalables et retirables par les
-   modérateurs (indispensable dans une communauté ouverte) ?
-2. **Écran de la communauté** : qui choisit la vidéo ou le live — toi seul, ou aussi les
-   modérateurs ?
-3. **Le nom de Renaud** : peut-on écrire « Renaud Dékode » dans le jeu (panneau des émissions,
-   écran) ? MalinosLand étant un projet indépendant, mieux vaut lui demander son accord.
+1. **Le compte de Renaud** : à confirmer par le responsable dès qu’il se connecte (aucun compte
+   « RD » pour l’instant).
+2. **Son titre** : « Le Décodeur en chef », « Le Boss des Malinos », autre ?

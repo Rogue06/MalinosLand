@@ -475,6 +475,64 @@ describe('base de données : décoration des logements (v0.3)', () => {
   });
 });
 
+describe('base de données : progression (objectifs et secrets)', () => {
+  const P1 = '00000000-0000-4000-8000-0000000000e1';
+  const P2 = '00000000-0000-4000-8000-0000000000e2';
+  type Row = { quests: string[]; secrets: string[] };
+  const merge = async (who: string | null, quests: string[], secrets: string[]) =>
+    (await as<Row>(who, 'select * from public.merge_my_progress($1, $2)', [quests, secrets]))
+      .rows[0]!;
+
+  beforeAll(async () => {
+    await db.exec(`insert into auth.users (id) values ('${P1}'), ('${P2}') on conflict do nothing`);
+  });
+
+  it('réunit la progression du navigateur et celle du compte, sans rien perdre', async () => {
+    expect(await merge(P1, ['coffee'], ['pixel'])).toEqual({
+      quests: ['coffee'],
+      secrets: ['pixel'],
+    });
+    // Un autre appareil, avec d'autres trouvailles : tout est réuni.
+    expect(await merge(P1, ['terrace'], ['voeu', 'pixel'])).toEqual({
+      quests: ['coffee', 'terrace'],
+      secrets: ['pixel', 'voeu'],
+    });
+    // Un appareil vide récupère tout.
+    expect(await merge(P1, [], [])).toEqual({
+      quests: ['coffee', 'terrace'],
+      secrets: ['pixel', 'voeu'],
+    });
+  });
+
+  it('ignore les identifiants invalides et limite la taille', async () => {
+    const r = await merge(
+      P2,
+      ['OK', 'a b', "x'); drop table x;--", 'bon_id'],
+      Array.from(
+        { length: 150 },
+        (_, i) =>
+          `s_${String.fromCharCode(97 + (i % 26))}${String.fromCharCode(97 + Math.floor(i / 26))}`,
+      ),
+    );
+    expect(r.quests).toEqual(['bon_id']);
+    expect(r.secrets.length).toBe(100);
+  });
+
+  it('chacun ne voit et ne modifie que sa progression ; pas les visiteurs', async () => {
+    const seen = await as<Row>(P2, 'select * from public.player_progress');
+    expect(seen.rows).toHaveLength(1);
+    await expect(as(P2, `update public.player_progress set quests = '{}'`)).rejects.toThrow(
+      /permission denied/,
+    );
+    await expect(merge(null, ['coffee'], [])).rejects.toThrow();
+  });
+
+  it('« Recommencer » efface les objectifs mais garde les secrets', async () => {
+    await as(P1, 'select public.reset_my_quests()');
+    expect(await merge(P1, [], [])).toEqual({ quests: [], secrets: ['pixel', 'voeu'] });
+  });
+});
+
 describe('base de données : responsable du site', () => {
   const BOSS = '00000000-0000-4000-8000-0000000000d1';
   const MODO2 = '00000000-0000-4000-8000-0000000000d2';

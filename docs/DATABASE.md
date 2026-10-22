@@ -30,6 +30,10 @@
   mode d’accès), `can_enter_home(owner)` (utilisée par le serveur temps réel avec le jeton du
   joueur), `visitable_homes()` (logements ouverts ou où l’on est invité), `my_home_invites()`.
   Le propriétaire seul règle l’accès et invite ; l’invité peut refuser une invitation.
+- **Progression** (migration `20261025090000_player_progress.sql`, v0.3) : `player_progress`
+  (`user_id`, `quests`, `secrets` : objectifs remplis et secrets trouvés). Écriture seulement par
+  `merge_my_progress(quests, secrets)` (réunit le navigateur et le compte, sans rien perdre ;
+  identifiants filtrés, tailles limitées) et `reset_my_quests()` (« Recommencer »).
 - **Décoration des logements** (migration `20261024090000_home_decor.sql`, v0.3) : colonne
   `homes.decor` (liste de meubles `{ t, x, y, r, v }`, null = studio d’origine), vérifiée par la
   contrainte `valid_home_decor` (40 meubles au plus, types autorisés, cases du studio). Lecture :

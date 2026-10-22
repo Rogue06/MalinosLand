@@ -1439,12 +1439,87 @@ button.presence-chip {
   border-top: 1px solid var(--line);
 }
 
-/* Compteur de secrets (sous les objectifs). */
+/* Lien vers le carnet de Joshua (sous les objectifs). */
 .objectives .secrets {
+  display: block;
+  width: 100%;
   margin: 10px 0 0;
-  padding-top: 8px;
+  padding: 8px 0 0;
+  border: 0;
   border-top: 1px solid var(--line);
+  background: none;
+  text-align: left;
   font-size: 12.5px;
+}
+.objectives .secrets:hover {
+  color: var(--teal-light);
+}
+
+/* Le carnet de Joshua */
+.carnet-count {
+  margin: 4px 0 10px;
+  font-weight: 700;
+  color: var(--sun);
+}
+.carnet {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+.carnet li {
+  display: flex;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+.carnet li.found {
+  border-style: solid;
+  border-color: rgba(95, 227, 208, 0.35);
+  background: rgba(95, 227, 208, 0.06);
+}
+.carnet h3 {
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+.carnet p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.carnet li.found p {
+  color: var(--text);
+  font-style: italic;
+}
+.carnet-num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+  font-weight: 700;
+}
+.carnet li.found .carnet-num {
+  background: var(--teal);
+  color: #fff;
+}
+.carnet-final {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 200, 87, 0.12);
+  border: 1px solid rgba(255, 200, 87, 0.4);
+}
+.carnet-final p {
+  margin: 6px 0 0;
+  font-style: italic;
 }
 
 /* Chat : « À : » et marque des messages de proximité. */

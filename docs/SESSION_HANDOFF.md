@@ -36,6 +36,12 @@ Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter
 
 ## Dernières sessions
 
+- **25/10 (suite)** — PR #33, #34, #35 fusionnées et en ligne. Branche
+  `feature/carnet-joshua` (lot A, DEC-025) : carnet de Joshua (devinettes + pages),
+  progression sur le compte (migration `20261025090000_player_progress.sql` **à appliquer sur
+  Supabase à la fusion**). Nouvelles demandes notées dans la proposition §2 ter (statut doré de
+  Renaud, nommer des modérateurs, avatar barbe/micro, slogans, liste de vidéos de l’écran).
+
 - **25/10** — PR #33 (invitations visibles : carte « Y aller » chez l’invité) ouverte. Audit
   des secrets : les 10 sont présents et accessibles, mais sans indice et gardés seulement dans
   le navigateur. **Validé par le responsable** : [PROPOSITION_VIE_DU_JEU.md](PROPOSITION_VIE_DU_JEU.md)
