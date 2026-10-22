@@ -487,6 +487,21 @@ describe('logements : entrée vérifiée par la base', () => {
     expect(g.data.room).toBe('hub');
   });
 
+  it('avis d’invitation : d’un compte vers le seul compte invité', async () => {
+    const { join, say } = setup({ access: async () => true });
+    const o = join(ownerId, 12, 21, 'hub', OWNER);
+    const g = join(guestId, 12, 22, 'hub', GUEST);
+    const visitor = join('visiteur01', 12, 23);
+    say(o, { t: 'invite', id: ownerId, target: guestId });
+    expect(g.of('invite')).toEqual([{ t: 'invite', id: ownerId, target: guestId }]);
+    expect(visitor.of('invite')).toHaveLength(0);
+    // Un visiteur sans compte ne peut ni inviter, ni être prévenu.
+    say(visitor, { t: 'invite', id: 'visiteur01', target: guestId });
+    say(o, { t: 'invite', id: ownerId, target: 'visiteur01' });
+    expect(g.of('invite')).toHaveLength(1);
+    expect(visitor.of('invite')).toHaveLength(0);
+  });
+
   it('décoration changée : relayée aux personnes présentes, par le propriétaire seulement', async () => {
     const { join, say } = setup({ access: async () => true });
     const o = join(ownerId, 12, 21, 'hub', OWNER);

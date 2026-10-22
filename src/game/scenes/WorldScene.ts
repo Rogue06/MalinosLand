@@ -15,6 +15,7 @@ import {
   LOCAL_CHAT_RADIUS,
   accountPlayerId,
   homeOwner,
+  homeRoom,
   randomId,
   type AnimState,
   type Emote,
@@ -32,6 +33,7 @@ import {
 } from '../../services/audio';
 import { isTouchDevice } from '../../services/device';
 import { fetchDecor, myHomeAccess, saveMyDecor, type HomeAccess } from '../../services/homes';
+import { checkPendingInvitations } from '../../services/invitations';
 import {
   BroadcastChannelTransport,
   OfflineTransport,
@@ -51,6 +53,7 @@ import {
   playerPosStore,
   presenceStore,
   pushChat,
+  pushInvitation,
   pushToast,
   roomStore,
   statsStore,
@@ -256,6 +259,9 @@ export class WorldScene extends Phaser.Scene {
     );
     this.cleanups.push(commands.on('chat-send', ({ text, scope }) => this.sendChat(text, scope)));
     this.cleanups.push(commands.on('emote', ({ emoji }) => this.playEmote(emoji)));
+    this.cleanups.push(
+      commands.on('invite-notify', ({ target }) => this.net?.inviteNotify(target)),
+    );
     // Bouton d'action de l'interface (indispensable au doigt, sans touche E).
     this.cleanups.push(commands.on('use', () => !isInputLocked() && this.onUseKey()));
     this.cleanups.push(
@@ -284,6 +290,8 @@ export class WorldScene extends Phaser.Scene {
       this.announceArrival();
       return;
     }
+    // Invitations reçues pendant l'absence (joueur connecté à son compte).
+    if (accountStore.get().status === 'signed-in') void checkPendingInvitations();
     pushChat({
       from: 'MalinosLand',
       text: isTouchDevice()
@@ -1005,6 +1013,17 @@ export class WorldScene extends Phaser.Scene {
     });
     on('door', ({ room, ok, why }) => this.onDoor(room, ok, why));
     on('decor', ({ owner }) => void this.reloadDecor(owner));
+    on('invite', ({ peer }) => {
+      if (isHidden(peer.id)) return;
+      pushInvitation({ room: homeRoom(peer.id), ownerName: peer.name });
+      pushChat({
+        from: 'MalinosLand',
+        text: `✉️ ${peer.name} t’invite dans son logement !`,
+        kind: 'system',
+        scope: 'local',
+      });
+      playSound('mention');
+    });
   }
 
   private addRemote(peer: RemotePeer): void {

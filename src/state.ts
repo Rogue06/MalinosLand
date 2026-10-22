@@ -131,11 +131,25 @@ export interface Commands extends Record<string, unknown> {
    * présentes qui n'y ont plus droit (`guests` : identifiants réseau des invités).
    */
   'home-access': { access: 'private' | 'invite' | 'public'; guests: string[] };
+  /** Prévenir un joueur connecté qu'on vient de l'inviter chez soi (avis en direct). */
+  'invite-notify': { target: string };
   /** Éditeur de décoration du logement (voir decorEditorStore). `type` : meuble choisi. */
   decor: { action: DecorAction; type?: string };
 }
 
 export const commands = new EventBus<Commands>();
+
+/** Invitation reçue : logement où l'on est invité, en attente de « Y aller » ou « Plus tard ». */
+export interface Invitation {
+  room: string;
+  ownerName: string;
+}
+
+export const invitationsStore = new Store<Invitation[]>([]);
+
+export function pushInvitation(inv: Invitation): void {
+  invitationsStore.update((list) => [...list.filter((i) => i.room !== inv.room), inv].slice(-3));
+}
 
 /** Actions de l'éditeur de décoration (boutons de l'interface ou touches). */
 export type DecorAction =

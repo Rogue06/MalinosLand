@@ -38,20 +38,21 @@ les deux personnages se voient. Le chat indique « En ligne ».
 
 Messages JSON courts (clés d’une lettre quand c’est utile). Positions arrondies au centième.
 
-| `t`     | Champs                                       | Rôle                                                                            |
-| ------- | -------------------------------------------- | ------------------------------------------------------------------------------- |
-| `hello` | `id, name, look, reply, room, x, y, f, s, a` | Arrivée (et réponse `reply: true` pour se faire connaître) ; `a` : absent       |
-| `state` | `id, room, x, y, f, s`                       | Position, orientation (`px/py/nx/ny`), état (0 immobile, 1 marche, 2 assis)     |
-| `chat`  | `id, room, scope (local/global), text`       | Message (≤ 140 caractères, nettoyé)                                             |
-| `emote` | `id, room, e`                                | Émote d’une liste fermée                                                        |
-| `look`  | `id, name, look`                             | Changement de pseudo/apparence                                                  |
-| `away`  | `id, on`                                     | Statut « absent » (onglet caché depuis 20 s) ou retour                          |
-| `queue` | `pos`                                        | (serveur) Place dans la file d’attente, 0 = entrée dans la salle                |
-| `enter` | `id, room, tok?`                             | Demande d’entrée dans un logement `home-…` (jeton de connexion, jamais relayé)  |
-| `door`  | `room, ok, why?`                             | (serveur) Réponse : entrée permise, ou refus `closed` / `full` / `evicted`      |
-| `evict` | `id, target`                                 | Le propriétaire fait sortir un joueur de son logement                           |
-| `decor` | `id`                                         | Le propriétaire a changé sa décoration : relayé aux présents, qui la rechargent |
-| `bye`   | `id`                                         | Départ                                                                          |
+| `t`      | Champs                                       | Rôle                                                                            |
+| -------- | -------------------------------------------- | ------------------------------------------------------------------------------- |
+| `hello`  | `id, name, look, reply, room, x, y, f, s, a` | Arrivée (et réponse `reply: true` pour se faire connaître) ; `a` : absent       |
+| `state`  | `id, room, x, y, f, s`                       | Position, orientation (`px/py/nx/ny`), état (0 immobile, 1 marche, 2 assis)     |
+| `chat`   | `id, room, scope (local/global), text`       | Message (≤ 140 caractères, nettoyé)                                             |
+| `emote`  | `id, room, e`                                | Émote d’une liste fermée                                                        |
+| `look`   | `id, name, look`                             | Changement de pseudo/apparence                                                  |
+| `away`   | `id, on`                                     | Statut « absent » (onglet caché depuis 20 s) ou retour                          |
+| `queue`  | `pos`                                        | (serveur) Place dans la file d’attente, 0 = entrée dans la salle                |
+| `enter`  | `id, room, tok?`                             | Demande d’entrée dans un logement `home-…` (jeton de connexion, jamais relayé)  |
+| `door`   | `room, ok, why?`                             | (serveur) Réponse : entrée permise, ou refus `closed` / `full` / `evicted`      |
+| `evict`  | `id, target`                                 | Le propriétaire fait sortir un joueur de son logement                           |
+| `invite` | `id, target`                                 | Avis d’invitation, relayé au seul invité (compte vers compte)                   |
+| `decor`  | `id`                                         | Le propriétaire a changé sa décoration : relayé aux présents, qui la rechargent |
+| `bye`    | `id`                                         | Départ                                                                          |
 
 Validation (`decodeMessage`) : taille ≤ 2 Ko, id `[a-z0-9]{8,32}`, salle `[a-z0-9-]`, coordonnées
 finies dans [0, 512], orientation et état dans des listes fermées, apparence bornée aux palettes,

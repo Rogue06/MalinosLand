@@ -15,6 +15,17 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 - **Sons de proximité** : en approchant du **feu de camp**, on entend ses crépitements, et près de
   la **fontaine**, l’eau qui ruisselle ; le son grandit à mesure qu’on s’approche.
 
+### Corrigé (invitations)
+
+- Un joueur invité est **prévenu aussitôt** : une petite carte « ✉️ X t’invite dans son
+  logement ! » avec **Y aller** / **Plus tard** (et un message dans le chat). Les invitations
+  reçues pendant l’absence sont proposées à la connexion suivante.
+- Inviter quelqu’un alors que son logement est « Personne » le passe en « Sur invitation »
+  (sinon l’invité ne pouvait pas entrer), avec un message qui l’explique.
+- Le bouton devient « Invité ✓ » après l’envoi (avant, rien ne montrait que c’était fait).
+- Réseau : petit message `invite`, relayé par le serveur au seul invité, d’un compte vers un
+  compte ; l’entrée reste vérifiée par la base.
+
 ### Modifié (site d’accueil)
 
 - Bouton **« Jouer »** animé : il frétille de temps en temps comme un écusson cousu, et fait
