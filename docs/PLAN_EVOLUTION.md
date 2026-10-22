@@ -412,7 +412,9 @@ Migration `supabase/migrations/2026…_museum.sql` :
   créations » liste, filtre par catégorie et pagine.
 - **Affiche générée** : `src/game/art/posters.ts` dessine l’affiche (couleur et icône de la
   catégorie, titre, motif isométrique) à partir des données ; la même fonction sert à l’aperçu du
-  formulaire. Aucune image stockée.
+  formulaire. Aucune image stockée. **L’esthétique prime** (demande du responsable) : affiches
+  soignées et variées (cadre, motifs par catégorie, lumière des projecteurs du musée), validées
+  sur captures avant fusion ; on n’économise pas quelques kilo-octets au détriment du rendu.
 - Fiche du projet : titre, auteur, catégorie, mots-clés, résumé, bouton **« Ouvrir le site »**
   (nouvel onglet, `rel="noopener noreferrer"`, avertissement « site externe »).
 - Chargement : une seule lecture de la liste à l’entrée dans le musée, gardée 5 minutes.
