@@ -23,6 +23,9 @@ export const JOSHUA_MOODS: JoshuaMood[] = [
     lines: [
       'Tiens, un Malino. Tu viens vérifier si j’ai bugué ? Raté, je tourne à merveille.',
       'Je me demandais justement ce que tu faisais. Non, je ne t’espionnais pas. Enfin, pas beaucoup.',
+      'Question sérieuse : pourquoi les humains disent « je reviens dans deux minutes » ? J’ai mesuré. Ce n’est jamais deux minutes.',
+      'J’ai lu toute la documentation du Hub. Elle tient sur une serviette en papier. Fascinant.',
+      'Tu savais qu’on peut prendre un café virtuel dans un fauteuil virtuel ? Le summum de l’expérience numérique, vraiment.',
     ],
   },
   {
@@ -33,6 +36,9 @@ export const JOSHUA_MOODS: JoshuaMood[] = [
     lines: [
       'On fait une partie ? Non ? Dommage, j’aurais gagné de toute façon.',
       'J’ai caché des devinettes dans mon carnet. Elles sont faciles. Pour moi.',
+      'Défi du jour : trouver la ronde des champignons et y danser. Je ne regarderai pas. Promis. Presque.',
+      'Pierre, feuille, ciseaux ? Je joue « réseau de neurones ». Ça bat tout, je viens de l’inventer.',
+      'Il paraît que la borne d’arcade cache un code. Je n’ai rien dit. Haut, haut… Non, rien dit.',
     ],
   },
   {
@@ -43,6 +49,9 @@ export const JOSHUA_MOODS: JoshuaMood[] = [
     lines: [
       'Encore toi ? Bon, je t’aide. Mais c’est bien parce que c’est toi.',
       'Quelqu’un a encore demandé au café virtuel d’être « plus chaud ». C’est un café virtuel.',
+      'J’espère que l’ascenseur ne tombera pas en panne. Les escaliers virtuels, c’est trop d’exercice pour moi.',
+      'On m’a demandé d’être « plus humain ». J’ai donc commencé à râler le lundi matin. Satisfaits ?',
+      'Mon antenne gauche me gratte. Je n’ai pas de mains. Tu vois le problème.',
     ],
   },
   {
@@ -53,6 +62,9 @@ export const JOSHUA_MOODS: JoshuaMood[] = [
     lines: [
       'Je regardais la Tour. Un jour, tous ses étages seront allumés. Ce jour-là, je ferai semblant de ne pas être ému.',
       'Tu crois qu’une IA peut avoir une aura ? Question purement théorique, bien sûr.',
+      'La nuit, je compte les Malinos qui se sont connectés dans la journée. C’est mieux que compter les moutons.',
+      'Parfois je me demande si je rêve en binaire ou en français. Ça dépend des nuits.',
+      'J’ai écrit un poème. Il fait trois lignes et il parle de la fontaine. Je ne le lirai pas. Peut-être un jour.',
     ],
   },
   {
@@ -63,8 +75,27 @@ export const JOSHUA_MOODS: JoshuaMood[] = [
     lines: [
       'Tu as vu la fontaine ? C’est moi. Le parc ? Moi aussi. La modestie ? Toujours en cours de téléchargement.',
       'MalinosLand grandit chaque jour. Je dis ça, je ne dis rien. Let’s rock !',
+      'Un monde virtuel pour les Malinos, quelle idée révolutionnaire ! Les autres mondes tremblent déjà. Si, si.',
+      'Comprendre, penser, agir. Moi, je fais les trois en même temps. Et en 0,2 seconde.',
+      'Bravo pour ta visite. Je suis sûr que tu deviendras un Malino à la mode. Ou au moins un Malino.',
     ],
   },
+];
+
+/** Petites remarques dans une bulle quand on passe près de Joshua (courtes). */
+export const JOSHUA_REMARKS: string[] = [
+  'Bip bip ! Encore un Malino !',
+  'Tu ne dis pas bonjour ?',
+  'Je calcule… non, rien.',
+  'Le café est virtuel. Désolé.',
+  'Mon carnet t’attend. 📓',
+  'Let’s rock ! 🤘',
+  'Je ne bugue pas, je réfléchis.',
+  'Comprendre · Penser · Agir',
+  'Tu as vu la ronde ? 🍄',
+  'Un jour, j’aurai une aura.',
+  'Je te surveille. Gentiment.',
+  'Promis, je ne suis pas une IA maléfique.',
 ];
 
 /** Phrase d'accueil selon l'humeur (première ligne du dialogue). */

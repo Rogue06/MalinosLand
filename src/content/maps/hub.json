@@ -2010,9 +2010,21 @@
     },
     {
       "type": "mushroom_ring",
-      "x": 44,
+      "x": 34,
       "y": 32,
       "id": "cercle-champignons"
+    },
+    {
+      "type": "tree",
+      "x": 44,
+      "y": 34,
+      "variant": 1
+    },
+    {
+      "type": "tree",
+      "x": 45,
+      "y": 35,
+      "variant": 0
     }
   ],
   "wallDecor": [

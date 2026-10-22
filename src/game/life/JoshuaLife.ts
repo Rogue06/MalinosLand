@@ -1,5 +1,5 @@
 import type Phaser from 'phaser';
-import { JOSHUA_MOODS, type JoshuaMood } from '../../content/joshua';
+import { JOSHUA_MOODS, JOSHUA_REMARKS, type JoshuaMood } from '../../content/joshua';
 import { project, type Vec2 } from '../../core/iso';
 import { rotatePoint } from '../../core/rotation';
 import type { WorldModel, WorldObject } from '../../world/WorldModel';
@@ -34,11 +34,13 @@ export class JoshuaLife {
   private moodIndex = Math.floor(Math.random() * JOSHUA_MOODS.length);
   private moodTimer = MOOD_SECONDS;
   private robot: WorldObject | null;
+  /** Prochaine petite remarque en bulle (quand on passe près de lui). */
+  private remarkIn = 6;
 
   constructor(
     scene: Phaser.Scene,
     world: WorldModel,
-    renderer: WorldRenderer,
+    private readonly renderer: WorldRenderer,
     tex: TextureFactory,
     private readonly opts: { animate: boolean },
   ) {
@@ -81,6 +83,14 @@ export class JoshuaLife {
       this.moodTimer = MOOD_SECONDS + Math.random() * 30;
       this.moodIndex = (this.moodIndex + 1 + Math.floor(Math.random() * 3)) % JOSHUA_MOODS.length;
       this.applyMood();
+    }
+    const dist = Math.hypot(this.robot.x + 0.5 - player.x, this.robot.y + 0.5 - player.y);
+    this.remarkIn -= dt;
+    if (this.remarkIn <= 0 && dist < 4.5 && this.time > this.talkUntil) {
+      this.remarkIn = 22 + Math.random() * 18;
+      const text = JOSHUA_REMARKS[Math.floor(Math.random() * JOSHUA_REMARKS.length)]!;
+      this.renderer.objectBubble(this.robot.id, text, 4000);
+      this.talk(2);
     }
     if (!this.opts.animate) return;
     const near = Math.hypot(this.robot.x + 0.5 - player.x, this.robot.y + 0.5 - player.y) < 2.6;

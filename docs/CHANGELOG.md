@@ -14,11 +14,15 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
   une phrase selon son humeur, la visite guidée la première fois, puis un mot sur le carnet.
 - **Charte des Malinos** et devise « Comprendre · Penser · Agir » dans le panneau de bienvenue.
 
-### Corrigé (secret des champignons)
+### Corrigé (secret des champignons) → la ronde des Malinos
 
-- Le cercle de champignons était caché derrière des arbres, au fond de la forêt, et n’était
-  qu’une petite touffe : c’est maintenant un **vrai cercle**, au bord de la clairière, bien
-  visible ; la devinette du carnet est mise à jour.
+- Le cercle de champignons était caché derrière des arbres au fond de la forêt : c’est
+  maintenant **la ronde des Malinos**, un cercle de champignons à pois blancs au bord du chemin,
+  à l’orée de la forêt. **Qui s’y arrête danse** (petits pas, tour sur soi, petits sauts, 🎶), et
+  tout le monde voit les danseurs : à plusieurs, c’est une vraie petite fête. Y danser la
+  première fois révèle le secret.
+- Joshua a **beaucoup plus de répliques** (cinq par humeur) et lance de petites remarques dans
+  une bulle quand on passe près de lui.
 
 ### Ajouté (lot A : carnet de Joshua et progression sur le compte)
 

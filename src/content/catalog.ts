@@ -133,9 +133,9 @@ export const CATALOG: Record<string, CatalogEntry> = {
     flat: true,
     defaultInteraction: {
       kind: 'emote',
-      label: 'Entrer dans le cercle',
+      label: 'Danser dans la ronde',
       emoji: '🍄',
-      text: 'Un cercle de champignons parfait… On dit qu’ils poussent là où les Malinos ont dansé une nuit de pleine lune.',
+      text: 'La ronde des Malinos : entre dans le cercle et tu danses ! À plusieurs, c’est encore mieux.',
       secret: 'champignons',
     },
   },

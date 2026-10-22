@@ -263,7 +263,13 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
       });
       box(b, x - 0.07 * s, y - 0.07 * s, 0.11 * s, 0.14 * s, 0.14 * s, 0.05 * s, '#d9483b', {
         outline: false,
-        decals: [decal('top', 0.25, 0.25, 0.45, 0.45, '#f7f2ea')],
+        decals: [
+          decal('top', 0.15, 0.2, 0.35, 0.4, '#fbf8f2'),
+          decal('top', 0.6, 0.15, 0.8, 0.35, '#fbf8f2'),
+          decal('top', 0.4, 0.6, 0.6, 0.8, '#fbf8f2'),
+          decal('py', 0.25, 0.3, 0.45, 0.7, '#fbf8f2'),
+          decal('px', 0.55, 0.3, 0.75, 0.7, '#fbf8f2'),
+        ],
       });
     }
   },

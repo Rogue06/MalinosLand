@@ -169,6 +169,10 @@ export class WorldScene extends Phaser.Scene {
   private life: AmbientLife | null = null;
   /** Joshua vivant (antennes animées, humeur). */
   private joshua: JoshuaLife | null = null;
+  /** Rondes de champignons : qui s'y tient immobile danse (vu par tous, sans message réseau). */
+  private danceRings: WorldObject[] = [];
+  private wasDancing = false;
+  private danceNoteAt = 0;
   /** Demande d'entrée dans un logement en attente de la réponse du serveur. */
   private pendingDoor: { room: string; ownerName: string | null } | null = null;
   /** Meubles du logement affiché (vides au Hub). */
@@ -330,6 +334,7 @@ export class WorldScene extends Phaser.Scene {
     this.joshua = new JoshuaLife(this, this.world, this.renderer3d, this.tex, {
       animate: !settings.reducedMotion,
     });
+    this.danceRings = this.world.objects.filter((o) => o.type === 'mushroom_ring');
   }
 
   /** Remeuble le logement affiché, sans relancer la scène (éditeur, visiteurs prévenus). */
@@ -1181,6 +1186,13 @@ export class WorldScene extends Phaser.Scene {
     av.facing = this.player.facing;
     av.moving = step.moved;
     av.seatHeight = this.player.seat?.height ?? null;
+    av.dancing = !step.moved && !this.player.seat && this.inDanceRing(av.x, av.y);
+    if (av.dancing && !this.wasDancing) this.startDancing(time);
+    if (av.dancing && time > this.danceNoteAt) {
+      this.danceNoteAt = time + 5000;
+      av.say('🎶', 1800);
+    }
+    this.wasDancing = av.dancing;
     av.update(
       delta,
       this.depthFor(av.x, av.y, this.player.seat ? this.player.seat.objectId : null, av.facing),
@@ -1262,8 +1274,32 @@ export class WorldScene extends Phaser.Scene {
         view.seatHeight = seatObj?.seats[0]?.height ?? 0.42;
         view.moving = false;
       } else view.seatHeight = null;
+      view.dancing = peer.s !== 2 && !view.moving && this.inDanceRing(view.x, view.y);
       view.update(delta, this.depthFor(view.x, view.y, seatId, view.facing));
     }
+  }
+
+  /** Le point est-il dans une ronde de champignons (cercle inscrit dans son empreinte) ? */
+  private inDanceRing(x: number, y: number): boolean {
+    return this.danceRings.some(
+      (o) => Math.hypot(x - (o.x + o.w / 2), y - (o.y + o.d / 2)) < Math.min(o.w, o.d) * 0.42,
+    );
+  }
+
+  /** Entrée dans la ronde : on danse ; la première fois, c'est aussi un secret. */
+  private startDancing(time: number): void {
+    this.danceNoteAt = time + 5000;
+    const others = [...this.remotes.values()].filter(
+      (r) => r.peer.room === this.room && this.inDanceRing(r.view.x, r.view.y),
+    ).length;
+    pushToast(
+      others > 0
+        ? `🕺 Tu rejoins la ronde : vous êtes ${others + 1} à danser !`
+        : '🕺 Tu danses dans la ronde des Malinos ! Invite d’autres Malinos à te rejoindre.',
+      '🍄',
+      4000,
+    );
+    this.secret('champignons');
   }
 
   /** Son de la source la plus proche (feu de camp, fontaine), plus fort en s'approchant. */
