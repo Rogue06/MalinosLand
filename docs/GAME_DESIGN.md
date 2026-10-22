@@ -1,6 +1,6 @@
 # Conception du jeu
 
-> **En bref (version simple)** : on se déplace, on utilise des objets, on discute. Pas de monnaie ni de course aux points : les petits objectifs servent seulement à découvrir le lieu. Pour la prise en main, voir le [guide du joueur](GUIDE_DU_JOUEUR.md).
+> **En bref (version simple)** : on se déplace, on utilise des objets, on discute, on découvre. Les petits objectifs et les secrets font découvrir le lieu ; bientôt, ils rapporteront des **Coins coins** 🦆, de petites récompenses d’appartenance (jamais achetées, jamais comparées), voir [PROPOSITION_VIE_DU_JEU.md](PROPOSITION_VIE_DU_JEU.md). Pour la prise en main, voir le [guide du joueur](GUIDE_DU_JOUEUR.md).
 
 ## Expérience recherchée
 
@@ -43,7 +43,8 @@ Les touches « haut/bas/gauche/droite » suivent l’écran (haut = vers le fond
 
 - HUD minimal : logo et version, zone actuelle, présence, 5 boutons (objectifs, avatar, feuille de
   route, aide, réglages), mini-carte, chat. Les objectifs se masquent.
-- Pas de compteur de monnaie, d’abonnés ou de « notoriété » (contrairement à la référence DEKODE).
+- Pas de classement, d’abonnés ni de « notoriété » affichés : les Coins coins sont personnels et
+  ne se comparent pas (rien de repris de la référence DEKODE).
 - Toute fenêtre se ferme avec Échap ; le clavier du jeu est désactivé pendant la saisie.
 - Textes en français clair, tutoiement chaleureux.
 
