@@ -73,7 +73,7 @@ export const SECRETS: SecretDef[] = [
   {
     id: 'champignons',
     title: 'Le cercle de champignons',
-    hint: 'Tout au fond de la forêt, des champignons dessinent un cercle parfait.',
+    hint: 'Au bord de la clairière, dans la forêt, des champignons dessinent un cercle parfait.',
     page: 'Les Malinos disent qu’ils ont dansé ici une nuit de pleine lune. J’ai vérifié les journaux du serveur : personne ne danse à trois heures du matin. Sauf… non. Rien. Oubliez.',
   },
 ];

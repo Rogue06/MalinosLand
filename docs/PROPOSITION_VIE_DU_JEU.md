@@ -100,6 +100,18 @@ ensemble »), en gardant ce qui a du sens dans un monde à explorer, pas sur un 
   bien, yep ! ») ; un modérateur propose de le **présenter en live** à la communauté (discours à
   préparer ensemble, sujet à part).
 
+### La boutique de Renaud (idée du responsable)
+
+Un petit magasin fictif dans le Hub (penderies, présentoirs, cabine d’essayage), avec des
+t-shirts inspirés de ceux de Renaud, à essayer sur son avatar et à débloquer avec des Coins coins.
+**Attention aux droits** : plusieurs de ses t-shirts montrent des personnages ou logos protégés
+(Astro Boy © Tezuka Productions, les Gremlins, le cadre jaune de National Geographic). Dans un
+projet open source, on ne les redessine pas : on crée des **clins d’œil originaux** dans le même
+esprit, par exemple un « petit robot rétro » en hologramme avec le grand titre « SCIENCE
+FICTION » et ses fiches techniques, une « bestiole farceuse » sur fond bordeaux (« THE GLITCHES
+ARE COMING »), et « SARCASM SOCIETY » en lettres blanches avec un autre cadre. L’effet
+**hologramme** (reflets irisés qui changent avec le mouvement) est faisable dans le jeu.
+
 ## 3. Les Coins coins 🦆
 
 Pas une vraie monnaie : un petit **système d’appartenance** et de **récompense** pour donner

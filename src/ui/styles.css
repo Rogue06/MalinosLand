@@ -1455,6 +1455,25 @@ button.presence-chip {
   color: var(--teal-light);
 }
 
+/* Charte des Malinos (panneau de bienvenue) */
+.charte {
+  margin: 4px 0 6px;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+.charte li {
+  font-size: 14px;
+}
+.devise {
+  margin: 6px 0 14px;
+  text-align: center;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--sun);
+}
+
 /* Le carnet de Joshua */
 .carnet-count {
   margin: 4px 0 10px;

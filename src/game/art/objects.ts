@@ -245,6 +245,28 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
     box(b, 0.28, 0.3, 0.22, 0.38, 0.32, 0.14, lighten(c, 0.08));
     box(b, 0.62, 0.55, 0, 0.22, 0.22, 0.12, darken(c, 0.06));
   },
+  /** Cercle de champignons (2 × 2, au ras du sol) : herbe plus claire et neuf champignons. */
+  mushroom_ring(b) {
+    const ring = [];
+    for (let i = 0; i < 24; i++) {
+      const a = (i / 24) * Math.PI * 2;
+      ring.push({ x: 1 + Math.cos(a) * 0.85, y: 1 + Math.sin(a) * 0.85, z: 0.005 });
+    }
+    b.poly(ring, 'rgba(160, 214, 110, 0.45)');
+    for (let i = 0; i < 9; i++) {
+      const a = (i / 9) * Math.PI * 2 + 0.3;
+      const s = 0.8 + ((i * 37) % 5) * 0.12;
+      const x = 1 + Math.cos(a) * 0.72;
+      const y = 1 + Math.sin(a) * 0.72;
+      box(b, x - 0.025 * s, y - 0.025 * s, 0, 0.05 * s, 0.05 * s, 0.11 * s, '#f1ede6', {
+        outline: false,
+      });
+      box(b, x - 0.07 * s, y - 0.07 * s, 0.11 * s, 0.14 * s, 0.14 * s, 0.05 * s, '#d9483b', {
+        outline: false,
+        decals: [decal('top', 0.25, 0.25, 0.45, 0.45, '#f7f2ea')],
+      });
+    }
+  },
   mushrooms(b) {
     for (const [x, y, s] of [
       [0.25, 0.3, 1],
@@ -529,7 +551,7 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
    * œuf blanc sur socle noir, petites jambes, tête arrondie, deux grands yeux reliés par une
    * barre, deux antennes à ressort), redessiné dans le style du jeu.
    */
-  robot(b) {
+  robot(b, v) {
     const shell = '#f4f2ee';
     const dark = '#23262f';
     // Socle noir et corps en œuf, plus large un peu en dessous du milieu, ouvert en haut.
@@ -591,6 +613,8 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
       ring(cx, 0.88, 0.079, '#0f1116', 0.004);
       ring(cx - 0.026, 0.91, 0.021, '#ffffff', 0.008);
     }
+    // Variante 1 : sans antennes (dans le jeu, elles sont animées à part : JoshuaLife).
+    if (v === 1) return;
     // Antennes à ressort, légèrement écartées.
     for (const [x0, x1] of [
       [0.33, 0.27],
@@ -1046,3 +1070,23 @@ export const DECOR_ART: Record<string, DecorArt> = {
     });
   },
 };
+
+/**
+ * Une antenne de Joshua, droite, dessinée autour de l'origine (0, 0, 0) qui sert de pivot :
+ * tige, ressort à la base et bout blanc (teinté selon l'humeur de Joshua).
+ */
+export function drawAntenna(b: IsoBuilder): void {
+  const dark = '#23262f';
+  b.poly(
+    [
+      { x: -0.012, y: 0, z: 0 },
+      { x: 0.012, y: 0, z: 0 },
+      { x: 0.01, y: 0, z: 0.5 },
+      { x: -0.01, y: 0, z: 0.5 },
+    ],
+    dark,
+  );
+  for (let i = 0; i < 5; i++) b.disc(0, 0, 0.02 + i * 0.018, 0.028, '#7d8494', dark);
+  b.cylinder(0, 0, 0.48, 0.02, 0.04, dark);
+  b.cylinder(0, 0, 0.52, 0.03, 0.035, '#ffffff');
+}

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { QUESTS } from '../../content/quests';
+import { followUpLines, moodLine } from '../../content/joshua';
 import { SECRETS } from '../../content/secrets';
 import { HOME_EXIT, HUB_ROOM, mapIdForRoom } from '../../content/rooms';
 import { HOME_RULES, loadHomeWorld, loadWorld } from '../../content/world';
@@ -70,6 +71,7 @@ import type { InteractionDef } from '../../world/types';
 import { DecorEditor } from '../DecorEditor';
 import { AvatarView } from '../entities/AvatarView';
 import { AmbientLife } from '../life/AmbientLife';
+import { JoshuaLife } from '../life/JoshuaLife';
 import { TextureFactory } from '../textures';
 import { BACKREST_DEPTH, WorldRenderer } from '../WorldRenderer';
 
@@ -165,6 +167,8 @@ export class WorldScene extends Phaser.Scene {
   /** Abonnements aux événements réseau de cette scène (retirés à chaque changement de salle). */
   private netCleanups: Array<() => void> = [];
   private life: AmbientLife | null = null;
+  /** Joshua vivant (antennes animées, humeur). */
+  private joshua: JoshuaLife | null = null;
   /** Demande d'entrée dans un logement en attente de la réponse du serveur. */
   private pendingDoor: { room: string; ownerName: string | null } | null = null;
   /** Meubles du logement affiché (vides au Hub). */
@@ -323,6 +327,9 @@ export class WorldScene extends Phaser.Scene {
           depthAt: (x, y) => this.depthFor(x, y, null, 'py'),
           player: () => this.player.pos,
         });
+    this.joshua = new JoshuaLife(this, this.world, this.renderer3d, this.tex, {
+      animate: !settings.reducedMotion,
+    });
   }
 
   /** Remeuble le logement affiché, sans relancer la scène (éditeur, visiteurs prévenus). */
@@ -330,6 +337,7 @@ export class WorldScene extends Phaser.Scene {
     const home = loadHomeWorld(items);
     this.decorItems = home.items;
     this.life?.destroy();
+    this.joshua?.destroy();
     this.renderer3d.destroy();
     this.hovered = null;
     this.editorHighlight = null;
@@ -648,7 +656,11 @@ export class WorldScene extends Phaser.Scene {
   private runInteraction(obj: WorldObject, it: InteractionDef): void {
     switch (it.kind) {
       case 'dialog':
-        dialogStore.set({ speaker: it.speaker ?? obj.entry.name, lines: it.lines, index: 0 });
+        dialogStore.set({
+          speaker: it.speaker ?? obj.entry.name,
+          lines: obj.id === 'joshua' ? this.joshuaLines(it.lines) : it.lines,
+          index: 0,
+        });
         break;
       case 'panel':
         panelStore.set(it.panel);
@@ -662,6 +674,18 @@ export class WorldScene extends Phaser.Scene {
     }
     if (it.quest) this.quest(it.quest);
     if (it.secret) this.secret(it.secret);
+  }
+
+  /**
+   * Répliques de Joshua : une phrase selon son humeur, puis la visite guidée la première fois,
+   * ensuite un mot sur le carnet de secrets. Ses antennes s'agitent pendant qu'il parle.
+   */
+  private joshuaLines(tour: string[]): string[] {
+    this.joshua?.talk(6);
+    const mood = this.joshua?.mood;
+    const first = mood ? [moodLine(mood, Math.floor(Math.random() * 10))] : [];
+    if (!progressStore.get().includes('talk_guide')) return [...first, ...tour];
+    return [...first, ...followUpLines(secretsStore.get().length, SECRETS.length)];
   }
 
   private secret(id: string): void {
@@ -1144,6 +1168,7 @@ export class WorldScene extends Phaser.Scene {
 
     const step = this.player.update(dt, this.readInput());
     this.life?.update(delta);
+    this.joshua?.update(delta, this.player.pos);
     if (step.arrived) {
       const obj = this.world.getObject(step.arrived.objectId);
       if (obj) this.performAction(step.arrived.kind, obj);
