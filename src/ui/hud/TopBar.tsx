@@ -1,6 +1,9 @@
 import { REALTIME_URL } from '../../config';
-import { commands, panelStore, presenceStore, roomStore, zoneStore } from '../../state';
+import { commands, panelStore, presenceStore, roomStore, skyStore, zoneStore } from '../../state';
 import { useStore } from '../hooks';
+
+const SKY_ICON = { nuit: '🌙', aube: '🌅', jour: '☀️', crepuscule: '🌇' } as const;
+const SKY_LABEL = { nuit: 'la nuit', aube: 'l’aube', jour: 'le jour', crepuscule: 'le crépuscule' };
 
 export function TopBar({
   onToggleObjectives,
@@ -12,6 +15,7 @@ export function TopBar({
   const zone = useStore(zoneStore);
   const presence = useStore(presenceStore);
   const room = useStore(roomStore);
+  const sky = useStore(skyStore);
   return (
     <header class="topbar">
       <div class="topbar-left">
@@ -35,6 +39,14 @@ export function TopBar({
           <span class={`zone-chip ${zone.status}`} title={zone.description}>
             📍 {zone.name}
             {zone.status === 'soon' && <em> · bientôt ({zone.plannedFor})</em>}
+          </span>
+        )}
+        {sky && (
+          <span
+            class="zone-chip sky-chip"
+            title={`Heure de Paris : c’est ${SKY_LABEL[sky.phase]}. Le jour et la nuit suivent l’heure réelle (réglage « Toujours de jour » dans ⚙️).`}
+          >
+            {SKY_ICON[sky.phase]} {sky.time}
           </span>
         )}
       </div>

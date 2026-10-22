@@ -264,6 +264,14 @@ export function SettingsPanel() {
           />
           <span>Ambiance sonore (oiseaux dehors, clavier au coworking…)</span>
         </label>
+        <label class="check">
+          <input
+            type="checkbox"
+            checked={s.alwaysDay}
+            onChange={(e) => set({ alwaysDay: (e.target as HTMLInputElement).checked })}
+          />
+          <span>Toujours de jour (sinon, le jour et la nuit suivent l’heure de Paris)</span>
+        </label>
         <label>
           <span>Volume des sons</span>
           <input

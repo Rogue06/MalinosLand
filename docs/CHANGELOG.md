@@ -5,6 +5,17 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (lot C : jour et nuit)
+
+- Le monde suit **l’heure réelle de Paris** : aube rosée, plein jour, coucher de soleil orangé,
+  nuit bleutée. Les heures du lever et du coucher changent avec les saisons (heure d’été
+  comprise).
+- La nuit : **réverbères, lampes et feu de camp bien allumés**, **étoiles** dans le ciel,
+  **lucioles** dans la forêt et le parc ; les oiseaux et les papillons dorment, on entend les
+  **grillons**. À l’intérieur, la nuit est plus douce.
+- Petite **horloge** en haut de l’écran (🌅 ☀️ 🌇 🌙 et l’heure de Paris).
+- Réglage **« Toujours de jour »** dans ⚙️ Réglages.
+
 ### Ajouté (lot B2 : rôles, avatar, slogans)
 
 - **Statut doré** : pseudo doré qui scintille, avec le titre **« Le Décodeur en chef »** au-dessus

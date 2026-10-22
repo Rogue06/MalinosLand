@@ -371,3 +371,18 @@ serveur relit le rôle dans la base et l'annonce à tous, sans reconnexion.
 **Conséquences.** Une requête à la base par changement de rôle : négligeable. Hors serveur
 (démo entre onglets), les rôles des autres ne s'affichent pas. Les options d'avatar barbe et
 micro sont ouvertes à tous (champ `beard` ajouté à l'apparence, absent = « aucune »).
+
+## DEC-028 — Jour et nuit à l’heure de Paris, calculés dans le navigateur (26/10/2026)
+
+**Contexte.** Lot C : le monde doit suivre l’heure réelle de Paris (aube, jour, crépuscule,
+nuit), sans coût d’hébergement et sans alourdir le jeu sur une machine modeste.
+**Décision.** `src/core/daylight.ts` (logique pure, testée) lit l’heure de Paris avec le fuseau
+`Europe/Paris` (heure d’été comprise) et calcule le lever et le coucher du soleil selon la saison
+(formule astronomique simplifiée, à quelques minutes près). `src/game/life/DayNight.ts` applique
+le résultat avec **un seul rectangle teinté en multiplication** sur l’écran (rosé, orangé, bleu
+nuit ; plus doux à l’intérieur), des halos de lampes plus vifs, des étoiles et des lucioles
+(qualité normale et haute seulement). Les oiseaux dorment et les grillons chantent la nuit. Le
+ciel est recalculé toutes les 20 secondes. Réglage « Toujours de jour ».
+**Conséquences.** Aucun message réseau ni requête : chacun voit la même heure parce que tout le
+monde lit l’horloge de Paris. Coût d’affichage : un quadrilatère plein écran. Les fenêtres
+allumées la nuit ne sont pas encore faites.

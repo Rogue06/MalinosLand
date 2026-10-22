@@ -18,6 +18,8 @@ export interface Settings {
   ambience: boolean;
   /** Volume général des sons, de 0 à 1. */
   volume: number;
+  /** Toujours de jour : pas de nuit à l'heure de Paris (lot C). */
+  alwaysDay: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -30,6 +32,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sounds: true,
   ambience: true,
   volume: 0.6,
+  alwaysDay: false,
 };
 
 const KEY = 'settings';
@@ -49,6 +52,7 @@ export function parseSettings(raw: unknown): Settings {
     'multiTab',
     'sounds',
     'ambience',
+    'alwaysDay',
   ] as const) {
     if (typeof r[k] === 'boolean') s[k] = r[k];
   }

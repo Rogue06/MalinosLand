@@ -1,5 +1,6 @@
 import type { AvatarAppearance } from './content/avatars';
 import { EventBus } from './core/eventBus';
+import type { SkyPhase } from './core/daylight';
 import type { Vec2 } from './core/iso';
 import { Store } from './core/store';
 import type { ChatScope, Emote, Role } from './multiplayer/protocol';
@@ -59,6 +60,8 @@ export interface Stats {
 }
 
 export const zoneStore = new Store<ZoneDef | null>(null);
+/** Ciel du moment (lot C) : phase de la journée et heure de Paris, pour la petite horloge. */
+export const skyStore = new Store<{ phase: SkyPhase; time: string } | null>(null);
 export const hintStore = new Store<string | null>(null);
 export const panelStore = new Store<
   PanelId | 'settings' | 'help' | 'players' | 'moderation' | null

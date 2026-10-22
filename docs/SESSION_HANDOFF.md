@@ -36,6 +36,13 @@ Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter
 
 ## Dernières sessions
 
+- **26/10 (soir)** — PR #41 (lot B2, DEC-027) fusionnée et en ligne ; migration des rôles
+  appliquée (`my_account` ajoutée, `my_profile` inchangée : l’outil MCP de Supabase n’exécute pas
+  de `drop` sans confirmation). Branche `feature/lot-c-jour-nuit` (DEC-028) : jour et nuit à
+  l’heure de Paris (`src/core/daylight.ts`, `src/game/life/DayNight.ts`), horloge, réglage
+  « Toujours de jour », grillons, étoiles, lucioles. Outil de débogage `time(h)`. Reste à faire
+  plus tard : fenêtres allumées la nuit. Suite proposée : lot D (Coins coins 🦆).
+
 - **26/10 (fin)** — PR #38, #39, #40 fusionnées et en ligne (page d'accueil servie depuis le
   dépôt privé, secret `ACCUEIL_TOKEN` en place, vérifié par le responsable). Branche
   `feature/lot-b2-roles` (DEC-027) : statut doré « Le Décodeur en chef » et badge 🛡️ des
