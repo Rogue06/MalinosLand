@@ -16,7 +16,6 @@ import {
 import {
   FEEDBACK_MAX,
   FEEDBACK_MIN,
-  GITHUB_NEW_ISSUE,
   REPORT_DETAILS_MAX,
   REPORT_REASONS,
   buildReport,
@@ -358,13 +357,6 @@ export function FeedbackPanel({ kind }: { kind: FeedbackKind }) {
       ) : (
         <p class="notice">L’envoi depuis le jeu est disponible dans la version en ligne.</p>
       )}
-      <p class="muted small">
-        Tu as un compte GitHub ? Tu peux aussi{' '}
-        <a href={GITHUB_NEW_ISSUE} target="_blank" rel="noopener noreferrer">
-          ouvrir un ticket directement
-        </a>{' '}
-        et en discuter avec les contributeurs.
-      </p>
     </Modal>
   );
 }
