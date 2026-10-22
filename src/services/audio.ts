@@ -6,7 +6,8 @@ import { settingsStore } from './settings';
  * - `playSound('message' | 'mention')` : arrivée d'un message (décidé par SoundGate) ;
  * - `setSpotSound(source, niveau)` : son d'une source proche (crépitement du feu de camp, eau de
  *   la fontaine), d'autant plus fort qu'on s'en approche ;
- * - `setAmbience(lieu)` : ambiance selon la zone (oiseaux et vent dehors, clavier au
+ * - `setAmbience(lieu)` : ambiance selon la zone (oiseaux et vent dehors, grillons la nuit
+ *   avec `setNightSounds`, clavier au
  *   coworking, « ding » de l'ascenseur dans le hall, petites mélodies d'arcade de temps en temps
  *   dans la salle de jeux, cheminée et tasses au salon). Pas de fond sonore continu là où l'on
  *   passe le plus de temps : seulement des sons ponctuels, espacés.
@@ -130,9 +131,32 @@ function later(ms: number, fn: () => void): void {
   timers.push(setTimeout(fn, ms));
 }
 
+/** La nuit (lot C) : les oiseaux dorment, on entend les grillons. */
+let night = false;
+
+/** Jour ou nuit à l'heure de Paris : change les sons du dehors au prochain cri. */
+export function setNightSounds(on: boolean): void {
+  night = on;
+}
+
+/** Grillons : quelques séries de petites stridulations aiguës, très douces. */
+function cricketChirp(c: AudioContext): void {
+  const t0 = c.currentTime + 0.05;
+  const f = 4300 + Math.random() * 500;
+  const series = 2 + Math.floor(Math.random() * 3);
+  for (let s = 0; s < series; s++)
+    for (let i = 0; i < 4; i++)
+      tone(f, t0 + s * 0.42 + i * 0.045, 0.025, { gain: 0.012, out: ambienceGain! });
+}
+
 function birdLoop(): void {
   const c = ctx;
   if (!c || current !== 'outdoor') return;
+  if (night) {
+    cricketChirp(c);
+    later(1800 + Math.random() * 3500, birdLoop);
+    return;
+  }
   const t = c.currentTime + 0.05;
   const base = 2400 + Math.random() * 1600;
   const notes = 2 + Math.floor(Math.random() * 4);

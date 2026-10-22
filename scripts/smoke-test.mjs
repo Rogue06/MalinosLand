@@ -287,6 +287,17 @@ try {
     await page.screenshot({ path: `${outDir}/07-terrasse.png` });
   });
 
+  await step('jour et nuit (heure de Paris imposée)', async () => {
+    const night = await page.evaluate(() => window.__malinosDebug.time(23));
+    if (night?.phase !== 'nuit' || night.lights < 0.9)
+      fail(`nuit attendue, reçu ${JSON.stringify(night)}`);
+    await waitUi('.sky-chip', '23:00');
+    await page.screenshot({ path: `${outDir}/07b-terrasse-nuit.png` });
+    const day = await page.evaluate(() => window.__malinosDebug.time(13));
+    if (day?.phase !== 'jour') fail(`jour attendu, reçu ${JSON.stringify(day)}`);
+    await page.evaluate(() => window.__malinosDebug.time());
+  });
+
   await step('logement : studio', async () => {
     await waitIdle();
     const home = `home-${'a'.repeat(32)}`;

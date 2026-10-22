@@ -1318,6 +1318,9 @@ button.presence-chip {
   .topbar-right {
     justify-content: flex-end;
   }
+  .topbar-left .sky-chip {
+    display: none;
+  }
   .topbar-left .zone-chip {
     min-width: 0;
     overflow: hidden;

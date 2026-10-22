@@ -93,6 +93,8 @@ export class AmbientLife {
   private grounds: Spot[] = [];
   private butterflies: Butterfly[] = [];
   private time = 0;
+  /** La nuit, oiseaux et papillons dorment : ils sont cachés. */
+  private sleeping = false;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -251,8 +253,18 @@ export class AmbientLife {
     this.updateRipples(dt);
     this.updateSteam(dt);
     this.updateFires(dt);
+    if (this.sleeping) return;
     this.updateBirds(dt);
     this.updateButterflies();
+  }
+
+  /** Niveau de nuit (0 jour, 1 nuit) : au-delà de 0,6, les oiseaux et papillons dorment. */
+  setNight(level: number): void {
+    const sleeping = level > 0.6;
+    if (sleeping === this.sleeping) return;
+    this.sleeping = sleeping;
+    for (const b of this.birds) b.img.setVisible(!sleeping);
+    for (const b of this.butterflies) b.img.setVisible(!sleeping);
   }
 
   // ---------------------------------------------------------------- Fontaine

@@ -62,6 +62,8 @@ describe('profil et réglages', () => {
       sounds: false,
     });
     expect(parseSettings({ volume: Number.NaN }).volume).toBe(DEFAULT_SETTINGS.volume);
+    expect(parseSettings({}).alwaysDay).toBe(false);
+    expect(parseSettings({ alwaysDay: true }).alwaysDay).toBe(true);
   });
 
   it('borne les apparences', () => {

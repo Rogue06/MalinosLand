@@ -63,6 +63,7 @@ import {
   statsStore,
   typingStore,
   worldInfoStore,
+  skyStore,
   zoneStore,
   type DecorAction,
 } from '../../state';
@@ -74,6 +75,7 @@ import type { InteractionDef } from '../../world/types';
 import { DecorEditor } from '../DecorEditor';
 import { AvatarView } from '../entities/AvatarView';
 import { AmbientLife } from '../life/AmbientLife';
+import { DayNight } from '../life/DayNight';
 import { DanceFloor } from '../life/DanceFloor';
 import { JoshuaLife } from '../life/JoshuaLife';
 import { TextureFactory } from '../textures';
@@ -171,6 +173,10 @@ export class WorldScene extends Phaser.Scene {
   /** Abonnements aux événements réseau de cette scène (retirés à chaque changement de salle). */
   private netCleanups: Array<() => void> = [];
   private life: AmbientLife | null = null;
+  /** Jour et nuit à l'heure de Paris (lot C). */
+  private dayNight: DayNight | null = null;
+  /** Le joueur est-il à l'intérieur (nuit plus douce) ? Gardé tel quel hors des zones. */
+  private indoor = false;
   /** Joshua vivant (antennes animées, humeur). */
   private joshua: JoshuaLife | null = null;
   /** Rondes de champignons : qui s'y tient immobile danse (vu par tous, sans message réseau). */
@@ -341,6 +347,14 @@ export class WorldScene extends Phaser.Scene {
     this.joshua = new JoshuaLife(this, this.world, this.renderer3d, this.tex, {
       animate: !settings.reducedMotion,
     });
+    this.dayNight?.destroy();
+    this.dayNight = new DayNight(this, this.world, this.renderer3d, this.life, this.tex, {
+      effects: rp.effects,
+      reducedMotion: settings.reducedMotion,
+      alwaysDay: () => settingsStore.get().alwaysDay,
+    });
+    this.dayNight.setContext(this.indoor, settings.alwaysDay);
+    this.publishSky();
     this.danceRings = this.world.objects.filter((o) => o.type === 'mushroom_ring');
     for (const f of this.danceFloors) f.destroy();
     this.danceFloors = this.danceRings.map(
@@ -1156,8 +1170,20 @@ export class WorldScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- Réglages & profil
 
+  /** Petite horloge de l'interface : mise à jour seulement quand la minute change. */
+  private publishSky(): void {
+    const sky = this.dayNight?.sky;
+    if (!sky) return;
+    const h = Math.floor(sky.hours);
+    const m = Math.floor((sky.hours - h) * 60);
+    const time = `${h}:${String(m).padStart(2, '0')}`;
+    const prev = skyStore.get();
+    if (prev?.time !== time || prev.phase !== sky.phase) skyStore.set({ phase: sky.phase, time });
+  }
+
   private applySettings(s: Settings): void {
     this.game.loop.setFPSLimit(s.fpsLimit);
+    this.dayNight?.setContext(this.indoor, s.alwaysDay);
     this.avatar.setNameVisible(s.showNames);
     this.renderer3d.setLabelsVisible(s.showNames);
     for (const r of this.remotes.values()) r.view.setNameVisible(s.showNames);
@@ -1216,6 +1242,8 @@ export class WorldScene extends Phaser.Scene {
 
     const step = this.player.update(dt, this.readInput());
     this.life?.update(delta);
+    this.dayNight?.update(delta);
+    this.publishSky();
     this.joshua?.update(delta, this.player.pos);
     if (step.arrived) {
       const obj = this.world.getObject(step.arrived.objectId);
@@ -1390,6 +1418,10 @@ export class WorldScene extends Phaser.Scene {
     this.zoneId = id;
     zoneStore.set(zone && homeOwner(this.room) ? { ...zone, name: this.homeLabel() } : zone);
     setAmbience(ambienceForZone(id));
+    if (id) {
+      this.indoor = ambienceForZone(id) !== 'outdoor';
+      this.dayNight?.setContext(this.indoor, settingsStore.get().alwaysDay);
+    }
     if (id === 'terrace') this.quest('terrace');
     if (id === 'hall' && !this.greeted) {
       this.greeted = true;
@@ -1481,6 +1513,11 @@ export class WorldScene extends Phaser.Scene {
         return this.userZoom;
       },
       peers: () => this.remotes.size,
+      /** Impose une heure de Paris (0–24) pour voir la nuit ; sans argument : heure réelle. */
+      time: (h?: number) => {
+        this.dayNight?.forceHour(typeof h === 'number' ? h : null);
+        return this.dayNight?.sky;
+      },
       /** Aperçu local d'un rôle sur son propre avatar (captures) : rien n'est envoyé. */
       role: (r: Role | null) => this.avatar.setRole(r),
       fps: () => Math.round(this.game.loop.actualFps),
@@ -1518,6 +1555,8 @@ export class WorldScene extends Phaser.Scene {
 
   private teardown(): void {
     if (this.awayTimer) clearTimeout(this.awayTimer);
+    this.dayNight?.destroy();
+    this.dayNight = null;
     setDiscoLevel(0);
     this.editor?.destroy();
     this.editor = null;

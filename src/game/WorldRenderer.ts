@@ -13,6 +13,9 @@ const DEPTH_FLAT = -6e6;
 const DEPTH_SHADOW = -5e6;
 const DEPTH_LIGHT_POOL = -4e6;
 const DEPTH_GLOW = 1e7;
+/** Opacité des halos de lumière en plein jour. */
+const HALO_ALPHA = 0.22;
+const POOL_ALPHA = 0.2;
 
 export interface RenderedObject {
   obj: WorldObject;
@@ -43,6 +46,8 @@ export class WorldRenderer {
   readonly objects = new Map<string, RenderedObject>();
   readonly depthBoxes: DepthBox[] = [];
   private labels: Phaser.GameObjects.Text[] = [];
+  /** Halos des lampes (et leur tache au sol), plus vifs la nuit. */
+  private lights: Array<{ halo: Phaser.GameObjects.Image; pool: Phaser.GameObjects.Image }> = [];
   /** Tout ce qui a été affiché pour la salle (pour pouvoir la reconstruire). */
   private created: Phaser.GameObjects.GameObject[] = [];
 
@@ -75,6 +80,15 @@ export class WorldRenderer {
     this.objects.clear();
     this.depthBoxes.length = 0;
     this.labels = [];
+    this.lights = [];
+  }
+
+  /** Niveau des lampes : 0 en plein jour (halos discrets), 1 la nuit (bien allumées). */
+  setLightLevel(level: number): void {
+    for (const l of this.lights) {
+      l.halo.setAlpha(HALO_ALPHA + 0.4 * level);
+      l.pool.setAlpha(POOL_ALPHA + 0.32 * level);
+    }
   }
 
   private track<T extends Phaser.GameObjects.GameObject>(go: T): T {
@@ -215,7 +229,7 @@ export class WorldRenderer {
       .setDisplaySize(light.radius * TILE_W * 0.9, light.radius * TILE_W * 0.9)
       .setTint(light.color)
       .setBlendMode(Phaser.BlendModes.ADD)
-      .setAlpha(0.22)
+      .setAlpha(HALO_ALPHA)
       .setDepth(DEPTH_GLOW);
     this.track(haloImg);
     const pool = project(cx, cy, 0);
@@ -224,9 +238,10 @@ export class WorldRenderer {
       .setDisplaySize(light.radius * TILE_W * 1.6, light.radius * TILE_W * 0.8)
       .setTint(light.color)
       .setBlendMode(Phaser.BlendModes.ADD)
-      .setAlpha(0.2)
+      .setAlpha(POOL_ALPHA)
       .setDepth(DEPTH_LIGHT_POOL);
     this.track(poolImg);
+    this.lights.push({ halo: haloImg, pool: poolImg });
   }
 
   private addLabel(obj: WorldObject): void {
