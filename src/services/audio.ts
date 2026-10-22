@@ -4,7 +4,9 @@ import { settingsStore } from './settings';
  * Sons du jeu, entièrement générés par le code (Web Audio) : aucun fichier à télécharger, comme
  * les graphismes. Volume discret, coupables dans les réglages.
  * - `playSound('message' | 'mention')` : arrivée d'un message (décidé par SoundGate) ;
- * - `setAmbience(lieu)` : ambiance selon la zone (oiseaux et rafales de vent dehors, clavier au
+ * - `setSpotSound(source, niveau)` : son d'une source proche (crépitement du feu de camp, eau de
+ *   la fontaine), d'autant plus fort qu'on s'en approche ;
+ * - `setAmbience(lieu)` : ambiance selon la zone (oiseaux et vent dehors, clavier au
  *   coworking, « ding » de l'ascenseur dans le hall, petites mélodies d'arcade de temps en temps
  *   dans la salle de jeux, cheminée et tasses au salon). Pas de fond sonore continu là où l'on
  *   passe le plus de temps : seulement des sons ponctuels, espacés.
@@ -33,7 +35,7 @@ let current: Ambience = null;
 let wanted: Ambience = null;
 let paused = false;
 let timers: ReturnType<typeof setTimeout>[] = [];
-/** Fond sonore continu (vent, cheminée) et ce qui le module (rafales). */
+/** Fond sonore continu (vent, cheminée). */
 let bed: AudioScheduledSourceNode[] = [];
 
 function audio(): AudioContext | null {
@@ -163,17 +165,8 @@ function keyboardLoop(): void {
   later(3000 + Math.random() * 7000, keyboardLoop);
 }
 
-/**
- * Fond continu : bruit filtré en boucle, très doux. `gust` : le volume monte et descend
- * lentement (rafales), pour qu'on n'entende pas une boucle qui tourne.
- */
-function startBed(
-  c: AudioContext,
-  filter: BiquadFilterType,
-  freq: number,
-  gain: number,
-  gust = false,
-): void {
+/** Fond continu : bruit filtré en boucle, très doux. */
+function startBed(c: AudioContext, filter: BiquadFilterType, freq: number, gain: number): void {
   const src = c.createBufferSource();
   src.buffer = noiseBuffer(c, 4);
   src.loop = true;
@@ -185,15 +178,6 @@ function startBed(
   src.connect(f).connect(g).connect(ambienceGain!);
   src.start();
   bed.push(src);
-  if (gust) {
-    const lfo = c.createOscillator();
-    lfo.frequency.value = 0.06 + Math.random() * 0.04;
-    const depth = c.createGain();
-    depth.gain.value = gain * 0.9;
-    lfo.connect(depth).connect(g.gain);
-    lfo.start();
-    bed.push(lfo);
-  }
 }
 
 /** Hall : « ding » discret de l'ascenseur de temps en temps. */
@@ -266,7 +250,7 @@ function startAmbience(kind: Ambience): void {
   if (!kind || paused || !c || c.state !== 'running' || !settingsStore.get().ambience) return;
   current = kind;
   if (kind === 'outdoor') {
-    startBed(c, 'lowpass', 340, 0.03, true); // vent, par rafales
+    startBed(c, 'lowpass', 380, 0.05); // vent
     later(800, birdLoop);
   } else if (kind === 'coworking') {
     later(1500, keyboardLoop);
@@ -290,6 +274,107 @@ export function setAmbience(kind: Ambience): void {
 /** Onglet caché : on coupe l'ambiance (et on la reprend au retour). */
 export function setAudioPaused(hidden: boolean): void {
   paused = hidden;
-  if (hidden) stopAmbience();
-  else if (wanted !== current) startAmbience(wanted);
+  if (hidden) {
+    stopAmbience();
+    stopSpot();
+  } else if (wanted !== current) startAmbience(wanted);
+}
+
+// ---------------------------------------------------------------- Sons de proximité
+
+/** Source sonore proche du joueur (le jeu choisit la plus proche). */
+export type SpotSound = 'fire' | 'water';
+
+let spotGain: GainNode | null = null;
+let spotKind: SpotSound | null = null;
+let spotNodes: AudioScheduledSourceNode[] = [];
+let spotTimers: ReturnType<typeof setTimeout>[] = [];
+
+function stopSpot(): void {
+  for (const id of spotTimers) clearTimeout(id);
+  spotTimers = [];
+  for (const n of spotNodes) {
+    try {
+      n.stop();
+    } catch {
+      /* déjà arrêté */
+    }
+  }
+  spotNodes = [];
+  spotKind = null;
+}
+
+/** Feu de camp : crépitements irréguliers et un souffle grave. */
+function fireLoop(): void {
+  const c = ctx;
+  if (!c || spotKind !== 'fire' || !spotGain) return;
+  const buf = noiseBuffer(c, 0.01);
+  const t0 = c.currentTime + 0.03;
+  const pops = 3 + Math.floor(Math.random() * 7);
+  for (let i = 0; i < pops; i++) {
+    const src = c.createBufferSource();
+    src.buffer = buf;
+    const bp = c.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = 700 + Math.random() * 2600;
+    const g = c.createGain();
+    g.gain.value = 0.03 + Math.random() * 0.05;
+    src.connect(bp).connect(g).connect(spotGain);
+    src.start(t0 + Math.random() * 0.9);
+  }
+  spotTimers.push(setTimeout(fireLoop, 500 + Math.random() * 900));
+}
+
+function startSpot(kind: SpotSound): void {
+  stopSpot();
+  const c = ctx;
+  if (!c || !spotGain || paused || c.state !== 'running' || !settingsStore.get().ambience) return;
+  spotKind = kind;
+  const src = c.createBufferSource();
+  src.buffer = noiseBuffer(c, 3);
+  src.loop = true;
+  const f = c.createBiquadFilter();
+  const g = c.createGain();
+  if (kind === 'fire') {
+    f.type = 'lowpass';
+    f.frequency.value = 220;
+    g.gain.value = 0.06;
+    spotTimers.push(setTimeout(fireLoop, 100));
+  } else {
+    // Eau qui ruisselle : bruit aigu filtré, avec un léger va-et-vient.
+    f.type = 'bandpass';
+    f.frequency.value = 1700;
+    f.Q.value = 0.7;
+    g.gain.value = 0.03;
+    const lfo = c.createOscillator();
+    lfo.frequency.value = 0.5;
+    const depth = c.createGain();
+    depth.gain.value = 0.008;
+    lfo.connect(depth).connect(g.gain);
+    lfo.start();
+    spotNodes.push(lfo);
+  }
+  src.connect(f).connect(g).connect(spotGain);
+  src.start();
+  spotNodes.push(src);
+}
+
+/**
+ * Son de la source la plus proche (`level` de 0, loin, à 1, tout près), ou aucune. Appelé
+ * régulièrement par le jeu ; coupé avec l'ambiance (réglages) ou quand l'onglet est caché.
+ */
+export function setSpotSound(kind: SpotSound | null, level = 0): void {
+  const c = ctx;
+  if (!c || !ambienceGain) return;
+  if (!spotGain) {
+    spotGain = c.createGain();
+    spotGain.gain.value = 0;
+    spotGain.connect(ambienceGain);
+  }
+  const want = kind && level > 0 && !paused && settingsStore.get().ambience ? kind : null;
+  if (want !== spotKind) {
+    if (want) startSpot(want);
+    else stopSpot();
+  }
+  spotGain.gain.setTargetAtTime(want ? Math.min(1, Math.max(0, level)) : 0, c.currentTime, 0.4);
 }
