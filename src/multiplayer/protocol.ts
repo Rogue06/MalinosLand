@@ -73,6 +73,11 @@ export type NetMessage =
    * rechargent depuis la base (relayé par le serveur au reste de la salle).
    */
   | { t: 'decor'; id: string }
+  /**
+   * Le propriétaire prévient un joueur connecté qu'il l'a invité chez lui (relayé à ce seul
+   * joueur). Ce n'est qu'un avis : l'entrée reste vérifiée par la base.
+   */
+  | { t: 'invite'; id: string; target: string }
   // Messages émis uniquement par le serveur temps réel :
   | { t: 'rate'; ms: number }
   | { t: 'notice'; code: NoticeCode }
@@ -203,6 +208,10 @@ export function decodeMessage(raw: unknown): NetMessage | null {
         : null;
     case 'decor':
       return { t: 'decor', id };
+    case 'invite':
+      return typeof data.target === 'string' && ID_RE.test(data.target)
+        ? { t: 'invite', id, target: data.target }
+        : null;
     default:
       return null;
   }

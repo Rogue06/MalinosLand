@@ -27,13 +27,14 @@ import {
   unhidePlayer,
   type ReportReason,
 } from '../../services/moderation';
-import { inviteGuest } from '../../services/homes';
+import { inviteGuest, myHomeAccess, setMyHomeAccess } from '../../services/homes';
 import { listVisits, summarize, type Visit } from '../../services/visits';
 import { profileStore } from '../../services/profile';
 import { loadTurnstile, type TurnstileApi } from '../../services/turnstile';
 import { accountUuid } from '../../multiplayer/protocol';
 import {
   chatStore,
+  commands,
   panelStore,
   presenceStore,
   pushToast,
@@ -119,15 +120,34 @@ function ReportForm({ player, onDone }: { player: PresenceEntry; onDone: () => v
 }
 
 /** Joueurs connectés : masquer quelqu'un (pour soi) ou le signaler aux modérateurs. */
-/** Inviter chez soi un joueur connecté à son compte (la base vérifie les droits). */
-async function invite(p: PresenceEntry): Promise<void> {
+/**
+ * Inviter chez soi un joueur connecté à son compte (la base vérifie les droits). Un logement
+ * fermé passe « sur invitation » (sinon l'invité ne pourrait pas entrer), et l'invité reçoit
+ * aussitôt une petite carte « Y aller ».
+ */
+async function invite(p: PresenceEntry): Promise<boolean> {
   const uuid = accountUuid(p.id);
-  if (!uuid) return;
+  if (!uuid) return false;
   try {
     await inviteGuest(uuid);
-    pushToast(`${p.name} est invité chez toi (logement « sur invitation »).`, '✉️', 5000);
+    if ((await myHomeAccess()) === 'private') {
+      await setMyHomeAccess('invite');
+      pushToast(
+        'Ton logement passe en « Sur invitation » pour que tes invités puissent entrer.',
+        '🏠',
+        6000,
+      );
+    }
+    commands.emit('invite-notify', { target: p.id });
+    pushToast(
+      `Invitation envoyée à ${p.name} : une carte lui propose de te rejoindre.`,
+      '✉️',
+      5000,
+    );
+    return true;
   } catch (e) {
     pushToast(e instanceof AccountError ? e.message : 'Invitation impossible.', '⚠️', 5000);
+    return false;
   }
 }
 
@@ -137,6 +157,7 @@ export function PlayersPanel() {
   const account = useStore(accountStore);
   const canInvite = account.status === 'signed-in';
   const [reporting, setReporting] = useState<string | null>(null);
+  const [invited, setInvited] = useState<string[]>([]);
   const others = presence.filter((p) => !p.self);
   const offlineHidden = hidden.filter((h) => !others.some((p) => p.id === h.id));
 
@@ -162,10 +183,13 @@ export function PlayersPanel() {
                       <button
                         type="button"
                         class="btn ghost small"
-                        title="Lui permettre d’entrer dans ton logement"
-                        onClick={() => void invite(p)}
+                        title="Lui permettre d’entrer dans ton logement (il est prévenu aussitôt)"
+                        disabled={invited.includes(p.id)}
+                        onClick={() =>
+                          void invite(p).then((ok) => ok && setInvited((list) => [...list, p.id]))
+                        }
                       >
-                        Inviter
+                        {invited.includes(p.id) ? 'Invité ✓' : 'Inviter'}
                       </button>
                     )}
                     <button

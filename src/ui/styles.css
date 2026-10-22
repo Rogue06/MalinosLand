@@ -1085,6 +1085,44 @@ button.presence-chip {
   border-color: var(--teal);
 }
 
+/* ---------- Invitation reçue */
+.invitation {
+  position: absolute;
+  top: 64px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(360px, calc(100vw - 24px));
+  padding: 14px 16px 12px;
+  border: 1px solid rgba(255, 200, 87, 0.55);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-align: center;
+  animation: invitation-arrive 0.35s ease-out;
+  z-index: 5;
+}
+.invitation-text {
+  margin: 0 0 10px;
+  font-size: 15px;
+}
+.invitation-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.invitation-hint {
+  margin: 8px 0 0;
+}
+@keyframes invitation-arrive {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
 /* ---------- Éditeur de décoration du logement */
 .hud.editing .minimap,
 .hud.editing .objectives,

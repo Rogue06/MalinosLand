@@ -42,6 +42,8 @@ export interface NetworkEvents extends Record<string, unknown> {
   door: { room: string; ok: boolean; why?: DoorRefusal };
   /** Le propriétaire du logement où l'on se trouve a changé sa décoration. */
   decor: { owner: string };
+  /** Un joueur m'invite dans son logement. */
+  invite: { peer: RemotePeer };
 }
 
 export interface NetworkOptions {
@@ -188,6 +190,11 @@ export class NetworkClient {
   /** Le propriétaire fait sortir un joueur de son logement. */
   evict(target: string): void {
     this.send({ t: 'evict', id: this.selfId, target });
+  }
+
+  /** Prévient un joueur connecté que je l'ai invité chez moi. */
+  inviteNotify(target: string): void {
+    this.send({ t: 'invite', id: this.selfId, target });
   }
 
   /** Prévient les personnes présentes chez moi que la décoration a changé. */
@@ -372,6 +379,11 @@ export class NetworkClient {
       }
       case 'bye': {
         if (this.peers.delete(msg.id)) this.events.emit('leave', { id: msg.id });
+        break;
+      }
+      case 'invite': {
+        if (!peer || msg.target !== this.selfId) return;
+        this.events.emit('invite', { peer });
         break;
       }
       case 'decor': {
