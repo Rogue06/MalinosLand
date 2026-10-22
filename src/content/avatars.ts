@@ -14,7 +14,8 @@ export const HAIR_STYLES = [
   'queue',
   'aucun',
 ] as const;
-export const ACCESSORIES = ['aucun', 'lunettes', 'casque'] as const;
+export const ACCESSORIES = ['aucun', 'lunettes', 'casque', 'micro'] as const;
+export const BEARDS = ['aucune', 'courte', 'longue'] as const;
 
 export const SKIN_TONES = [
   '#f6d3b8',
@@ -63,32 +64,38 @@ export interface AvatarAppearance {
   top: number;
   bottom: number;
   accessory: number;
+  /** Barbe (index dans BEARDS). Absente des anciens profils : « aucune » par défaut. */
+  beard: number;
 }
 
 export const AVATAR_PRESETS: Array<{ name: string; look: AvatarAppearance }> = [
   {
     name: 'Codeuse',
-    look: { body: 1, skin: 1, hair: 1, hairColor: 1, top: 0, bottom: 0, accessory: 1 },
+    look: { body: 1, skin: 1, hair: 1, hairColor: 1, top: 0, bottom: 0, accessory: 1, beard: 0 },
   },
   {
     name: 'Créatif',
-    look: { body: 0, skin: 3, hair: 3, hairColor: 0, top: 1, bottom: 1, accessory: 0 },
+    look: { body: 0, skin: 3, hair: 3, hairColor: 0, top: 1, bottom: 1, accessory: 0, beard: 0 },
   },
   {
     name: 'Entrepreneuse',
-    look: { body: 1, skin: 4, hair: 2, hairColor: 0, top: 2, bottom: 3, accessory: 0 },
+    look: { body: 1, skin: 4, hair: 2, hairColor: 0, top: 2, bottom: 3, accessory: 0, beard: 0 },
   },
   {
     name: 'Bricoleur',
-    look: { body: 2, skin: 0, hair: 5, hairColor: 2, top: 3, bottom: 2, accessory: 0 },
+    look: { body: 2, skin: 0, hair: 5, hairColor: 2, top: 3, bottom: 2, accessory: 0, beard: 0 },
   },
   {
     name: 'Curieux·se',
-    look: { body: 0, skin: 2, hair: 6, hairColor: 7, top: 6, bottom: 0, accessory: 2 },
+    look: { body: 0, skin: 2, hair: 6, hairColor: 7, top: 6, bottom: 0, accessory: 2, beard: 0 },
+  },
+  {
+    name: 'Podcasteur',
+    look: { body: 0, skin: 0, hair: 0, hairColor: 2, top: 9, bottom: 0, accessory: 3, beard: 1 },
   },
   {
     name: 'Sage',
-    look: { body: 2, skin: 5, hair: 4, hairColor: 4, top: 4, bottom: 4, accessory: 1 },
+    look: { body: 2, skin: 5, hair: 4, hairColor: 4, top: 4, bottom: 4, accessory: 1, beard: 2 },
   },
 ];
 
@@ -102,6 +109,7 @@ const LIMITS: Record<keyof AvatarAppearance, number> = {
   top: TOP_COLORS.length,
   bottom: BOTTOM_COLORS.length,
   accessory: ACCESSORIES.length,
+  beard: BEARDS.length,
 };
 
 /** Normalise une apparence de source non fiable (stockage, réseau). */
@@ -125,10 +133,12 @@ export function randomAppearance(rnd: () => number = Math.random): AvatarAppeara
     top: r(TOP_COLORS.length),
     bottom: r(BOTTOM_COLORS.length),
     accessory: r(ACCESSORIES.length),
+    // Une barbe une fois sur trois environ.
+    beard: rnd() < 0.66 ? 0 : 1 + r(BEARDS.length - 1),
   };
 }
 
 /** Clé stable d'une apparence (cache de textures). */
 export function appearanceKey(a: AvatarAppearance): string {
-  return [a.body, a.skin, a.hair, a.hairColor, a.top, a.bottom, a.accessory].join('');
+  return [a.body, a.skin, a.hair, a.hairColor, a.top, a.bottom, a.accessory, a.beard].join('');
 }

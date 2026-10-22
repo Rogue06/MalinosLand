@@ -21,6 +21,13 @@ export type ChatScope = 'local' | 'global';
 export const NOTICE_CODES = ['full', 'maintenance', 'duplicate', 'kicked'] as const;
 export type NoticeCode = (typeof NOTICE_CODES)[number];
 
+/**
+ * Rôle visible d'un compte : statut doré (pseudo doré et titre) ou modérateur (badge 🛡️).
+ * Donné par la base (`account_role`) et ajouté par le serveur temps réel, jamais par le client.
+ */
+export const ROLES = ['gold', 'mod'] as const;
+export type Role = (typeof ROLES)[number];
+
 export interface PeerState {
   room: string;
   x: number;
@@ -31,7 +38,8 @@ export interface PeerState {
 
 /**
  * `v` (vérifié) : ajouté par le serveur temps réel quand le joueur est connecté à son compte.
- * Un client ne peut pas se l'attribuer : le serveur reconstruit lui-même ces messages.
+ * `r` (rôle) : ajouté de la même façon d'après la base. Un client ne peut pas se les attribuer :
+ * le serveur reconstruit lui-même ces messages.
  */
 export type NetMessage =
   | ({
@@ -41,6 +49,7 @@ export type NetMessage =
       look: AvatarAppearance;
       reply: boolean;
       v?: true;
+      r?: Role;
       /**
        * Clé de session d'un visiteur, envoyée au serveur seulement (jamais relayée) : elle prouve
        * qu'une nouvelle connexion vient du même onglet et peut remplacer l'ancienne.
@@ -57,7 +66,7 @@ export type NetMessage =
   | ({ t: 'state'; id: string } & PeerState)
   | { t: 'chat'; id: string; room: string; scope: ChatScope; text: string }
   | { t: 'emote'; id: string; room: string; e: Emote }
-  | { t: 'look'; id: string; name: string; look: AvatarAppearance; v?: true }
+  | { t: 'look'; id: string; name: string; look: AvatarAppearance; v?: true; r?: Role }
   | { t: 'bye'; id: string }
   /** Statut « absent » (onglet caché) : activé ou désactivé. */
   | { t: 'away'; id: string; on: boolean }
@@ -78,6 +87,11 @@ export type NetMessage =
    * joueur). Ce n'est qu'un avis : l'entrée reste vérifiée par la base.
    */
   | { t: 'invite'; id: string; target: string }
+  /**
+   * Le responsable vient de changer le rôle d'un joueur connecté (dans la base) : le serveur
+   * relit ce rôle dans la base et le transmet à tous. Ce n'est qu'une demande de mise à jour.
+   */
+  | { t: 'role'; id: string; target: string }
   // Messages émis uniquement par le serveur temps réel :
   | { t: 'rate'; ms: number }
   | { t: 'notice'; code: NoticeCode }
@@ -100,6 +114,8 @@ const MAX_COORD = 512;
 const isObj = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null;
 const coord = (v: unknown): number | null =>
   typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= MAX_COORD ? v : null;
+
+const roleOf = (r: unknown): { r?: Role } => (ROLES.includes(r as Role) ? { r: r as Role } : {});
 
 function decodeState(r: Record<string, unknown>): PeerState | null {
   const x = coord(r.x);
@@ -162,6 +178,7 @@ export function decodeMessage(raw: unknown): NetMessage | null {
         reply: data.reply === true,
         ...st,
         ...(data.v === true ? { v: true as const } : {}),
+        ...roleOf(data.r),
         ...(typeof data.k === 'string' && KEY_RE.test(data.k) ? { k: data.k } : {}),
         ...(data.a === true ? { a: true as const } : {}),
         ...(typeof data.tok === 'string' && TOKEN_RE.test(data.tok) ? { tok: data.tok } : {}),
@@ -191,6 +208,7 @@ export function decodeMessage(raw: unknown): NetMessage | null {
         name,
         look: sanitizeAppearance(data.look),
         ...(data.v === true ? { v: true as const } : {}),
+        ...roleOf(data.r),
       };
     }
     case 'bye':
@@ -211,6 +229,10 @@ export function decodeMessage(raw: unknown): NetMessage | null {
     case 'invite':
       return typeof data.target === 'string' && ID_RE.test(data.target)
         ? { t: 'invite', id, target: data.target }
+        : null;
+    case 'role':
+      return typeof data.target === 'string' && ID_RE.test(data.target)
+        ? { t: 'role', id, target: data.target }
         : null;
     default:
       return null;

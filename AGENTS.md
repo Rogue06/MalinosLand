@@ -136,4 +136,5 @@ expliqués dans `docs/GLOSSAIRE.md`.
 Ajouter `?debug` à l’URL du jeu expose `window.__malinosDebug` : `pos()`, `state()`,
 `walkTo(x, y)`, `teleport(x, y, orientation)`, `zoom(z?)`, `use(id)`, `useType(type)`,
 `sit(type, n)` (s’asseoir aussitôt sur le n-ième siège d’un type), `seated()`,
-`room()`, `travel(salle)` (aller directement au Hub ou dans un studio `home-…`), `peers()`, `fps()`. Utilisé par les tests de bout en bout et les captures de documentation.
+`room()`, `travel(salle)` (aller directement au Hub ou dans un studio `home-…`), `peers()`, `fps()`,
+`role(r)` (aperçu local du statut doré ou du badge sur son avatar, rien n’est envoyé). Utilisé par les tests de bout en bout et les captures de documentation.

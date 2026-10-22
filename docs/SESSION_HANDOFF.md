@@ -36,6 +36,15 @@ Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter
 
 ## Dernières sessions
 
+- **26/10 (fin)** — PR #38, #39, #40 fusionnées et en ligne (page d'accueil servie depuis le
+  dépôt privé, secret `ACCUEIL_TOKEN` en place, vérifié par le responsable). Branche
+  `feature/lot-b2-roles` (DEC-027) : statut doré « Le Décodeur en chef » et badge 🛡️ des
+  modérateurs, donnés par le responsable depuis 👥 Joueurs connectés ; barbe et micro pour les
+  avatars ; slogans. **Migration `20261026090000_roles.sql` à appliquer sur Supabase avant la
+  mise en ligne** (le serveur lit le rôle avec `my_profile`). Renaud n'a pas encore de compte :
+  le responsable lui donnera le statut doré quand il viendra. Suite proposée : lot C
+  (jour et nuit à l'heure de Paris).
+
 - **26/10 (suite)** — PR #37 fusionnée et en ligne ; PR #38 (ronde : clic, musique, projecteurs)
   et #39 (plus de lien GitHub) ouvertes. Branche `feature/accueil-prive` (DEC-026) : la page
   d’accueil part dans le dépôt **privé** `Rogue06/MalinosLand-accueil`. **À faire par le

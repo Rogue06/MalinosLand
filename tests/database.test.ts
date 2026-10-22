@@ -134,7 +134,7 @@ describe('base de données : profils', () => {
 describe('base de données : my_profile (serveur temps réel)', () => {
   it('renvoie le profil du joueur connecté, rien pour un visiteur', async () => {
     const me = await as<{ id: string; name: string }>(ALICE, 'select * from public.my_profile()');
-    expect(me.rows).toEqual([{ id: ALICE, name: 'Alice2' }]);
+    expect(me.rows).toEqual([{ id: ALICE, name: 'Alice2', role: null }]);
     const guest = await as(null, 'select * from public.my_profile()');
     expect(guest.rows).toEqual([]);
   });
@@ -558,5 +558,61 @@ describe('base de données : responsable du site', () => {
     await expect(
       as(MODO2, 'insert into public.site_owners (user_id) values ($1)', [MODO2]),
     ).rejects.toThrow(/permission denied/);
+  });
+});
+
+describe('base de données : rôles visibles (statut doré, modérateurs)', () => {
+  const CHEF = '00000000-0000-4000-8000-0000000000e1';
+  const RENAUD = '00000000-0000-4000-8000-0000000000e2';
+  const MODO3 = '00000000-0000-4000-8000-0000000000e3';
+  const role = async (who: string) =>
+    (await as<{ r: string | null }>(null, 'select public.account_role($1) as r', [who])).rows[0]!.r;
+
+  beforeAll(async () => {
+    await db.exec(
+      `insert into auth.users (id) values ('${CHEF}'), ('${RENAUD}'), ('${MODO3}') on conflict do nothing`,
+    );
+    await db.exec(`insert into public.site_owners (user_id) values ('${CHEF}')`);
+    // Le responsable est aussi modérateur : il n'a pourtant pas de badge (son choix).
+    await db.exec(`insert into public.moderators (user_id) values ('${CHEF}')`);
+    for (const [id, name] of [
+      [CHEF, 'Chef'],
+      [RENAUD, 'Renaud'],
+      [MODO3, 'Modo3'],
+    ] as const)
+      await as(id, `insert into public.profiles (id, name, look) values ($1, $2, '{}')`, [
+        id,
+        name,
+      ]);
+  });
+
+  it('le responsable donne et retire le statut doré et le rôle de modérateur', async () => {
+    expect(await role(RENAUD)).toBeNull();
+    await as(CHEF, 'select public.set_gold($1, true)', [RENAUD]);
+    await as(CHEF, 'select public.set_moderator($1, true)', [MODO3]);
+    expect(await role(RENAUD)).toBe('gold');
+    expect(await role(MODO3)).toBe('mod');
+    expect(await role(CHEF)).toBeNull();
+    const me = await as<{ role: string }>(RENAUD, 'select role from public.my_profile()');
+    expect(me.rows[0]!.role).toBe('gold');
+    await as(CHEF, 'select public.set_moderator($1, false)', [MODO3]);
+    expect(await role(MODO3)).toBeNull();
+  });
+
+  it('personne d’autre ne donne de rôle, et pas à un compte sans profil', async () => {
+    await expect(as(MODO3, 'select public.set_gold($1, true)', [MODO3])).rejects.toThrow(
+      /responsable/,
+    );
+    await expect(as(RENAUD, 'select public.set_moderator($1, true)', [MODO3])).rejects.toThrow(
+      /responsable/,
+    );
+    await expect(as(null, 'select public.set_gold($1, true)', [MODO3])).rejects.toThrow(
+      /permission denied/,
+    );
+    const ghost = '00000000-0000-4000-8000-0000000000e9';
+    await expect(as(CHEF, 'select public.set_gold($1, true)', [ghost])).rejects.toThrow(/inconnu/);
+    await expect(as(CHEF, 'select * from public.gold_members')).rejects.toThrow(
+      /permission denied/,
+    );
   });
 });

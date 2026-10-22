@@ -558,6 +558,25 @@ button.presence-chip {
 .chat-fold {
   color: var(--muted);
 }
+/* Statut doré (lot B2) : pseudo doré et brillant, dans le chat et la liste des présents. */
+.gold-name,
+.msg b.gold-name {
+  color: #ffd23f;
+  text-shadow: 0 0 6px rgba(255, 210, 63, 0.45);
+}
+.role-title {
+  display: block;
+  font-size: 11px;
+  font-style: italic;
+  font-weight: 700;
+  color: #e9b81f;
+}
+.role-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
 .chat-log {
   height: 128px;
   overflow-y: auto;

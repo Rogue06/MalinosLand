@@ -133,3 +133,10 @@ export const CHARTE: Array<{ icon: string; text: string }> = [
 
 /** Devise du monde, d'après celle de la communauté. */
 export const DEVISE = 'Comprendre · Penser · Agir';
+
+/** Slogans de la communauté de Renaud, en touches discrètes (salle de conférence, émissions). */
+export const SLOGANS = {
+  themes: 'Web · IA · Process · Impacts',
+  live: 'L’IA et le monde qui vient, décodés en live, forgés ensemble',
+  style: 'en mode fun, concret et avec vous',
+} as const;

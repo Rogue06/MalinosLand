@@ -12,7 +12,7 @@ import { AccountBox } from '../AccountBox';
 import { AvatarEditor } from '../AvatarEditor';
 import { useStore } from '../hooks';
 import { Modal } from './Modal';
-import { CHARTE, DEVISE } from '../../content/joshua';
+import { CHARTE, DEVISE, SLOGANS } from '../../content/joshua';
 
 function ExternalLink({ href, children }: { href: string; children: string }) {
   return (
@@ -122,6 +122,10 @@ export function TipsPanel() {
 export function EventsPanel() {
   return (
     <Modal title="Événements" icon="🎤">
+      <p class="devise">
+        {SLOGANS.live}, {SLOGANS.style}.
+      </p>
+      <p class="muted small">{SLOGANS.themes}</p>
       <p class="lead">Aucun événement n’est programmé pour l’instant.</p>
       <p>
         La salle de conférence accueillera des présentations, des démos de projets et des

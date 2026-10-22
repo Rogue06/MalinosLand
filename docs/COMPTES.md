@@ -162,17 +162,25 @@ voulu : la fonction fait ses propres vérifications (origine du site, Turnstile)
 Tester sur son ordinateur : clé publique de test `1x00000000000000000000AA` (toujours acceptée)
 dans `VITE_TURNSTILE_SITEKEY` (voir `.env.example`).
 
-## 3. Modérateurs
+## 3. Modérateurs et statut doré
 
-Les signalements ne sont lisibles que par les modérateurs. Pour en ajouter un : Supabase →
-**Authentication → Users** → copier son **User UID**, puis dans le **SQL Editor** :
+Les signalements ne sont lisibles que par les modérateurs. **Le plus simple : depuis le jeu.**
+Le responsable du site, connecté à son compte, ouvre **👥 Joueurs connectés** : sous chaque
+joueur connecté à son compte, les boutons **🛡️ Nommer modérateur** et **✨ Donner le statut
+doré** (« Le Décodeur en chef », réservé à Renaud) ; un second clic retire le rôle. La base
+vérifie que c'est bien le responsable (`set_moderator`, `set_gold`), et tout le monde voit le
+badge ou le pseudo doré aussitôt. Le responsable lui-même n'a pas de signe distinctif.
+
+À la main, si besoin : Supabase → **Authentication → Users** → copier son **User UID**, puis
+dans le **SQL Editor** :
 
 ```sql
 insert into public.moderators (user_id) values ('UID-copié-ici');
 ```
 
-Pour en retirer un : `delete from public.moderators where user_id = 'UID';`. La personne voit
-ensuite le bouton **🛡️ Modération** dans ⚙️ Réglages (après rechargement de la page).
+Pour en retirer un : `delete from public.moderators where user_id = 'UID';` (statut doré :
+table `public.gold_members`). La personne voit ensuite le bouton **🛡️ Modération** dans
+⚙️ Réglages (après rechargement de la page).
 
 ## 4. Gratuité et limites
 

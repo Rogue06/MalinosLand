@@ -36,6 +36,7 @@ function setup(
     budget?: number;
     access?: (owner: string, token: string | null) => Promise<boolean>;
     visits?: HubOptions['visits'];
+    role?: HubOptions['accountRole'];
   } = {},
 ) {
   let t = 1000;
@@ -53,6 +54,7 @@ function setup(
     exit: { room: 'hub', x: 11.9, y: 10.6 },
     checkHomeAccess: opts.access ?? (async () => false),
     ...(opts.visits ? { visits: opts.visits } : {}),
+    ...(opts.role ? { accountRole: opts.role } : {}),
   });
   const join = (id: string, x = 12, y = 21, room = 'hub', account: Account | null = null) => {
     const c = new FakeConn(newConnData(Math.random().toString(36).slice(2), 0, account));
@@ -500,6 +502,42 @@ describe('logements : entrée vérifiée par la base', () => {
     say(o, { t: 'invite', id: ownerId, target: 'visiteur01' });
     expect(g.of('invite')).toHaveLength(1);
     expect(visitor.of('invite')).toHaveLength(0);
+  });
+
+  it('rôles : annoncés par le serveur d’après la base, jamais par le client', async () => {
+    let roleInDb: 'gold' | 'mod' | null = 'gold';
+    const { join, say } = setup({ role: async () => roleInDb });
+    const o = join(ownerId, 12, 21, 'hub', { ...OWNER, role: 'mod' });
+    const g = join(guestId, 12, 22, 'hub', GUEST);
+    const visitor = join('visiteur01', 12, 23);
+    // Le rôle connu à la connexion accompagne la présentation.
+    expect(g.of('hello').find((m) => m.id === ownerId)?.r).toBe('mod');
+    expect(o.of('hello').find((m) => m.id === guestId)?.r).toBeUndefined();
+    // Un client qui s'attribue un rôle n'est pas cru.
+    say(visitor, {
+      t: 'look',
+      id: 'visiteur01',
+      name: 'Faux',
+      look: DEFAULT_APPEARANCE,
+      r: 'gold',
+    });
+    expect(g.of('look').at(-1)?.r).toBeUndefined();
+    // Le responsable a changé le rôle de Gaston : le serveur le relit et prévient tout le monde.
+    say(o, { t: 'role', id: ownerId, target: guestId });
+    await flush();
+    for (const c of [o, g, visitor])
+      expect(c.of('look').at(-1)).toMatchObject({ id: guestId, v: true, r: 'gold' });
+    roleInDb = null;
+    say(o, { t: 'role', id: ownerId, target: guestId });
+    await flush();
+    expect(visitor.of('look').at(-1)).toMatchObject({ id: guestId });
+    expect(visitor.of('look').at(-1)?.r).toBeUndefined();
+    // Un visiteur ne peut pas le demander ; un visiteur n'a pas de rôle.
+    const before = visitor.of('look').length;
+    say(visitor, { t: 'role', id: 'visiteur01', target: guestId });
+    say(o, { t: 'role', id: ownerId, target: 'visiteur01' });
+    await flush();
+    expect(visitor.of('look')).toHaveLength(before);
   });
 
   it('décoration changée : relayée aux personnes présentes, par le propriétaire seulement', async () => {
