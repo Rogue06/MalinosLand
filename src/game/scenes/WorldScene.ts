@@ -668,15 +668,21 @@ export class WorldScene extends Phaser.Scene {
     if (!findSecret(id)) return;
     const s = SECRETS.find((x) => x.id === id);
     const n = secretsStore.get().length;
-    this.time.delayedCall(900, () =>
+    this.time.delayedCall(900, () => {
       pushToast(
         n === SECRETS.length
-          ? `Dernier secret : ${s?.title} ! Tu connais tous les recoins du Hub 🕵️`
-          : `Secret trouvé : ${s?.title} (${n}/${SECRETS.length})`,
+          ? `Dernier secret : ${s?.title} ! Joshua a laissé une dernière page dans son carnet… 📓`
+          : `Secret trouvé : ${s?.title} (${n}/${SECRETS.length}) · nouvelle page dans le carnet de Joshua`,
         '🔎',
-        5000,
-      ),
-    );
+        6000,
+      );
+      pushChat({
+        from: 'Joshua',
+        text: `📓 Nouvelle page dans mon carnet : « ${s?.title} ». Bouton 🎯 → Carnet de Joshua.`,
+        kind: 'system',
+        scope: 'local',
+      });
+    });
   }
 
   private quest(id: string): void {

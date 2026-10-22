@@ -3,6 +3,7 @@ import type Phaser from 'phaser';
 import { randomId } from './multiplayer/protocol';
 import { accountReady, initAccount, networkId } from './services/account';
 import { profileStore } from './services/profile';
+import { startProgressSync } from './services/progressSync';
 import { settingsStore } from './services/settings';
 import { App } from './ui/App';
 import './ui/styles.css';
@@ -26,6 +27,8 @@ document.getElementById('boot')?.remove();
 
 // Comptes : rapide pour un visiteur ; pour un joueur connecté, récupère son profil.
 void initAccount();
+// Objectifs et secrets suivent le joueur connecté sur tous ses appareils.
+startProgressSync();
 
 async function startGame(): Promise<void> {
   if (game || starting) return;

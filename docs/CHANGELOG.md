@@ -5,6 +5,15 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (lot A : carnet de Joshua et progression sur le compte)
+
+- **Carnet de Joshua** (bouton sous les objectifs) : une **devinette** pour chaque secret pas
+  encore trouvé, et pour chaque secret découvert une **page écrite par Joshua**, avec son humour
+  un brin cynique ; tout trouver révèle une dernière page, début de son mystère.
+- **Objectifs et secrets sur le compte** : ils suivent le joueur connecté sur tous ses
+  appareils (réunis avec ceux du navigateur, rien n’est perdu).
+- À chaque secret trouvé, Joshua le signale dans le chat.
+
 ### Modifié (sons d’ambiance)
 
 - Hall d’accueil : **plus de brouhaha continu** (jugé pénible), seulement le « ding » de

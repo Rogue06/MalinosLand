@@ -145,9 +145,10 @@ bonjour dans le chat. Il n’y a **rien à gagner** : c’est juste pour bien d�
 
 ### Des secrets ?
 
-Le Hub cache **10 secrets**. Un indice : explore les recoins, touche ce qui sort de l’ordinaire,
-et n’hésite pas à essayer ce qui semble « pas encore prêt »… Le compteur **🔎 Secrets trouvés**
-est sous tes objectifs.
+Le Hub cache **10 secrets**. Sous tes objectifs, ouvre le **📓 Carnet de Joshua** : pour chaque
+secret pas encore trouvé, Joshua laisse une **devinette** ; chaque secret découvert révèle une
+**page de son carnet** (et quand tout est trouvé… une dernière page un peu mystérieuse).
+Avec un compte, tes objectifs et tes secrets te suivent sur tous tes appareils.
 
 ## 6. Changer de style
 

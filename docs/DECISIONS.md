@@ -326,3 +326,16 @@ relancer la scène (`WorldRenderer.destroy()`). La barre de l’éditeur est cha
 **Conséquences.** Coût négligeable (une écriture par enregistrement, une lecture par entrée
 dans un logement). Catalogue extensible : ajouter un type dans `src/content/furniture.ts` **et**
 dans la liste de la migration (un test vérifie qu’elles sont identiques).
+
+## DEC-025 — Progression sur le compte : réunion, jamais d’écrasement (25/10/2026)
+
+**Contexte.** Objectifs et secrets n’étaient gardés que dans le navigateur : on les perdait en
+changeant d’appareil, même connecté. Lot A de la feuille de route « vie du jeu ».
+**Décision.** Une ligne par compte (`player_progress`) ; le navigateur garde sa copie. À la
+connexion puis à chaque nouvelle découverte, `merge_my_progress` réunit les deux listes et
+renvoie le total : rien n’est jamais retiré par une synchronisation (sauf « Recommencer » les
+objectifs, fonction dédiée). La base filtre les identifiants et limite les tailles ; les
+visiteurs restent en local. Le **carnet de Joshua** (devinettes, pages d’histoire) est du
+contenu pur (`src/content/secrets.ts`).
+**Conséquences.** Une écriture par découverte (regroupées par 1,5 s) : négligeable pour les quotas.
+Base des futurs Coins coins (même principe : décidé par la base, jamais par le navigateur).

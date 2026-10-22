@@ -59,6 +59,7 @@ export const PANEL_IDS = [
   'ideas',
   'bugs',
   'home',
+  'carnet',
 ] as const;
 export type PanelId = (typeof PANEL_IDS)[number];
 
