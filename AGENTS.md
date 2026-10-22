@@ -59,7 +59,8 @@ mêmes sous Windows (PowerShell), macOS et Linux.
 
 ```bash
 npm install                 # dépendances
-npm run dev                 # site d’accueil sur http://localhost:5173, jeu sur /jouer/ (assets : /art-preview.html)
+npm run dev                 # jeu sur http://localhost:5173/jouer/ (assets : /art-preview.html)
+npm run accueil             # (responsable) installe la page d’accueil depuis le dépôt privé
 npm run check               # types + lint + tests + build — doit passer avant tout commit
 npm test                    # tests unitaires seulement
 npm run format              # mise en forme Prettier
@@ -91,7 +92,7 @@ src/game/        Phaser : dessin procédural (art/), textures, rendu du monde, s
 src/multiplayer/ protocole, transports (hors ligne, BroadcastChannel, serveur), NetworkClient
 src/services/    stockage local versionné : profil, réglages, progression
 src/ui/          interface Preact (HUD, panneaux, création du personnage)
-src/landing/     site d’accueil (page racine, sans Phaser ni Preact) ; le jeu est jouer/index.html
+src/landing/     page d’accueil : dépôt PRIVÉ MalinosLand-accueil (ignorée ici, DEC-026) ; le jeu est jouer/index.html
 src/state.ts     pont jeu ↔ interface (stores + commandes)
 server/          serveur temps réel : Cloudflare Worker + Durable Object (paquet npm séparé)
 supabase/        migrations SQL de la base des comptes (testées par tests/database.test.ts)

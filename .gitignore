@@ -13,3 +13,9 @@ screenshots/
 # Serveur temps réel (Wrangler)
 server/.wrangler/
 server/.dev.vars
+
+# Page d'accueil : dépôt PRIVÉ MalinosLand-accueil, copiée par « npm run accueil » ou à la mise
+# en ligne. Ne jamais la commiter dans ce dépôt public.
+/index.html
+/src/landing/
+/public/accueil/

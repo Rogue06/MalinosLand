@@ -64,19 +64,58 @@ function securityPlugin(realtimeUrl?: string, supabaseUrl?: string, turnstile = 
   };
 }
 
+/**
+ * Page d'accueil (racine du site) : elle vit dans un dépôt PRIVÉ (`MalinosLand-accueil`) et n'est
+ * copiée ici qu'au moment de la mise en ligne, ou chez le responsable (`npm run accueil`). Sans
+ * elle (dépôt public, intégration continue), la racine redirige simplement vers le jeu.
+ */
+function homeFallbackPlugin(): Plugin {
+  return {
+    name: 'malinosland-accueil-absent',
+    apply: 'build',
+    generateBundle() {
+      this.emitFile({
+        type: 'asset',
+        fileName: 'index.html',
+        source: [
+          '<!doctype html>',
+          '<html lang="fr">',
+          '<head>',
+          '<meta charset="UTF-8" />',
+          '<meta http-equiv="refresh" content="0; url=./jouer/" />',
+          '<link rel="icon" href="./favicon.svg" type="image/svg+xml" />',
+          '<title>MalinosLand</title>',
+          '</head>',
+          '<body><p><a href="./jouer/">Entrer dans MalinosLand</a></p></body>',
+          '</html>',
+          '',
+        ].join('\n'),
+      });
+    },
+  };
+}
+
+// Import dynamique : pas besoin des types Node pour ce simple test de présence.
+const fs = (await import('node:' + 'fs')) as { existsSync(path: string): boolean };
+const withHome = fs.existsSync('index.html') && fs.existsSync('src/landing/main.ts');
+/** Pages construites : la page d'accueil (racine, légère, sans Phaser) si présente, et le jeu. */
+const pages: Record<string, string> = withHome
+  ? { accueil: 'index.html', jouer: 'jouer/index.html' }
+  : { jouer: 'jouer/index.html' };
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', 'VITE_');
   return {
     base: './',
     plugins: [
       securityPlugin(env.VITE_REALTIME_URL, env.VITE_SUPABASE_URL, !!env.VITE_TURNSTILE_SITEKEY),
+      ...(withHome ? [] : [homeFallbackPlugin()]),
     ],
     build: {
       target: 'es2022',
       chunkSizeWarningLimit: 1600,
       rollupOptions: {
-        // Deux pages : le site d'accueil (racine, léger, sans Phaser) et le jeu (/jouer/).
-        input: { accueil: 'index.html', jouer: 'jouer/index.html' },
+        input: pages,
         output: {
           // Phaser change rarement : un chunk séparé reste en cache entre deux versions du jeu.
           manualChunks(id) {

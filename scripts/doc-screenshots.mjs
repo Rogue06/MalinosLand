@@ -58,16 +58,18 @@ const teleport = async (page, x, y, f = 'py') => {
 };
 const closeHud = (page) => page.evaluate(() => document.querySelector('.objectives')?.remove());
 
-// 0. Site d'accueil (page racine), et son image d'aperçu pour les partages (1200 × 630)
+// 0. Image d'aperçu pour les partages (1200 × 630), si la page d'accueil privée est installée
 {
   const context = await browser.newContext({ viewport });
   const page = await context.newPage();
   await page.goto(base, { waitUntil: 'networkidle' });
-  await shot(page, 'site-accueil');
-  await page.setViewportSize({ width: 1200, height: 630 });
-  await page.waitForTimeout(450);
-  await page.screenshot({ path: 'public/accueil/partage.jpg', type: 'jpeg', quality: 80 });
-  console.log('✓ public/accueil/partage.jpg');
+  // Seulement si la page d'accueil (dépôt privé) est installée : son image de partage y est rangée.
+  if ((await page.locator('.patch-title').count()) > 0) {
+    await page.setViewportSize({ width: 1200, height: 630 });
+    await page.waitForTimeout(450);
+    await page.screenshot({ path: 'public/accueil/partage.jpg', type: 'jpeg', quality: 80 });
+    console.log('✓ public/accueil/partage.jpg (à copier dans le dépôt privé)');
+  }
   await context.close();
 }
 

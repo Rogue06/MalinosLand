@@ -339,3 +339,18 @@ visiteurs restent en local. Le **carnet de Joshua** (devinettes, pages d’histo
 contenu pur (`src/content/secrets.ts`).
 **Conséquences.** Une écriture par découverte (regroupées par 1,5 s) : négligeable pour les quotas.
 Base des futurs Coins coins (même principe : décidé par la base, jamais par le navigateur).
+
+## DEC-026 — La page d’accueil dans un dépôt privé (26/10/2026)
+
+**Contexte.** Le responsable souhaite garder la page d’accueil (la présentation) pour lui, hors
+du code partagé ; le jeu, lui, reste public et open source. Il ne veut pas non plus que le site
+donne l’adresse du dépôt.
+**Décision.** La page d’accueil (`index.html`, `src/landing/`, `public/accueil/`) vit dans le
+dépôt **privé** `Rogue06/MalinosLand-accueil`. Dans le dépôt public, ces chemins sont ignorés par
+Git ; sans eux, la construction remplace la racine par une simple redirection vers `/jouer/`
+(intégration continue et contributeurs non concernés). La mise en ligne récupère le dépôt privé
+avec une clé en lecture seule (`ACCUEIL_TOKEN`) et refuse de publier sans elle ; le responsable
+l’installe en local avec `npm run accueil`. Plus aucun lien vers GitHub sur le site ni dans le jeu.
+**Conséquences.** Aucun coût : le dépôt privé n’a pas d’automatisation (pas de minutes
+d’Actions consommées). Les versions de la page publiées entre le 24 et le 26/10 restent dans
+l’historique public (choix du responsable : ne pas réécrire l’historique).

@@ -2,7 +2,8 @@
 # Lancée uniquement à la main par le responsable : onglet « Actions » → « Mise en ligne » →
 # « Run workflow ». Mode d'emploi complet : docs/MISE_EN_LIGNE.md.
 # Secrets nécessaires (GitHub → Settings → Secrets and variables → Actions) :
-#   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID
+#   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID,
+#   ACCUEIL_TOKEN (lecture seule du dépôt privé de la page d'accueil, MalinosLand-accueil)
 name: Mise en ligne
 
 on:
@@ -41,12 +42,30 @@ jobs:
             echo "::error::Secrets CLOUDFLARE_API_TOKEN et/ou CLOUDFLARE_ACCOUNT_ID absents. Voir docs/MISE_EN_LIGNE.md."
             exit 1
           fi
+          # Sans la page d'accueil, la racine du site ne serait plus qu'une redirection : on refuse.
+          if [ -z "$ACCUEIL_TOKEN" ]; then
+            echo "::error::Secret ACCUEIL_TOKEN absent : impossible de récupérer la page d'accueil (dépôt privé MalinosLand-accueil). Voir docs/MISE_EN_LIGNE.md."
+            exit 1
+          fi
+        env:
+          ACCUEIL_TOKEN: ${{ secrets.ACCUEIL_TOKEN }}
 
       - uses: actions/checkout@v5
+
+      # Page d'accueil : dépôt privé, récupéré avec une clé en lecture seule, puis copiée en place
+      # (ses fichiers sont ignorés par Git et ne sont jamais publiés dans ce dépôt).
+      - name: Récupérer la page d'accueil (dépôt privé)
+        uses: actions/checkout@v5
+        with:
+          repository: Rogue06/MalinosLand-accueil
+          token: ${{ secrets.ACCUEIL_TOKEN }}
+          path: accueil-prive
       - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
+      - name: Installer la page d'accueil
+        run: node scripts/accueil.mjs accueil-prive && rm -rf accueil-prive
       - run: npm ci
       - run: npm ci
         working-directory: server

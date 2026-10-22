@@ -5,6 +5,11 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Modifié (page d’accueil privée)
+
+- La page d’accueil quitte le dépôt public : elle vit dans un dépôt privé et n’est assemblée
+  avec le jeu qu’au moment de la mise en ligne (DEC-026). Le site, lui, ne change pas.
+
 ### Modifié (liens)
 
 - Plus aucun lien vers le dépôt GitHub sur le site d’accueil, dans le jeu ni sur la page de
