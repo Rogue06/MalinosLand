@@ -38,9 +38,11 @@ Prochaine étape : v0.4 (étages, Galerie des Malinos, annuaire) — à discuter
 
 - **25/10** — PR #33 (invitations visibles : carte « Y aller » chez l’invité) ouverte. Audit
   des secrets : les 10 sont présents et accessibles, mais sans indice et gardés seulement dans
-  le navigateur. **Décision en attente** : [PROPOSITION_VIE_DU_JEU.md](PROPOSITION_VIE_DU_JEU.md)
-  (histoire, « étincelles » gagnées en jouant, secrets avec indices, moments entre joueurs) —
-  ne rien coder avant la réponse du responsable aux questions du §8.
+  le navigateur. **Validé par le responsable** : [PROPOSITION_VIE_DU_JEU.md](PROPOSITION_VIE_DU_JEU.md)
+  (mystère de Joshua, IA ; « Coins coins » 🦆 ; secrets avec indices sur le compte ; jour/nuit
+  heure de Paris ; photos et télé YouTube au studio ; écran du Hub ; guitare du feu de camp).
+  Prochaine étape : lot A (secrets + carnet sur le compte). Questions restantes : §11.
+  PR #35 : sons d’ambiance (plus de fond continu au hall ni à la salle de jeux).
 
 - **24/10 (fin)** — PR #29 et #30 fusionnées, migration `home_decor` appliquée, mise en ligne
   faite. Branche `feature/robot-joshua` : Joshua redessiné façon Reachy Mini (robot de la
