@@ -5,6 +5,7 @@ import { isSmallScreen } from '../services/device';
 import { decorEditorStore, panelStore } from '../state';
 import { useStore } from './hooks';
 import { Chat } from './hud/Chat';
+import { InvitationCard } from './hud/Invitations';
 import { Minimap } from './hud/Minimap';
 import { Objectives } from './hud/Objectives';
 import { DialogBox, Hint, Stats, Toasts } from './hud/Overlays';
@@ -84,6 +85,7 @@ export function App() {
       <Hint />
       <Stats />
       <DialogBox />
+      <InvitationCard />
       <DecorBarLoader />
       <ActivePanel />
     </div>

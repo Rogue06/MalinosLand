@@ -434,6 +434,21 @@ export class RealtimeHub {
         this.evict(target);
         return;
       }
+      case 'invite': {
+        // Avis d'invitation : d'un compte vers un autre compte connecté, et à lui seul.
+        if (!d.account) return;
+        const target = this.others(conn).find(
+          (c) => c.data.id === msg.target && c.data.account !== null,
+        );
+        if (!target) return;
+        if (!take(d.chat, CHAT_CAPACITY, CHAT_REFILL, now)) {
+          conn.save();
+          return;
+        }
+        conn.save();
+        this.send([target], { t: 'invite', id: d.id, target: msg.target });
+        return;
+      }
       case 'decor': {
         // Seul le propriétaire connecté à son compte, chez lui, prévient ses visiteurs.
         if (!d.account || homeOwner(d.room) !== d.id) return;
