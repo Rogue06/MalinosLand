@@ -13,7 +13,7 @@ avec des proportions libres, pour juger sa silhouette avant adaptation au jeu. I
 pas encore le sakura de l'ancienne galerie. Reproduction :
 
 ```powershell
-& 'D:\logiciels\blender.exe' --background --factory-startup --python-exit-code 1 --python scripts/sakura-study.py -- screenshots/sakura-study
+& 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe' --background --factory-startup --python-exit-code 1 --python scripts/sakura-study.py -- screenshots/sakura-study
 ```
 
 Le dossier contient `sakura.blend` et son rendu `sakura.png`. La présentation utilise une copie
@@ -113,7 +113,7 @@ npx prettier --write art-source/voxel-models.json
 Sur le PC du responsable (PowerShell), la commande Blender est :
 
 ```powershell
-& 'D:\logiciels\blender.exe' --background --factory-startup --python-exit-code 1 --python scripts/render-voxel-blender.py -- art-source/voxel-models.json screenshots/blender-frames
+& 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe' --background --factory-startup --python-exit-code 1 --python scripts/render-voxel-blender.py -- art-source/voxel-models.json screenshots/blender-frames
 ```
 
 Le script produit 24 vues (16 pour l'avatar, 4 par arbre) et trois fichiers éditables :
