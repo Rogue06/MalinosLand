@@ -5,6 +5,20 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (v0.4 : Musée des Malinos, exposer et modérer)
+
+- Formulaire **« Exposer mon projet »** (compte nécessaire) : titre, catégorie, adresse,
+  description, mots-clés, avec des messages clairs pour corriger avant l’envoi (mêmes règles
+  d’adresse que la base, testées des deux côtés). Ouvert depuis le panneau devant la galerie ou
+  ⚙️ Réglages → 🖼️ Mes projets.
+- **Affiches dessinées par le jeu** pour chaque projet (couleurs, motif et pictogramme de la
+  catégorie, socle isométrique lumineux, cadre en bois), avec un aperçu en direct dans le
+  formulaire. Aucune image envoyée ni stockée.
+- **Mes projets** : statut, motif de refus, retrait.
+- Onglet **🖼️ Musée** dans le panneau de modération : valider, refuser avec un motif (tout fait
+  ou libre) et retirer un projet exposé. Les onglets passent à la ligne sur téléphone.
+- Guide : [MUSEE.md](MUSEE.md).
+
 ### Ajouté (v0.4 : Musée des Malinos, la base)
 
 - Base de données du **Musée des Malinos** : projets proposés par les membres, **validés par les

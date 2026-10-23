@@ -332,6 +332,19 @@ try {
     await waitGone('.modal');
   });
 
+  await step(
+    'Musée des Malinos : le panneau devant la galerie ouvre « Exposer mon projet »',
+    async () => {
+      await teleport(14.5, 12.5, 'px');
+      await dbg(() => window.__malinosDebug.use('gallery-sign'));
+      await waitUi('.modal', 'Musée des Malinos');
+      // Hors ligne : pas de compte possible, le panneau le dit au lieu d'afficher le formulaire.
+      await waitUi('.modal', 'version en ligne');
+      await page.keyboard.press('Escape');
+      await waitGone('.modal');
+    },
+  );
+
   await step('jour et nuit (heure de Paris imposée)', async () => {
     const night = await page.evaluate(() => window.__malinosDebug.time(23));
     if (night?.phase !== 'nuit' || night.lights < 0.9)

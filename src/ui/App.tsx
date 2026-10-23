@@ -14,6 +14,7 @@ import { Onboarding } from './Onboarding';
 import { FeedbackPanel, ModerationPanel, PlayersPanel } from './panels/Community';
 import { ActivitiesPanel } from './panels/Activities';
 import { CarnetPanel } from './panels/Carnet';
+import { MuseumPanel } from './panels/Museum';
 import { QuizPanel } from './panels/Quiz';
 import { ElevatorPanel, HomePanel } from './panels/Homes';
 import {
@@ -61,6 +62,8 @@ function ActivePanel() {
       return <ActivitiesPanel />;
     case 'quiz':
       return <QuizPanel />;
+    case 'museum':
+      return <MuseumPanel />;
     default:
       return null;
   }

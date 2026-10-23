@@ -28,6 +28,7 @@ Pas besoin de tout lire ! Choisis ton chemin.
 | Plan à valider              | [Évolution : panneau, quiz, musée](PLAN_EVOLUTION.md)                   |
 | Salles, cartes, étages      | [WORLD_DESIGN.md](WORLD_DESIGN.md)                                      |
 | Multijoueur                 | [REALTIME_NETWORK.md](REALTIME_NETWORK.md)                              |
+| Musée des Malinos           | [MUSEE.md](MUSEE.md)                                                    |
 | Base de données             | [DATABASE.md](DATABASE.md)                                              |
 | Comptes joueurs             | [COMPTES.md](COMPTES.md)                                                |
 | Hébergement gratuit, quotas | [FREE_INFRASTRUCTURE.md](FREE_INFRASTRUCTURE.md)                        |

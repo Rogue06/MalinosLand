@@ -337,14 +337,9 @@
       "y": 12,
       "id": "gallery-sign",
       "interaction": {
-        "kind": "dialog",
-        "label": "Lire le panneau",
-        "speaker": "Galerie des Malinos",
-        "lines": [
-          "La Galerie des Malinos ouvrira ses portes en version 0.4.",
-          "Chaque membre pourra y exposer ses créations : sites, applications, projets IA, dépôts GitHub…",
-          "Les liens seront vérifiés et modérés avant d’être exposés."
-        ]
+        "kind": "panel",
+        "label": "Exposer mon projet au musée",
+        "panel": "museum"
       }
     },
     {
