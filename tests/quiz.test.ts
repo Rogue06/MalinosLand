@@ -62,15 +62,35 @@ describe('Quiz IA : le moteur', () => {
   });
 
   it('défi de la semaine : le même pour tous toute la semaine, différent la suivante', () => {
-    const w43 = weeklyChallenge(QUIZ_QUESTIONS, { year: 2026, week: 43 });
-    const again = weeklyChallenge(QUIZ_QUESTIONS, { year: 2026, week: 43 });
-    const w44 = weeklyChallenge(QUIZ_QUESTIONS, { year: 2026, week: 44 });
+    const w43 = weeklyChallenge(QUIZ_QUESTIONS, isoWeek(new Date(2026, 9, 19)));
+    const again = weeklyChallenge(QUIZ_QUESTIONS, isoWeek(new Date(2026, 9, 25, 22)));
+    const w44 = weeklyChallenge(QUIZ_QUESTIONS, isoWeek(new Date(2026, 9, 26)));
     expect(w43).toHaveLength(ROUND_SIZE);
     expect(again.map((q) => q.id)).toEqual(w43.map((q) => q.id));
     expect(w44.map((q) => q.id)).not.toEqual(w43.map((q) => q.id));
     // Du plus facile au plus difficile.
     const levels = w43.map((q) => q.level);
     expect([...levels].sort()).toEqual(levels);
+  });
+
+  it('défi de la semaine : aucune question répétée pendant tout un cycle', () => {
+    const perCycle = Math.floor(QUIZ_QUESTIONS.length / ROUND_SIZE);
+    const start = isoWeek(new Date(2026, 9, 26)).index;
+    // Deux cycles complets à partir d'une semaine quelconque.
+    for (const first of [start - (start % perCycle), start - (start % perCycle) + perCycle]) {
+      const seen = new Set<string>();
+      for (let w = first; w < first + perCycle; w++)
+        for (const q of weeklyChallenge(QUIZ_QUESTIONS, { index: w })) {
+          expect(seen.has(q.id), `question répétée : ${q.id}`).toBe(false);
+          seen.add(q.id);
+        }
+      expect(seen.size).toBe(perCycle * ROUND_SIZE);
+    }
+    expect(perCycle).toBeGreaterThanOrEqual(12);
+  });
+
+  it('semaines consécutives : numéro continu, même d’une année à l’autre', () => {
+    expect(isoWeek(new Date(2027, 0, 4)).index - isoWeek(new Date(2026, 11, 28)).index).toBe(1);
   });
 
   it('partie libre : 5 questions différentes, sans reposer celles de la partie d’avant', () => {

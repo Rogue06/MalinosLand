@@ -3,6 +3,8 @@ import { accountPlayerId, homeRoom } from '../../multiplayer/protocol';
 import { accountStore } from '../../services/account';
 import { visitableHomes, type HomeEntry } from '../../services/homes';
 import { progressStore, secretsStore } from '../../services/progress';
+import { quizStatsStore } from '../../services/quizStats';
+import { isoWeek } from '../../core/quiz';
 import { commands, crowdStore, panelStore, skyStore } from '../../state';
 import { dayNumber, suggestActivities, type Activity } from '../../world/activities';
 import { useStore } from '../hooks';
@@ -48,6 +50,7 @@ export function ActivitiesPanel() {
   const crowd = useStore(crowdStore);
   const sky = useStore(skyStore);
   const account = useStore(accountStore);
+  const quizStats = useStore(quizStatsStore);
   const [homes, setHomes] = useState<HomeEntry[] | null>(homesCache?.homes ?? null);
 
   useEffect(() => {
@@ -68,6 +71,7 @@ export function ActivitiesPanel() {
     phase: sky?.phase ?? null,
     openHomes: homes ? homes.filter((h) => h.room !== myRoom) : null,
     signedIn,
+    quizWeeklyDone: isoWeek(new Date()).key in quizStats.weekly,
     day: dayNumber(new Date()),
   });
 

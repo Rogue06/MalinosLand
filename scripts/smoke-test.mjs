@@ -313,9 +313,9 @@ try {
     await waitGone('.modal');
   });
 
-  await step('Quiz IA : une partie libre complète, au clavier', async () => {
-    await waitIdle();
-    await dbg(() => window.__malinosDebug.panel('quiz'));
+  await step('Quiz IA : la borne de la salle de jeux, une partie libre au clavier', async () => {
+    await teleport(37.5, 2.6, 'ny');
+    await dbg(() => window.__malinosDebug.use('arcade-jeux-1'));
     await waitUi('.modal', 'Quiz IA des Malinos');
     await page.getByRole('button', { name: /Partie libre/ }).click();
     for (let i = 1; i <= 5; i++) {

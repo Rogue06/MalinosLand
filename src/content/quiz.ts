@@ -6,7 +6,7 @@
  * ⚠️ Toute nouvelle question est relue par le responsable ou un modérateur avant d'être publiée
  * (DEC-030). Un test vérifie la forme : 4 choix distincts, réponse valide, identifiants uniques.
  */
-export type QuizTheme = 'histoire' | 'notions' | 'usages' | 'culture';
+export type QuizTheme = 'bases' | 'histoire' | 'notions' | 'usages' | 'culture';
 
 export interface QuizQuestion {
   id: string;
@@ -24,6 +24,7 @@ export interface QuizQuestion {
 }
 
 export const QUIZ_THEMES: Record<QuizTheme, string> = {
+  bases: 'Les bases de l’IA',
   histoire: 'Histoire de l’IA',
   notions: 'Notions',
   usages: 'Bons usages',
@@ -31,6 +32,459 @@ export const QUIZ_THEMES: Record<QuizTheme, string> = {
 };
 
 export const QUIZ_QUESTIONS: QuizQuestion[] = [
+  // ------------------------------------------------------------ Les bases de l'IA
+  {
+    id: 'ia-definition',
+    theme: 'bases',
+    level: 1,
+    question: 'Qu’appelle-t-on « intelligence artificielle » ?',
+    choices: [
+      'Des programmes qui font des tâches demandant d’habitude notre intelligence',
+      'Des robots humanoïdes capables de ressentir des émotions comme nous',
+      'Un ordinateur très puissant qui connaît la réponse à toutes les questions',
+      'Un logiciel qui fonctionne tout seul, sans avoir été programmé par personne',
+    ],
+    answer: 0,
+    explain:
+      'Comprendre une phrase, reconnaître une image, traduire, jouer aux échecs… L’IA regroupe beaucoup de techniques différentes, et la plupart n’ont rien à voir avec des robots.',
+  },
+  {
+    id: 'modele-vs-llm',
+    theme: 'bases',
+    level: 1,
+    question: 'Quelle est la différence entre un « modèle d’IA » et un « LLM » ?',
+    choices: [
+      'Un LLM est un type de modèle d’IA, spécialisé dans le langage',
+      'Aucune : ce sont deux noms différents pour exactement la même chose',
+      'Un modèle d’IA est toujours bien plus gros et plus puissant qu’un LLM',
+      'Un LLM fonctionne en ligne, alors qu’un modèle tourne sur l’ordinateur',
+    ],
+    answer: 0,
+    explain:
+      '« Modèle » est le terme général : il existe des modèles pour reconnaître des images, prévoir la météo, générer de la musique… Un LLM est un modèle entraîné sur du texte pour lire et écrire.',
+  },
+  {
+    id: 'llm-ecrit',
+    theme: 'bases',
+    level: 2,
+    question: 'Comment un LLM écrit-il sa réponse ?',
+    choices: [
+      'Il prédit le morceau de texte suivant, puis recommence, encore et encore',
+      'Il cherche la réponse toute faite dans une immense base de données',
+      'Il recopie le site web le plus pertinent qu’il a trouvé sur Internet',
+      'Il réfléchit à toute la réponse d’un coup, puis l’affiche lettre par lettre',
+    ],
+    answer: 0,
+    explain:
+      'Un LLM choisit le token le plus adapté à la suite du texte, l’ajoute, et recommence. C’est pour ça que la réponse s’affiche petit à petit, et qu’il peut se tromper avec aplomb.',
+  },
+  {
+    id: 'machine-learning',
+    theme: 'bases',
+    level: 1,
+    question: 'Qu’est-ce que le « machine learning » (apprentissage automatique) ?',
+    choices: [
+      'Une façon de créer une IA qui apprend à partir d’exemples',
+      'Le fait d’apprendre à utiliser une machine grâce à un tutoriel',
+      'Une méthode pour réparer automatiquement les ordinateurs en panne',
+      'Un cours en ligne pour apprendre à programmer des robots industriels',
+    ],
+    answer: 0,
+    explain:
+      'Au lieu d’écrire toutes les règles à la main, on montre au programme beaucoup d’exemples et il trouve lui-même les régularités. Presque toute l’IA actuelle fonctionne ainsi.',
+  },
+  {
+    id: 'deep-learning',
+    theme: 'bases',
+    level: 2,
+    question: 'Qu’appelle-t-on le « deep learning » (apprentissage profond) ?',
+    choices: [
+      'L’apprentissage avec des réseaux de neurones à très nombreuses couches',
+      'Un apprentissage très lent qui dure plusieurs années sans s’arrêter',
+      'L’étude de l’IA réservée aux chercheurs les plus expérimentés',
+      'Une IA qui apprend uniquement pendant que l’ordinateur est en veille',
+    ],
+    answer: 0,
+    explain:
+      '« Profond » parle du nombre de couches du réseau. Le deep learning a fait décoller la reconnaissance d’images, de la voix, puis les modèles de langage.',
+  },
+  {
+    id: 'reseau-neurones',
+    theme: 'bases',
+    level: 1,
+    question: 'Un réseau de neurones artificiels est inspiré…',
+    choices: [
+      'du fonctionnement des neurones du cerveau',
+      'de la forme des réseaux de câbles électriques',
+      'de l’organisation des fourmis dans une fourmilière',
+      'du plan du métro d’une grande ville comme Paris',
+    ],
+    answer: 0,
+    explain:
+      'Chaque « neurone » artificiel reçoit des nombres, les combine et transmet le résultat aux suivants. L’inspiration vient du cerveau, mais le fonctionnement reste très différent.',
+  },
+  {
+    id: 'entrainer',
+    theme: 'bases',
+    level: 1,
+    question: 'Que veut dire « entraîner » un modèle d’IA ?',
+    choices: [
+      'Ajuster ses réglages à partir d’une grande quantité de données',
+      'Lui faire passer un examen pour vérifier qu’il fonctionne bien',
+      'Le faire tourner en continu pour qu’il ne refroidisse jamais',
+      'Lui apprendre les bonnes manières en lui parlant poliment',
+    ],
+    answer: 0,
+    explain:
+      'L’entraînement ajuste petit à petit des milliards de paramètres pour que le modèle réponde de mieux en mieux sur des exemples. C’est l’étape qui demande le plus de calcul.',
+  },
+  {
+    id: 'inference',
+    theme: 'bases',
+    level: 2,
+    question: 'En IA, qu’appelle-t-on l’« inférence » ?',
+    choices: [
+      'Le moment où un modèle déjà entraîné produit une réponse',
+      'La période pendant laquelle le modèle apprend de ses données',
+      'L’influence qu’une IA peut avoir sur les opinions des gens',
+      'Le contrôle d’un modèle par une autorité avant sa sortie',
+    ],
+    answer: 0,
+    explain:
+      'Entraînement d’abord, inférence ensuite : chaque fois que tu poses une question à un assistant, le modèle fait une inférence.',
+  },
+  {
+    id: 'ia-generative',
+    theme: 'bases',
+    level: 1,
+    question: 'Qu’est-ce qui caractérise une IA « générative » ?',
+    choices: [
+      'Elle crée du contenu nouveau : texte, image, son ou code',
+      'Elle génère de l’électricité pour alimenter les serveurs',
+      'Elle sert seulement à classer des documents existants',
+      'Elle est capable de se reproduire et de se copier toute seule',
+    ],
+    answer: 0,
+    explain:
+      'Les assistants qui écrivent, les générateurs d’images ou de musique sont des IA génératives. D’autres IA, dites « discriminatives », classent ou reconnaissent plutôt qu’elles ne créent.',
+  },
+  {
+    id: 'chatbot',
+    theme: 'bases',
+    level: 1,
+    question: 'Qu’est-ce qu’un « chatbot » ?',
+    choices: [
+      'Un programme avec lequel on discute par messages',
+      'Un robot de compagnie en forme de chat',
+      'Un virus qui se propage par les messageries',
+      'Un salon de discussion réservé aux développeurs',
+    ],
+    answer: 0,
+    explain:
+      'Les premiers chatbots suivaient des règles écrites à la main (comme ELIZA en 1966). Les assistants actuels reposent sur des modèles de langage.',
+  },
+  {
+    id: 'gpt-sigle',
+    theme: 'bases',
+    level: 2,
+    question: 'Que signifie le sigle « GPT » ?',
+    choices: [
+      'Generative Pre-trained Transformer',
+      'General Purpose Technology',
+      'Global Prediction Tool',
+      'Graphical Processing Terminal',
+    ],
+    answer: 0,
+    explain:
+      '« Génératif » parce qu’il produit du texte, « pré-entraîné » sur un énorme corpus avant d’être spécialisé, et « Transformer » pour son architecture (2017).',
+  },
+  {
+    id: 'chatgpt-vs-gpt',
+    theme: 'bases',
+    level: 2,
+    question: 'Quelle est la différence entre ChatGPT et GPT ?',
+    choices: [
+      'ChatGPT est une application de discussion ; GPT, les modèles derrière',
+      'ChatGPT est la version gratuite ; GPT, la version payante du même outil',
+      'ChatGPT répond en français ; GPT ne répond qu’en anglais',
+      'Aucune : ChatGPT est simplement le nouveau nom de GPT',
+    ],
+    answer: 0,
+    explain:
+      'C’est la différence entre une application et le modèle qui la fait fonctionner. Beaucoup d’autres applications utilisent leurs propres modèles, ou ceux d’autres entreprises.',
+  },
+  {
+    id: 'date-connaissances',
+    theme: 'bases',
+    level: 2,
+    question: 'Que veut dire la « date de fin des connaissances » d’un modèle ?',
+    choices: [
+      'Après cette date, il n’a pas d’informations venant de son entraînement',
+      'La date à laquelle le modèle cessera de fonctionner pour de bon',
+      'La date limite pour s’inscrire et pouvoir utiliser le modèle',
+      'Le jour où le modèle efface toutes les conversations des utilisateurs',
+    ],
+    answer: 0,
+    explain:
+      'Un modèle ne connaît le monde que jusqu’à la fin de ses données d’entraînement. Pour l’actualité, il lui faut une recherche web ou des documents fournis.',
+  },
+  {
+    id: 'biais',
+    theme: 'bases',
+    level: 1,
+    question: 'Pourquoi un modèle d’IA peut-il avoir des « biais » ?',
+    choices: [
+      'Il reproduit les déséquilibres et préjugés présents dans ses données',
+      'Il est volontairement réglé pour avoir des opinions politiques',
+      'Il manque de mémoire et oublie la moitié de ce qu’il apprend',
+      'Il est surtout utilisé par des personnes qui pensent de la même façon',
+    ],
+    answer: 0,
+    explain:
+      'Si les exemples d’entraînement sont déséquilibrés (par exemple surtout des hommes pour un métier), le modèle risque de reproduire ce déséquilibre. On le corrige en partie, pas totalement.',
+  },
+  {
+    id: 'poids-ouverts',
+    theme: 'bases',
+    level: 2,
+    question: 'Qu’est-ce qu’un modèle à « poids ouverts » (open weights) ?',
+    choices: [
+      'Un modèle dont les paramètres sont publiés et utilisables',
+      'Un modèle très léger, qui pèse moins de quelques mégaoctets',
+      'Un modèle qui montre toujours son raisonnement avant de répondre',
+      'Un modèle gratuit, mais uniquement accessible depuis un site web',
+    ],
+    answer: 0,
+    explain:
+      'Les « poids » sont les paramètres appris. Les publier permet de l’installer chez soi ou de l’adapter. Ce n’est pas toujours de l’open source complet : les données d’entraînement restent souvent privées.',
+  },
+  {
+    id: 'ia-locale',
+    theme: 'bases',
+    level: 2,
+    question: 'Quel est l’avantage principal de faire tourner un modèle « en local » ?',
+    choices: [
+      'Les données restent sur ton ordinateur, sans passer par un service en ligne',
+      'Le modèle devient automatiquement plus intelligent que la version en ligne',
+      'Il n’a plus besoin d’électricité ni de processeur pour fonctionner',
+      'Il se met à jour tout seul chaque jour avec l’actualité du monde',
+    ],
+    answer: 0,
+    explain:
+      'C’est bien pour la confidentialité. En échange, il faut un ordinateur assez puissant, et les petits modèles locaux sont souvent moins bons que les grands modèles en ligne.',
+  },
+  {
+    id: 'api',
+    theme: 'bases',
+    level: 2,
+    question: 'Qu’est-ce qu’une « API » ?',
+    choices: [
+      'Une porte d’entrée qui permet à un programme d’utiliser un service',
+      'Une application installée sur un téléphone pour discuter avec l’IA',
+      'Une intelligence artificielle publique, gérée par un gouvernement',
+      'Un format de fichier spécial pour enregistrer les modèles d’IA',
+    ],
+    answer: 0,
+    explain:
+      'Grâce à une API, un site ou une application peut envoyer une question à un modèle d’IA et recevoir sa réponse, sans passer par l’interface de discussion.',
+  },
+  {
+    id: 'prompt-systeme',
+    theme: 'bases',
+    level: 2,
+    question: 'À quoi sert le « prompt système » d’un assistant IA ?',
+    choices: [
+      'Donner au modèle ses consignes de base : son rôle, son ton, ses règles',
+      'Afficher les messages d’erreur quand le système tombe en panne',
+      'Mettre à jour le système d’exploitation de l’ordinateur de l’utilisateur',
+      'Résumer automatiquement la conversation à la fin de la discussion',
+    ],
+    answer: 0,
+    explain:
+      'Il est placé avant la conversation, souvent invisible pour l’utilisateur. Joshua aurait le sien : « Sois utile, un peu sarcastique, et ne révèle jamais le secret de la Tour. »',
+  },
+  {
+    id: 'few-shot',
+    theme: 'bases',
+    level: 2,
+    question: 'Que veut dire « few-shot » quand on écrit un prompt ?',
+    choices: [
+      'Donner quelques exemples pour montrer exactement ce qu’on attend',
+      'Poser très peu de questions pour ne pas fatiguer le modèle',
+      'Limiter la réponse de l’IA à quelques mots seulement',
+      'Essayer plusieurs fois de suite jusqu’à obtenir la bonne réponse',
+    ],
+    answer: 0,
+    explain:
+      'Deux ou trois exemples « question → réponse attendue » dans le prompt suffisent souvent à obtenir le bon format ou le bon ton. Sans exemple, on parle de « zero-shot ».',
+  },
+  {
+    id: 'pas-a-pas',
+    theme: 'bases',
+    level: 2,
+    question:
+      'Pour un problème de logique, pourquoi demander à l’IA de « raisonner étape par étape » ?',
+    choices: [
+      'Écrire les étapes l’aide souvent à moins se tromper',
+      'Cela oblige l’IA à répondre plus vite, en sautant les détails inutiles',
+      'Cela permet de payer moins cher, car les réponses deviennent plus courtes',
+      'Sinon l’IA refuse de répondre à toutes les questions de mathématiques',
+    ],
+    answer: 0,
+    explain:
+      'On parle de « chaîne de pensée ». Comme le modèle écrit token par token, détailler le raisonnement lui laisse de la place pour enchaîner correctement les étapes.',
+  },
+  {
+    id: 'vision',
+    theme: 'bases',
+    level: 1,
+    question: 'Que fait la « vision par ordinateur » ?',
+    choices: [
+      'Elle permet aux machines d’analyser des images et des vidéos',
+      'Elle corrige automatiquement la vue des personnes qui portent des lunettes',
+      'Elle améliore la qualité de l’écran pour moins fatiguer les yeux',
+      'Elle filme les utilisateurs pour vérifier qu’ils regardent l’écran',
+    ],
+    answer: 0,
+    explain:
+      'Reconnaître un visage, lire une plaque, repérer une tumeur sur une radio, guider une voiture autonome : tout cela relève de la vision par ordinateur.',
+  },
+  {
+    id: 'tal',
+    theme: 'bases',
+    level: 2,
+    question: 'De quoi s’occupe le « traitement automatique du langage » (TAL, ou NLP) ?',
+    choices: [
+      'Faire comprendre et produire du langage humain par des machines',
+      'Traduire les langages de programmation les uns dans les autres',
+      'Corriger l’accent des personnes qui parlent une langue étrangère',
+      'Compter le nombre de mots dans un document le plus vite possible',
+    ],
+    answer: 0,
+    explain:
+      'Traduction, résumé, correcteur, assistant vocal, chatbot : c’est le domaine du langage. Les LLM en sont aujourd’hui l’outil le plus connu.',
+  },
+  {
+    id: 'speech-to-text',
+    theme: 'bases',
+    level: 1,
+    question: 'Que fait la reconnaissance vocale (« speech-to-text ») ?',
+    choices: [
+      'Elle transforme la voix en texte écrit',
+      'Elle reconnaît qui parle grâce à son visage',
+      'Elle lit un texte à voix haute avec une voix de synthèse',
+      'Elle traduit une chanson dans une autre langue',
+    ],
+    answer: 0,
+    explain:
+      'Le sens inverse, transformer un texte en voix, s’appelle la synthèse vocale (« text-to-speech »). Les assistants vocaux utilisent souvent les deux.',
+  },
+  {
+    id: 'gpu',
+    theme: 'bases',
+    level: 2,
+    question: 'Pourquoi utilise-t-on des cartes graphiques (GPU) pour entraîner les IA ?',
+    choices: [
+      'Elles font énormément de calculs simples en même temps',
+      'Elles affichent de plus belles images pendant l’entraînement',
+      'Elles consomment beaucoup moins d’électricité que tout le reste',
+      'Ce sont les seules puces qui savent lire du texte écrit',
+    ],
+    answer: 0,
+    explain:
+      'Conçues pour calculer des millions de pixels à la fois, les cartes graphiques sont aussi parfaites pour les multiplications de nombres des réseaux de neurones.',
+  },
+  {
+    id: 'donnees-entrainement',
+    theme: 'bases',
+    level: 1,
+    question: 'Que sont les « données d’entraînement » d’un modèle ?',
+    choices: [
+      'Les exemples à partir desquels il apprend',
+      'Les statistiques sportives des utilisateurs',
+      'Les réglages choisis par l’utilisateur',
+      'La liste des personnes qui ont créé le modèle',
+    ],
+    answer: 0,
+    explain:
+      'Textes, images, sons… Leur quantité, leur qualité et leur diversité comptent énormément : un modèle apprend aussi les erreurs et les biais de ses données.',
+  },
+  {
+    id: 'surapprentissage',
+    theme: 'bases',
+    level: 3,
+    question: 'Qu’appelle-t-on le « surapprentissage » (overfitting) ?',
+    choices: [
+      'Le modèle apprend ses exemples par cœur et réussit mal sur de nouveaux cas',
+      'Le modèle s’entraîne si longtemps qu’il finit par surchauffer et s’arrêter',
+      'Le modèle apprend trop de langues à la fois et finit par les mélanger',
+      'Le modèle reçoit trop de questions en même temps et répond plus lentement',
+    ],
+    answer: 0,
+    explain:
+      'Comme un élève qui apprend les corrigés par cœur sans comprendre : parfait sur les exercices connus, perdu devant un nouveau sujet. On teste donc toujours un modèle sur des exemples qu’il n’a jamais vus.',
+  },
+  {
+    id: 'renforcement',
+    theme: 'bases',
+    level: 2,
+    question: 'Comment apprend une IA par « apprentissage par renforcement » ?',
+    choices: [
+      'Par essais et erreurs, en recevant des récompenses ou des pénalités',
+      'En renforçant la sécurité de ses serveurs contre les attaques',
+      'En relisant plusieurs fois les mêmes livres jusqu’à les connaître',
+      'En copiant exactement les réponses données par un professeur humain',
+    ],
+    answer: 0,
+    explain:
+      'C’est ainsi qu’AlphaGo a progressé en jouant des millions de parties. Une variante avec des avis humains sert aussi à rendre les assistants plus utiles et plus polis.',
+  },
+  {
+    id: 'agi',
+    theme: 'bases',
+    level: 2,
+    question: 'Que désigne l’« AGI » (intelligence artificielle générale) ?',
+    choices: [
+      'Une IA hypothétique capable d’égaler l’humain dans la plupart des tâches',
+      'L’agence gouvernementale qui autorise la sortie des nouveaux modèles',
+      'Une IA générale de bureau, installée par défaut sur les ordinateurs',
+      'Le nom donné à toutes les IA conçues avant les années 2000',
+    ],
+    answer: 0,
+    explain:
+      'Les IA actuelles sont très fortes sur certaines tâches et étonnamment faibles sur d’autres. Savoir si et quand une AGI existera fait débat entre chercheurs.',
+  },
+  {
+    id: 'diffusion',
+    theme: 'bases',
+    level: 3,
+    question:
+      'Comment fonctionnent la plupart des générateurs d’images récents (« modèles de diffusion ») ?',
+    choices: [
+      'Ils partent d’un bruit aléatoire et le nettoient étape par étape',
+      'Ils assemblent des morceaux d’images trouvées sur Internet',
+      'Ils dessinent l’image trait par trait, comme un illustrateur',
+      'Ils retouchent une photo existante choisie au hasard',
+    ],
+    answer: 0,
+    explain:
+      'Le modèle a appris à enlever du « bruit » d’une image. En partant d’une neige aléatoire et guidé par ta description, il fait apparaître une image nouvelle.',
+  },
+  {
+    id: 'algorithme',
+    theme: 'bases',
+    level: 1,
+    question: 'Qu’est-ce qu’un « algorithme » ?',
+    choices: [
+      'Une suite d’instructions précises pour résoudre un problème',
+      'Un programme secret qui surveille ce qu’on fait sur Internet',
+      'Une formule mathématique inventée par un savant arabe célèbre',
+      'Un robot qui calcule plus vite que tous les humains réunis',
+    ],
+    answer: 0,
+    explain:
+      'Une recette de cuisine est un algorithme ! Le mot vient du nom du savant al-Khwârizmî (IXᵉ siècle), mais un algorithme n’est pas forcément mathématique.',
+  },
   // ------------------------------------------------------------ Histoire de l'IA
   {
     id: 'turing-1950',

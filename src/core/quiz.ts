@@ -28,14 +28,25 @@ export function shuffle<T>(list: readonly T[], rnd: () => number): T[] {
   return out;
 }
 
-/** Semaine ISO (elle commence le lundi) de la date, en heure locale. Ex. « 2026-W43 ». */
-export function isoWeek(date: Date): { year: number; week: number; key: string } {
+export interface IsoWeek {
+  year: number;
+  week: number;
+  /** Ex. « 2026-W43 ». */
+  key: string;
+  /** Numéro de semaine continu (semaines écoulées depuis le lundi 5 janvier 1970). */
+  index: number;
+}
+
+/** Semaine ISO (elle commence le lundi) de la date, en heure locale. */
+export function isoWeek(date: Date): IsoWeek {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const day = d.getUTCDay() || 7;
+  const monday = d.getTime() - (day - 1) * 86_400_000;
   d.setUTCDate(d.getUTCDate() + 4 - day); // le jeudi de la semaine donne l'année ISO
   const year = d.getUTCFullYear();
   const week = Math.ceil(((d.getTime() - Date.UTC(year, 0, 1)) / 86_400_000 + 1) / 7);
-  return { year, week, key: `${year}-W${String(week).padStart(2, '0')}` };
+  const index = Math.round((monday - Date.UTC(1970, 0, 5)) / (7 * 86_400_000));
+  return { year, week, key: `${year}-W${String(week).padStart(2, '0')}`, index };
 }
 
 interface Leveled {
@@ -51,14 +62,24 @@ function pick<T extends Leveled>(questions: readonly T[], rnd: () => number): T[
 }
 
 /**
- * Défi de la semaine : les mêmes questions pour tout le monde du lundi au dimanche, dans le
- * même ordre. Rien n'est stocké ni demandé à un serveur.
+ * Défi de la semaine : les mêmes questions pour tout le monde du lundi au dimanche. Les
+ * questions tournent **sans répétition** : avec N questions, N/5 semaines de suite sans revoir
+ * une seule question (12 semaines pour 60), puis un nouveau cycle dans un autre ordre. Rien
+ * n'est stocké ni demandé à un serveur.
  */
 export function weeklyChallenge<T extends Leveled>(
   questions: readonly T[],
-  week: { year: number; week: number },
+  week: { index: number },
 ): T[] {
-  return pick(questions, seededRandom(week.year * 100 + week.week));
+  const perCycle = Math.max(1, Math.floor(questions.length / ROUND_SIZE));
+  const cycle = Math.floor(week.index / perCycle);
+  const slot = week.index - cycle * perCycle;
+  // Ordre de base stable (par identifiant), mélangé différemment à chaque cycle.
+  const base = [...questions].sort((a, b) => (a.id < b.id ? -1 : 1));
+  const order = shuffle(base, seededRandom(cycle * 7919 + 17));
+  return order
+    .slice(slot * ROUND_SIZE, slot * ROUND_SIZE + ROUND_SIZE)
+    .sort((a, b) => a.level - b.level);
 }
 
 /** Partie libre : au hasard, en évitant si possible les questions vues à la partie d'avant. */
