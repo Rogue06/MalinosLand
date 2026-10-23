@@ -5,6 +5,15 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Expérimental — atelier voxel (branche distincte, validation en attente)
+
+- Galerie locale avant/après : avatar en veste, chêne et sakura, dessins procéduraux et rendus
+  Blender, quatre orientations, quatre poses, résolutions ×1/×2/×4 et jardin de comparaison.
+- Source des modèles, génération Blender locale reproductible et test navigateur de la galerie.
+  Aucun changement des modèles du Hub, des profils ou du réseau ; galerie exclue du build public.
+- Cadres d'avatars alignés sur des pixels entiers et marge adaptée à la résolution pour éviter
+  qu'une pose déborde sur le cadre voisin dans une feuille de sprites.
+
 ### Ajouté (v0.35 : « Que faire maintenant ? »)
 
 - **Hall d’entrée agrandi** de deux rangées vers le jardin : l’accès à la salle de conférence

@@ -403,3 +403,22 @@ calculés par la scène une fois par seconde, seulement quand ils changent.
 musée viendront s’y ajouter (PR 5 et 11). Le panneau s’ouvre aussi depuis un écran-borne
 dessiné à l’entrée du hall (`board_activities`, PR 3), hors du passage ; le hall a été agrandi
 de deux rangées vers le sud pour lui faire de la place et dégager l’accès à la conférence.
+
+## DEC-030 — Atelier voxel isolé, avec essai Blender local (23/10/2026)
+
+**Contexte.** Le responsable souhaite juger un avatar et deux arbres inspirés de ses illustrations
+avant toute adoption. Après un premier rendu trop simple, il demande une piste de modélisation
+3D gratuite ; Blender 4.4.3 est déjà installé et fonctionne en local.
+
+**Décision expérimentale.** Garder Phaser et la projection 2:1. Décrire les volumes en TypeScript
+avec `IsoBuilder`, puis proposer dans une galerie de développement soit leur dessin procédural,
+soit des images rendues une fois dans Blender (arêtes adoucies et éclairage). Un export des mêmes
+volumes permet de régénérer les 24 vues ; aucun MCP ou service de génération externe n'est requis.
+`TextureFactory` reçoit un fournisseur facultatif, avec un espace de noms distinct pour les
+textures de comparaison. Le jeu normal ne passe aucun fournisseur alternatif.
+
+**Conséquences.** Galerie et images exclues du build public ; aucune dépendance ajoutée. Environ
+1,4 Mo d'images pour l'essai Blender, contre aucune image téléchargée pour le procédural.
+Éclairage figé, une tenue seulement, occultation du feuillage élargi et performances dans le vrai
+Hub restant à valider. **Ce choix ne vaut pas adoption du rendu Blender dans le jeu.** Le responsable
+doit choisir la direction artistique avant une intégration distincte. Voir [PROTOTYPE_VOXEL.md](PROTOTYPE_VOXEL.md).

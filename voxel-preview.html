@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MalinosLand — atelier voxel</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">MALINOSLAND <span>ÉTUDE GRAPHIQUE · 01</span></p>
+        <h1>Un peu plus de caractère.</h1>
+        <p class="intro">
+          Un avatar, un chêne et un sakura. Compare les dessins actuels avec le prototype, à la même
+          échelle et dans le vrai moteur du jeu.
+        </p>
+      </header>
+      <form id="controls" aria-label="Réglages de la comparaison">
+        <label
+          >Prototype<select id="render">
+            <option value="blender">Modèles Blender</option>
+            <option value="procedural">Dessin procédural</option>
+          </select></label
+        >
+        <label
+          >Vue<select id="view">
+            <option value="models">Les trois modèles</option>
+            <option value="garden">Dans le jardin</option>
+          </select></label
+        >
+        <label
+          >Orientation<select id="rotation">
+            <option value="0">Face · gauche</option>
+            <option value="1">Face · droite</option>
+            <option value="2">Dos · droite</option>
+            <option value="3">Dos · gauche</option>
+          </select></label
+        >
+        <label
+          >Avatar<select id="pose">
+            <option value="idle">Immobile</option>
+            <option value="walk">Marche</option>
+            <option value="sit">Assis</option>
+          </select></label
+        >
+        <label
+          >Zoom<select id="zoom">
+            <option value="1">×1 · taille du jeu</option>
+            <option value="2">×2</option>
+            <option value="3" selected>×3</option>
+            <option value="4">×4 · détails</option>
+          </select></label
+        >
+        <label
+          >Textures<select id="quality">
+            <option value="2">Normales · ×2</option>
+            <option value="1">Basses · ×1</option>
+            <option value="4">Étude détaillée · ×4</option>
+          </select></label
+        >
+        <button type="button" id="reset">Réinitialiser</button>
+      </form>
+      <p id="status" role="status">Préparation des textures…</p>
+      <div
+        class="viewport"
+        tabindex="0"
+        aria-label="Comparaison interactive avant et après ; défilement horizontal possible sur petit écran"
+      >
+        <div id="gallery"></div>
+      </div>
+      <div class="notes">
+        <article>
+          <h2>Ce qui change</h2>
+          <p>
+            Sweat et veste superposés, sac à dos, mèches, revers et baskets. Chêne étagé. Sakura à
+            trois bouquets, branches visibles et petites fleurs.
+          </p>
+        </article>
+        <article>
+          <h2>Ce que tu vois</h2>
+          <p>
+            Des modèles rendus dans Blender ou dessinés par le code, puis affichés dans Phaser. Le
+            zoom agrandit les mêmes textures : choisis ×1 pour juger les détails à leur taille
+            habituelle. En vue jardin, le personnage passe devant et derrière les arbres.
+          </p>
+        </article>
+        <article>
+          <h2>Un essai à valider</h2>
+          <p>
+            Une seule tenue expérimentale, quatre directions et quatre poses. Les lumières de
+            Blender sont figées dans les images ; le feuillage reste immobile. Cette galerie reste
+            locale ; les personnages du jeu habituel ne changent pas.
+          </p>
+        </article>
+      </div>
+      <footer>
+        <a href="/art-preview.html">Catalogue actuel</a><a href="/jouer/">Ouvrir le jeu habituel</a
+        ><span>Prototype isolé · aucun compte nécessaire</span>
+      </footer>
+    </main>
+    <script type="module" src="/src/dev/voxelPreview.ts"></script>
+  </body>
+</html>

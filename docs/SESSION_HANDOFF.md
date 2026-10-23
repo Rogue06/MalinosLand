@@ -14,6 +14,23 @@ cours : PR 3 (écran du hall et Joshua). Une PR à la fois, présentée au respo
 
 ## Où en est-on ?
 
+### Expérience graphique isolée — 23/10/2026
+
+Branche `feature/prototype-voxel-avatar-arbres`, basée sur `main` à `23b8d84` (PR #46 incluse).
+Galerie locale `/voxel-preview.html` : avatar en veste, chêne et sakura, avant/après, quatre
+orientations, poses, résolutions et jardin comparatif. Après retour du responsable (sakura trop
+clairsemé), feuillage densifié et deuxième rendu produit avec Blender 4.4.3 déjà installé,
+sans MCP ni service externe. Les 24 vues sont conservées en trois atlas ; sources reproductibles.
+
+Guide complet : [PROTOTYPE_VOXEL.md](PROTOTYPE_VOXEL.md). **Reste à faire : validation artistique**,
+puis décision séparée sur l'intégration au Hub et la personnalisation. Une seule tenue,
+éclairage Blender figé, voisinage des arbres et vrais appareils non validés. Aucun déploiement,
+aucune migration, aucune fusion dans `main`. Les étapes du plan v0.35 restent indépendantes.
+
+Vérifié le 23/10 : `npm run check` (215 tests), `npm run format:check`, `npm run test:voxel`
+(144 combinaisons, cadres/caches/cadrage/mobile/réseau) et `npm run test:e2e` sur le build :
+réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du build public.
+
 - **`main`** contient la v0.1 (PR #1), le test e2e fiable (PR #2), la portabilité vers tous les
   outils IA (PR #3) et le **serveur temps réel v0.2** (PR #4, DEC-013).
 - **Protection de `main` active** : pull request obligatoire, fusion en _squash_ uniquement, ni
