@@ -5,6 +5,14 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (v0.35 : « Que faire maintenant ? »)
+
+- Nouveau bouton **🧭 Que faire maintenant ?** en haut de l’écran : quelques idées du moment
+  (prochain objectif, Malinos présents quelque part, secret à chercher avec sa devinette, studio
+  ouvert à visiter, balade selon l’heure, son propre studio), chacune avec un bouton
+  **« Y aller »** : l’avatar s’y rend tout seul.
+- Le compteur de Malinos reste sur une ligne sur téléphone.
+
 ### Modifié (finitions de la v0.3)
 
 - Textes du jeu remis à jour : le chantier annonce désormais le **Bâtiment des créations**

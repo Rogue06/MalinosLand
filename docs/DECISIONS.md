@@ -386,3 +386,18 @@ ciel est recalculé toutes les 20 secondes. Réglage « Toujours de jour ».
 **Conséquences.** Aucun message réseau ni requête : chacun voit la même heure parce que tout le
 monde lit l’horloge de Paris. Coût d’affichage : un quadrilatère plein écran. Les fenêtres
 allumées la nuit ne sont pas encore faites.
+
+## DEC-029 — Panneau « Que faire maintenant ? » calculé dans le navigateur (23/10/2026)
+
+**Contexte.** Plan d’évolution (PR 2) : une fois les objectifs « Premiers pas » finis, le joueur
+ne savait plus quoi faire. Il faut lui proposer des idées sans solliciter le serveur.
+**Décision.** `src/world/activities.ts` (logique pure, testée) choisit au plus 5 idées, dans cet
+ordre : prochain objectif, Malinos présents dans une zone, secret à chercher (devinette du
+carnet), studio ouvert à visiter, balade selon l’heure de Paris, puis son studio (ou la connexion
+pour en avoir un). Les lieux sont des identifiants d’objets de la carte (`src/content/activities.ts`,
+vérifiés par un test). « Y aller » réutilise le déplacement existant : l’avatar marche jusqu’à
+l’objet et s’en sert (depuis un logement, retour au Hub d’abord). Les présents par zone sont
+calculés par la scène une fois par seconde, seulement quand ils changent.
+**Conséquences.** Aucune requête à l’arrivée ; une seule lecture des studios ouverts
+(`visitable_homes`, déjà existante) à l’ouverture du panneau, gardée 5 minutes. Le quiz et le
+musée viendront s’y ajouter (PR 5 et 11).

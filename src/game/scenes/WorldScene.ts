@@ -64,6 +64,7 @@ import {
   typingStore,
   worldInfoStore,
   skyStore,
+  crowdStore,
   zoneStore,
   type DecorAction,
 } from '../../state';
@@ -100,6 +101,8 @@ export interface WorldSceneData {
   spawn?: { x: number; y: number; facing: Facing };
   /** Connexion conservée d'une salle à l'autre (la scène est relancée, pas le réseau). */
   carry?: { net: NetworkClient | null; serverTransport: ServerTransport | null };
+  /** Objet du Hub à rejoindre dès l'arrivée (panneau « Que faire ? » utilisé depuis un logement). */
+  goTo?: string;
 }
 
 interface RemoteAvatar {
@@ -173,6 +176,10 @@ export class WorldScene extends Phaser.Scene {
   /** Abonnements aux événements réseau de cette scène (retirés à chaque changement de salle). */
   private netCleanups: Array<() => void> = [];
   private life: AmbientLife | null = null;
+  /** Objet à rejoindre après un changement de salle (panneau « Que faire ? »). */
+  private pendingGoTo: string | null = null;
+  /** Prochain calcul des Malinos présents par zone (ms). */
+  private crowdTimer = 0;
   /** Jour et nuit à l'heure de Paris (lot C). */
   private dayNight: DayNight | null = null;
   /** Le joueur est-il à l'intérieur (nuit plus douce) ? Gardé tel quel hors des zones. */
@@ -202,6 +209,8 @@ export class WorldScene extends Phaser.Scene {
     this.ownerName = data.ownerName ?? null;
     this.arrival = data.spawn ?? null;
     this.carry = data.carry ?? null;
+    this.pendingGoTo = data.goTo ?? null;
+    this.crowdTimer = 0;
     this.traveling = false;
     this.remotes = new Map();
     this.cleanups = [];
@@ -283,6 +292,7 @@ export class WorldScene extends Phaser.Scene {
       commands.on('invite-notify', ({ target }) => this.net?.inviteNotify(target)),
     );
     this.cleanups.push(commands.on('role-changed', ({ target }) => this.net?.roleChanged(target)));
+    this.cleanups.push(commands.on('go-to-object', ({ object }) => this.goToObject(object)));
     // Bouton d'action de l'interface (indispensable au doigt, sans touche E).
     this.cleanups.push(commands.on('use', () => !isInputLocked() && this.onUseKey()));
     this.cleanups.push(
@@ -307,6 +317,11 @@ export class WorldScene extends Phaser.Scene {
 
     this.updatePresence();
     this.exposeDebug();
+    if (this.pendingGoTo) {
+      const id = this.pendingGoTo;
+      this.pendingGoTo = null;
+      this.time.delayedCall(400, () => this.goToObject(id));
+    }
     if (this.carry) {
       this.announceArrival();
       return;
@@ -656,6 +671,20 @@ export class WorldScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- Interactions
 
+  /**
+   * Panneau « Que faire ? » : l'avatar rejoint un objet du Hub et s'en sert, comme d'un clic
+   * dessus. Depuis un logement, on revient d'abord au Hub (devant l'ascenseur).
+   */
+  private goToObject(id: string): void {
+    if (this.traveling || this.editor) return;
+    if (this.room !== HUB_ROOM) {
+      this.travel(HUB_ROOM, null, EXIT_SPAWN, id);
+      return;
+    }
+    const obj = this.world.getObject(id);
+    if (obj) this.useObject(obj);
+  }
+
   private useObject(obj: WorldObject): void {
     // La ronde de champignons : on va au milieu (on y danse), au lieu de rester à côté.
     if (obj.type === 'mushroom_ring') {
@@ -866,7 +895,12 @@ export class WorldScene extends Phaser.Scene {
   }
 
   /** Relance la scène dans une autre salle, en gardant la connexion. */
-  private travel(room: string, ownerName: string | null, spawn?: WorldSceneData['spawn']): void {
+  private travel(
+    room: string,
+    ownerName: string | null,
+    spawn?: WorldSceneData['spawn'],
+    goTo?: string,
+  ): void {
     if (this.traveling) return;
     this.traveling = true;
     panelStore.set(null);
@@ -876,6 +910,7 @@ export class WorldScene extends Phaser.Scene {
       room,
       ...(ownerName ? { ownerName } : {}),
       ...(spawn ? { spawn } : {}),
+      ...(goTo ? { goTo } : {}),
       carry: { net: this.net, serverTransport: this.serverTransport },
     };
     this.scene.restart(data);
@@ -1170,6 +1205,19 @@ export class WorldScene extends Phaser.Scene {
 
   // ---------------------------------------------------------------- Réglages & profil
 
+  /** Autres Malinos présents dans le Hub, par zone (panneau « Que faire ? »), si ça a changé. */
+  private publishCrowd(): void {
+    const crowd: Record<string, number> = {};
+    if (this.room === HUB_ROOM) {
+      for (const { peer } of this.remotes.values()) {
+        if (peer.room !== HUB_ROOM || isHidden(peer.id)) continue;
+        const zone = this.world.zoneAt({ x: peer.x, y: peer.y })?.id;
+        if (zone) crowd[zone] = (crowd[zone] ?? 0) + 1;
+      }
+    }
+    if (JSON.stringify(crowd) !== JSON.stringify(crowdStore.get())) crowdStore.set(crowd);
+  }
+
   /** Petite horloge de l'interface : mise à jour seulement quand la minute change. */
   private publishSky(): void {
     const sky = this.dayNight?.sky;
@@ -1244,6 +1292,11 @@ export class WorldScene extends Phaser.Scene {
     this.life?.update(delta);
     this.dayNight?.update(delta);
     this.publishSky();
+    this.crowdTimer -= delta;
+    if (this.crowdTimer <= 0) {
+      this.crowdTimer = 1000;
+      this.publishCrowd();
+    }
     this.joshua?.update(delta, this.player.pos);
     if (step.arrived) {
       const obj = this.world.getObject(step.arrived.objectId);

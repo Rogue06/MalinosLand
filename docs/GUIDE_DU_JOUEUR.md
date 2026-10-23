@@ -151,6 +151,12 @@ Dix **secrets** sont cachés dans le Hub. Le **carnet de Joshua** (bouton 🎯, 
 une **devinette** pour chacun ; une fois trouvé, il dévoile une page de l’histoire de Joshua. Avec
 un compte, tes découvertes te suivent sur tous tes appareils.
 
+### Que faire maintenant ? 🧭
+
+Tu ne sais pas quoi faire ? Le bouton **🧭** en haut de l’écran propose quelques idées du moment :
+ton prochain objectif, des Malinos à rejoindre, un secret à chercher, un studio ouvert à visiter
+ou une balade selon l’heure. **« Y aller »** t’y emmène tout seul.
+
 ## 5. Les objectifs « Premiers pas »
 
 Huit petites missions pour découvrir le Hub : parler à Joshua, lire le panneau de bienvenue, s’asseoir,

@@ -650,7 +650,8 @@
       "type": "sofa",
       "x": 1,
       "y": 13,
-      "rot": 1
+      "rot": 1,
+      "id": "canape"
     },
     {
       "type": "coffee_table",
@@ -1066,7 +1067,8 @@
       "type": "deck_chair",
       "x": 32,
       "y": 8,
-      "rot": 3
+      "rot": 3,
+      "id": "transat"
     },
     {
       "type": "deck_chair",

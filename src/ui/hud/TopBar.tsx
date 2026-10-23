@@ -73,6 +73,14 @@ export function TopBar({
           </button>
         )}
         <button
+          class="icon-btn"
+          onClick={() => panelStore.set('activities')}
+          title="Que faire maintenant ?"
+          aria-label="Que faire maintenant ?"
+        >
+          🧭
+        </button>
+        <button
           class={`icon-btn ${objectivesOpen ? 'active' : ''}`}
           onClick={onToggleObjectives}
           title="Objectifs"

@@ -12,6 +12,7 @@ import { DialogBox, Hint, Stats, Toasts } from './hud/Overlays';
 import { TopBar } from './hud/TopBar';
 import { Onboarding } from './Onboarding';
 import { FeedbackPanel, ModerationPanel, PlayersPanel } from './panels/Community';
+import { ActivitiesPanel } from './panels/Activities';
 import { CarnetPanel } from './panels/Carnet';
 import { ElevatorPanel, HomePanel } from './panels/Homes';
 import {
@@ -55,6 +56,8 @@ function ActivePanel() {
       return <HomePanel />;
     case 'carnet':
       return <CarnetPanel />;
+    case 'activities':
+      return <ActivitiesPanel />;
     default:
       return null;
   }
