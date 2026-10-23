@@ -618,3 +618,200 @@ describe('base de données : rôles visibles (statut doré, modérateurs)', () =
     );
   });
 });
+
+describe('base de données : Musée des Malinos (v0.4)', () => {
+  const AUTEUR = '00000000-0000-4000-8000-0000000000f1';
+  const AUTRE = '00000000-0000-4000-8000-0000000000f2';
+  const MODO = '00000000-0000-4000-8000-0000000000f3';
+  const propose = (who: string, url = 'https://mon-projet.github.io/demo', title = 'Mon projet') =>
+    as<{ id: number }>(
+      who,
+      `insert into public.projects (title, summary, url, category, tags)
+       values ($1, 'Un outil pour essayer des prompts.', $2, 'outil-ia', '{IA,prompts}') returning id`,
+      [title, url],
+    );
+  const visible = async (who: string | null) =>
+    (await as<{ title: string }>(who, 'select title from public.projects order by id')).rows.map(
+      (r) => r.title,
+    );
+
+  beforeAll(async () => {
+    await db.exec(
+      `insert into auth.users (id) values ('${AUTEUR}'), ('${AUTRE}'), ('${MODO}') on conflict do nothing`,
+    );
+    await db.exec(`insert into public.moderators (user_id) values ('${MODO}')`);
+    for (const [id, name] of [
+      [AUTEUR, 'Autrice'],
+      [AUTRE, 'Autre'],
+      [MODO, 'Modo4'],
+    ] as const)
+      await as(id, `insert into public.profiles (id, name, look) values ($1, $2, '{}')`, [
+        id,
+        name,
+      ]);
+  });
+
+  it('adresses : https vers un vrai nom de domaine, jamais local, IP, port ni MalinosLand', async () => {
+    const ok = async (u: string) =>
+      (await as<{ v: boolean }>(null, 'select public.valid_project_url($1) as v', [u])).rows[0]!.v;
+    expect(await ok('https://exemple.github.io/projet?x=1#haut')).toBe(true);
+    expect(await ok('https://mon-site.fr')).toBe(true);
+    for (const bad of [
+      'http://mon-site.fr',
+      'https://192.168.1.10/admin',
+      'https://127.0.0.1',
+      'https://[::1]/',
+      'https://localhost/test',
+      'https://serveur.local',
+      'https://mon-site.fr:8443/',
+      'https://user:motdepasse@mon-site.fr',
+      'https://malinosland.pages.dev/jouer/',
+      'https://essai.malinosland.pages.dev',
+      'https://xezisaqffltiuyeblknt.supabase.co/rest/v1/',
+      'javascript:alert(1)',
+      'https://MON-SITE.fr',
+      'https://mon site.fr',
+      `https://mon-site.fr/${'a'.repeat(300)}`,
+    ])
+      expect(await ok(bad), bad).toBe(false);
+  });
+
+  it('un membre propose ; seul lui (et les modérateurs) le voit tant qu’il n’est pas validé', async () => {
+    await propose(AUTEUR);
+    expect(await visible(AUTEUR)).toEqual(['Mon projet']);
+    expect(await visible(MODO)).toEqual(['Mon projet']);
+    expect(await visible(AUTRE)).toEqual([]);
+    expect(await visible(null)).toEqual([]);
+    await expect(propose(null as unknown as string)).rejects.toThrow();
+  });
+
+  it('impossible de se valider soi-même ou de proposer au nom d’un autre', async () => {
+    await expect(
+      as(
+        AUTEUR,
+        `insert into public.projects (title, summary, url, category, status)
+         values ('Triche', 'Je me valide tout seul.', 'https://triche.fr', 'site', 'approved')`,
+      ),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      as(
+        AUTEUR,
+        `insert into public.projects (owner_id, title, summary, url, category)
+         values ($1, 'Usurpation', 'Au nom de quelqu’un d’autre.', 'https://autre.fr', 'site')`,
+        [AUTRE],
+      ),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      as(AUTEUR, `update public.projects set status = 'approved' where owner_id = $1`, [AUTEUR]),
+    ).rejects.toThrow(/permission denied/);
+    await expect(
+      as(AUTEUR, `select public.moderate_project(id, 'approved') from public.projects`),
+    ).rejects.toThrow(/modérateurs/);
+  });
+
+  it('la modération valide : le projet apparaît dans le musée, avec le pseudo de l’auteur', async () => {
+    const id = (
+      await as<{ id: number }>(MODO, `select id from public.projects where title = 'Mon projet'`)
+    ).rows[0]!.id;
+    // Encore en attente : l’auteur peut le corriger.
+    await as(
+      AUTEUR,
+      `select public.update_my_project($1, 'Mon projet', 'Un outil pour comparer des prompts.', 'https://mon-projet.github.io/demo', 'outil-ia', '{IA}')`,
+      [id],
+    );
+    await as(MODO, `select public.moderate_project($1, 'approved')`, [id]);
+    expect(await visible(null)).toEqual(['Mon projet']);
+    expect(await visible(AUTRE)).toEqual(['Mon projet']);
+    const list = await as<{ title: string; author: string; tags: string[] }>(
+      null,
+      'select * from public.museum_projects()',
+    );
+    expect(list.rows).toMatchObject([{ title: 'Mon projet', author: 'Autrice', tags: ['IA'] }]);
+    // Validé : l’auteur ne peut plus le modifier (seulement le retirer).
+    await expect(
+      as(
+        AUTEUR,
+        `select public.update_my_project($1, 'Changé', 'Résumé changé après coup.', 'https://autre-site.fr', 'site', '{}')`,
+        [id],
+      ),
+    ).rejects.toThrow(/déjà examiné/);
+  });
+
+  it('démo intégrée : décidée par un modérateur, remise à vérifier après un signalement', async () => {
+    const id = (
+      await as<{ id: number }>(MODO, `select id from public.projects where title = 'Mon projet'`)
+    ).rows[0]!.id;
+    await expect(as(AUTEUR, `select public.set_project_embed($1, 'ok')`, [id])).rejects.toThrow(
+      /modérateurs/,
+    );
+    await as(MODO, `select public.set_project_embed($1, 'ok')`, [id]);
+    const embed = async () =>
+      (await as<{ embed: string }>(null, 'select embed from public.museum_projects()')).rows[0]!
+        .embed;
+    expect(await embed()).toBe('ok');
+    await as(
+      AUTRE,
+      `insert into public.project_reports (project_id, reason, details) values ($1, 'lien-casse', 'La démo affiche une erreur.')`,
+      [id],
+    );
+    expect(await embed()).toBe('unknown');
+    // Un seul signalement par membre et par projet ; lus par les modérateurs seulement.
+    await expect(
+      as(AUTRE, `insert into public.project_reports (project_id, reason) values ($1, 'autre')`, [
+        id,
+      ]),
+    ).rejects.toThrow();
+    expect((await as(MODO, 'select * from public.project_reports')).rows).toHaveLength(1);
+    expect((await as(AUTRE, 'select * from public.project_reports')).rows).toHaveLength(0);
+    await expect(
+      as(null, `insert into public.project_reports (project_id, reason) values ($1, 'autre')`, [
+        id,
+      ]),
+    ).rejects.toThrow(/permission denied/);
+  });
+
+  it('l’auteur retire son projet : il disparaît du musée', async () => {
+    const id = (
+      await as<{ id: number }>(AUTEUR, `select id from public.projects where title = 'Mon projet'`)
+    ).rows[0]!.id;
+    await expect(as(AUTRE, 'select public.withdraw_my_project($1)', [id])).rejects.toThrow(
+      /introuvable/,
+    );
+    await as(AUTEUR, 'select public.withdraw_my_project($1)', [id]);
+    expect(await visible(null)).toEqual([]);
+    expect(await visible(AUTEUR)).toEqual(['Mon projet']);
+  });
+
+  it('plafonds : 3 projets en attente au plus, textes et mots-clés bornés', async () => {
+    for (const n of [1, 2, 3]) await propose(AUTRE, `https://projet${n}.fr`, `Projet ${n}`);
+    await expect(propose(AUTRE, 'https://projet4.fr', 'Projet 4')).rejects.toThrow(/en attente/);
+    await expect(
+      as(
+        AUTEUR,
+        `insert into public.projects (title, summary, url, category, tags)
+         values ('Titre', 'Résumé assez long.', 'https://ok.fr', 'site', '{a,b,c,d}')`,
+      ),
+    ).rejects.toThrow();
+    await expect(
+      as(
+        AUTEUR,
+        `insert into public.projects (title, summary, url, category)
+         values ('Titre', 'court', 'https://ok.fr', 'site')`,
+      ),
+    ).rejects.toThrow();
+    await expect(
+      as(
+        AUTEUR,
+        `insert into public.projects (title, summary, url, category)
+         values ('Titre', 'Résumé assez long.', 'https://ok.fr', 'crypto')`,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it('supprimer son compte supprime ses projets', async () => {
+    await db.exec(`delete from auth.users where id = '${AUTRE}'`);
+    expect(
+      (await as(MODO, `select * from public.projects where owner_id = $1`, [AUTRE])).rows,
+    ).toHaveLength(0);
+  });
+});

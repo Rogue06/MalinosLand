@@ -39,6 +39,21 @@
   contrainte `valid_home_decor` (40 meubles au plus, types autorisés, cases du studio). Lecture :
   `home_decor(owner)`, seulement pour ceux qui peuvent entrer. Le jeu revérifie chaque meuble
   (passages libres, entrée dégagée : `src/world/decor.ts`).
+- **Rôles visibles** (migration `20261026090000_roles.sql`, v0.3) : `gold_members` (statut doré),
+  `account_role(uuid)` (public : `gold`, `mod` ou rien), `my_account()` (profil et rôle pour le
+  serveur temps réel), `set_gold` / `set_moderator` (responsable du site seulement).
+- **Musée des Malinos** (migration `20261027090000_museum.sql`, v0.4, DEC-031) : `projects`
+  (titre, résumé, adresse `https`, catégorie, 3 mots-clés, `status` = `pending` / `approved` /
+  `rejected` / `withdrawn`, `embed` = démo intégrable, `thumbnail` prévu mais toujours vide).
+  Tout le monde lit les projets **validés** ; l’auteur voit les siens ; les modérateurs voient
+  tout. Proposition directe (en attente seulement) ; le reste passe par des fonctions :
+  `update_my_project` (tant que c’est en attente), `withdraw_my_project`, `moderate_project` et
+  `set_project_embed` (modérateurs), `museum_projects(catégorie, limite, décalage)` (liste
+  publique, 20 par page, avec le pseudo de l’auteur). Adresses vérifiées par
+  `valid_project_url` (pas d’IP, de port, d’identifiants, d’adresse locale ni de MalinosLand).
+  Plafonds : 3 en attente, 10 exposés, 5 propositions par jour. `project_reports` : un
+  signalement par membre et par projet (10 par jour), lu par les modérateurs ; il remet la démo
+  intégrée « à vérifier ».
 
 > Le schéma ci-dessous était la **cible** de départ : `profiles`, `reports`, `feedback`, `homes`
 > et `home_invites` existent désormais (sous une forme parfois différente, voir les migrations) ;
@@ -138,7 +153,8 @@ L’entrée dans un logement en temps réel sera aussi vérifiée par le serveur
 
 - Profil ≈ 0,5 Ko → 10 000 membres ≈ 5 Mo.
 - Logement : disposition compacte ≈ 1–4 Ko → 10 000 logements ≈ 40 Mo.
-- Galerie : texte uniquement + miniature validée (stockage fichiers limité) ou visuel générique.
+- Musée : texte uniquement (≈ 1 Ko par projet → 1 000 projets ≈ 1 Mo) ; l’affiche est dessinée
+  par le jeu. Miniature personnalisée : prévue plus tard (stockage fichiers limité).
 - Pas d’historique de chat complet stocké (seulement un court historique en mémoire côté serveur).
 
 ## 5. RGPD

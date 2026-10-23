@@ -5,6 +5,13 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (v0.4 : Musée des Malinos, la base)
+
+- Base de données du **Musée des Malinos** : projets proposés par les membres, **validés par les
+  modérateurs** avant d’être visibles, retirés quand l’auteur le veut, signalables. Adresses
+  vérifiées (https, pas d’adresse locale ni d’IP). Rien de visible dans le jeu pour l’instant :
+  le formulaire et la salle arrivent dans les PR suivantes.
+
 ### Ajouté (v0.35 : « Que faire maintenant ? »)
 
 - **Mesures de fréquentation** pour le responsable (⚙️ → Historique des connexions) : comptes
