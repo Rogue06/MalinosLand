@@ -1,5 +1,7 @@
 import { PGlite } from '@electric-sql/pglite';
 import { beforeAll, describe, expect, it } from 'vitest';
+import { isValidProjectUrl } from '../src/core/museum';
+import { URL_CASES } from './fixtures/projectUrls';
 
 /**
  * Règles d'accès de la base (RLS) testées sans compte ni Docker : PGlite fait tourner un vrai
@@ -652,28 +654,14 @@ describe('base de données : Musée des Malinos (v0.4)', () => {
   });
 
   it('adresses : https vers un vrai nom de domaine, jamais local, IP, port ni MalinosLand', async () => {
-    const ok = async (u: string) =>
-      (await as<{ v: boolean }>(null, 'select public.valid_project_url($1) as v', [u])).rows[0]!.v;
-    expect(await ok('https://exemple.github.io/projet?x=1#haut')).toBe(true);
-    expect(await ok('https://mon-site.fr')).toBe(true);
-    for (const bad of [
-      'http://mon-site.fr',
-      'https://192.168.1.10/admin',
-      'https://127.0.0.1',
-      'https://[::1]/',
-      'https://localhost/test',
-      'https://serveur.local',
-      'https://mon-site.fr:8443/',
-      'https://user:motdepasse@mon-site.fr',
-      'https://malinosland.pages.dev/jouer/',
-      'https://essai.malinosland.pages.dev',
-      'https://xezisaqffltiuyeblknt.supabase.co/rest/v1/',
-      'javascript:alert(1)',
-      'https://MON-SITE.fr',
-      'https://mon site.fr',
-      `https://mon-site.fr/${'a'.repeat(300)}`,
-    ])
-      expect(await ok(bad), bad).toBe(false);
+    // Mêmes cas que le jeu (tests/museum.test.ts) : la base et le formulaire sont d'accord.
+    for (const [url, expected] of URL_CASES) {
+      const { rows } = await as<{ v: boolean }>(null, 'select public.valid_project_url($1) as v', [
+        url,
+      ]);
+      expect(rows[0]!.v, url).toBe(expected);
+      expect(isValidProjectUrl(url), url).toBe(expected);
+    }
   });
 
   it('un membre propose ; seul lui (et les modérateurs) le voit tant qu’il n’est pas validé', async () => {

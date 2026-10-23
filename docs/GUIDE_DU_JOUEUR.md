@@ -103,7 +103,10 @@ Des bureaux pour travailler ensemble. Un des ordinateurs affiche **l’astuce IA
 
 La **salle de conférence** (scène, écran géant, sièges) accueillera des événements à partir de la
 v0.5. Juste devant, la galerie est encore fermée par une corde : elle deviendra le **Musée des
-Malinos** en v0.4, pour exposer les créations de la communauté.
+Malinos** en v0.4, pour exposer les créations de la communauté. Tu peux **déjà proposer ton
+projet** : clique sur le panneau devant la galerie (« Exposer mon projet au musée »), ou ouvre
+⚙️ Réglages → 🖼️ Mes projets quand tu es connecté. Un modérateur le valide avant qu’il soit
+exposé (voir [MUSEE.md](MUSEE.md)).
 
 ### Le salon détente
 

@@ -105,6 +105,9 @@ export function AccountBox({ compact = false }: { compact?: boolean }) {
               🛡️ Modération
             </button>
           )}
+          <button type="button" class="btn ghost small" onClick={() => panelStore.set('museum')}>
+            🖼️ Mes projets
+          </button>
           <button type="button" class="btn ghost small" onClick={() => void signOut()}>
             Se déconnecter
           </button>

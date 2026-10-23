@@ -6,7 +6,8 @@
 **Dernière mise à jour : 22/10/2026 — v0.3 terminée (logements, décoration, carnet, rôles, jour
 et nuit). Plan validé pour la suite : [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) (v0.35 panneau
 « Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). v0.35 complète (PR 1 à 6
-fusionnées) ; en cours : PR 7 (base du Musée, migration à appliquer après accord). Une PR à la fois, présentée au responsable avant la suivante.**
+fusionnées) ; PR 7 (base du Musée) fusionnée ; en cours : PR 8 (exposer et modérer). Une PR à
+la fois, présentée au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -101,6 +102,15 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **24/10 (nuit)** — PR #51 (base du musée) fusionnée, migration appliquée sur Supabase, mise en
+  ligne réussie (main avait reçu les commits Blender du responsable : conflit de documentation
+  résolu, décision du musée renumérotée **DEC-035**). Branche `feature/musee-exposer` (PR 8,
+  DEC-036) : formulaire « Exposer mon projet » avec aperçu de l’affiche, « Mes projets »,
+  onglet 🖼️ Musée de la modération, `src/services/museum.ts`, affiches procédurales
+  `src/game/art/posters.ts` (avancées de la PR 9), guide [MUSEE.md](MUSEE.md), 14 tests en plus
+  et une étape e2e. **Non testé en ligne** (aucun projet réel créé) : à essayer par le
+  responsable après fusion (proposer, valider, refuser, retirer). Suite : PR 9 (la salle).
 
 - **24/10 (soir)** — PR #50 (mesures de fréquentation) fusionnée et en ligne : **v0.35 complète**.
   Branche `feature/musee-base` (PR 7, DEC-035) : migration `20261027090000_museum.sql`

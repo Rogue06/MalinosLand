@@ -422,6 +422,8 @@ Migration `supabase/migrations/2026…_museum.sql` :
   l’affiche avant envoi), « Mes projets » (statut, motif de refus), onglet **Musée** dans le
   panneau 🛡️ Modération existant.
 - Textes nettoyés par `sanitizeText` ; aucun HTML interprété.
+- _Réalisé (DEC-036)_ : l’affiche procédurale (`src/game/art/posters.ts`) est faite dès cette PR
+  pour l’aperçu ; `setStatus` s’appelle `moderateProject`. Guide : [MUSEE.md](MUSEE.md).
 
 ### PR 9 — Musée : la salle (M)
 
