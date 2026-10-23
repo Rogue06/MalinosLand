@@ -268,7 +268,7 @@
           "Pour utiliser un objet, touche-le ou clique dessus. Tout près, le bouton en bas de l’écran (ou la touche E) marche aussi.",
           "Le coworking est au fond à gauche, la salle de conférence au fond à droite, le salon à gauche. Le café y est virtuel, mais l’ambiance est réelle.",
           "Tes objectifs « Premiers pas » sont en haut à droite, avec mon carnet : j’y ai caché des devinettes.",
-          "Et le jour où tu ne sauras plus quoi faire : l’écran juste à côté de moi (ou le bouton 🧭) te donne des idées. Bonne visite. Let’s rock !"
+          "Et le jour où tu ne sauras plus quoi faire : mon écran « Que faire ? », contre le mur du hall (ou le bouton 🧭), te donne des idées. Bonne visite. Let’s rock !"
         ]
       },
       "label": "Joshua",
@@ -276,8 +276,9 @@
     },
     {
       "type": "board_activities",
-      "x": 9,
-      "y": 15,
+      "x": 8,
+      "y": 12,
+      "rot": 1,
       "id": "ecran-que-faire"
     },
     {

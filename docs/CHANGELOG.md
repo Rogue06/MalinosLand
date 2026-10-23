@@ -7,7 +7,8 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ### Ajouté (v0.35 : « Que faire maintenant ? »)
 
-- Un **écran « Que faire ? »** dessiné dans le hall, juste à côté de Joshua : il ouvre le même
+- Un **écran « Que faire ? »** dessiné contre le mur du hall, près du tableau de la feuille de
+  route : il ouvre le même
   panneau d’idées. Joshua y renvoie à la fin de sa visite guidée et dans ses petites remarques.
 
 - Nouveau bouton **🧭 Que faire maintenant ?** en haut de l’écran : quelques idées du moment

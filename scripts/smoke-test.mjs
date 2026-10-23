@@ -304,8 +304,8 @@ try {
     await waitGone('.modal');
   });
 
-  await step('écran « Que faire ? » du hall, près de Joshua', async () => {
-    await teleport(9.5, 16.6, 'ny');
+  await step('écran « Que faire ? » contre le mur du hall', async () => {
+    await teleport(9.6, 12.5, 'nx');
     await dbg(() => window.__malinosDebug.use('ecran-que-faire'));
     await waitUi('.modal', 'Que faire maintenant ?');
     await page.screenshot({ path: `${outDir}/07c-ecran-hall.png` });

@@ -401,4 +401,5 @@ calculés par la scène une fois par seconde, seulement quand ils changent.
 **Conséquences.** Aucune requête à l’arrivée ; une seule lecture des studios ouverts
 (`visitable_homes`, déjà existante) à l’ouverture du panneau, gardée 5 minutes. Le quiz et le
 musée viendront s’y ajouter (PR 5 et 11). Le panneau s’ouvre aussi depuis un écran-borne
-dessiné dans le hall, à gauche de Joshua (`board_activities`, PR 3).
+dessiné contre le mur du hall, près du tableau de la feuille de route (`board_activities`, PR 3),
+hors du passage.

@@ -105,9 +105,9 @@ export function moodLine(mood: JoshuaMood, pick: number): string {
   return `(Ses antennes sont ${mood.colorName} : Joshua est ${mood.label}.) ${line}`;
 }
 
-/** Joshua renvoie vers l'écran « Que faire maintenant ? » posé à côté de lui (v0.35). */
+/** Joshua renvoie vers l'écran « Que faire maintenant ? » du hall (v0.35). */
 const SCREEN_LINE =
-  'Pas d’idée ? L’écran juste à côté de moi te dit quoi faire maintenant. Oui, j’ai un écran. Non, ce n’est pas mon cerveau.';
+  'Pas d’idée ? Mon écran « Que faire ? », contre le mur du hall, te dit quoi faire maintenant. Oui, j’ai un écran. Non, ce n’est pas mon cerveau.';
 
 /** Après la visite guidée : une réplique selon le carnet, au lieu de tout répéter. */
 export function followUpLines(secretsFound: number, secretsTotal: number): string[] {
