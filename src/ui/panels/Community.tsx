@@ -28,7 +28,13 @@ import {
   type ReportReason,
 } from '../../services/moderation';
 import { inviteGuest, myHomeAccess, setMyHomeAccess } from '../../services/homes';
-import { listVisits, summarize, type Visit } from '../../services/visits';
+import {
+  attendance,
+  listVisits,
+  summarize,
+  type Attendance,
+  type Visit,
+} from '../../services/visits';
 import { profileStore } from '../../services/profile';
 import { loadTurnstile, type TurnstileApi } from '../../services/turnstile';
 import { accountUuid, type Role } from '../../multiplayer/protocol';
@@ -513,6 +519,69 @@ const DAY_FMT = new Intl.DateTimeFormat('fr-FR', {
 });
 const TIME_FMT = new Intl.DateTimeFormat('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
+const SHORT_DAY_FMT = new Intl.DateTimeFormat('fr-FR', { weekday: 'short', day: 'numeric' });
+
+const percent = (r: { returned: number; total: number }) =>
+  r.total === 0 ? '—' : `${r.returned}/${r.total} (${Math.round((100 * r.returned) / r.total)} %)`;
+
+/**
+ * Mesures de fréquentation (v0.35), calculées depuis le journal existant : rien de plus n'est
+ * collecté. Les limites sont écrites à côté des chiffres.
+ */
+function AttendanceSummary({ a }: { a: Attendance }) {
+  return (
+    <section class="attendance">
+      <h3>Fréquentation</h3>
+      <ul class="attendance-figures">
+        <li>
+          <strong>{a.accounts7}</strong> compte(s) différent(s) sur 7 jours ·{' '}
+          <strong>{a.accounts90}</strong> sur 90 jours
+        </li>
+        <li>
+          Revenus <strong>un autre jour</strong> : {percent(a.anotherDay)}
+        </li>
+        <li>
+          Revenus <strong>7 jours ou plus</strong> après leur première visite : {percent(a.after7)}
+          <span class="muted small"> (parmi les comptes arrivés il y a au moins 7 jours)</span>
+        </li>
+        <li>
+          Durée médiane de connexion :{' '}
+          <strong>{a.medianMinutes === null ? '—' : `${a.medianMinutes} min`}</strong>
+        </li>
+        <li>
+          Visiteurs sans compte : <strong>{a.guestVisits7}</strong> visite(s) sur 7 jours
+        </li>
+      </ul>
+      <table class="attendance-days">
+        <caption class="muted small">Les 7 derniers jours</caption>
+        <thead>
+          <tr>
+            <th scope="col">Jour</th>
+            <th scope="col">Comptes</th>
+            <th scope="col">Visites sans compte</th>
+          </tr>
+        </thead>
+        <tbody>
+          {a.days.map((d) => (
+            <tr key={d.day}>
+              <td>{SHORT_DAY_FMT.format(new Date(`${d.day}T12:00:00`))}</td>
+              <td>{d.accounts}</td>
+              <td>{d.guestVisits}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p class="muted small">
+        Limites : seuls les <strong>comptes</strong> peuvent être suivis d’une visite à l’autre (un
+        visiteur change d’identifiant à chaque chargement de page, c’est voulu). La durée est une{' '}
+        <strong>durée de connexion</strong> : un onglet oublié compte comme présent. On ne sait rien
+        des activités faites pendant la visite.
+        {a.truncated && ' Le journal a atteint 3 000 visites : les plus anciennes manquent.'}
+      </p>
+    </section>
+  );
+}
+
 /** Historique des connexions (responsable du site seulement, 90 derniers jours). */
 function VisitsList() {
   const [rows, setRows] = useState<Visit[] | null>(null);
@@ -534,6 +603,8 @@ function VisitsList() {
   }
   return (
     <div class="visits">
+      <AttendanceSummary a={attendance(rows, now)} />
+      <h3>Historique</h3>
       <p>
         <strong>7 derniers jours :</strong> {week.visits} visite(s), {week.people} Malino(s)
         différent(s). <strong>90 jours :</strong> {all.visits} visite(s), {all.people} Malino(s).

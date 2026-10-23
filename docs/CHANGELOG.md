@@ -7,6 +7,12 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ### Ajouté (v0.35 : « Que faire maintenant ? »)
 
+- **Mesures de fréquentation** pour le responsable (⚙️ → Historique des connexions) : comptes
+  différents sur 7 et 90 jours, part des comptes revenus un autre jour et 7 jours ou plus après
+  leur première visite, durée médiane de connexion, visites sans compte, tableau des 7 derniers
+  jours. Calculées uniquement à partir du journal existant : **rien de plus n’est collecté**,
+  et les limites sont écrites à côté des chiffres.
+
 - **Quiz IA des Malinos** sur la **borne turquoise** de la salle de jeux : 5 questions avec une
   explication après chaque réponse, en **partie libre** ou en **défi de la semaine** (le même pour
   tous, nouveau chaque lundi, **sans répétition pendant 12 semaines**). **60 questions** relues
