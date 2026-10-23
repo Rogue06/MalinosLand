@@ -1571,6 +1571,8 @@ export class WorldScene extends Phaser.Scene {
         this.dayNight?.forceHour(typeof h === 'number' ? h : null);
         return this.dayNight?.sky;
       },
+      /** Ouvre un panneau de l'interface (tests, captures) : `panel('quiz')`. */
+      panel: (id: Parameters<typeof panelStore.set>[0]) => panelStore.set(id),
       /** Aperçu local d'un rôle sur son propre avatar (captures) : rien n'est envoyé. */
       role: (r: Role | null) => this.avatar.setRole(r),
       fps: () => Math.round(this.game.loop.actualFps),

@@ -604,6 +604,138 @@ button.presence-chip {
     margin-left: 36px;
   }
 }
+/* Quiz IA des Malinos (v0.35) : l'ambiance violette de la borne d'arcade. */
+.quiz-menu {
+  display: grid;
+  gap: 10px;
+}
+.quiz-mode {
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(123, 108, 246, 0.45);
+  background: linear-gradient(135deg, rgba(123, 108, 246, 0.22), rgba(20, 26, 43, 0.6));
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
+}
+.quiz-mode:hover,
+.quiz-mode:focus-visible {
+  border-color: var(--violet);
+  transform: translateY(-1px);
+}
+.quiz-mode strong {
+  font-size: 16px;
+}
+.quiz-mode span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.quiz-progress {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 6px;
+}
+.quiz-question h3 {
+  margin: 4px 0 12px;
+  line-height: 1.35;
+}
+.quiz-choices {
+  display: grid;
+  gap: 8px;
+}
+.quiz-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--glass);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.quiz-choice:hover:not(:disabled),
+.quiz-choice:focus-visible {
+  border-color: var(--violet);
+}
+.quiz-choice:disabled {
+  cursor: default;
+}
+.quiz-key {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: rgba(123, 108, 246, 0.3);
+  font-size: 12px;
+  font-weight: 800;
+}
+.quiz-choice.right {
+  border-color: var(--teal-light);
+  background: rgba(34, 181, 166, 0.22);
+  animation: quiz-pop 0.35s ease;
+}
+.quiz-choice.wrong {
+  border-color: var(--coral);
+  background: rgba(255, 122, 89, 0.18);
+}
+.quiz-choice.dim {
+  opacity: 0.5;
+}
+.quiz-feedback p {
+  margin: 10px 0 0;
+}
+.quiz-verdict.right {
+  color: var(--teal-light);
+  font-weight: 700;
+}
+.quiz-verdict.wrong {
+  color: var(--coral);
+  font-weight: 700;
+}
+.quiz-end {
+  text-align: center;
+}
+.quiz-end .row {
+  justify-content: center;
+}
+.quiz-score {
+  font-size: 44px;
+  font-weight: 900;
+  margin: 4px 0;
+  color: var(--sun);
+  animation: quiz-pop 0.5s ease;
+}
+.quiz.still .quiz-choice,
+.quiz.still .quiz-score,
+.quiz.still .quiz-mode {
+  animation: none;
+  transition: none;
+}
+@keyframes quiz-pop {
+  0% {
+    transform: scale(0.96);
+  }
+  60% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 /* Statut doré (lot B2) : pseudo doré et brillant, dans le chat et la liste des présents. */
 .gold-name,
 .msg b.gold-name {

@@ -403,3 +403,18 @@ calculés par la scène une fois par seconde, seulement quand ils changent.
 musée viendront s’y ajouter (PR 5 et 11). Le panneau s’ouvre aussi depuis un écran-borne
 dessiné à l’entrée du hall (`board_activities`, PR 3), hors du passage ; le hall a été agrandi
 de deux rangées vers le sud pour lui faire de la place et dégager l’accès à la conférence.
+
+## DEC-030 — Quiz IA des Malinos : questions dans le jeu, scores dans le navigateur (23/10/2026)
+
+**Contexte.** Plan d’évolution (PR 4) : une activité jouable tout de suite, même seul, sans API
+d’IA payante ni écriture en base (décision du responsable pour la v0.35).
+**Décision.** Les questions sont du **contenu du dépôt** (`src/content/quiz.ts`) : 4 choix, une
+explication, une source si possible, des notions durables plutôt que l’actualité. **Chaque
+question est relue par le responsable ou un modérateur avant publication.** Le moteur
+(`src/core/quiz.ts`, pur et testé) tire 5 questions du plus facile au plus difficile, mélange
+l’ordre des choix, et calcule le **défi de la semaine** à partir du numéro de semaine ISO : le
+même pour tous, sans serveur. Les scores (`src/services/quizStats.ts`) restent **uniquement
+dans le navigateur** ; un test vérifie qu’aucun appel réseau ni à Supabase n’y figure. Un test
+vérifie aussi que la bonne réponse ne se devine pas à sa longueur.
+**Conséquences.** Zéro coût d’hébergement. Pas de classement ni de scores sur le compte pour
+l’instant (évolution possible, non développée). Ajouter des questions = une pull request relue.

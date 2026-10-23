@@ -245,7 +245,8 @@ La feuille de route n’est pas figée : **elle bouge selon vos retours.**
 ### v0.35 — voir [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) §10, PR 2 à 6
 
 - ✅ Panneau « Que faire maintenant ? » : moteur de suggestions, bouton 🧭 et écran du hall
-- ⬜ Quiz IA des Malinos (borne de la salle de jeux, défi de la semaine)
+- 🔶 Quiz IA des Malinos : moteur, défi de la semaine et 30 questions (PR 4) ; borne de la salle
+  de jeux (PR 5)
 - ⬜ Mesures de fréquentation du responsable
 
 ### v0.4 — PR 7 à 11

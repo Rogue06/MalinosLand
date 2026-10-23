@@ -7,6 +7,12 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ### Ajouté (v0.35 : « Que faire maintenant ? »)
 
+- **Quiz IA des Malinos** (moteur et 30 premières questions, à relire avant publication) :
+  5 questions avec une explication après chaque réponse, en **partie libre** ou en **défi de la
+  semaine** (le même pour tous, nouveau chaque lundi). Jouable au clavier (1 à 4, Entrée), à la
+  souris et au doigt. Scores gardés dans le navigateur seulement. La borne de la salle de jeux
+  arrive avec la PR suivante.
+
 - **Hall d’entrée agrandi** de deux rangées vers le jardin : l’accès à la salle de conférence
   est dégagé (comptoir d’accueil déplacé à droite, face à l’entrée), et l’entrée est encadrée
   par le **panneau de bienvenue** et un nouvel **écran « Que faire ? »**, qui ouvre le même
