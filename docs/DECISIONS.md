@@ -404,6 +404,47 @@ musée viendront s’y ajouter (PR 5 et 11). Le panneau s’ouvre aussi depuis u
 dessiné à l’entrée du hall (`board_activities`, PR 3), hors du passage ; le hall a été agrandi
 de deux rangées vers le sud pour lui faire de la place et dégager l’accès à la conférence.
 
+## DEC-031 — Atelier voxel isolé, avec essai Blender local (23/10/2026)
+
+**Contexte.** Le responsable souhaite juger un avatar et deux arbres inspirés de ses illustrations
+avant toute adoption. Après un premier rendu trop simple, il demande une piste de modélisation
+3D gratuite ; Blender 4.4.3 est déjà installé et fonctionne en local.
+
+**Décision expérimentale.** Garder Phaser et la projection 2:1. Décrire les volumes en TypeScript
+avec `IsoBuilder`, puis proposer dans une galerie de développement soit leur dessin procédural,
+soit des images rendues une fois dans Blender (arêtes adoucies et éclairage). Un export des mêmes
+volumes permet de régénérer les 24 vues ; aucun MCP ou service de génération externe n'est requis.
+`TextureFactory` reçoit un fournisseur facultatif, avec un espace de noms distinct pour les
+textures de comparaison. Le jeu normal ne passe aucun fournisseur alternatif.
+
+**Conséquences.** Galerie et images exclues du build public ; aucune dépendance ajoutée. Environ
+1,4 Mo d'images pour l'essai Blender, contre aucune image téléchargée pour le procédural.
+Éclairage figé, une tenue seulement, occultation du feuillage élargi et performances dans le vrai
+Hub restant à valider. **Ce choix ne vaut pas adoption du rendu Blender dans le jeu.** Le responsable
+doit choisir la direction artistique avant une intégration distincte. Voir [PROTOTYPE_VOXEL.md](PROTOTYPE_VOXEL.md).
+
+**Retour artistique du 23/10.** Le sakura reste trop différent de l'illustration. Une étude
+indépendante (`scripts/sakura-study.py`) utilise des branches inclinées et de vraies fleurs en
+relief, avec une présentation réduite à une image. Ses proportions sont à valider avant toute
+conversion en atlas Phaser ; l'ancien export TypeScript ne reproduit pas ce nouveau modèle.
+
+## DEC-032 — Essai graphique dans le vrai Hub, uniquement local (23/10/2026)
+
+**Contexte.** Le responsable demande maintenant à marcher dans le jeu avec les modèles avant
+de décider d'une mise en ligne.
+
+**Décision.** `/jouer/?prototype=voxel`, uniquement en développement sur localhost, injecte un
+fournisseur de textures dans `WorldScene`. Trois arbres existants changent d'image, sans changer
+la carte ni les collisions. La nouvelle sculpture du sakura est convertie en quatre vues PNG,
+à projection 2:1 ; Phaser conserve son moteur 2D et ses règles de profondeur. Avatar fixe à 16 cadres.
+
+**Isolation.** Import dynamique sous `import.meta.env.DEV`, supprimé du build public ; services
+distants désactivés et transport solo. Stockage séparé (`malinosland:prototype:`) et profil
+d'essai créé en mémoire pour ouvrir directement le jardin. Aucun fichier Blender servi au jeu,
+aucune dépendance ajoutée. Trois atlas totalisent environ 1,38 Mo, réutilisés entre exemplaires.
+Le test navigateur couvre le Hub et le retour d'un studio ; validation artistique, autres
+meubles et performances sur appareils réels restent à confirmer. Aucune adoption en production.
+
 ## DEC-030 — Quiz IA des Malinos : questions dans le jeu, scores dans le navigateur (23/10/2026)
 
 **Contexte.** Plan d’évolution (PR 4) : une activité jouable tout de suite, même seul, sans API
@@ -419,3 +460,21 @@ dans le navigateur** ; un test vérifie qu’aucun appel réseau ni à Supabase 
 vérifie aussi que la bonne réponse ne se devine pas à sa longueur.
 **Conséquences.** Zéro coût d’hébergement. Pas de classement ni de scores sur le compte pour
 l’instant (évolution possible, non développée). Ajouter des questions = une pull request relue.
+
+## DEC-033 — Adoption des atlas et conservation du choix classique (23/10/2026)
+
+**Contexte.** Le responsable valide le rendu dans le Hub et autorise sa mise en ligne. Il veut
+conserver du forfait ChatGPT pour la suite ; les variantes doivent être développées progressivement.
+
+**Décision.** Publier seulement les trois atlas déjà validés (avatar, chêne, nouveau sakura),
+1,38 Mo au total, partagés entre instances et mis en cache. Remplacer tous les chênes et sakuras,
+conserver les sapins. Charger ces images dans Phaser et utiliser le rendu procédural en repli.
+Le champ borné `look.model` vaut 1 pour le Malino 3D, 0 pour le modèle classique personnalisable.
+Sans champ (ancien profil), le nouveau rendu s'affiche ; les autres choix du profil sont conservés.
+Le sélecteur de modèle restaure les contrôles classiques. Aperçu et rendu distant respectent ce choix.
+
+**Conséquences.** Aucun nouveau moteur, service ou modèle généré. Pas de migration SQL : le champ
+reste dans le JSON d'apparence existant, validé côté client et serveur. Une seule tenue 3D disponible,
+annoncée dans l'éditeur ; personnalisation ultérieure par composants, pas 829 440 atlas complets.
+Le choix artistique autorise maintenant la publication ; il remplace la restriction provisoire
+de DEC-031/032. Les galeries de développement et le stockage d'essai restent isolés.

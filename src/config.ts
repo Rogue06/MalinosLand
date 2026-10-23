@@ -4,7 +4,15 @@
  */
 
 /** Adresse du serveur temps réel (ws:// ou wss://). Absente : multijoueur local ou solo. */
-export const REALTIME_URL: string | null = parseRealtimeUrl(import.meta.env.VITE_REALTIME_URL);
+export const LOCAL_ART_PREVIEW =
+  import.meta.env.DEV &&
+  typeof location !== 'undefined' &&
+  ['127.0.0.1', 'localhost', '[::1]'].includes(location.hostname) &&
+  new URLSearchParams(location.search).get('prototype') === 'voxel';
+
+export const REALTIME_URL: string | null = LOCAL_ART_PREVIEW
+  ? null
+  : parseRealtimeUrl(import.meta.env.VITE_REALTIME_URL);
 
 /** Adresse HTTP du serveur temps réel (même hôte que la WebSocket), pour ses petites routes. */
 export const REALTIME_HTTP: string | null = REALTIME_URL
@@ -24,14 +32,18 @@ export function parseHttpsUrl(value: unknown): string | null {
 }
 
 /** Comptes joueurs (Supabase) : adresse du projet et clé PUBLIQUE. Absents : pas de comptes. */
-export const SUPABASE_URL: string | null = parseHttpsUrl(import.meta.env.VITE_SUPABASE_URL);
+export const SUPABASE_URL: string | null = LOCAL_ART_PREVIEW
+  ? null
+  : parseHttpsUrl(import.meta.env.VITE_SUPABASE_URL);
 const supabaseKey: unknown = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 export const SUPABASE_KEY: string | null =
   typeof supabaseKey === 'string' && /^[A-Za-z0-9_.-]{20,}$/.test(supabaseKey) ? supabaseKey : null;
 /** Clé PUBLIQUE du widget Cloudflare Turnstile (anti-robots de la boîte à idées). */
 const turnstileKey: unknown = import.meta.env.VITE_TURNSTILE_SITEKEY;
 export const TURNSTILE_SITEKEY: string | null =
-  typeof turnstileKey === 'string' && /^[A-Za-z0-9_-]{10,}$/.test(turnstileKey)
+  !LOCAL_ART_PREVIEW &&
+  typeof turnstileKey === 'string' &&
+  /^[A-Za-z0-9_-]{10,}$/.test(turnstileKey)
     ? turnstileKey
     : null;
 /** Les comptes n'ont de sens qu'en ligne. */

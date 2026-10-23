@@ -3,7 +3,10 @@
  * (navigation privée, quota) ou corrompu ne doit jamais empêcher de jouer.
  * Chaque valeur est versionnée pour permettre des migrations.
  */
-const PREFIX = 'malinosland:';
+import { LOCAL_ART_PREVIEW } from '../config';
+
+// L'essai conserve ses propres réglages et sa progression, sans toucher au vrai profil.
+const PREFIX = LOCAL_ART_PREVIEW ? 'malinosland:prototype:' : 'malinosland:';
 
 export interface KeyValueStorage {
   getItem(key: string): string | null;

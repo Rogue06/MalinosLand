@@ -8,6 +8,7 @@ coverage/
 .DS_Store
 test-results/
 screenshots/
+art-source/
 .claude/settings.local.json
 
 # Serveur temps réel (Wrangler)

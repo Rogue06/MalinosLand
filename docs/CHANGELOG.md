@@ -5,6 +5,33 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Graphismes validés
+
+- Chênes et sakuras remplacés par les rendus Blender validés ; sapins conservés.
+- « Malino 3D » devient le personnage par défaut, avec aperçu fidèle dans l'éditeur et chez
+  les autres joueurs. Le modèle classique personnalisable reste disponible ; les anciens
+  choix de coiffure, peau, vêtements et accessoires restent sauvegardés.
+- Trois atlas PNG réutilisés (1,38 Mo), repli procédural en cas d'échec du chargement.
+  Aucun moteur 3D supplémentaire ni génération distante. Tests du build et des deux modèles.
+
+### Expérimental — atelier voxel (branche distincte, validation en attente)
+
+- Essai dans le vrai Hub local : `/jouer/?prototype=voxel`, avatar jouable, un chêne et deux
+  sakuras issus de la nouvelle sculpture. Mode solo et sauvegardes séparées du jeu habituel.
+  Quatre vues transparentes du nouveau sakura (307 Ko), aucun modèle 3D chargé par le navigateur.
+  Test navigateur des déplacements, collisions, profondeur, sièges, changements de salle et
+  exclusion des images expérimentales du build public. Aucune mise en ligne.
+
+- Nouvelle étude du sakura dans Blender : trois bouquets étagés et fleurs en relief, sur une
+  page minimale `/sakura.html`, désormais disponible aussi dans l'essai local du Hub.
+
+- Galerie locale avant/après : avatar en veste, chêne et sakura, dessins procéduraux et rendus
+  Blender, quatre orientations, quatre poses, résolutions ×1/×2/×4 et jardin de comparaison.
+- Source des modèles, génération Blender locale reproductible et test navigateur de la galerie.
+  Le Hub habituel conserve ses modèles ; galerie exclue du build public.
+- Cadres d'avatars alignés sur des pixels entiers et marge adaptée à la résolution pour éviter
+  qu'une pose déborde sur le cadre voisin dans une feuille de sprites.
+
 ### Ajouté (v0.35 : « Que faire maintenant ? »)
 
 - **Mesures de fréquentation** pour le responsable (⚙️ → Historique des connexions) : comptes

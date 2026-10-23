@@ -269,13 +269,30 @@ export function frameName(facing: Facing, pose: AvatarPose): string {
 
 /** Feuille de sprites complète d'une apparence (16 cadres). */
 export function renderAvatarSheet(a: AvatarAppearance, scale: number): AvatarSheet {
+  return renderAvatarFrames((facing, pose) => buildAvatar(a, facing, pose), scale);
+}
+
+/** Même assemblage et même ancre pour les dessins alternatifs de l'atelier local. */
+export function renderAvatarFrames(
+  build: (facing: Facing, pose: AvatarPose) => IsoBuilder,
+  scale: number,
+): AvatarSheet {
   const renders = AVATAR_FACINGS.flatMap((f) =>
-    AVATAR_POSES.map((p) => ({ name: frameName(f, p), r: buildAvatar(a, f, p).render(scale) })),
+    AVATAR_POSES.map((p) => ({
+      name: frameName(f, p),
+      r: build(f, p).render(scale, Math.ceil(scale) + 2),
+    })),
   );
-  const anchorX = Math.max(...renders.map(({ r }) => r.anchorX));
-  const anchorY = Math.max(...renders.map(({ r }) => r.anchorY));
-  const frameW = anchorX + Math.max(...renders.map(({ r }) => r.canvas.width - r.anchorX));
-  const frameH = anchorY + Math.max(...renders.map(({ r }) => r.canvas.height - r.anchorY));
+  // Phaser découpe les cadres en pixels entiers : un pas fractionnaire finit par rogner
+  // la dernière pose ou déborder sur la rangée suivante (visible à la résolution ×1).
+  const anchorX = Math.ceil(Math.max(...renders.map(({ r }) => r.anchorX)));
+  const anchorY = Math.ceil(Math.max(...renders.map(({ r }) => r.anchorY)));
+  const frameW = Math.ceil(
+    anchorX + Math.max(...renders.map(({ r }) => r.canvas.width - r.anchorX)),
+  );
+  const frameH = Math.ceil(
+    anchorY + Math.max(...renders.map(({ r }) => r.canvas.height - r.anchorY)),
+  );
   const cols = AVATAR_POSES.length;
   const canvas = document.createElement('canvas');
   canvas.width = frameW * cols;

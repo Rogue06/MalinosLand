@@ -28,7 +28,14 @@
 
 ### Rendu graphique : procédural « voxel »
 
-Tous les graphismes (objets, murs, sols, personnages) sont **dessinés par le code** au chargement
+**Évolution validée le 23/10/2026 :** les chênes, sakuras et le modèle « Malino 3D » utilisent
+trois atlas PNG précalculés dans Blender (1,38 Mo). `bakedArt.ts` les injecte dans `TextureFactory` ;
+le reste du décor et l'avatar classique restent procéduraux. Les images sont partagées entre
+exemplaires, avec repli procédural si le chargement échoue. Le champ borné `look.model` choisit
+le modèle (0 classique, 1 Malino 3D par défaut), sans supprimer les autres réglages du profil.
+Phaser reste en 2D : aucun `.blend`, modèle 3D ou moteur 3D n'est téléchargé par les joueurs.
+
+À l'origine, tous les graphismes (objets, murs, sols, personnages) étaient **dessinés par le code** au chargement
 (`src/game/art/`), dans un style « voxel » isométrique original. Avantages : **0 octet d’image à
 télécharger**, cohérence visuelle, variantes et couleurs gratuites, contributions possibles en
 TypeScript. Les textures sont ensuite regroupées en **atlas** et les sols en **grands blocs** pour

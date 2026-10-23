@@ -7,7 +7,7 @@ import type { FloorType, WallType } from '../world/types';
 import { frameName, renderAvatarSheet, AVATAR_FACINGS, AVATAR_POSES } from './art/characters';
 import { drawFloor } from './art/floors';
 import { IsoBuilder, type RenderedSprite } from './art/iso3d';
-import { DECOR_ART, OBJECT_ART } from './art/objects';
+import { DECOR_ART, OBJECT_ART, type ObjectArt } from './art/objects';
 import { drawWall, wallFaceY } from './art/walls';
 
 export interface TextureInfo {
@@ -18,6 +18,16 @@ export interface TextureInfo {
   originY: number;
   /** Échelle à appliquer au sprite (textures dessinées en haute résolution). */
   scale: number;
+}
+
+/** Fournisseur de graphismes : atlas publics ou variante d'atelier. */
+export interface TextureArt {
+  id: string;
+  avatar?: typeof renderAvatarSheet;
+  objects?: Readonly<Record<string, ObjectArt>>;
+  objectRenders?: Readonly<
+    Record<string, (rot: Rotation, variant: number, scale: number) => RenderedSprite>
+  >;
 }
 
 /**
@@ -33,6 +43,7 @@ export class TextureFactory {
   constructor(
     private readonly scene: Phaser.Scene,
     readonly texScale: number,
+    private readonly art?: TextureArt,
   ) {}
 
   /**
@@ -87,11 +98,14 @@ export class TextureFactory {
   }
 
   object(type: string, rot: Rotation, variant: number): TextureInfo {
-    const key = `obj:${type}:${rot}:${variant}`;
+    const alternate = this.art?.objects?.[type];
+    const render = this.art?.objectRenders?.[type];
+    const key = `obj:${type}:${rot}:${variant}${alternate || render ? `:${this.art!.id}` : ''}`;
     const cached = this.infos.get(key);
     if (cached) return cached;
+    if (render) return this.register(key, render(rot, variant, this.texScale));
     const entry = CATALOG[type];
-    const art = OBJECT_ART[type];
+    const art = alternate ?? OBJECT_ART[type];
     if (!entry || !art) throw new Error(`Aucun dessin pour l’objet « ${type} »`);
     const b = new IsoBuilder(rot, entry.footprint[0], entry.footprint[1]);
     art(b, variant);
@@ -107,13 +121,15 @@ export class TextureFactory {
     rot: Rotation,
     variant: number,
   ): { base: TextureInfo; front: TextureInfo } | null {
+    if (this.art?.objectRenders?.[type]) return null;
     const entry = CATALOG[type];
-    const art = OBJECT_ART[type];
+    const alternate = this.art?.objects?.[type];
+    const art = alternate ?? OBJECT_ART[type];
     if (!entry || !art) return null;
     const b = new IsoBuilder(rot, entry.footprint[0], entry.footprint[1]);
     art(b, variant);
     if (!b.hasLayer('front')) return null;
-    const key = `obj:${type}:${rot}:${variant}`;
+    const key = `obj:${type}:${rot}:${variant}${alternate ? `:${this.art!.id}` : ''}`;
     return {
       base:
         this.infos.get(`${key}:base`) ??
@@ -187,10 +203,10 @@ export class TextureFactory {
 
   /** Feuille de sprites d'un avatar : 4 orientations × 4 poses. */
   avatar(look: AvatarAppearance): TextureInfo {
-    const key = `avatar:${appearanceKey(look)}`;
+    const key = `avatar:${appearanceKey(look)}${this.art?.avatar ? `:${this.art.id}` : ''}`;
     const cached = this.infos.get(key);
     if (cached) return cached;
-    const sheet = renderAvatarSheet(look, this.texScale);
+    const sheet = (this.art?.avatar ?? renderAvatarSheet)(look, this.texScale);
     const tex = this.scene.textures.addCanvas(key, sheet.canvas);
     if (!tex) throw new Error('Impossible de créer la texture d’avatar');
     for (const f of sheet.frames) tex.add(f.name, 0, f.x, f.y, sheet.frameW, sheet.frameH);

@@ -14,6 +14,54 @@ presque complète) ; en cours : PR 6 (mesures de fréquentation). Une PR à la f
 
 ## Où en est-on ?
 
+### Adoption des graphismes — 23/10/2026
+
+Le responsable a validé le rendu puis demandé explicitement de remplacer les arbres et le
+personnage **en ligne**. Cette demande autorise la fusion et le déploiement par le workflow existant.
+Le jeu normal utilise désormais le chêne et le nouveau sakura partout (sapins conservés), et
+le personnage « Malino 3D » par défaut. Dans l'éditeur, « Classique personnalisable » réactive
+tous les choix précédents sans les effacer. Le champ numérique `look.model` (0/1) est validé,
+enregistré et transmis ; un ancien profil sans ce champ utilise le nouveau modèle.
+Trois atlas publics dans `src/game/assets/`, 1 380 224 octets au total ; aucun fichier 3D en jeu.
+Galeries et mode d'essai restent réservés au développement, avec stockage séparé.
+
+Suite : petites séries de coiffures, visages, vêtements et accessoires, sans générer toutes
+les combinaisons. Voir [PERSONNALISATION_3D.md](PERSONNALISATION_3D.md). Le responsable s'absente
+et souhaite préserver son forfait ChatGPT : aucune nouvelle génération dans cette étape.
+État de la publication à vérifier dans la PR #48 et le dernier workflow « Mise en ligne ».
+
+### Historique : expérience graphique isolée — 23/10/2026
+
+**Dernière demande traitée : essayer le rendu directement dans le jeu local.**
+Ouvrir `/jouer/?prototype=voxel` avec `npm run dev`. Arrivée dans le jardin du vrai Hub : avatar
+Blender jouable, un chêne (16,28), deux nouveaux sakuras (16,31 et 19,31). Le sakura vient de
+`scripts/sakura-study.py`, converti en quatre vues transparentes par `scripts/render-sakura-game.py`
+avec Blender 5.2.3 et son MCP local. L'ancien sakura de la galerie avait été refusé.
+Accès direct sans inscription, réseau désactivé, stockage préfixé `malinosland:prototype:` ;
+profil habituel et carte JSON préservés. Import DEV uniquement : aucune image ajoutée au build public.
+`npm run test:prototype-game` vérifie marche, collisions, profondeur, siège, changement de salle,
+16 cadres, 4 orientations, profil intact, absence de requêtes externes et exclusion du build.
+**Retour utilisateur : direction jugée nettement meilleure que les graphismes actuels.**
+Prévoir progressivement plusieurs coiffures, visages, vêtements et accessoires ; aucune nouvelle
+série demandée maintenant. Préserver le forfait ChatGPT hebdomadaire : petits lots ciblés,
+présentation minimale et réponses courtes. Performances sur appareils réels et adoption publique
+restent à valider. Pas de publication ni de fusion autorisée.
+
+Branche `feature/prototype-voxel-avatar-arbres`, basée sur `main` à `23b8d84` (PR #46 incluse).
+Galerie locale `/voxel-preview.html` : avatar en veste, chêne et sakura, avant/après, quatre
+orientations, poses, résolutions et jardin comparatif. Après retour du responsable (sakura trop
+clairsemé), feuillage densifié et deuxième rendu produit avec Blender 4.4.3 déjà installé,
+sans MCP ni service externe. Les 24 vues sont conservées en trois atlas ; sources reproductibles.
+
+Guide complet : [PROTOTYPE_VOXEL.md](PROTOTYPE_VOXEL.md). **Reste à faire : validation artistique**,
+puis décision séparée sur l'intégration au Hub et la personnalisation. Une seule tenue,
+éclairage Blender figé, voisinage des arbres et vrais appareils non validés. Aucun déploiement,
+aucune migration, aucune fusion dans `main`. Les étapes du plan v0.35 restent indépendantes.
+
+Vérifié le 23/10 : `npm run check` (215 tests), `npm run format:check`, `npm run test:voxel`
+(144 combinaisons, cadres/caches/cadrage/mobile/réseau) et `npm run test:e2e` sur le build :
+réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du build public.
+
 - **`main`** contient la v0.1 (PR #1), le test e2e fiable (PR #2), la portabilité vers tous les
   outils IA (PR #3) et le **serveur temps réel v0.2** (PR #4, DEC-013).
 - **Protection de `main` active** : pull request obligatoire, fusion en _squash_ uniquement, ni
