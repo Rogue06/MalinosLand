@@ -14,6 +14,23 @@ presque complète) ; en cours : PR 6 (mesures de fréquentation). Une PR à la f
 
 ## Où en est-on ?
 
+### Personnalisation Malino 3D — 23/10/2026
+
+Le responsable demande explicitement plus de choix et leur mise en ligne. Branche
+`feature/personnalisation-malino-3d`, issue de `b381270` (PR #48 publiée avec succès).
+Six styles et quatre palettes indépendantes (peau, cheveux, veste, pantalon), 2 880 combinaisons
+de couleurs sans nouvelle coupe ni accessoire. Explication visible dans l'éditeur et choix
+classique conservé. Un masque Blender de 315 411 octets s'ajoute aux trois atlas existants,
+soit 1 695 635 octets. Recoloration locale à la création des textures, sans appel payant.
+Champs validés côté serveur et conservés dans le JSON du profil, aucune migration SQL.
+Voir [PERSONNALISATION_3D.md](PERSONNALISATION_3D.md) et DEC-034 pour la reproduction et les limites.
+Publication via PR squash et workflow existant, autorisée par cette demande. Vérifier le dernier
+workflow « Mise en ligne » pour l'état du déploiement. Coiffures et visages : prochain lot à décider.
+Vérifications locales : `npm run check` (238 tests), `npm run format:check`,
+`npm run test:baked-art` (couleurs, classique, deux onglets, salles) et `npm run test:e2e`
+(dont mobile simulé) réussis. Contrôle visuel des six vignettes et du personnage dans le jardin.
+La CI complète vérifie également le serveur et la transmission des couleurs entre deux clients.
+
 ### Adoption des graphismes — 23/10/2026
 
 Le responsable a validé le rendu puis demandé explicitement de remplacer les arbres et le

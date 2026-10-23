@@ -5,6 +5,13 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Couleurs Malino 3D
+
+- Six styles : Marine, Forêt, Soleil, Framboise, Lavande et Neige. Peau, cheveux, veste et
+  pantalon modifiables séparément ; même coupe et forme de vêtements, précisé dans l'éditeur.
+- Réglages classiques et 3D conservés indépendamment ; couleurs visibles chez les autres joueurs.
+- Un masque partagé de 315 Ko supplémentaires, sans nouvelle dépendance ni modèle 3D téléchargé.
+
 ### Graphismes validés
 
 - Chênes et sakuras remplacés par les rendus Blender validés ; sapins conservés.

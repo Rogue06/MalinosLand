@@ -9,6 +9,8 @@ import {
   HAIR_STYLES,
   SKIN_TONES,
   TOP_COLORS,
+  VOXEL_PALETTES,
+  VOXEL_PRESETS,
   randomAppearance,
   type AvatarAppearance,
 } from '../content/avatars';
@@ -111,7 +113,7 @@ export function AvatarEditor({ name, look, onName, onLook, nameError }: AvatarEd
             <button
               type="button"
               class="btn ghost small"
-              onClick={() => onLook(randomAppearance())}
+              onClick={() => onLook({ ...look, ...randomAppearance() })}
             >
               🎲 Au hasard
             </button>
@@ -139,10 +141,54 @@ export function AvatarEditor({ name, look, onName, onLook, nameError }: AvatarEd
           onPick={set('model')}
         />
         {look.model !== 0 ? (
-          <p>
-            Première tenue Malino 3D. D’autres coiffures, vêtements et accessoires viendront
-            progressivement. Le modèle classique conserve tes réglages.
-          </p>
+          <>
+            <p>
+              Malino 3D : choisis un style, puis ses couleurs. Pour le moment, la coupe et la forme
+              des vêtements sont communes. Pour d’autres coiffures et accessoires, choisis «
+              Classique personnalisable ». Tes réglages sont conservés dans les deux modèles.
+            </p>
+            <div class="field">
+              <span class="field-label">Styles Malino 3D</span>
+              <div class="presets">
+                {VOXEL_PRESETS.map((p) => (
+                  <button
+                    type="button"
+                    key={p.name}
+                    class="preset"
+                    onClick={() => onLook({ ...look, ...p.colors, model: 1 })}
+                    title={p.name}
+                  >
+                    <AvatarPreview look={{ ...look, ...p.colors, model: 1 }} size={52} />
+                    <span>{p.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <Swatches
+              label="Peau 3D"
+              colors={VOXEL_PALETTES.voxelSkin}
+              value={look.voxelSkin ?? 0}
+              onPick={set('voxelSkin')}
+            />
+            <Swatches
+              label="Cheveux 3D"
+              colors={VOXEL_PALETTES.voxelHair}
+              value={look.voxelHair ?? 0}
+              onPick={set('voxelHair')}
+            />
+            <Swatches
+              label="Veste 3D"
+              colors={VOXEL_PALETTES.voxelTop}
+              value={look.voxelTop ?? 0}
+              onPick={set('voxelTop')}
+            />
+            <Swatches
+              label="Pantalon 3D"
+              colors={VOXEL_PALETTES.voxelBottom}
+              value={look.voxelBottom ?? 0}
+              onPick={set('voxelBottom')}
+            />
+          </>
         ) : (
           <>
             <div class="field">
@@ -153,7 +199,7 @@ export function AvatarEditor({ name, look, onName, onLook, nameError }: AvatarEd
                     type="button"
                     key={p.name}
                     class="preset"
-                    onClick={() => onLook({ ...p.look, model: 0 })}
+                    onClick={() => onLook({ ...look, ...p.look, model: 0 })}
                     title={p.name}
                   >
                     <AvatarPreview look={{ ...p.look, model: 0 }} size={52} />

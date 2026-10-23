@@ -32,7 +32,7 @@ export function AvatarPreview({
     };
     if (look.model === 0) draw(renderAvatarPreview(look, facing, 3));
     else
-      void bakedAvatarPreview(facing)
+      void bakedAvatarPreview(facing, look)
         .then(draw)
         .catch(() => {
           if (active) draw(renderAvatarPreview(look, facing, 3));
