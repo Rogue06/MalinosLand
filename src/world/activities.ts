@@ -41,6 +41,8 @@ export interface ActivityContext {
   /** Logements que je peux visiter ; null tant qu'ils ne sont pas chargés. */
   openHomes: ReadonlyArray<{ room: string; ownerName: string }> | null;
   signedIn: boolean;
+  /** Défi de la semaine du Quiz IA déjà joué (scores gardés dans le navigateur). */
+  quizWeeklyDone: boolean;
   /** Numéro du jour, pour varier les idées d'un jour à l'autre (sans hasard : testable). */
   day: number;
 }
@@ -150,15 +152,42 @@ function myStudio(ctx: ActivityContext): Activity {
 }
 
 /** Idées du moment, de la plus utile à la moins utile (au plus MAX_ACTIVITIES). */
+/** La borne du Quiz IA, dans la salle de jeux. */
+export const QUIZ_BORNE = 'arcade-jeux-1';
+
+function quiz(ctx: ActivityContext): Activity {
+  return ctx.quizWeeklyDone
+    ? {
+        id: 'quiz:free',
+        icon: '🕹️',
+        title: 'Une partie de Quiz IA ?',
+        detail: 'Défi de la semaine réussi ! Une partie libre pour apprendre encore quelque chose.',
+        cta: 'Y aller',
+        action: { kind: 'go', object: QUIZ_BORNE },
+      }
+    : {
+        id: 'quiz:weekly',
+        icon: '🏆',
+        title: 'Le défi de la semaine du Quiz IA',
+        detail:
+          '5 questions sur l’IA, les mêmes pour tous les Malinos jusqu’à dimanche. Sur la borne turquoise de la salle de jeux.',
+        cta: 'Y aller',
+        action: { kind: 'go', object: QUIZ_BORNE },
+      };
+}
+
 export function suggestActivities(ctx: ActivityContext): Activity[] {
   const list: Activity[] = [];
   const add = (a: Activity | null) => {
     if (a && list.length < MAX_ACTIVITIES) list.push(a);
   };
   add(nextQuest(ctx));
+  // Le défi de la semaine passe avant le reste tant qu'il n'est pas joué.
+  if (!ctx.quizWeeklyDone) add(quiz(ctx));
   add(crowd(ctx));
   add(secret(ctx));
   add(openHome(ctx));
+  if (ctx.quizWeeklyDone) add(quiz(ctx));
   const taken = new Set(list.flatMap((a) => (a.action.kind === 'go' ? [a.action.object] : [])));
   add(ambient(ctx, taken));
   add(myStudio(ctx));

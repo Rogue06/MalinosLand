@@ -413,7 +413,8 @@ explication, une source si possible, des notions durables plutôt que l’actual
 question est relue par le responsable ou un modérateur avant publication.** Le moteur
 (`src/core/quiz.ts`, pur et testé) tire 5 questions du plus facile au plus difficile, mélange
 l’ordre des choix, et calcule le **défi de la semaine** à partir du numéro de semaine ISO : le
-même pour tous, sans serveur. Les scores (`src/services/quizStats.ts`) restent **uniquement
+même pour tous, sans serveur. Les questions du défi **tournent sans répétition** (avec 60
+questions : 12 semaines de suite sans en revoir une), puis un nouveau cycle dans un autre ordre. Les scores (`src/services/quizStats.ts`) restent **uniquement
 dans le navigateur** ; un test vérifie qu’aucun appel réseau ni à Supabase n’y figure. Un test
 vérifie aussi que la bonne réponse ne se devine pas à sa longueur.
 **Conséquences.** Zéro coût d’hébergement. Pas de classement ni de scores sur le compte pour

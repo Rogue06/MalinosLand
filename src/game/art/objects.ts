@@ -670,26 +670,51 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
       b.cylinder(x1, 0.5, 1.53, 0.018, 0.05, dark);
     }
   },
-  arcade(b) {
-    box(b, 0.15, 0.22, 0, 0.7, 0.62, 1.55, P.violet, {
-      decals: [
-        decal('py', 0.12, 0.55, 0.88, 0.82, '#0d1630'),
-        decal('py', 0.2, 0.6, 0.45, 0.72, P.tealLight),
-        decal('py', 0.55, 0.66, 0.8, 0.76, P.coral),
-        decal('py', 0.1, 0.88, 0.9, 0.97, P.sun),
-        decal('py', 0.3, 0.05, 0.7, 0.3, darken(P.violet, 0.2)),
-      ],
-    });
+  /** Borne d'arcade ; variante 2 : la borne du Quiz IA des Malinos (écran « ? » et réponses). */
+  arcade(b, v) {
+    const quiz = v === 2;
+    const body = quiz ? P.teal : P.violet;
+    const screen: Decal[] = quiz
+      ? [
+          decal('py', 0.12, 0.55, 0.88, 0.82, '#0d1630'),
+          decal('py', 0.18, 0.59, 0.48, 0.66, P.sun),
+          decal('py', 0.52, 0.59, 0.82, 0.66, P.tealLight),
+          decal('py', 0.18, 0.69, 0.48, 0.76, P.coral),
+          decal('py', 0.52, 0.69, 0.82, 0.76, P.violet),
+          decal('py', 0.1, 0.88, 0.9, 0.97, P.violet),
+          decal('py', 0.3, 0.05, 0.7, 0.3, darken(body, 0.2)),
+        ]
+      : [
+          decal('py', 0.12, 0.55, 0.88, 0.82, '#0d1630'),
+          decal('py', 0.2, 0.6, 0.45, 0.72, P.tealLight),
+          decal('py', 0.55, 0.66, 0.8, 0.76, P.coral),
+          decal('py', 0.1, 0.88, 0.9, 0.97, P.sun),
+          decal('py', 0.3, 0.05, 0.7, 0.3, darken(body, 0.2)),
+        ];
+    box(b, 0.15, 0.22, 0, 0.7, 0.62, 1.55, body, { decals: screen });
     box(b, 0.15, 0.62, 0.78, 0.7, 0.3, 0.1, P.ink, {
-      decals: [
-        decal('top', 0.55, 0.3, 0.68, 0.55, P.coral),
-        decal('top', 0.72, 0.3, 0.85, 0.55, P.sun),
-      ],
+      decals: quiz
+        ? [
+            decal('top', 0.12, 0.3, 0.25, 0.55, P.sun),
+            decal('top', 0.34, 0.3, 0.47, 0.55, P.tealLight),
+            decal('top', 0.56, 0.3, 0.69, 0.55, P.coral),
+            decal('top', 0.78, 0.3, 0.91, 0.55, P.violet),
+          ]
+        : [
+            decal('top', 0.55, 0.3, 0.68, 0.55, P.coral),
+            decal('top', 0.72, 0.3, 0.85, 0.55, P.sun),
+          ],
     });
-    b.cylinder(0.32, 0.77, 0.88, 0.025, 0.1, P.metal);
-    b.text({ x: 0.5, y: 0.845, z: 1.45 }, 'py', 'ARCADE', {
+    if (!quiz) b.cylinder(0.32, 0.77, 0.88, 0.025, 0.1, P.metal);
+    if (quiz)
+      b.text({ x: 0.5, y: 0.845, z: 1.21 }, 'py', '?', {
+        size: 9,
+        color: P.white,
+        weight: 900,
+      });
+    b.text({ x: 0.5, y: 0.845, z: 1.45 }, 'py', quiz ? 'QUIZ IA' : 'ARCADE', {
       size: 5,
-      color: P.ink,
+      color: quiz ? P.white : P.ink,
       weight: 900,
       fit: 0.52,
     });

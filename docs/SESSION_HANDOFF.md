@@ -5,8 +5,8 @@
 
 **Dernière mise à jour : 22/10/2026 — v0.3 terminée (logements, décoration, carnet, rôles, jour
 et nuit). Plan validé pour la suite : [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) (v0.35 panneau
-« Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). PR 1 à 3 fusionnées ; en
-cours : PR 4 (moteur du Quiz IA, 30 questions à faire relire). Une PR à la fois, présentée au responsable avant la suivante.**
+« Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). PR 1 à 4 fusionnées ; en
+cours : PR 5 (borne du quiz, 30 questions sur les bases à faire relire). Une PR à la fois, présentée au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -36,6 +36,15 @@ cours : PR 4 (moteur du Quiz IA, 30 questions à faire relire). Une PR à la foi
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **24/10** — PR #47 (moteur du quiz, 30 questions validées) fusionnée et en ligne. Le
+  responsable demande plus de questions et des questions sur les bases (« qu’est-ce qu’un LLM,
+  différence entre modèle et LLM… »). Branche `feature/borne-quiz` (PR 5) : borne
+  `arcade-jeux-1` en variante 2 (turquoise, « QUIZ IA », étiquette), qui ouvre le quiz ; défi
+  de la semaine **sans répétition** (`weeklyChallenge` par cycles, `isoWeek().index`) ;
+  30 questions de plus, thème « Les bases de l’IA » (**à relire avant fusion**) ; suggestion du
+  défi dans le panneau « Que faire ? » (`quizWeeklyDone`). Pour durer plus longtemps : ajouter des
+  questions régulièrement (5 de plus = 1 semaine de plus sans répétition).
 
 - **23/10 (soir)** — PR #46 (hall agrandi, écran « Que faire ? ») fusionnée et en ligne. Branche
   `feature/quiz-ia` (PR 4, DEC-030) : `src/content/quiz.ts` (30 questions **à faire relire par
@@ -330,7 +339,8 @@ par le responsable, avec un 2ᵉ compte (David, Bloom…) :
 Selon [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) §5 et §10, une PR à la fois, chacune présentée au
 responsable avant la suivante :
 
-1. PR 4 — moteur du Quiz IA (en cours, questions à relire), puis PR 5 — borne et 30 questions de plus.
+1. PR 5 — borne du quiz et 30 questions de plus (en cours, questions à relire), puis PR 6 —
+   mesures de fréquentation.
 2. PR 4 et 5 — Quiz IA (questions à faire relire avant fusion), borne de la salle de jeux.
 3. PR 6 — mesures de fréquentation (dans les limites du journal existant).
 4. PR 7 à 11 — Musée des Malinos (migration après accord).

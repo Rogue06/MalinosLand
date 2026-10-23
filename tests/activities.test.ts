@@ -5,6 +5,7 @@ import { QUESTS } from '../src/content/quests';
 import { SECRETS } from '../src/content/secrets';
 import {
   MAX_ACTIVITIES,
+  QUIZ_BORNE,
   dayNumber,
   suggestActivities,
   type ActivityContext,
@@ -17,6 +18,7 @@ const NEW_PLAYER: ActivityContext = {
   phase: 'jour',
   openHomes: null,
   signedIn: false,
+  quizWeeklyDone: false,
   day: 0,
 };
 
@@ -25,6 +27,7 @@ const VETERAN: ActivityContext = {
   questsDone: QUESTS.map((q) => q.id),
   secretsFound: SECRETS.map((s) => s.id),
   signedIn: true,
+  quizWeeklyDone: true,
 };
 
 describe('panneau « Que faire maintenant ? »', () => {
@@ -34,6 +37,7 @@ describe('panneau « Que faire maintenant ? »', () => {
       ...Object.values(QUEST_TARGETS).filter((id): id is string => id !== null),
       ...Object.values(ZONE_SPOTS).map((s) => s.object),
       ...Object.values(AMBIENT_IDEAS).flatMap((list) => list.map((i) => i.object)),
+      QUIZ_BORNE,
     ];
     for (const id of ids) {
       const obj = world.getObject(id);
@@ -56,6 +60,17 @@ describe('panneau « Que faire maintenant ? »', () => {
     expect(list.some((a) => a.id.startsWith('secret:'))).toBe(true);
     // Sans compte : l’invitation à se connecter pour avoir son studio.
     expect(list.at(-1)?.id).toBe('account');
+  });
+
+  it('le défi de la semaine du quiz : juste après l’objectif tant qu’il n’est pas joué', () => {
+    const list = suggestActivities(NEW_PLAYER);
+    expect(list[1]).toMatchObject({
+      id: 'quiz:weekly',
+      action: { kind: 'go', object: 'arcade-jeux-1' },
+    });
+    const done = suggestActivities({ ...VETERAN, quizWeeklyDone: true });
+    expect(done.some((a) => a.id === 'quiz:weekly')).toBe(false);
+    expect(done.some((a) => a.id === 'quiz:free')).toBe(true);
   });
 
   it('l’objectif du chat ouvre le chat au lieu de déplacer l’avatar', () => {

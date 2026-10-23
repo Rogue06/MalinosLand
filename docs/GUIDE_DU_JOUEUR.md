@@ -135,8 +135,11 @@ fruitiers jusqu’au **potager partagé**.
 ![Salle de jeux](images/salle-de-jeux.jpg)
 
 Au nord du parc : deux bornes d’arcade, une table de ping-pong, un baby-foot, une table d’échecs,
-des poufs et des jeux de société. Pour l’instant on y joue « pour de faux » : un **Quiz IA des
-Malinos** arrive bientôt sur une borne (v0.35), et les **mini-jeux à plusieurs** avec la v0.5.
+des poufs et des jeux de société. La **borne turquoise** accueille le **Quiz IA des Malinos** :
+5 questions sur l’IA et le numérique, avec une explication après chaque réponse. Joue le **défi
+de la semaine** (les mêmes questions pour tous, nouvelles chaque lundi) ou une **partie libre**.
+Tes scores restent dans ton navigateur. Les autres jeux se jouent encore « pour de faux » : les
+**mini-jeux à plusieurs** arrivent avec la v0.5.
 
 ### Le jour et la nuit
 
