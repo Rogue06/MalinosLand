@@ -5,8 +5,8 @@
 
 **Dernière mise à jour : 22/10/2026 — v0.3 terminée (logements, décoration, carnet, rôles, jour
 et nuit). Plan validé pour la suite : [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) (v0.35 panneau
-« Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). PR 1 et 2 fusionnées ; en
-cours : PR 3 (écran du hall et Joshua). Une PR à la fois, présentée au responsable avant la suivante.**
+« Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). PR 1 à 5 fusionnées (v0.35
+presque complète) ; en cours : PR 6 (mesures de fréquentation). Une PR à la fois, présentée au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -14,7 +14,23 @@ cours : PR 3 (écran du hall et Joshua). Une PR à la fois, présentée au respo
 
 ## Où en est-on ?
 
-### Expérience graphique isolée — 23/10/2026
+### Adoption des graphismes — 23/10/2026
+
+Le responsable a validé le rendu puis demandé explicitement de remplacer les arbres et le
+personnage **en ligne**. Cette demande autorise la fusion et le déploiement par le workflow existant.
+Le jeu normal utilise désormais le chêne et le nouveau sakura partout (sapins conservés), et
+le personnage « Malino 3D » par défaut. Dans l'éditeur, « Classique personnalisable » réactive
+tous les choix précédents sans les effacer. Le champ numérique `look.model` (0/1) est validé,
+enregistré et transmis ; un ancien profil sans ce champ utilise le nouveau modèle.
+Trois atlas publics dans `src/game/assets/`, 1 380 224 octets au total ; aucun fichier 3D en jeu.
+Galeries et mode d'essai restent réservés au développement, avec stockage séparé.
+
+Suite : petites séries de coiffures, visages, vêtements et accessoires, sans générer toutes
+les combinaisons. Voir [PERSONNALISATION_3D.md](PERSONNALISATION_3D.md). Le responsable s'absente
+et souhaite préserver son forfait ChatGPT : aucune nouvelle génération dans cette étape.
+État de la publication à vérifier dans la PR #48 et le dernier workflow « Mise en ligne ».
+
+### Historique : expérience graphique isolée — 23/10/2026
 
 **Dernière demande traitée : essayer le rendu directement dans le jeu local.**
 Ouvrir `/jouer/?prototype=voxel` avec `npm run dev`. Arrivée dans le jardin du vrai Hub : avatar
@@ -68,6 +84,32 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **24/10 (suite)** — PR #49 (borne du quiz, 60 questions validées) fusionnée et en ligne.
+  Branche `feature/mesures-frequentation` (PR 6) : `attendance()` dans `src/services/visits.ts`
+  (comptes par jour, retour un autre jour et après 7 jours, durée médiane de connexion, visites
+  sans compte) à partir du journal **existant** ; le serveur envoyait déjà l’identifiant
+  `player`, le jeu le garde maintenant. Affiché en tête de l’historique du responsable, limites
+  écrites à côté. Aucun changement du serveur ni de la base. Suite : v0.4, Musée (PR 7 :
+  migration `projects`, après accord).
+
+- **24/10** — PR #47 (moteur du quiz, 30 questions validées) fusionnée et en ligne. Le
+  responsable demande plus de questions et des questions sur les bases (« qu’est-ce qu’un LLM,
+  différence entre modèle et LLM… »). Branche `feature/borne-quiz` (PR 5) : borne
+  `arcade-jeux-1` en variante 2 (turquoise, « QUIZ IA », étiquette), qui ouvre le quiz ; défi
+  de la semaine **sans répétition** (`weeklyChallenge` par cycles, `isoWeek().index`) ;
+  30 questions de plus, thème « Les bases de l’IA » (**à relire avant fusion**) ; suggestion du
+  défi dans le panneau « Que faire ? » (`quizWeeklyDone`). Pour durer plus longtemps : ajouter des
+  questions régulièrement (5 de plus = 1 semaine de plus sans répétition).
+
+- **23/10 (soir)** — PR #46 (hall agrandi, écran « Que faire ? ») fusionnée et en ligne. Branche
+  `feature/quiz-ia` (PR 4, DEC-030) : `src/content/quiz.ts` (30 questions **à faire relire par
+  le responsable avant fusion**), `src/core/quiz.ts` (tirage, semaine ISO, défi),
+  `src/services/quizStats.ts` (scores dans le navigateur seulement), panneau `quiz`
+  (`src/ui/panels/Quiz.tsx`, clavier 1–4 et Entrée, `useLayoutEffect` comme Modal pour ne pas
+  perdre de touche sur une machine lente). Pas encore de borne : ouvrir avec `?debug` puis
+  `__malinosDebug.panel('quiz')`. Suite : PR 5 (borne `arcade-jeux-1`, 30 questions de plus,
+  suggestion du défi dans le panneau d’idées).
 
 - **23/10 (suite)** — PR #45 (panneau « Que faire ? ») fusionnée et en ligne. Branche
   `feature/ecran-que-faire` (PR 3) : objet `board_activities` (écran-borne dessiné, lumière
@@ -353,7 +395,7 @@ par le responsable, avec un 2ᵉ compte (David, Bloom…) :
 Selon [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) §5 et §10, une PR à la fois, chacune présentée au
 responsable avant la suivante :
 
-1. PR 3 — écran du hall et Joshua (en cours).
+1. PR 6 — mesures de fréquentation (en cours).
 2. PR 4 et 5 — Quiz IA (questions à faire relire avant fusion), borne de la salle de jeux.
 3. PR 6 — mesures de fréquentation (dans les limites du journal existant).
 4. PR 7 à 11 — Musée des Malinos (migration après accord).

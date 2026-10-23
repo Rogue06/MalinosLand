@@ -313,6 +313,25 @@ try {
     await waitGone('.modal');
   });
 
+  await step('Quiz IA : la borne de la salle de jeux, une partie libre au clavier', async () => {
+    await teleport(37.5, 2.6, 'ny');
+    await dbg(() => window.__malinosDebug.use('arcade-jeux-1'));
+    await waitUi('.modal', 'Quiz IA des Malinos');
+    await page.getByRole('button', { name: /Partie libre/ }).click();
+    for (let i = 1; i <= 5; i++) {
+      await waitUi('.quiz-progress', `Question ${i}/5`);
+      await page.keyboard.press('1');
+      await waitUi('.quiz-verdict');
+      if (i === 1) await page.screenshot({ path: `${outDir}/07d-quiz.png` });
+      await page.keyboard.press('Enter');
+    }
+    await waitUi('.quiz-score', '/5');
+    const saved = await page.evaluate(() => localStorage.getItem('malinosland:quiz'));
+    if (!saved || !saved.includes('"played":1')) fail(`score du quiz non gardé : ${saved}`);
+    await page.keyboard.press('Escape');
+    await waitGone('.modal');
+  });
+
   await step('jour et nuit (heure de Paris imposée)', async () => {
     const night = await page.evaluate(() => window.__malinosDebug.time(23));
     if (night?.phase !== 'nuit' || night.lights < 0.9)

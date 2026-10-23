@@ -20,7 +20,7 @@ export interface TextureInfo {
   scale: number;
 }
 
-/** Dessins alternatifs injectés uniquement par une scène de prévisualisation. */
+/** Fournisseur de graphismes : atlas publics ou variante d'atelier. */
 export interface TextureArt {
   id: string;
   avatar?: typeof renderAvatarSheet;

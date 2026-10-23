@@ -5,6 +5,15 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Graphismes validés
+
+- Chênes et sakuras remplacés par les rendus Blender validés ; sapins conservés.
+- « Malino 3D » devient le personnage par défaut, avec aperçu fidèle dans l'éditeur et chez
+  les autres joueurs. Le modèle classique personnalisable reste disponible ; les anciens
+  choix de coiffure, peau, vêtements et accessoires restent sauvegardés.
+- Trois atlas PNG réutilisés (1,38 Mo), repli procédural en cas d'échec du chargement.
+  Aucun moteur 3D supplémentaire ni génération distante. Tests du build et des deux modèles.
+
 ### Expérimental — atelier voxel (branche distincte, validation en attente)
 
 - Essai dans le vrai Hub local : `/jouer/?prototype=voxel`, avatar jouable, un chêne et deux
@@ -25,6 +34,18 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ### Ajouté (v0.35 : « Que faire maintenant ? »)
 
+- **Mesures de fréquentation** pour le responsable (⚙️ → Historique des connexions) : comptes
+  différents sur 7 et 90 jours, part des comptes revenus un autre jour et 7 jours ou plus après
+  leur première visite, durée médiane de connexion, visites sans compte, tableau des 7 derniers
+  jours. Calculées uniquement à partir du journal existant : **rien de plus n’est collecté**,
+  et les limites sont écrites à côté des chiffres.
+
+- **Quiz IA des Malinos** sur la **borne turquoise** de la salle de jeux : 5 questions avec une
+  explication après chaque réponse, en **partie libre** ou en **défi de la semaine** (le même pour
+  tous, nouveau chaque lundi, **sans répétition pendant 12 semaines**). **60 questions** relues
+  (dont 30 sur les bases : modèle et LLM, apprentissage automatique, entraînement, inférence…).
+  Jouable au clavier (1 à 4, Entrée), à la souris et au doigt. Scores gardés dans le navigateur
+  seulement. Le panneau « Que faire ? » propose le défi tant qu’il n’est pas joué.
 - **Hall d’entrée agrandi** de deux rangées vers le jardin : l’accès à la salle de conférence
   est dégagé (comptoir d’accueil déplacé à droite, face à l’entrée), et l’entrée est encadrée
   par le **panneau de bienvenue** et un nouvel **écran « Que faire ? »**, qui ouvre le même

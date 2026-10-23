@@ -68,10 +68,73 @@ describe('historique : lecture côté jeu', () => {
       'n’importe quoi',
     ]);
     expect(rows).toHaveLength(3);
-    expect(rows[0]).toEqual({ name: 'Alice', account: true, arrived: 5000, left: 9000 });
+    expect(rows[0]).toEqual({
+      player: '',
+      name: 'Alice',
+      account: true,
+      arrived: 5000,
+      left: 9000,
+    });
     expect(rows[2]!.account).toBe(false);
     expect(rows[2]!.left).toBeNull();
     expect(summarize(rows, 2000)).toEqual({ visits: 2, people: 1 });
     expect(parseVisits({})).toEqual([]);
+  });
+});
+
+describe('mesures de fréquentation (journal existant, rien de plus)', () => {
+  const H = 3600 * 1000;
+  const D = 24 * H;
+  const now = new Date(2026, 9, 30, 18, 0).getTime();
+  const acc = (player: string, arrived: number, minutes: number | null) => ({
+    player,
+    name: player,
+    account: true,
+    arrived,
+    left: minutes === null ? null : arrived + minutes * 60_000,
+  });
+  const guest = (arrived: number) => ({
+    player: 'visiteur' + Math.round(arrived),
+    name: 'Invité',
+    account: false,
+    arrived,
+    left: arrived + 10 * 60_000,
+  });
+
+  it('comptes par jour, retours et durée médiane ; les visiteurs ne sont que comptés', async () => {
+    const { attendance, parseVisits } = await import('../src/services/visits');
+    const rows = parseVisits([
+      // Alice : première visite il y a 10 jours, revenue hier → revenue après 7 jours.
+      acc('aaaaaaaa01', now - 10 * D, 30),
+      acc('aaaaaaaa01', now - 1 * D, 20),
+      // Bob : il y a 9 jours seulement → éligible, pas revenu.
+      acc('bbbbbbbb02', now - 9 * D, 5),
+      // Chloé : arrivée il y a 2 jours, revenue aujourd’hui → un autre jour, pas encore éligible à 7 jours.
+      acc('cccccccc03', now - 2 * D, 60),
+      acc('cccccccc03', now - 1 * H, null),
+      guest(now - 2 * H),
+      guest(now - 3 * D),
+      guest(now - 20 * D),
+    ]);
+    const a = attendance(rows, now);
+    expect(a.days).toHaveLength(7);
+    expect(a.days[0]).toMatchObject({ accounts: 1, guestVisits: 1 });
+    expect(a.days[1]).toMatchObject({ accounts: 1, guestVisits: 0 });
+    expect(a.accounts7).toBe(2);
+    expect(a.accounts90).toBe(3);
+    expect(a.guestVisits7).toBe(2);
+    expect(a.anotherDay).toEqual({ returned: 2, total: 3 });
+    expect(a.after7).toEqual({ returned: 1, total: 2 });
+    // Visites terminées : 30, 20, 5, 60, et 3 visiteurs à 10 min → médiane 10.
+    expect(a.medianMinutes).toBe(10);
+    expect(a.truncated).toBe(false);
+  });
+
+  it('journal vide : aucun chiffre inventé', async () => {
+    const { attendance } = await import('../src/services/visits');
+    const a = attendance([], now);
+    expect(a.medianMinutes).toBeNull();
+    expect(a.after7).toEqual({ returned: 0, total: 0 });
+    expect(a.days.every((d) => d.accounts === 0 && d.guestVisits === 0)).toBe(true);
   });
 });

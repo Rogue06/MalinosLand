@@ -80,6 +80,7 @@ import { DayNight } from '../life/DayNight';
 import { DanceFloor } from '../life/DanceFloor';
 import { JoshuaLife } from '../life/JoshuaLife';
 import { TextureFactory, type TextureArt } from '../textures';
+import { bakedArt, preloadBakedArt } from '../art/bakedArt';
 import { BACKREST_DEPTH, WorldRenderer } from '../WorldRenderer';
 
 /**
@@ -239,7 +240,8 @@ export class WorldScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.preview?.preload(this);
+    if (this.preview) this.preview.preload(this);
+    else preloadBakedArt(this);
   }
 
   create(): void {
@@ -260,7 +262,11 @@ export class WorldScene extends Phaser.Scene {
     // Une seule fabrique pour toute la partie : les textures déjà dessinées (Hub, studio,
     // avatars) sont réutilisées d'une salle à l'autre.
     if (!this.tex || this.tex.texScale !== rp.textureScale)
-      this.tex = new TextureFactory(this, rp.textureScale, this.preview?.art(this));
+      this.tex = new TextureFactory(
+        this,
+        rp.textureScale,
+        this.preview?.art(this) ?? bakedArt(this),
+      );
     this.buildRoom();
 
     const account = accountStore.get();
@@ -1508,6 +1514,20 @@ export class WorldScene extends Phaser.Scene {
     if (!import.meta.env.DEV && !new URLSearchParams(location.search).has('debug')) return;
     (window as unknown as Record<string, unknown>).__malinosDebug = {
       pos: () => ({ ...this.player.pos }),
+      /** Diagnostic des modèles réellement affichés, y compris les joueurs distants. */
+      art: () => ({
+        avatar: this.avatar.sprite.texture.key,
+        frame: this.avatar.sprite.frame.name,
+        peers: [...this.remotes.values()].map(({ view }) => view.sprite.texture.key),
+        trees: [...this.renderer3d.objects.values()]
+          .filter(({ obj }) => obj.type === 'tree')
+          .map(({ obj, image }) => ({
+            x: obj.x,
+            y: obj.y,
+            variant: obj.variant,
+            frame: image.frame.name,
+          })),
+      }),
       seated: () => this.player.seat !== null,
       /** Salle actuelle, et changement de salle direct (sans demande au serveur). */
       room: () => this.room,
@@ -1589,6 +1609,8 @@ export class WorldScene extends Phaser.Scene {
         this.dayNight?.forceHour(typeof h === 'number' ? h : null);
         return this.dayNight?.sky;
       },
+      /** Ouvre un panneau de l'interface (tests, captures) : `panel('quiz')`. */
+      panel: (id: Parameters<typeof panelStore.set>[0]) => panelStore.set(id),
       /** Aperçu local d'un rôle sur son propre avatar (captures) : rien n'est envoyé. */
       role: (r: Role | null) => this.avatar.setRole(r),
       fps: () => Math.round(this.game.loop.actualFps),

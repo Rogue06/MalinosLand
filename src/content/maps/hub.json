@@ -1339,7 +1339,14 @@
       "type": "arcade",
       "x": 37,
       "y": 1,
-      "id": "arcade-jeux-1"
+      "id": "arcade-jeux-1",
+      "variant": 2,
+      "label": "Quiz IA",
+      "interaction": {
+        "kind": "panel",
+        "label": "Jouer au Quiz IA",
+        "panel": "quiz"
+      }
     },
     {
       "type": "arcade",

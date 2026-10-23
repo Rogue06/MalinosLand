@@ -57,6 +57,8 @@ export const BOTTOM_COLORS = [
 ] as const;
 
 export interface AvatarAppearance {
+  /** 0 : classique personnalisable ; 1 (défaut) : première tenue Malino 3D. */
+  model?: number;
   body: number;
   skin: number;
   hair: number;
@@ -99,9 +101,10 @@ export const AVATAR_PRESETS: Array<{ name: string; look: AvatarAppearance }> = [
   },
 ];
 
-export const DEFAULT_APPEARANCE: AvatarAppearance = AVATAR_PRESETS[0]!.look;
+export const DEFAULT_APPEARANCE: AvatarAppearance = { ...AVATAR_PRESETS[0]!.look, model: 1 };
 
 const LIMITS: Record<keyof AvatarAppearance, number> = {
+  model: 2,
   body: BODY_SHAPES.length,
   skin: SKIN_TONES.length,
   hair: HAIR_STYLES.length,
@@ -126,6 +129,7 @@ export function sanitizeAppearance(input: unknown): AvatarAppearance {
 export function randomAppearance(rnd: () => number = Math.random): AvatarAppearance {
   const r = (n: number) => Math.floor(rnd() * n);
   return {
+    model: 0,
     body: r(BODY_SHAPES.length),
     skin: r(SKIN_TONES.length),
     hair: r(HAIR_STYLES.length),
@@ -140,5 +144,8 @@ export function randomAppearance(rnd: () => number = Math.random): AvatarAppeara
 
 /** Clé stable d'une apparence (cache de textures). */
 export function appearanceKey(a: AvatarAppearance): string {
-  return [a.body, a.skin, a.hair, a.hairColor, a.top, a.bottom, a.accessory, a.beard].join('');
+  return (a.model ?? 1) === 1
+    ? 'malino-v1'
+    : 'classic:' +
+        [a.body, a.skin, a.hair, a.hairColor, a.top, a.bottom, a.accessory, a.beard].join('');
 }

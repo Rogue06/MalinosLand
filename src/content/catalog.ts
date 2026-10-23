@@ -379,7 +379,7 @@ export const CATALOG: Record<string, CatalogEntry> = {
       label: 'Jouer',
       lines: [
         'INSERT COIN… La borne clignote mais aucun jeu n’est encore installé.',
-        'Bientôt : un Quiz IA des Malinos sur la borne de la salle de jeux (v0.35), puis des mini-jeux à plusieurs (v0.5).',
+        'Envie de jouer ? Le Quiz IA des Malinos t’attend sur la borne turquoise de la salle de jeux. Les mini-jeux à plusieurs arriveront plus tard (v0.5).',
         '↑ ↑ ↓ ↓ ← → ← → B A… L’écran s’illumine : « CODE SECRET ACCEPTÉ. Bienvenue, joueur 1. »',
       ],
       secret: 'konami',

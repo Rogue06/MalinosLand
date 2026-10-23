@@ -404,7 +404,7 @@ musée viendront s’y ajouter (PR 5 et 11). Le panneau s’ouvre aussi depuis u
 dessiné à l’entrée du hall (`board_activities`, PR 3), hors du passage ; le hall a été agrandi
 de deux rangées vers le sud pour lui faire de la place et dégager l’accès à la conférence.
 
-## DEC-030 — Atelier voxel isolé, avec essai Blender local (23/10/2026)
+## DEC-031 — Atelier voxel isolé, avec essai Blender local (23/10/2026)
 
 **Contexte.** Le responsable souhaite juger un avatar et deux arbres inspirés de ses illustrations
 avant toute adoption. Après un premier rendu trop simple, il demande une piste de modélisation
@@ -428,7 +428,7 @@ indépendante (`scripts/sakura-study.py`) utilise des branches inclinées et de 
 relief, avec une présentation réduite à une image. Ses proportions sont à valider avant toute
 conversion en atlas Phaser ; l'ancien export TypeScript ne reproduit pas ce nouveau modèle.
 
-## DEC-031 — Essai graphique dans le vrai Hub, uniquement local (23/10/2026)
+## DEC-032 — Essai graphique dans le vrai Hub, uniquement local (23/10/2026)
 
 **Contexte.** Le responsable demande maintenant à marcher dans le jeu avec les modèles avant
 de décider d'une mise en ligne.
@@ -444,3 +444,37 @@ d'essai créé en mémoire pour ouvrir directement le jardin. Aucun fichier Blen
 aucune dépendance ajoutée. Trois atlas totalisent environ 1,38 Mo, réutilisés entre exemplaires.
 Le test navigateur couvre le Hub et le retour d'un studio ; validation artistique, autres
 meubles et performances sur appareils réels restent à confirmer. Aucune adoption en production.
+
+## DEC-030 — Quiz IA des Malinos : questions dans le jeu, scores dans le navigateur (23/10/2026)
+
+**Contexte.** Plan d’évolution (PR 4) : une activité jouable tout de suite, même seul, sans API
+d’IA payante ni écriture en base (décision du responsable pour la v0.35).
+**Décision.** Les questions sont du **contenu du dépôt** (`src/content/quiz.ts`) : 4 choix, une
+explication, une source si possible, des notions durables plutôt que l’actualité. **Chaque
+question est relue par le responsable ou un modérateur avant publication.** Le moteur
+(`src/core/quiz.ts`, pur et testé) tire 5 questions du plus facile au plus difficile, mélange
+l’ordre des choix, et calcule le **défi de la semaine** à partir du numéro de semaine ISO : le
+même pour tous, sans serveur. Les questions du défi **tournent sans répétition** (avec 60
+questions : 12 semaines de suite sans en revoir une), puis un nouveau cycle dans un autre ordre. Les scores (`src/services/quizStats.ts`) restent **uniquement
+dans le navigateur** ; un test vérifie qu’aucun appel réseau ni à Supabase n’y figure. Un test
+vérifie aussi que la bonne réponse ne se devine pas à sa longueur.
+**Conséquences.** Zéro coût d’hébergement. Pas de classement ni de scores sur le compte pour
+l’instant (évolution possible, non développée). Ajouter des questions = une pull request relue.
+
+## DEC-033 — Adoption des atlas et conservation du choix classique (23/10/2026)
+
+**Contexte.** Le responsable valide le rendu dans le Hub et autorise sa mise en ligne. Il veut
+conserver du forfait ChatGPT pour la suite ; les variantes doivent être développées progressivement.
+
+**Décision.** Publier seulement les trois atlas déjà validés (avatar, chêne, nouveau sakura),
+1,38 Mo au total, partagés entre instances et mis en cache. Remplacer tous les chênes et sakuras,
+conserver les sapins. Charger ces images dans Phaser et utiliser le rendu procédural en repli.
+Le champ borné `look.model` vaut 1 pour le Malino 3D, 0 pour le modèle classique personnalisable.
+Sans champ (ancien profil), le nouveau rendu s'affiche ; les autres choix du profil sont conservés.
+Le sélecteur de modèle restaure les contrôles classiques. Aperçu et rendu distant respectent ce choix.
+
+**Conséquences.** Aucun nouveau moteur, service ou modèle généré. Pas de migration SQL : le champ
+reste dans le JSON d'apparence existant, validé côté client et serveur. Une seule tenue 3D disponible,
+annoncée dans l'éditeur ; personnalisation ultérieure par composants, pas 829 440 atlas complets.
+Le choix artistique autorise maintenant la publication ; il remplace la restriction provisoire
+de DEC-031/032. Les galeries de développement et le stockage d'essai restent isolés.

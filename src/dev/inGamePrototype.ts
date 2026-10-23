@@ -2,7 +2,7 @@ import { IsoBuilder } from '../game/art/iso3d';
 import { OBJECT_ART } from '../game/art/objects';
 import type { LocalArtPreview } from '../game/scenes/WorldScene';
 import { BLENDER_ASSETS, blenderArt } from './blenderArt';
-import sakura from './voxel-assets/sakura-study.png';
+import sakura from '../game/assets/sakura.png';
 
 /** Trois arbres existants : aucune modification du JSON, des collisions ou des sauvegardes. */
 export const PREVIEW_TREES = [

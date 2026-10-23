@@ -57,6 +57,7 @@ jobs:
           echo "Chrome : $CHROME"
           echo "CHROMIUM_PATH=$CHROME" >> "$GITHUB_ENV"
       - run: npm run test:e2e -- http://localhost:4173/ screenshots
+      - run: npm run test:baked-art -- http://localhost:4173
       - name: Lancer l'atelier graphique local (sans déploiement)
         run: npx vite --host 127.0.0.1 --port 5173 --strictPort &
       - run: npx wait-on@8 http://127.0.0.1:5173/voxel-preview.html --timeout 30000

@@ -172,9 +172,15 @@ try {
   assert.equal(await page.locator('#local-art-preview').count(), 0);
   assert.deepEqual(assets, []);
   assert.deepEqual(errors, []);
-  // Le build ne doit contenir ni code d'atelier ni ses images.
+  // Les trois atlas validés sont publics ; le code d'atelier reste exclu.
+  for (const name of ['avatar', 'oak', 'sakura'])
+    assert.ok(
+      readdirSync('dist/assets').some(
+        (file) => file.startsWith(`${name}-`) && file.endsWith('.png'),
+      ),
+    );
   for (const file of readdirSync('dist/assets')) {
-    assert.doesNotMatch(file, /sakura|avatar|oak|inGamePrototype|voxel/i);
+    assert.doesNotMatch(file, /inGamePrototype|voxel/i);
     if (file.endsWith('.js'))
       assert.doesNotMatch(
         readFileSync(`dist/assets/${file}`, 'utf8'),

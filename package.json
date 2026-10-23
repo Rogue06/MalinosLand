@@ -21,6 +21,7 @@
     "test:e2e": "node scripts/smoke-test.mjs",
     "test:voxel": "node scripts/voxel-test.mjs",
     "test:prototype-game": "node scripts/in-game-prototype-test.mjs",
+    "test:baked-art": "node scripts/baked-art-test.mjs",
     "prototype:export": "node scripts/export-voxel-models.mjs",
     "prototype:pack": "node scripts/pack-voxel-renders.mjs",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build",

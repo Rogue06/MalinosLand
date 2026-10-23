@@ -1,5 +1,11 @@
 # Atelier voxel : avatar, chêne et sakura
 
+> **Adoption autorisée le 23/10/2026 :** les trois atlas validés sont désormais intégrés au jeu
+> normal (`/jouer/`) et au build public, dans `src/game/assets/`. Chênes et sakuras remplacés,
+> personnage « Malino 3D » par défaut, modèle classique personnalisable conservé dans l'éditeur.
+> Les sections ci-dessous décrivent l'historique de l'atelier ; seules ses pages et son mode
+> d'essai restent exclus de la production. Voir [PERSONNALISATION_3D.md](PERSONNALISATION_3D.md).
+
 > **En bref** : un prototype local à juger avant toute adoption. La galerie compare les graphismes
 > actuels à un avatar en veste, un chêne plus fourni et un sakura à trois bouquets. Deux rendus sont
 > proposés : dessin procédural et modèles Blender pré-rendus. Aucun déploiement ni changement de compte.

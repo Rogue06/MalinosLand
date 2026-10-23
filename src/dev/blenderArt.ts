@@ -3,8 +3,8 @@ import { AVATAR_FACINGS, AVATAR_POSES, frameName } from '../game/art/characters'
 import { IsoBuilder } from '../game/art/iso3d';
 import { OBJECT_ART } from '../game/art/objects';
 import type { TextureArt } from '../game/textures';
-import avatar from './voxel-assets/avatar.png';
-import oak from './voxel-assets/oak.png';
+import avatar from '../game/assets/avatar.png';
+import oak from '../game/assets/oak.png';
 import sakura from './voxel-assets/sakura.png';
 
 export const BLENDER_ASSETS = { avatar, oak, sakura };

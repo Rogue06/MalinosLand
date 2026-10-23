@@ -44,8 +44,14 @@ try {
     return output;
   });
   mkdirSync('src/dev/voxel-assets', { recursive: true });
-  for (const [name, data] of Object.entries(atlases))
-    writeFileSync(`src/dev/voxel-assets/${name}.png`, Buffer.from(data, 'base64'));
+  mkdirSync('src/game/assets', { recursive: true });
+  for (const [name, data] of Object.entries(atlases)) {
+    const file =
+      name === 'sakura'
+        ? 'src/dev/voxel-assets/sakura.png'
+        : `src/game/assets/${name === 'sakura-study' ? 'sakura' : name}.png`;
+    writeFileSync(file, Buffer.from(data, 'base64'));
+  }
   console.log('Quatre atlas Blender assemblés (28 vues).');
 } finally {
   await browser.close();
