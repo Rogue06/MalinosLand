@@ -246,7 +246,7 @@ La feuille de route n’est pas figée : **elle bouge selon vos retours.**
 
 - ✅ Panneau « Que faire maintenant ? » : moteur de suggestions, bouton 🧭 et écran du hall
 - ✅ Quiz IA des Malinos : borne de la salle de jeux, défi de la semaine, 60 questions
-- ⬜ Mesures de fréquentation du responsable
+- ✅ Mesures de fréquentation du responsable (journal existant, sans nouvelle collecte)
 
 ### v0.4 — PR 7 à 11
 

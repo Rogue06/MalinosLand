@@ -48,9 +48,9 @@ Statut : ✅ fait · 🔶 en partie · ⬜ à faire · ➖ abandonné. Les dépe
 | F39 | Vêtements personnalisés, plus de choix de tenues (demande du responsable, plus tard) | 0.3+    | P3   | F02       | ⬜     |
 | F40 | Téléportation rapide depuis la mini-carte (écartée pour l’instant)                   | —       | P3   | —         | ⬜     |
 | F41 | File d’attente quand une salle est pleine (entrée automatique)                       | 0.2     | P2   | F10       | ✅     |
-| F42 | Panneau « Que faire maintenant ? » (écran du hall + bouton 🧭)                       | 0.35    | P1   | F05       | ⬜     |
-| F43 | Quiz IA des Malinos (solo, défi de la semaine, scores dans le navigateur)            | 0.35    | P1   | —         | ⬜     |
-| F44 | Mesures de fréquentation du responsable (journal existant, sans nouvelle collecte)   | 0.35    | P2   | —         | ⬜     |
+| F42 | Panneau « Que faire maintenant ? » (écran du hall + bouton 🧭)                       | 0.35    | P1   | F05       | ✅     |
+| F43 | Quiz IA des Malinos (solo, défi de la semaine, scores dans le navigateur)            | 0.35    | P1   | —         | ✅     |
+| F44 | Mesures de fréquentation du responsable (journal existant, sans nouvelle collecte)   | 0.35    | P2   | —         | ✅     |
 | F45 | Musée : démo « Essayer ici » isolée (visionneuse, CSP par projet, sur clic)          | 0.4     | P1   | F21       | ⬜     |
 | F46 | Feu de camp : histoires de Joshua et guitare                                         | 0.45    | P2   | —         | ⬜     |
 | F47 | Secret de la semaine et studios ouverts mis en avant                                 | 0.45    | P2   | F42       | ⬜     |

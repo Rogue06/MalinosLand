@@ -736,6 +736,33 @@ button.presence-chip {
     transform: scale(1);
   }
 }
+/* Mesures de fréquentation (page du responsable). */
+.attendance-figures {
+  margin: 6px 0 10px;
+  padding-left: 18px;
+  display: grid;
+  gap: 4px;
+}
+.attendance-days {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+.attendance-days caption {
+  text-align: left;
+  padding-bottom: 4px;
+}
+.attendance-days th,
+.attendance-days td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+.attendance-days td + td,
+.attendance-days th + th {
+  text-align: right;
+}
 /* Statut doré (lot B2) : pseudo doré et brillant, dans le chat et la liste des présents. */
 .gold-name,
 .msg b.gold-name {
