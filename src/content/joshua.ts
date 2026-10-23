@@ -96,6 +96,7 @@ export const JOSHUA_REMARKS: string[] = [
   'Un jour, j’aurai une aura.',
   'Je te surveille. Gentiment.',
   'Promis, je ne suis pas une IA maléfique.',
+  'Pas d’idée ? Regarde mon écran. 🧭',
 ];
 
 /** Phrase d'accueil selon l'humeur (première ligne du dialogue). */
@@ -104,20 +105,27 @@ export function moodLine(mood: JoshuaMood, pick: number): string {
   return `(Ses antennes sont ${mood.colorName} : Joshua est ${mood.label}.) ${line}`;
 }
 
+/** Joshua renvoie vers l'écran « Que faire maintenant ? » posé à côté de lui (v0.35). */
+const SCREEN_LINE =
+  'Pas d’idée ? L’écran juste à côté de moi te dit quoi faire maintenant. Oui, j’ai un écran. Non, ce n’est pas mon cerveau.';
+
 /** Après la visite guidée : une réplique selon le carnet, au lieu de tout répéter. */
 export function followUpLines(secretsFound: number, secretsTotal: number): string[] {
   if (secretsFound === 0)
     return [
       'Tu connais déjà le chemin, je te laisse faire. Si tu t’ennuies : mon carnet est plein de devinettes (bouton 🎯).',
+      SCREEN_LINE,
     ];
   if (secretsFound < secretsTotal)
     return [
       `${secretsFound} secret${secretsFound > 1 ? 's' : ''} sur ${secretsTotal}. Pas mal. Pour un humain.`,
       'Les devinettes de mon carnet t’aideront pour les autres. Je ne dirai rien de plus. Sauf si tu insistes. N’insiste pas.',
+      SCREEN_LINE,
     ];
   return [
     'Tu as trouvé tous mes secrets. J’ai dû vérifier deux fois mes journaux pour y croire.',
     'Mes antennes changent de couleur toutes seules depuis. Un bug, sûrement. Sûrement.',
+    SCREEN_LINE,
   ];
 }
 

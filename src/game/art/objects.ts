@@ -516,6 +516,34 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
       fit: 0.66,
     });
   },
+  /**
+   * Écran « Que faire maintenant ? » (v0.35) : une borne numérique près de Joshua. L'écran
+   * montre une petite liste d'idées (pastille de couleur, ligne de texte, bouton « Y aller »).
+   */
+  board_activities(b) {
+    box(b, 0.25, 0.32, 0, 0.5, 0.4, 0.1, P.ink);
+    box(b, 0.45, 0.45, 0.1, 0.1, 0.1, 0.82, P.slate);
+    const screen: Decal[] = [
+      decal('py', 0.05, 0.06, 0.95, 0.94, '#0d1630'),
+      decal('py', 0.05, 0.74, 0.95, 0.94, P.teal),
+      decal('py', 0, 0, 1, 0.03, P.tealLight),
+    ];
+    [P.sun, P.tealLight, P.coral].forEach((c, i) => {
+      const v = 0.5 - i * 0.2;
+      screen.push(
+        decal('py', 0.1, v, 0.2, v + 0.12, c),
+        decal('py', 0.25, v + 0.03, 0.66, v + 0.09, '#cfd5e2'),
+        decal('py', 0.72, v + 0.01, 0.9, v + 0.11, P.teal),
+      );
+    });
+    box(b, 0.06, 0.4, 0.88, 0.88, 0.14, 0.82, P.ink, { decals: screen });
+    b.text({ x: 0.5, y: 0.55, z: 1.6 }, 'py', 'QUE FAIRE ?', {
+      size: 5.5,
+      color: P.white,
+      weight: 900,
+      fit: 0.74,
+    });
+  },
   board_roadmap(b) {
     box(b, 0.18, 0.46, 0, 0.06, 0.06, 0.45, P.woodDark);
     box(b, 0.76, 0.46, 0, 0.06, 0.06, 0.45, P.woodDark);

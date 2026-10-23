@@ -5,8 +5,8 @@
 
 **Dernière mise à jour : 22/10/2026 — v0.3 terminée (logements, décoration, carnet, rôles, jour
 et nuit). Plan validé pour la suite : [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) (v0.35 panneau
-« Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). PR 1 fusionnée ; en cours :
-PR 2 (panneau « Que faire maintenant ? »). Une PR à la fois, présentée au responsable avant la suivante.**
+« Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). PR 1 et 2 fusionnées ; en
+cours : PR 3 (écran du hall et Joshua). Une PR à la fois, présentée au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -36,6 +36,13 @@ PR 2 (panneau « Que faire maintenant ? »). Une PR à la fois, présentée au r
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **23/10 (suite)** — PR #45 (panneau « Que faire ? ») fusionnée et en ligne. Branche
+  `feature/ecran-que-faire` (PR 3) : objet `board_activities` (écran-borne dessiné, lumière
+  turquoise) placé dans le hall en (9, 15), à gauche de Joshua (en (10, 15), il était caché par
+  les étiquettes « Joshua » et du joueur) ; Joshua y renvoie (visite guidée, `followUpLines`,
+  remarques). Étape du test de bout en bout. Suite : PR 4 (moteur du quiz, 30 questions à
+  faire relire).
 
 - **23/10** — PR #43 (plan) et #44 (finitions v0.3) fusionnées, mises en ligne. Branche
   `feature/panneau-que-faire` (PR 2 du plan, DEC-029) : `src/world/activities.ts` (idées du
@@ -311,7 +318,7 @@ par le responsable, avec un 2ᵉ compte (David, Bloom…) :
 Selon [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) §5 et §10, une PR à la fois, chacune présentée au
 responsable avant la suivante :
 
-1. PR 2 — panneau « Que faire maintenant ? » (en cours), puis PR 3 — écran du hall et Joshua.
+1. PR 3 — écran du hall et Joshua (en cours).
 2. PR 4 et 5 — Quiz IA (questions à faire relire avant fusion), borne de la salle de jeux.
 3. PR 6 — mesures de fréquentation (dans les limites du journal existant).
 4. PR 7 à 11 — Musée des Malinos (migration après accord).

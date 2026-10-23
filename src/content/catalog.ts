@@ -333,6 +333,14 @@ export const CATALOG: Record<string, CatalogEntry> = {
     defaultInteraction: { kind: 'panel', label: 'Signaler un bug', panel: 'bugs' },
     light: { color: 0xff8a7a, radius: 0.8, z: 1.2 },
   },
+  board_activities: {
+    name: 'Écran « Que faire maintenant ? »',
+    category: 'tech',
+    footprint: [1, 1],
+    blocking: true,
+    defaultInteraction: { kind: 'panel', label: 'Que faire maintenant ?', panel: 'activities' },
+    light: { color: 0x5fe3d0, radius: 1.2, z: 1.4 },
+  },
   board_roadmap: {
     name: 'Tableau d’affichage',
     category: 'decor',

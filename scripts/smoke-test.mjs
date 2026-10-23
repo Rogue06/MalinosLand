@@ -304,6 +304,15 @@ try {
     await waitGone('.modal');
   });
 
+  await step('écran « Que faire ? » du hall, près de Joshua', async () => {
+    await teleport(9.5, 16.6, 'ny');
+    await dbg(() => window.__malinosDebug.use('ecran-que-faire'));
+    await waitUi('.modal', 'Que faire maintenant ?');
+    await page.screenshot({ path: `${outDir}/07c-ecran-hall.png` });
+    await page.keyboard.press('Escape');
+    await waitGone('.modal');
+  });
+
   await step('jour et nuit (heure de Paris imposée)', async () => {
     const night = await page.evaluate(() => window.__malinosDebug.time(23));
     if (night?.phase !== 'nuit' || night.lights < 0.9)
