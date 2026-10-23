@@ -5,8 +5,8 @@
 
 **Dernière mise à jour : 22/10/2026 — v0.3 terminée (logements, décoration, carnet, rôles, jour
 et nuit). Plan validé pour la suite : [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) (v0.35 panneau
-« Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). PR 1 à 5 fusionnées (v0.35
-presque complète) ; en cours : PR 6 (mesures de fréquentation). Une PR à la fois, présentée au responsable avant la suivante.**
+« Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). v0.35 complète (PR 1 à 6
+fusionnées) ; en cours : PR 7 (base du Musée, migration à appliquer après accord). Une PR à la fois, présentée au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -101,6 +101,12 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **24/10 (soir)** — PR #50 (mesures de fréquentation) fusionnée et en ligne : **v0.35 complète**.
+  Branche `feature/musee-base` (PR 7, DEC-035) : migration `20261027090000_museum.sql`
+  (**appliquée sur Supabase** le 24/10, en 6 morceaux, avec l’accord du responsable), tables `projects` et `project_reports`, fonctions de modération et
+  `museum_projects`, 8 tests PGlite. Écart avec le plan : signalements de projets dans une table
+  dédiée. Suite : PR 8 (formulaire « Exposer mon projet », onglet de modération).
 
 - **24/10 (suite)** — PR #49 (borne du quiz, 60 questions validées) fusionnée et en ligne.
   Branche `feature/mesures-frequentation` (PR 6) : `attendance()` dans `src/services/visits.ts`
@@ -412,7 +418,7 @@ par le responsable, avec un 2ᵉ compte (David, Bloom…) :
 Selon [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) §5 et §10, une PR à la fois, chacune présentée au
 responsable avant la suivante :
 
-1. PR 6 — mesures de fréquentation (en cours).
+1. PR 7 — base du Musée (en cours, migration à appliquer à la fusion).
 2. PR 4 et 5 — Quiz IA (questions à faire relire avant fusion), borne de la salle de jeux.
 3. PR 6 — mesures de fréquentation (dans les limites du journal existant).
 4. PR 7 à 11 — Musée des Malinos (migration après accord).

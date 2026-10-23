@@ -496,3 +496,20 @@ profil et le protocole commun transportent quatre petits indices validés. Textu
 à la demande et mises en cache, vignettes limitées à 96 entrées. Pas de recalcul à chaque frame.
 Éclairage précalculé et recoloration approchée, sans nouvelle géométrie. Mémoire graphique liée
 aux palettes utilisées ; performances sur appareils physiques modestes restant à mesurer.
+
+## DEC-035 — Musée des Malinos : projets validés par la base, signalements dédiés (24/10/2026)
+
+**Contexte.** Plan d’évolution, v0.4 (PR 7) : les membres exposent leurs créations ; il faut une
+modération avant publication, sans coût ni risque pour MalinosLand.
+**Décision.** Table `projects` (texte seulement : l’affiche est dessinée par le jeu). Les droits
+sont vérifiés **par la base** : lecture publique des seuls projets validés, proposition en son
+nom et forcément « en attente », aucune modification directe (fonctions `update_my_project`,
+`withdraw_my_project`, `moderate_project`, `set_project_embed`). Les adresses sont vérifiées par
+`valid_project_url` (https, vrai nom de domaine, ni IP, ni port, ni identifiants, ni adresse
+locale, ni MalinosLand ni Supabase). Plafonds anti-abus. Colonne `thumbnail` prévue pour une
+miniature future, toujours vide. **Écart avec le plan** : les signalements de projets ont leur
+propre table `project_reports` au lieu de réutiliser `reports` (pensée pour des joueurs, avec
+des colonnes obligatoires sans objet ici) ; la migration reste purement additive. Comme pour
+les joueurs, signaler demande un compte.
+**Conséquences.** ≈ 1 Ko par projet ; une lecture paginée (20) à l’entrée du musée. La démo
+intégrée (PR 10) s’appuiera sur `embed`, que seul un modérateur règle.
