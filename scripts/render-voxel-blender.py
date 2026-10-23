@@ -15,6 +15,7 @@ args = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
 source = args[0] if args else 'art-source/voxel-models.json'
 out = os.path.abspath(args[1] if len(args) > 1 else 'screenshots/blender-frames')
 only = args[2] if len(args) > 2 else None
+mask_mode = len(args) > 3 and args[3] == 'mask'
 os.makedirs(out, exist_ok=True)
 models = json.load(open(source, encoding='utf-8'))['models']
 W, H, SCALE = 384, 512, 4
@@ -40,6 +41,14 @@ scene.world.color = (0.35, 0.35, 0.35)
 scene.world.use_nodes = True
 scene.world.node_tree.nodes['Background'].inputs['Color'].default_value = (0.72, 0.80, 1.0, 1)
 scene.world.node_tree.nodes['Background'].inputs['Strength'].default_value = 0.55
+if mask_mode:
+    # Masques de matière : rouge peau, vert cheveux, bleu veste, blanc pantalon.
+    # Les détails non modifiables restent noirs. Même caméra et même géométrie.
+    scene.view_settings.view_transform = 'Raw'
+    scene.view_settings.look = 'None'
+    scene.view_settings.exposure = 0
+    scene.cycles.samples = 8
+    scene.cycles.use_denoising = False
 
 def point_at(obj, target):
     obj.rotation_euler = (Vector(target) - obj.location).to_track_quat('-Z', 'Y').to_euler()
@@ -96,6 +105,21 @@ def material(color):
     m = bpy.data.materials.new(color)
     m.diffuse_color = (*linear, 1)
     m.use_nodes = True
+    if mask_mode:
+        groups = [
+            ({'#f1bc91', '#e8b58c'}, (1, 0, 0, 1)),
+            ({'#51372f', '#4e352e', '#5b433b', '#664f48'}, (0, 1, 0, 1)),
+            ({'#333d60', '#3d4768', '#252e49', '#242e49', '#2d3657', '#384569', '#232d4b'}, (0, 0, 1, 1)),
+            ({'#356299', '#4075b0', '#2b5286', '#78a8ce'}, (1, 1, 1, 1)),
+        ]
+        tint = next((rgb for colors, rgb in groups if color in colors), (0, 0, 0, 1))
+        m.node_tree.nodes.clear()
+        output = m.node_tree.nodes.new('ShaderNodeOutputMaterial')
+        emission = m.node_tree.nodes.new('ShaderNodeEmission')
+        emission.inputs['Color'].default_value = tint
+        m.node_tree.links.new(emission.outputs[0], output.inputs['Surface'])
+        materials[color] = m
+        return m
     bsdf = m.node_tree.nodes.get('Principled BSDF')
     bsdf.inputs['Base Color'].default_value = (*linear, 1)
     bsdf.inputs['Roughness'].default_value = .72
@@ -139,7 +163,7 @@ def decal(spec, dc, collection, i, layer):
     block(f'Détail {i}',loc,dim,dc['color'],collection,False)
 
 for name, model in models.items():
-    if only and name != only:
+    if only and name != only and not (only == 'avatar' and name.startswith('avatar-')):
         continue
     for collection in list(bpy.data.collections):
         if collection.name.startswith('Modèle '):
@@ -169,7 +193,7 @@ for name, model in models.items():
     projection.scale = (1, -1, Z_CORRECTION)
     scene.render.filepath = os.path.join(out, name+'.png')
     bpy.ops.render.render(write_still=True)
-    if name in ('avatar-py-idle','oak-0','sakura-0'):
+    if not mask_mode and name in ('avatar-py-idle','oak-0','sakura-0'):
         bpy.ops.wm.save_as_mainfile(filepath=os.path.join(out,name+'.blend'))
     print(f'VOXEL_RENDER_OK {name}',flush=True)
 

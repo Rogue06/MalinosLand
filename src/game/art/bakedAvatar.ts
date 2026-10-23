@@ -1,17 +1,26 @@
 import type { Facing } from '../../core/iso';
 import avatarUrl from '../assets/avatar.png';
+import avatarMaskUrl from '../assets/avatar-mask.png';
+import { voxelColorKey, type AvatarAppearance } from '../../content/avatars';
+import { tintVoxelPixels } from './voxelTint';
 import { AVATAR_FACINGS, AVATAR_POSES, frameName, type AvatarSheet } from './characters';
 
-export { avatarUrl };
+export { avatarUrl, avatarMaskUrl };
 
 /** Même découpe dans Phaser et dans l'éditeur ; aucun fichier 3D en jeu. */
-export function renderBakedAvatar(source: CanvasImageSource, scale: number): AvatarSheet {
+export function renderBakedAvatar(
+  source: CanvasImageSource,
+  scale: number,
+  look?: AvatarAppearance,
+  mask?: CanvasImageSource,
+): AvatarSheet {
   const frameW = 96 * scale;
   const frameH = 128 * scale;
   const canvas = document.createElement('canvas');
   canvas.width = frameW * 4;
   canvas.height = frameH * 4;
   canvas.getContext('2d')!.drawImage(source, 0, 0, canvas.width, canvas.height);
+  if (look && mask) applyTint(canvas, mask, look);
   return {
     canvas,
     frameW,
@@ -29,30 +38,56 @@ export function renderBakedAvatar(source: CanvasImageSource, scale: number): Ava
   };
 }
 
-let loaded: Promise<HTMLImageElement> | undefined;
-const previews = new Map<Facing, HTMLCanvasElement>();
+function applyTint(
+  canvas: HTMLCanvasElement,
+  mask: CanvasImageSource,
+  look: AvatarAppearance,
+): void {
+  const ctx = canvas.getContext('2d')!;
+  const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const maskCanvas = document.createElement('canvas');
+  maskCanvas.width = canvas.width;
+  maskCanvas.height = canvas.height;
+  const maskCtx = maskCanvas.getContext('2d')!;
+  maskCtx.drawImage(mask, 0, 0, canvas.width, canvas.height);
+  tintVoxelPixels(pixels.data, maskCtx.getImageData(0, 0, canvas.width, canvas.height).data, look);
+  ctx.putImageData(pixels, 0, 0);
+}
+let loaded: Promise<HTMLImageElement[]> | undefined;
+const previews = new Map<string, HTMLCanvasElement>();
 
 /** Image partagée et recadrée une seule fois par orientation pour toutes les vignettes. */
-export async function bakedAvatarPreview(facing: Facing): Promise<HTMLCanvasElement> {
+export async function bakedAvatarPreview(
+  facing: Facing,
+  look: AvatarAppearance,
+): Promise<HTMLCanvasElement> {
   if (!loaded) {
-    const image = new Image();
-    image.src = avatarUrl;
-    loaded = image
-      .decode()
-      .then(() => image)
-      .catch((error: unknown) => {
-        loaded = undefined;
-        throw error;
-      });
+    loaded = Promise.all(
+      [avatarUrl, avatarMaskUrl].map((url) => {
+        const image = new Image();
+        image.src = url;
+        return image.decode().then(() => image);
+      }),
+    ).catch((error: unknown) => {
+      loaded = undefined;
+      throw error;
+    });
   }
-  const image = await loaded;
-  const cached = previews.get(facing);
+  const [image, mask] = await loaded;
+  const key = `${facing}:${voxelColorKey(look)}`;
+  const cached = previews.get(key);
   if (cached) return cached;
   const frame = document.createElement('canvas');
   frame.width = 384;
   frame.height = 512;
   const ctx = frame.getContext('2d')!;
-  ctx.drawImage(image, 0, AVATAR_FACINGS.indexOf(facing) * 512, 384, 512, 0, 0, 384, 512);
+  const rowY = AVATAR_FACINGS.indexOf(facing) * 512;
+  ctx.drawImage(image!, 0, rowY, 384, 512, 0, 0, 384, 512);
+  const maskFrame = document.createElement('canvas');
+  maskFrame.width = 384;
+  maskFrame.height = 512;
+  maskFrame.getContext('2d')!.drawImage(mask!, 0, rowY, 384, 512, 0, 0, 384, 512);
+  applyTint(frame, maskFrame, look);
   const pixels = ctx.getImageData(0, 0, 384, 512).data;
   let left = 384,
     top = 512,
@@ -71,6 +106,7 @@ export async function bakedAvatarPreview(facing: Facing): Promise<HTMLCanvasElem
   canvas.width = right - left + 5;
   canvas.height = bottom - top + 5;
   canvas.getContext('2d')!.drawImage(frame, -left + 2, -top + 2);
-  previews.set(facing, canvas);
+  if (previews.size >= 96) previews.delete(previews.keys().next().value!);
+  previews.set(key, canvas);
   return canvas;
 }

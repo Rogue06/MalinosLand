@@ -478,3 +478,21 @@ reste dans le JSON d'apparence existant, validé côté client et serveur. Une s
 annoncée dans l'éditeur ; personnalisation ultérieure par composants, pas 829 440 atlas complets.
 Le choix artistique autorise maintenant la publication ; il remplace la restriction provisoire
 de DEC-031/032. Les galeries de développement et le stockage d'essai restent isolés.
+
+## DEC-034 — Palettes 3D avec un masque de matière partagé (23/10/2026)
+
+**Contexte.** Le responsable demande plusieurs choix pour le nouveau personnage et leur
+publication, avec un budget de travail et d'hébergement limité.
+
+**Décision.** Conserver l'atlas validé et produire un masque de ses 16 cadres avec la même
+géométrie et caméra Blender : rouge peau, vert cheveux, bleu veste, blanc pantalon, noir
+détails fixes. Recolorer dans Canvas une fois par palette à la création de la texture Phaser.
+Interpolation noir/couleur/blanc pour conserver les ombres et reflets ; alpha original inchangé.
+Six styles de départ et quatre palettes bornées, distinctes des réglages classiques ; les deux
+modèles restent disponibles. L'interface annonce les limites de forme et de coiffure.
+
+**Conséquences.** +315 Ko pour 2 880 combinaisons, aucune dépendance ni migration. Le JSON du
+profil et le protocole commun transportent quatre petits indices validés. Textures calculées
+à la demande et mises en cache, vignettes limitées à 96 entrées. Pas de recalcul à chaque frame.
+Éclairage précalculé et recoloration approchée, sans nouvelle géométrie. Mémoire graphique liée
+aux palettes utilisées ; performances sur appareils physiques modestes restant à mesurer.

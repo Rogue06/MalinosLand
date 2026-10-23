@@ -71,7 +71,7 @@ describe('profil et réglages', () => {
       ...DEFAULT_APPEARANCE,
       top: 9,
     });
-    expect(appearanceKey(DEFAULT_APPEARANCE)).toBe('malino-v1');
+    expect(appearanceKey(DEFAULT_APPEARANCE)).toBe('malino-v2:0:0:0:0');
     const customized = { ...DEFAULT_APPEARANCE, hair: 7, skin: 5, accessory: 3, beard: 2 };
     expect(sanitizeAppearance(customized)).toEqual(customized);
     expect(sanitizeAppearance({ ...customized, model: 0 })).toEqual({ ...customized, model: 0 });

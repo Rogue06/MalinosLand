@@ -16,18 +16,23 @@ const browser = await chromium.launch({ ...(executablePath ? { executablePath } 
 try {
   const page = await browser.newPage();
   await page.goto(`${site}/voxel-preview.html`);
-  const atlases = await page.evaluate(async () => {
-    const groups = {
-      avatar: ['py', 'px', 'ny', 'nx'].flatMap((f) =>
-        ['idle', 'walkA', 'walkB', 'sit'].map((p) => `avatar-${f}-${p}`),
-      ),
-      oak: [0, 1, 2, 3].map((r) => `oak-${r}`),
-      sakura: [0, 1, 2, 3].map((r) => `sakura-${r}`),
-      'sakura-study': [0, 1, 2, 3].map((r) => `sakura-study-${r}`),
-    };
+  const atlases = await page.evaluate(async (maskMode) => {
+    const avatarFrames = ['py', 'px', 'ny', 'nx'].flatMap((f) =>
+      ['idle', 'walkA', 'walkB', 'sit'].map((p) => `avatar-${f}-${p}`),
+    );
+    const groups = maskMode
+      ? { 'avatar-mask': avatarFrames }
+      : {
+          avatar: ['py', 'px', 'ny', 'nx'].flatMap((f) =>
+            ['idle', 'walkA', 'walkB', 'sit'].map((p) => `avatar-${f}-${p}`),
+          ),
+          oak: [0, 1, 2, 3].map((r) => `oak-${r}`),
+          sakura: [0, 1, 2, 3].map((r) => `sakura-${r}`),
+          'sakura-study': [0, 1, 2, 3].map((r) => `sakura-study-${r}`),
+        };
     const output = {};
     for (const [name, frames] of Object.entries(groups)) {
-      const cols = name === 'avatar' ? 4 : 2;
+      const cols = name.startsWith('avatar') ? 4 : 2;
       const frameHeight = name === 'sakura-study' ? 480 : 512;
       const canvas = document.createElement('canvas');
       canvas.width = cols * 384;
@@ -35,14 +40,14 @@ try {
       const ctx = canvas.getContext('2d');
       for (let i = 0; i < frames.length; i++) {
         const img = new Image();
-        img.src = `/screenshots/blender-frames/${frames[i]}.png`;
+        img.src = `/screenshots/${maskMode ? 'avatar-masks' : 'blender-frames'}/${frames[i]}.png`;
         await img.decode();
         ctx.drawImage(img, (i % cols) * 384, Math.floor(i / cols) * frameHeight);
       }
       output[name] = canvas.toDataURL('image/png').split(',')[1];
     }
     return output;
-  });
+  }, process.argv[3] === 'mask');
   mkdirSync('src/dev/voxel-assets', { recursive: true });
   mkdirSync('src/game/assets', { recursive: true });
   for (const [name, data] of Object.entries(atlases)) {
@@ -52,7 +57,11 @@ try {
         : `src/game/assets/${name === 'sakura-study' ? 'sakura' : name}.png`;
     writeFileSync(file, Buffer.from(data, 'base64'));
   }
-  console.log('Quatre atlas Blender assemblés (28 vues).');
+  console.log(
+    process.argv[3] === 'mask'
+      ? 'Masque de couleurs assemblé (16 vues).'
+      : 'Quatre atlas Blender assemblés (28 vues).',
+  );
 } finally {
   await browser.close();
 }

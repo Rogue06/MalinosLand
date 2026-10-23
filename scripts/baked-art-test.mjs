@@ -37,7 +37,9 @@ try {
   );
   await page.getByPlaceholder('ex. Léa, Max_IA…').fill('Test modeles');
   await page.getByRole('button', { name: 'Entrer dans MalinosLand →' }).click();
-  await page.waitForFunction(() => window.__malinosDebug?.art().avatar.includes('malino-v1'));
+  await page.waitForFunction(() =>
+    window.__malinosDebug?.art().avatar.includes('malino-v2:0:0:0:0'),
+  );
   const trees = await page.evaluate(() => window.__malinosDebug.art().trees);
   assert.ok(trees.length > 50);
   assert.ok(trees.every((t) => t.frame.includes('baked-v1')));
@@ -53,6 +55,18 @@ try {
     () => JSON.parse(localStorage.getItem('malinosland:profile')).data.look,
   );
   await page.locator('button[title="Mon avatar"]').click();
+  for (const name of ['Marine', 'Forêt', 'Soleil', 'Framboise', 'Lavande', 'Neige']) {
+    assert.equal(await page.getByRole('button', { name, exact: true }).count(), 1);
+  }
+  await page.getByRole('button', { name: 'Forêt', exact: true }).click();
+  await page.getByRole('radio', { name: 'Veste 3D 8', exact: true }).click();
+  await page.getByRole('button', { name: 'Enregistrer', exact: true }).click();
+  await page.waitForFunction(() =>
+    window.__malinosDebug.art().avatar.includes('malino-v2:2:1:7:2'),
+  );
+  await page.locator('button[title="Mon avatar"]').click();
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: 'screenshots/baked-art/styles.png' });
   await page.getByRole('radio', { name: 'Classique personnalisable', exact: true }).click();
   await page
     .getByRole('radiogroup', { name: 'Coiffure', exact: true })
@@ -77,6 +91,10 @@ try {
   assert.equal(after.hair, 3);
   assert.equal(after.skin, before.skin);
   assert.equal(after.accessory, before.accessory);
+  assert.deepEqual(
+    [after.voxelSkin, after.voxelHair, after.voxelTop, after.voxelBottom],
+    [2, 1, 7, 2],
+  );
   await page.reload();
   await page.waitForFunction(() => window.__malinosDebug?.art().avatar.includes('classic:'));
 
@@ -89,7 +107,7 @@ try {
   await other.getByRole('radio', { name: 'Malino 3D', exact: true }).click();
   await other.getByRole('button', { name: 'Enregistrer', exact: true }).click();
   await page.waitForFunction(() =>
-    window.__malinosDebug.art().peers.some((k) => k.includes('malino-v1')),
+    window.__malinosDebug.art().peers.some((k) => k.includes('malino-v2:2:1:7:2')),
   );
   await other.waitForFunction(() =>
     window.__malinosDebug.art().peers.some((k) => k.includes('classic:')),

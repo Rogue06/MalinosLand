@@ -29,7 +29,9 @@
 ### Rendu graphique : procédural « voxel »
 
 **Évolution validée le 23/10/2026 :** les chênes, sakuras et le modèle « Malino 3D » utilisent
-trois atlas PNG précalculés dans Blender (1,38 Mo). `bakedArt.ts` les injecte dans `TextureFactory` ;
+trois atlas PNG précalculés dans Blender, plus un masque de matière (1,70 Mo au total).
+`bakedArt.ts` les injecte dans `TextureFactory` ; `voxelTint.ts` applique les quatre couleurs
+de l'apparence aux pixels avant la mise en cache par palette (DEC-034) ;
 le reste du décor et l'avatar classique restent procéduraux. Les images sont partagées entre
 exemplaires, avec repli procédural si le chargement échoue. Le champ borné `look.model` choisit
 le modèle (0 classique, 1 Malino 3D par défaut), sans supprimer les autres réglages du profil.

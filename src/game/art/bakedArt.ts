@@ -2,12 +2,12 @@ import type Phaser from 'phaser';
 import oak from '../assets/oak.png';
 import sakura from '../assets/sakura.png';
 import type { TextureArt } from '../textures';
-import { avatarUrl, renderBakedAvatar } from './bakedAvatar';
+import { avatarUrl, avatarMaskUrl, renderBakedAvatar } from './bakedAvatar';
 import { renderAvatarSheet } from './characters';
 import { IsoBuilder } from './iso3d';
 import { OBJECT_ART } from './objects';
 
-const assets = { avatar: avatarUrl, oak, sakura };
+const assets = { avatar: avatarUrl, mask: avatarMaskUrl, oak, sakura };
 
 export function preloadBakedArt(scene: Phaser.Scene): void {
   for (const [name, url] of Object.entries(assets)) {
@@ -23,7 +23,12 @@ export function bakedArt(scene: Phaser.Scene): TextureArt {
     id: 'baked-v1',
     avatar(look, scale) {
       return look.model !== 0 && scene.textures.exists('baked:avatar')
-        ? renderBakedAvatar(source('avatar'), scale)
+        ? renderBakedAvatar(
+            source('avatar'),
+            scale,
+            look,
+            scene.textures.exists('baked:mask') ? source('mask') : undefined,
+          )
         : renderAvatarSheet(look, scale);
     },
     objectRenders: {

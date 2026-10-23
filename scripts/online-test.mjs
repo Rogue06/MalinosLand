@@ -52,6 +52,10 @@ async function player(name) {
         bottom: 0,
         accessory: 0,
         model: name === 'Bob' ? 0 : 1,
+        voxelSkin: 4,
+        voxelHair: 1,
+        voxelTop: 4,
+        voxelBottom: 3,
       },
     });
     put('settings', {
@@ -80,7 +84,9 @@ try {
   );
   check(await poll(bob, () => window.__malinosDebug.peers() > 0), 'Bob voit Alice');
   check(
-    await poll(bob, () => window.__malinosDebug.art().peers.some((k) => k.includes('malino-v1'))),
+    await poll(bob, () =>
+      window.__malinosDebug.art().peers.some((k) => k.includes('malino-v2:4:1:4:3')),
+    ),
     'Bob voit le nouveau modèle d’Alice via le serveur',
   );
   check(

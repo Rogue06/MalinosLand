@@ -59,6 +59,11 @@ export const BOTTOM_COLORS = [
 export interface AvatarAppearance {
   /** 0 : classique personnalisable ; 1 (défaut) : première tenue Malino 3D. */
   model?: number;
+  /** Couleurs 3D indépendantes des réglages classiques. */
+  voxelSkin?: number;
+  voxelHair?: number;
+  voxelTop?: number;
+  voxelBottom?: number;
   body: number;
   skin: number;
   hair: number;
@@ -101,10 +106,58 @@ export const AVATAR_PRESETS: Array<{ name: string; look: AvatarAppearance }> = [
   },
 ];
 
-export const DEFAULT_APPEARANCE: AvatarAppearance = { ...AVATAR_PRESETS[0]!.look, model: 1 };
+export const VOXEL_PALETTES = {
+  voxelSkin: ['#f1bc91', '#eab48f', '#d39a6c', '#b07548', '#8a5434', '#5e3826'],
+  voxelHair: [
+    '#51372f',
+    '#2b2220',
+    '#a8673a',
+    '#e3b866',
+    '#d9d4cc',
+    '#c44a3d',
+    '#4d6fe0',
+    '#e46fa4',
+  ],
+  voxelTop: [
+    '#333d60',
+    '#22b5a6',
+    '#ff7a59',
+    '#7b6cf6',
+    '#ffc857',
+    '#f7f5f0',
+    '#4fa35a',
+    '#d4507a',
+    '#4c78c9',
+    '#2b2f3a',
+  ],
+  voxelBottom: ['#356299', '#46597a', '#5b4636', '#2b2f3a', '#7a8294', '#9c6b43'],
+} as const;
+export type VoxelColorKey = keyof typeof VOXEL_PALETTES;
+export const VOXEL_PRESETS: Array<{ name: string; colors: Record<VoxelColorKey, number> }> = [
+  { name: 'Marine', colors: { voxelSkin: 0, voxelHair: 0, voxelTop: 0, voxelBottom: 0 } },
+  { name: 'Forêt', colors: { voxelSkin: 2, voxelHair: 1, voxelTop: 6, voxelBottom: 2 } },
+  { name: 'Soleil', colors: { voxelSkin: 4, voxelHair: 1, voxelTop: 4, voxelBottom: 3 } },
+  { name: 'Framboise', colors: { voxelSkin: 1, voxelHair: 3, voxelTop: 7, voxelBottom: 1 } },
+  { name: 'Lavande', colors: { voxelSkin: 3, voxelHair: 4, voxelTop: 3, voxelBottom: 3 } },
+  { name: 'Neige', colors: { voxelSkin: 5, voxelHair: 2, voxelTop: 5, voxelBottom: 3 } },
+];
+export function voxelColorKey(a: AvatarAppearance): string {
+  return Object.keys(VOXEL_PALETTES)
+    .map((key) => a[key as VoxelColorKey] ?? 0)
+    .join(':');
+}
+export const DEFAULT_APPEARANCE: AvatarAppearance = {
+  ...AVATAR_PRESETS[0]!.look,
+  model: 1,
+  ...VOXEL_PRESETS[0]!.colors,
+};
 
 const LIMITS: Record<keyof AvatarAppearance, number> = {
   model: 2,
+  voxelSkin: VOXEL_PALETTES.voxelSkin.length,
+  voxelHair: VOXEL_PALETTES.voxelHair.length,
+  voxelTop: VOXEL_PALETTES.voxelTop.length,
+  voxelBottom: VOXEL_PALETTES.voxelBottom.length,
   body: BODY_SHAPES.length,
   skin: SKIN_TONES.length,
   hair: HAIR_STYLES.length,
@@ -145,7 +198,7 @@ export function randomAppearance(rnd: () => number = Math.random): AvatarAppeara
 /** Clé stable d'une apparence (cache de textures). */
 export function appearanceKey(a: AvatarAppearance): string {
   return (a.model ?? 1) === 1
-    ? 'malino-v1'
+    ? `malino-v2:${voxelColorKey(a)}`
     : 'classic:' +
         [a.body, a.skin, a.hair, a.hairColor, a.top, a.bottom, a.accessory, a.beard].join('');
 }
