@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks';
-import { DEFAULT_APPEARANCE, randomAppearance } from '../content/avatars';
+import { DEFAULT_APPEARANCE } from '../content/avatars';
 import { PRIVACY_NOTE } from '../config';
 import { NAME_MIN_LENGTH, sanitizeName } from '../core/text';
 import { AccountError, accountStore, saveRemoteProfile } from '../services/account';
@@ -20,9 +20,7 @@ export function Onboarding() {
   useEffect(() => {
     if (suggested) setName((n) => n || suggested);
   }, [suggested]);
-  const [look, setLook] = useState(() =>
-    Math.random() < 0.5 ? DEFAULT_APPEARANCE : randomAppearance(),
-  );
+  const [look, setLook] = useState(() => ({ ...DEFAULT_APPEARANCE }));
   const [error, setError] = useState<string | null>(null);
 
   const submit = async (e: Event) => {

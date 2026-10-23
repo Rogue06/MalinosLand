@@ -1,4 +1,4 @@
--- Musée des Malinos (v0.4, DEC-031) : les projets exposés par les membres.
+-- Musée des Malinos (v0.4, DEC-035) : les projets exposés par les membres.
 -- - Un membre connecté propose un projet ; il part « en attente » et n'est visible de tous
 --   qu'une fois validé par un modérateur. L'auteur peut le retirer à tout moment.
 -- - Les droits sont vérifiés par la base (règles RLS et fonctions), jamais seulement par le jeu.

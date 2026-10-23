@@ -42,7 +42,7 @@
 - **Rôles visibles** (migration `20261026090000_roles.sql`, v0.3) : `gold_members` (statut doré),
   `account_role(uuid)` (public : `gold`, `mod` ou rien), `my_account()` (profil et rôle pour le
   serveur temps réel), `set_gold` / `set_moderator` (responsable du site seulement).
-- **Musée des Malinos** (migration `20261027090000_museum.sql`, v0.4, DEC-031) : `projects`
+- **Musée des Malinos** (migration `20261027090000_museum.sql`, v0.4, DEC-035) : `projects`
   (titre, résumé, adresse `https`, catégorie, 3 mots-clés, `status` = `pending` / `approved` /
   `rejected` / `withdrawn`, `embed` = démo intégrable, `thumbnail` prévu mais toujours vide).
   Tout le monde lit les projets **validés** ; l’auteur voit les siens ; les modérateurs voient

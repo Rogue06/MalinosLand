@@ -35,7 +35,7 @@ async function startGame(): Promise<void> {
   starting = true;
   // L'identifiant réseau dépend du compte : on attend de savoir si le joueur est connecté.
   const [{ createGame }] = await Promise.all([import('./game/createGame'), accountReady()]);
-  game = createGame(gameRoot, networkId(randomId()));
+  game = await createGame(gameRoot, networkId(randomId()));
 }
 
 if (profileStore.get()) void startGame();

@@ -43,7 +43,20 @@ async function player(name) {
       localStorage.setItem(`malinosland:${k}`, JSON.stringify({ v: 1, data }));
     put('profile', {
       name,
-      look: { body: 0, skin: 1, hair: 0, hairColor: 0, top: 0, bottom: 0, accessory: 0 },
+      look: {
+        body: 0,
+        skin: 1,
+        hair: 0,
+        hairColor: 0,
+        top: 0,
+        bottom: 0,
+        accessory: 0,
+        model: name === 'Bob' ? 0 : 1,
+        voxelSkin: 4,
+        voxelHair: 1,
+        voxelTop: 4,
+        voxelBottom: 3,
+      },
     });
     put('settings', {
       quality: 'low',
@@ -70,6 +83,16 @@ try {
     'Alice voit Bob (connectés au serveur)',
   );
   check(await poll(bob, () => window.__malinosDebug.peers() > 0), 'Bob voit Alice');
+  check(
+    await poll(bob, () =>
+      window.__malinosDebug.art().peers.some((k) => k.includes('malino-v2:4:1:4:3')),
+    ),
+    'Bob voit le nouveau modèle d’Alice via le serveur',
+  );
+  check(
+    await poll(alice, () => window.__malinosDebug.art().peers.some((k) => k.includes('classic:'))),
+    'Alice voit le modèle classique de Bob via le serveur',
+  );
   const transport = await alice.evaluate(() => document.querySelector('.chat-mode')?.textContent);
   check(transport === 'En ligne', `le jeu indique le mode « En ligne » (lu : ${transport})`);
 

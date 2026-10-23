@@ -14,6 +14,7 @@ Pas besoin de tout lire ! Choisis ton chemin.
 2. [Glossaire](GLOSSAIRE.md) : « branche », « pull request », « issue »… expliqués simplement.
 3. [Direction artistique](ART_DIRECTION.md) : le style graphique et ses règles.
 4. [Conception du monde](WORLD_DESIGN.md) : comment sont décrites les salles.
+5. [Atelier voxel expérimental](PROTOTYPE_VOXEL.md) : comparer l'avatar et les arbres proposés.
 
 ## 💻 Je veux développer
 

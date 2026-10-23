@@ -71,7 +71,14 @@ describe('profil et réglages', () => {
       ...DEFAULT_APPEARANCE,
       top: 9,
     });
-    expect(appearanceKey(DEFAULT_APPEARANCE)).toHaveLength(8);
+    expect(appearanceKey(DEFAULT_APPEARANCE)).toBe('malino-v2:0:0:0:0');
+    const customized = { ...DEFAULT_APPEARANCE, hair: 7, skin: 5, accessory: 3, beard: 2 };
+    expect(sanitizeAppearance(customized)).toEqual(customized);
+    expect(sanitizeAppearance({ ...customized, model: 0 })).toEqual({ ...customized, model: 0 });
+    expect(sanitizeAppearance({ model: 99 }).model).toBe(1);
+    expect(sanitizeAppearance({ model: '0' }).model).toBe(1);
+    expect(appearanceKey({ ...customized, model: 0 })).not.toBe(appearanceKey(customized));
+    expect(appearanceKey(customized)).toBe(appearanceKey(DEFAULT_APPEARANCE));
     // Ancien profil sans barbe : « aucune » ; barbe et micro hors limites refusés.
     expect(sanitizeAppearance({ accessory: 3 }).beard).toBe(0);
     expect(sanitizeAppearance({ accessory: 3, beard: 2 })).toMatchObject({

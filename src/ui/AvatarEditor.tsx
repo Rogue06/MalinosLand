@@ -9,6 +9,8 @@ import {
   HAIR_STYLES,
   SKIN_TONES,
   TOP_COLORS,
+  VOXEL_PALETTES,
+  VOXEL_PRESETS,
   randomAppearance,
   type AvatarAppearance,
 } from '../content/avatars';
@@ -107,9 +109,15 @@ export function AvatarEditor({ name, look, onName, onLook, nameError }: AvatarEd
           >
             ⟳ Tourner
           </button>
-          <button type="button" class="btn ghost small" onClick={() => onLook(randomAppearance())}>
-            🎲 Au hasard
-          </button>
+          {look.model === 0 && (
+            <button
+              type="button"
+              class="btn ghost small"
+              onClick={() => onLook({ ...look, ...randomAppearance() })}
+            >
+              🎲 Au hasard
+            </button>
+          )}
         </div>
         <label class="field name-field">
           <span class="field-label">Ton pseudo</span>
@@ -126,41 +134,115 @@ export function AvatarEditor({ name, look, onName, onLook, nameError }: AvatarEd
         </label>
       </div>
       <div class="avatar-options">
-        <div class="field">
-          <span class="field-label">Styles prêts à porter</span>
-          <div class="presets">
-            {AVATAR_PRESETS.map((p) => (
-              <button
-                type="button"
-                key={p.name}
-                class="preset"
-                onClick={() => onLook({ ...p.look })}
-                title={p.name}
-              >
-                <AvatarPreview look={p.look} size={52} />
-                <span>{p.name}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-        <Choices label="Silhouette" options={BODY_SHAPES} value={look.body} onPick={set('body')} />
-        <Swatches label="Peau" colors={SKIN_TONES} value={look.skin} onPick={set('skin')} />
-        <Choices label="Coiffure" options={HAIR_STYLES} value={look.hair} onPick={set('hair')} />
-        <Swatches
-          label="Cheveux"
-          colors={HAIR_COLORS}
-          value={look.hairColor}
-          onPick={set('hairColor')}
-        />
-        <Choices label="Barbe" options={BEARDS} value={look.beard} onPick={set('beard')} />
-        <Swatches label="Haut" colors={TOP_COLORS} value={look.top} onPick={set('top')} />
-        <Swatches label="Bas" colors={BOTTOM_COLORS} value={look.bottom} onPick={set('bottom')} />
         <Choices
-          label="Accessoire"
-          options={ACCESSORIES}
-          value={look.accessory}
-          onPick={set('accessory')}
+          label="Modèle"
+          options={['Classique personnalisable', 'Malino 3D']}
+          value={look.model ?? 1}
+          onPick={set('model')}
         />
+        {look.model !== 0 ? (
+          <>
+            <p>
+              Malino 3D : choisis un style, puis ses couleurs. Pour le moment, la coupe et la forme
+              des vêtements sont communes. Pour d’autres coiffures et accessoires, choisis «
+              Classique personnalisable ». Tes réglages sont conservés dans les deux modèles.
+            </p>
+            <div class="field">
+              <span class="field-label">Styles Malino 3D</span>
+              <div class="presets">
+                {VOXEL_PRESETS.map((p) => (
+                  <button
+                    type="button"
+                    key={p.name}
+                    class="preset"
+                    onClick={() => onLook({ ...look, ...p.colors, model: 1 })}
+                    title={p.name}
+                  >
+                    <AvatarPreview look={{ ...look, ...p.colors, model: 1 }} size={52} />
+                    <span>{p.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <Swatches
+              label="Peau 3D"
+              colors={VOXEL_PALETTES.voxelSkin}
+              value={look.voxelSkin ?? 0}
+              onPick={set('voxelSkin')}
+            />
+            <Swatches
+              label="Cheveux 3D"
+              colors={VOXEL_PALETTES.voxelHair}
+              value={look.voxelHair ?? 0}
+              onPick={set('voxelHair')}
+            />
+            <Swatches
+              label="Veste 3D"
+              colors={VOXEL_PALETTES.voxelTop}
+              value={look.voxelTop ?? 0}
+              onPick={set('voxelTop')}
+            />
+            <Swatches
+              label="Pantalon 3D"
+              colors={VOXEL_PALETTES.voxelBottom}
+              value={look.voxelBottom ?? 0}
+              onPick={set('voxelBottom')}
+            />
+          </>
+        ) : (
+          <>
+            <div class="field">
+              <span class="field-label">Styles prêts à porter</span>
+              <div class="presets">
+                {AVATAR_PRESETS.map((p) => (
+                  <button
+                    type="button"
+                    key={p.name}
+                    class="preset"
+                    onClick={() => onLook({ ...look, ...p.look, model: 0 })}
+                    title={p.name}
+                  >
+                    <AvatarPreview look={{ ...p.look, model: 0 }} size={52} />
+                    <span>{p.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <Choices
+              label="Silhouette"
+              options={BODY_SHAPES}
+              value={look.body}
+              onPick={set('body')}
+            />
+            <Swatches label="Peau" colors={SKIN_TONES} value={look.skin} onPick={set('skin')} />
+            <Choices
+              label="Coiffure"
+              options={HAIR_STYLES}
+              value={look.hair}
+              onPick={set('hair')}
+            />
+            <Swatches
+              label="Cheveux"
+              colors={HAIR_COLORS}
+              value={look.hairColor}
+              onPick={set('hairColor')}
+            />
+            <Choices label="Barbe" options={BEARDS} value={look.beard} onPick={set('beard')} />
+            <Swatches label="Haut" colors={TOP_COLORS} value={look.top} onPick={set('top')} />
+            <Swatches
+              label="Bas"
+              colors={BOTTOM_COLORS}
+              value={look.bottom}
+              onPick={set('bottom')}
+            />
+            <Choices
+              label="Accessoire"
+              options={ACCESSORIES}
+              value={look.accessory}
+              onPick={set('accessory')}
+            />
+          </>
+        )}
       </div>
     </div>
   );
