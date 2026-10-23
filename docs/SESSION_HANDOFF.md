@@ -5,8 +5,8 @@
 
 **Dernière mise à jour : 22/10/2026 — v0.3 terminée (logements, décoration, carnet, rôles, jour
 et nuit). Plan validé pour la suite : [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) (v0.35 panneau
-« Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). PR 1 et 2 fusionnées ; en
-cours : PR 3 (écran du hall et Joshua). Une PR à la fois, présentée au responsable avant la suivante.**
+« Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). PR 1 à 3 fusionnées ; en
+cours : PR 4 (moteur du Quiz IA, 30 questions à faire relire). Une PR à la fois, présentée au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -36,6 +36,15 @@ cours : PR 3 (écran du hall et Joshua). Une PR à la fois, présentée au respo
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **23/10 (soir)** — PR #46 (hall agrandi, écran « Que faire ? ») fusionnée et en ligne. Branche
+  `feature/quiz-ia` (PR 4, DEC-030) : `src/content/quiz.ts` (30 questions **à faire relire par
+  le responsable avant fusion**), `src/core/quiz.ts` (tirage, semaine ISO, défi),
+  `src/services/quizStats.ts` (scores dans le navigateur seulement), panneau `quiz`
+  (`src/ui/panels/Quiz.tsx`, clavier 1–4 et Entrée, `useLayoutEffect` comme Modal pour ne pas
+  perdre de touche sur une machine lente). Pas encore de borne : ouvrir avec `?debug` puis
+  `__malinosDebug.panel('quiz')`. Suite : PR 5 (borne `arcade-jeux-1`, 30 questions de plus,
+  suggestion du défi dans le panneau d’idées).
 
 - **23/10 (suite)** — PR #45 (panneau « Que faire ? ») fusionnée et en ligne. Branche
   `feature/ecran-que-faire` (PR 3) : objet `board_activities` (écran-borne dessiné, lumière
@@ -321,7 +330,7 @@ par le responsable, avec un 2ᵉ compte (David, Bloom…) :
 Selon [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) §5 et §10, une PR à la fois, chacune présentée au
 responsable avant la suivante :
 
-1. PR 3 — écran du hall et Joshua (en cours).
+1. PR 4 — moteur du Quiz IA (en cours, questions à relire), puis PR 5 — borne et 30 questions de plus.
 2. PR 4 et 5 — Quiz IA (questions à faire relire avant fusion), borne de la salle de jeux.
 3. PR 6 — mesures de fréquentation (dans les limites du journal existant).
 4. PR 7 à 11 — Musée des Malinos (migration après accord).
