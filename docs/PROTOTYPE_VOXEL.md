@@ -6,6 +6,19 @@
 
 ## Ouvrir la comparaison
 
+**Nouvelle étude après retour artistique :** ouvrir <http://127.0.0.1:5173/sakura.html>.
+La page montre uniquement le nouveau sakura : trois bouquets volumineux, une fourche visible
+et des fleurs composées de petits cubes. Le modèle est construit directement dans Blender,
+avec des proportions libres, pour juger sa silhouette avant adaptation au jeu. Il ne remplace
+pas encore le sakura de l'ancienne galerie. Reproduction :
+
+```powershell
+& 'D:\logiciels\blender.exe' --background --factory-startup --python-exit-code 1 --python scripts/sakura-study.py -- screenshots/sakura-study
+```
+
+Le dossier contient `sakura.blend` et son rendu `sakura.png`. La présentation utilise une copie
+du rendu dans `docs/images/sakura-study.png`, sans dépendance ni service externe.
+
 Depuis une copie du dépôt, avec Node.js 22 et Git :
 
 ```bash

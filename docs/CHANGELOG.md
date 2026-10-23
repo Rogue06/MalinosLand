@@ -7,6 +7,9 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ### Expérimental — atelier voxel (branche distincte, validation en attente)
 
+- Nouvelle étude du sakura dans Blender : trois bouquets étagés et fleurs en relief, sur une
+  page minimale `/sakura.html`, en attente de validation de la silhouette avant adaptation au jeu.
+
 - Galerie locale avant/après : avatar en veste, chêne et sakura, dessins procéduraux et rendus
   Blender, quatre orientations, quatre poses, résolutions ×1/×2/×4 et jardin de comparaison.
 - Source des modèles, génération Blender locale reproductible et test navigateur de la galerie.

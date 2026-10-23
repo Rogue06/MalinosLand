@@ -422,3 +422,8 @@ textures de comparaison. Le jeu normal ne passe aucun fournisseur alternatif.
 Éclairage figé, une tenue seulement, occultation du feuillage élargi et performances dans le vrai
 Hub restant à valider. **Ce choix ne vaut pas adoption du rendu Blender dans le jeu.** Le responsable
 doit choisir la direction artistique avant une intégration distincte. Voir [PROTOTYPE_VOXEL.md](PROTOTYPE_VOXEL.md).
+
+**Retour artistique du 23/10.** Le sakura reste trop différent de l'illustration. Une étude
+indépendante (`scripts/sakura-study.py`) utilise des branches inclinées et de vraies fleurs en
+relief, avec une présentation réduite à une image. Ses proportions sont à valider avant toute
+conversion en atlas Phaser ; l'ancien export TypeScript ne reproduit pas ce nouveau modèle.

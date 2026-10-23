@@ -16,6 +16,12 @@ cours : PR 3 (écran du hall et Joshua). Une PR à la fois, présentée au respo
 
 ### Expérience graphique isolée — 23/10/2026
 
+**Dernier retour : la silhouette des arbres est refusée, notamment le sakura.** Nouvelle étude
+artistique indépendante : `/sakura.html` affiche seulement un rendu Blender, avec trois bouquets
+étagés, une fourche et des fleurs en relief. Source : `scripts/sakura-study.py`. Le responsable
+demande une présentation minimale et des réponses courtes. Attendre son avis sur cette forme
+avant de refaire les atlas et l'intégration ; la galerie précédente reste inchangée.
+
 Branche `feature/prototype-voxel-avatar-arbres`, basée sur `main` à `23b8d84` (PR #46 incluse).
 Galerie locale `/voxel-preview.html` : avatar en veste, chêne et sakura, avant/après, quatre
 orientations, poses, résolutions et jardin comparatif. Après retour du responsable (sakura trop
