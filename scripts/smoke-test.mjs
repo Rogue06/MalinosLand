@@ -287,6 +287,23 @@ try {
     await page.screenshot({ path: `${outDir}/07-terrasse.png` });
   });
 
+  await step('panneau « Que faire maintenant ? » et « Y aller »', async () => {
+    await teleport(4.5, 15.5, 'nx');
+    await page.click('button[title="Que faire maintenant ?"]');
+    await waitUi('.modal', 'Que faire maintenant ?');
+    const count = await page.evaluate(() => document.querySelectorAll('.activity').length);
+    if (count < 3) fail(`au moins 3 idées attendues, ${count} affichées`);
+    await page.screenshot({ path: `${outDir}/07a-que-faire.png` });
+    // Seul objectif restant à ce stade : le miroir. « Y aller » y mène et ouvre l’éditeur.
+    await page
+      .locator('.activity', { hasText: 'Change de style au miroir' })
+      .getByRole('button')
+      .click();
+    await waitUi('.modal', 'Mon avatar');
+    await page.keyboard.press('Escape');
+    await waitGone('.modal');
+  });
+
   await step('jour et nuit (heure de Paris imposée)', async () => {
     const night = await page.evaluate(() => window.__malinosDebug.time(23));
     if (night?.phase !== 'nuit' || night.lights < 0.9)

@@ -52,7 +52,15 @@ export function Chat({ open, onToggle }: ChatProps) {
       input.current?.focus();
     };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    // Demandé par le panneau « Que faire ? » (objectif « Dis bonjour dans le chat »).
+    const off = commands.on('chat-focus', () => {
+      onToggle(true);
+      setTimeout(() => input.current?.focus(), 0);
+    });
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      off();
+    };
   }, [onToggle]);
 
   useEffect(() => {

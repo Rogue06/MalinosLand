@@ -62,6 +62,8 @@ export interface Stats {
 export const zoneStore = new Store<ZoneDef | null>(null);
 /** Ciel du moment (lot C) : phase de la journée et heure de Paris, pour la petite horloge. */
 export const skyStore = new Store<{ phase: SkyPhase; time: string } | null>(null);
+/** Autres Malinos présents dans le Hub, par zone (panneau « Que faire ? »). */
+export const crowdStore = new Store<Record<string, number>>({});
 export const hintStore = new Store<string | null>(null);
 export const panelStore = new Store<
   PanelId | 'settings' | 'help' | 'players' | 'moderation' | null
@@ -144,6 +146,10 @@ export interface Commands extends Record<string, unknown> {
   'role-changed': { target: string };
   /** Éditeur de décoration du logement (voir decorEditorStore). `type` : meuble choisi. */
   decor: { action: DecorAction; type?: string };
+  /** Panneau « Que faire ? » : l'avatar va jusqu'à cet objet du Hub et s'en sert. */
+  'go-to-object': { object: string };
+  /** Ouvrir le chat, curseur prêt à écrire. */
+  'chat-focus': Record<string, never>;
 }
 
 export const commands = new EventBus<Commands>();

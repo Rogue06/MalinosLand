@@ -558,6 +558,52 @@ button.presence-chip {
 .chat-fold {
   color: var(--muted);
 }
+/* Panneau « Que faire maintenant ? » (v0.35). */
+.activities {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.activity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--glass);
+}
+.activity-icon {
+  font-size: 24px;
+  line-height: 1;
+  flex: none;
+}
+.activity-text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.activity-text span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.activity .btn {
+  flex: none;
+}
+@media (max-width: 520px) {
+  .activity {
+    flex-wrap: wrap;
+  }
+  .activity-text {
+    flex-basis: calc(100% - 48px);
+  }
+  .activity .btn {
+    margin-left: 36px;
+  }
+}
 /* Statut doré (lot B2) : pseudo doré et brillant, dans le chat et la liste des présents. */
 .gold-name,
 .msg b.gold-name {
@@ -1320,6 +1366,10 @@ button.presence-chip {
   }
   .topbar-left .sky-chip {
     display: none;
+  }
+  .topbar-right .presence-chip {
+    white-space: nowrap;
+    padding: 6px 9px;
   }
   .topbar-left .zone-chip {
     min-width: 0;
