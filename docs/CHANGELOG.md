@@ -7,10 +7,10 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ### Ajouté (v0.35 : « Que faire maintenant ? »)
 
-- Un **écran « Que faire ? »** dessiné contre le mur du hall, près du tableau de la feuille de
-  route : il ouvre le même
+- **Hall d’entrée agrandi** de deux rangées vers le jardin : l’accès à la salle de conférence
+  est dégagé (comptoir d’accueil déplacé à droite, face à l’entrée), et l’entrée est encadrée
+  par le **panneau de bienvenue** et un nouvel **écran « Que faire ? »**, qui ouvre le même
   panneau d’idées. Joshua y renvoie à la fin de sa visite guidée et dans ses petites remarques.
-
 - Nouveau bouton **🧭 Que faire maintenant ?** en haut de l’écran : quelques idées du moment
   (prochain objectif, Malinos présents quelque part, secret à chercher avec sa devinette, studio
   ouvert à visiter, balade selon l’heure, son propre studio), chacune avec un bouton

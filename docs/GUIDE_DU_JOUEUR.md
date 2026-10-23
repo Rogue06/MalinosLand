@@ -153,7 +153,7 @@ un compte, tes découvertes te suivent sur tous tes appareils.
 
 ### Que faire maintenant ? 🧭
 
-Tu ne sais pas quoi faire ? L’**écran « Que faire ? »** contre le mur du hall, près du tableau de la feuille de route, ou le
+Tu ne sais pas quoi faire ? L’**écran « Que faire ? »**, à gauche de l’entrée du hall, ou le
 bouton **🧭** en haut de l’écran proposent quelques idées du moment :
 ton prochain objectif, des Malinos à rejoindre, un secret à chercher, un studio ouvert à visiter
 ou une balade selon l’heure. **« Y aller »** t’y emmène tout seul.

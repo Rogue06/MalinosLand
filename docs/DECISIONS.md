@@ -401,5 +401,5 @@ calculés par la scène une fois par seconde, seulement quand ils changent.
 **Conséquences.** Aucune requête à l’arrivée ; une seule lecture des studios ouverts
 (`visitable_homes`, déjà existante) à l’ouverture du panneau, gardée 5 minutes. Le quiz et le
 musée viendront s’y ajouter (PR 5 et 11). Le panneau s’ouvre aussi depuis un écran-borne
-dessiné contre le mur du hall, près du tableau de la feuille de route (`board_activities`, PR 3),
-hors du passage.
+dessiné à l’entrée du hall (`board_activities`, PR 3), hors du passage ; le hall a été agrandi
+de deux rangées vers le sud pour lui faire de la place et dégager l’accès à la conférence.

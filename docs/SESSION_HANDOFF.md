@@ -39,8 +39,11 @@ cours : PR 3 (écran du hall et Joshua). Une PR à la fois, présentée au respo
 
 - **23/10 (suite)** — PR #45 (panneau « Que faire ? ») fusionnée et en ligne. Branche
   `feature/ecran-que-faire` (PR 3) : objet `board_activities` (écran-borne dessiné, lumière
-  turquoise) placé contre le mur gauche du hall en (8, 12), tourné vers le hall, à côté du
-  tableau de la feuille de route (demande du responsable : ne pas gêner le passage); Joshua y renvoie (visite guidée, `followUpLines`,
+  turquoise) à gauche de l’entrée du hall, en (10, 19). **Hall agrandi** de deux rangées vers
+  le sud (demande du responsable) : intérieur x 8–16, y 10–20, mur bas en y 21, porte en x 12–13 ;
+  comptoir d’accueil déplacé en (14, 16), grande plante du haut retirée (accès à la conférence
+  dégagé), panneau de bienvenue en (15, 19), paillasson en (12, 20), totem en (18, 20),
+  réverbère en (6, 21), deux jardinières retirées, point d’arrivée en (12.9, 22.6); Joshua y renvoie (visite guidée, `followUpLines`,
   remarques). Étape du test de bout en bout. Suite : PR 4 (moteur du quiz, 30 questions à
   faire relire).
 
