@@ -427,3 +427,20 @@ doit choisir la direction artistique avant une intégration distincte. Voir [PRO
 indépendante (`scripts/sakura-study.py`) utilise des branches inclinées et de vraies fleurs en
 relief, avec une présentation réduite à une image. Ses proportions sont à valider avant toute
 conversion en atlas Phaser ; l'ancien export TypeScript ne reproduit pas ce nouveau modèle.
+
+## DEC-031 — Essai graphique dans le vrai Hub, uniquement local (23/10/2026)
+
+**Contexte.** Le responsable demande maintenant à marcher dans le jeu avec les modèles avant
+de décider d'une mise en ligne.
+
+**Décision.** `/jouer/?prototype=voxel`, uniquement en développement sur localhost, injecte un
+fournisseur de textures dans `WorldScene`. Trois arbres existants changent d'image, sans changer
+la carte ni les collisions. La nouvelle sculpture du sakura est convertie en quatre vues PNG,
+à projection 2:1 ; Phaser conserve son moteur 2D et ses règles de profondeur. Avatar fixe à 16 cadres.
+
+**Isolation.** Import dynamique sous `import.meta.env.DEV`, supprimé du build public ; services
+distants désactivés et transport solo. Stockage séparé (`malinosland:prototype:`) et profil
+d'essai créé en mémoire pour ouvrir directement le jardin. Aucun fichier Blender servi au jeu,
+aucune dépendance ajoutée. Trois atlas totalisent environ 1,38 Mo, réutilisés entre exemplaires.
+Le test navigateur couvre le Hub et le retour d'un studio ; validation artistique, autres
+meubles et performances sur appareils réels restent à confirmer. Aucune adoption en production.

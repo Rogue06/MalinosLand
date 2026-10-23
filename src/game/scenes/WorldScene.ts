@@ -79,7 +79,7 @@ import { AmbientLife } from '../life/AmbientLife';
 import { DayNight } from '../life/DayNight';
 import { DanceFloor } from '../life/DanceFloor';
 import { JoshuaLife } from '../life/JoshuaLife';
-import { TextureFactory } from '../textures';
+import { TextureFactory, type TextureArt } from '../textures';
 import { BACKREST_DEPTH, WorldRenderer } from '../WorldRenderer';
 
 /**
@@ -92,6 +92,8 @@ const decorCache = new Map<string, DecorItem[] | null>();
 const EXIT_SPAWN = { x: HOME_EXIT.x, y: HOME_EXIT.y, facing: HOME_EXIT.facing };
 
 export interface WorldSceneData {
+  /** Injection locale de l'atelier, absente du jeu publié. */
+  preview?: LocalArtPreview;
   selfId: string;
   /** Salle à charger : le Hub (par défaut) ou un logement (`home-…`). */
   room?: string;
@@ -103,6 +105,13 @@ export interface WorldSceneData {
   carry?: { net: NetworkClient | null; serverTransport: ServerTransport | null };
   /** Objet du Hub à rejoindre dès l'arrivée (panneau « Que faire ? » utilisé depuis un logement). */
   goTo?: string;
+}
+
+export interface LocalArtPreview {
+  spawn: { x: number; y: number; facing: Facing };
+  preload(scene: Phaser.Scene): void;
+  prepareWorld(world: WorldModel): void;
+  art(scene: Phaser.Scene): TextureArt;
 }
 
 interface RemoteAvatar {
@@ -131,6 +140,7 @@ const BASE_ZOOM = 1.35;
  * le rendu, les entrées, le réseau et l'interface (via les stores).
  */
 export class WorldScene extends Phaser.Scene {
+  private preview?: LocalArtPreview;
   private world!: WorldModel;
   private renderer3d!: WorldRenderer;
   private tex!: TextureFactory;
@@ -203,6 +213,9 @@ export class WorldScene extends Phaser.Scene {
   private loadingDecor = false;
 
   init(data: WorldSceneData): void {
+    // Conserver l'essai lorsque Phaser relance cette scène pour changer de salle.
+    this.preview = data.preview ?? this.preview;
+    if (data.preview) this.userZoom = 2.4;
     this.selfId = data.selfId;
     // Phaser réutilise la même scène à chaque relance : on repart d'un état propre.
     this.room = data.room ?? HUB_ROOM;
@@ -225,6 +238,10 @@ export class WorldScene extends Phaser.Scene {
     this.loadingDecor = false;
   }
 
+  preload(): void {
+    this.preview?.preload(this);
+  }
+
   create(): void {
     const settings = settingsStore.get();
     const profile = profileStore.get();
@@ -239,10 +256,11 @@ export class WorldScene extends Phaser.Scene {
       this.world = home.world;
       this.decorItems = home.items;
     } else this.world = loadWorld(mapIdForRoom(this.room) ?? 'hub');
+    this.preview?.prepareWorld(this.world);
     // Une seule fabrique pour toute la partie : les textures déjà dessinées (Hub, studio,
     // avatars) sont réutilisées d'une salle à l'autre.
     if (!this.tex || this.tex.texScale !== rp.textureScale)
-      this.tex = new TextureFactory(this, rp.textureScale);
+      this.tex = new TextureFactory(this, rp.textureScale, this.preview?.art(this));
     this.buildRoom();
 
     const account = accountStore.get();
@@ -994,7 +1012,7 @@ export class WorldScene extends Phaser.Scene {
       : null;
     const transport: Transport = this.serverTransport
       ? this.serverTransport
-      : multiTab && BroadcastChannelTransport.isSupported()
+      : !this.preview && multiTab && BroadcastChannelTransport.isSupported()
         ? new BroadcastChannelTransport()
         : new OfflineTransport();
     const net = new NetworkClient(

@@ -16,11 +16,20 @@ cours : PR 3 (écran du hall et Joshua). Une PR à la fois, présentée au respo
 
 ### Expérience graphique isolée — 23/10/2026
 
-**Dernier retour : la silhouette des arbres est refusée, notamment le sakura.** Nouvelle étude
-artistique indépendante : `/sakura.html` affiche seulement un rendu Blender, avec trois bouquets
-étagés, une fourche et des fleurs en relief. Source : `scripts/sakura-study.py`. Le responsable
-demande une présentation minimale et des réponses courtes. Attendre son avis sur cette forme
-avant de refaire les atlas et l'intégration ; la galerie précédente reste inchangée.
+**Dernière demande traitée : essayer le rendu directement dans le jeu local.**
+Ouvrir `/jouer/?prototype=voxel` avec `npm run dev`. Arrivée dans le jardin du vrai Hub : avatar
+Blender jouable, un chêne (16,28), deux nouveaux sakuras (16,31 et 19,31). Le sakura vient de
+`scripts/sakura-study.py`, converti en quatre vues transparentes par `scripts/render-sakura-game.py`
+avec Blender 5.2.3 et son MCP local. L'ancien sakura de la galerie avait été refusé.
+Accès direct sans inscription, réseau désactivé, stockage préfixé `malinosland:prototype:` ;
+profil habituel et carte JSON préservés. Import DEV uniquement : aucune image ajoutée au build public.
+`npm run test:prototype-game` vérifie marche, collisions, profondeur, siège, changement de salle,
+16 cadres, 4 orientations, profil intact, absence de requêtes externes et exclusion du build.
+**Retour utilisateur : direction jugée nettement meilleure que les graphismes actuels.**
+Prévoir progressivement plusieurs coiffures, visages, vêtements et accessoires ; aucune nouvelle
+série demandée maintenant. Préserver le forfait ChatGPT hebdomadaire : petits lots ciblés,
+présentation minimale et réponses courtes. Performances sur appareils réels et adoption publique
+restent à valider. Pas de publication ni de fusion autorisée.
 
 Branche `feature/prototype-voxel-avatar-arbres`, basée sur `main` à `23b8d84` (PR #46 incluse).
 Galerie locale `/voxel-preview.html` : avatar en veste, chêne et sakura, avant/après, quatre

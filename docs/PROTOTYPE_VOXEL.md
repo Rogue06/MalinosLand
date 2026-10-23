@@ -6,10 +6,44 @@
 
 ## Ouvrir la comparaison
 
+### Essai directement dans le jeu
+
+Après `npm ci` puis `npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`, ouvrir
+<http://127.0.0.1:5173/jouer/?prototype=voxel>.
+L'avatar arrive dans le jardin du **vrai Hub**, près d'un chêne amélioré et de deux nouveaux
+sakuras. Cliquer au sol ou utiliser ZQSD / les flèches pour marcher ; la molette règle le zoom.
+Les autres arbres servent de comparaison. Le lien en bas revient au jeu habituel.
+
+Aucun compte nécessaire. L'essai reste solo même si un serveur est configuré. Ses réglages et
+sa progression utilisent un stockage séparé, sans modifier le profil habituel. La tenue du
+personnage est fixe : l'éditeur d'avatar ne personnalise pas cette image expérimentale.
+Il s'agit d'images PNG rendues une fois dans Blender, **pas de fichiers 3D téléchargés en jeu** :
+avatar 765 345 octets, chêne 307 495 octets et nouveau sakura 307 384 octets, soit environ
+**1,38 Mo** pour les trois atlas, réutilisés pour chaque exemplaire. Le build public ne les inclut pas.
+
+Reproduire le nouvel atlas après avoir généré `screenshots/sakura-study/sakura.blend` :
+
+```powershell
+& 'C:\Program Files\Blender Foundation\Blender 5.2\blender.exe' --background screenshots/sakura-study/sakura.blend --python-exit-code 1 --python scripts/render-sakura-game.py
+npm run prototype:pack
+```
+
+Le pack assemble également les anciens rendus (générés avec la procédure ci-dessous).
+Le script de conversion fonctionne aussi via le MCP Blender, après ouverture de `sakura.blend`.
+Il retire le socle de présentation, adapte la projection à Phaser et ne réenregistre pas le modèle.
+
+Vérification : `npm run check` (215 tests) et `npm run test:prototype-game`.
+Le second test couvre les trois arbres, les 16 cadres du personnage, les quatre orientations
+des arbres sans débordement, la marche, les collisions, l'occultation devant/derrière un sakura,
+un banc, le retour d'un logement, la conservation du profil et l'absence des images dans `dist`.
+La fluidité sur un téléphone réel et tous les meubles restent à valider.
+
+### Étude isolée et ancienne galerie
+
 **Nouvelle étude après retour artistique :** ouvrir <http://127.0.0.1:5173/sakura.html>.
 La page montre uniquement le nouveau sakura : trois bouquets volumineux, une fourche visible
 et des fleurs composées de petits cubes. Le modèle est construit directement dans Blender,
-avec des proportions libres, pour juger sa silhouette avant adaptation au jeu. Il ne remplace
+avec des proportions libres, désormais adaptées à l'essai local du Hub. Il ne remplace
 pas encore le sakura de l'ancienne galerie. Reproduction :
 
 ```powershell
@@ -183,8 +217,8 @@ l'atelier dans `dist/`. Les 24 rendus Blender ont été générés localement av
   précalculées, comme le principe actuel. La pose assise n'a pas été validée dans tous les meubles.
 - Le soleil, la caméra et les ombres de Blender sont figés dans les images. Le feuillage et les
   pétales ne sont pas animés. Aucun test du rendu sur un vrai téléphone ou sur un ordinateur ancien.
-- Le feuillage élargi nécessite une vérification des arbres voisins et de l'occultation dans
-  le vrai Hub avant adoption. La petite scène ne remplace pas ce contrôle.
+- L'occultation devant/derrière et les trois placements sont vérifiés dans le vrai Hub pour
+  l'essai local ; un remplacement généralisé des arbres reste à évaluer avant adoption.
 - Avant toute intégration : choisir le rendu et ses compromis (poids d'images, génération,
   personnalisation), puis valider la taille, le style et les performances dans le monde complet.
 - Branche `feature/prototype-voxel-avatar-arbres`, fondée sur `main` à `23b8d84` (PR #46 incluse).

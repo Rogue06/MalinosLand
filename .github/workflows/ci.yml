@@ -61,6 +61,7 @@ jobs:
         run: npx vite --host 127.0.0.1 --port 5173 --strictPort &
       - run: npx wait-on@8 http://127.0.0.1:5173/voxel-preview.html --timeout 30000
       - run: npm run test:voxel -- http://127.0.0.1:5173 screenshots/voxel
+      - run: npm run test:prototype-game -- http://127.0.0.1:5173
       - uses: actions/upload-artifact@v5
         if: always()
         with:

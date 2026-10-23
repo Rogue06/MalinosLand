@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { LOCAL_ART_PREVIEW } from '../config';
 import { renderProfile, settingsStore } from '../services/settings';
 import { WorldScene } from './scenes/WorldScene';
 
@@ -7,7 +8,12 @@ import { WorldScene } from './scenes/WorldScene';
  * (× pixelRatio) puis réduit en CSS : rendu net sur écrans haute densité,
  * sans coût supplémentaire en qualité « basse ».
  */
-export function createGame(parent: HTMLElement, selfId: string): Phaser.Game {
+export async function createGame(parent: HTMLElement, selfId: string): Promise<Phaser.Game> {
+  // L'import et ses images sont supprimés du build public par Vite.
+  const preview =
+    import.meta.env.DEV && LOCAL_ART_PREVIEW
+      ? (await import('../dev/inGamePrototype')).inGamePrototype
+      : undefined;
   const settings = settingsStore.get();
   const { pixelRatio } = renderProfile(settings.quality);
   const size = () => ({
@@ -34,7 +40,7 @@ export function createGame(parent: HTMLElement, selfId: string): Phaser.Game {
     banner: false,
     audio: { noAudio: true },
   });
-  game.scene.add('world', WorldScene, true, { selfId });
+  game.scene.add('world', WorldScene, true, { selfId, preview, spawn: preview?.spawn });
 
   const onResize = () => {
     const s = size();

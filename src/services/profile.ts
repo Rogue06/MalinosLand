@@ -1,4 +1,5 @@
 import { sanitizeAppearance, type AvatarAppearance } from '../content/avatars';
+import { LOCAL_ART_PREVIEW } from '../config';
 import { Store } from '../core/store';
 import { sanitizeName } from '../core/text';
 import { storage, type VersionedStorage } from './storage';
@@ -28,7 +29,10 @@ export function saveProfile(p: Profile, s: VersionedStorage = storage): void {
 }
 
 /** Profil courant (null tant que le joueur n'a pas créé son personnage). */
-export const profileStore = new Store<Profile | null>(loadProfile());
+export const profileStore = new Store<Profile | null>(
+  loadProfile() ??
+    (LOCAL_ART_PREVIEW ? { name: 'Aperçu local', look: sanitizeAppearance({}) } : null),
+);
 
 profileStore.subscribe((p) => {
   if (p) saveProfile(p);
