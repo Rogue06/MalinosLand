@@ -252,7 +252,7 @@ try {
   });
 
   await step('panneau de bienvenue', async () => {
-    await teleport(14.5, 17.5, 'px');
+    await teleport(14.5, 19.5, 'px');
     await dbg(() => window.__malinosDebug.use('welcome-board'));
     await waitUi('.modal', 'Bienvenue à MalinosLand');
     await page.keyboard.press('Escape');
@@ -300,6 +300,15 @@ try {
       .getByRole('button')
       .click();
     await waitUi('.modal', 'Mon avatar');
+    await page.keyboard.press('Escape');
+    await waitGone('.modal');
+  });
+
+  await step('écran « Que faire ? » à l’entrée du hall', async () => {
+    await teleport(9.5, 19.5, 'px');
+    await dbg(() => window.__malinosDebug.use('ecran-que-faire'));
+    await waitUi('.modal', 'Que faire maintenant ?');
+    await page.screenshot({ path: `${outDir}/07c-ecran-hall.png` });
     await page.keyboard.press('Escape');
     await waitGone('.modal');
   });

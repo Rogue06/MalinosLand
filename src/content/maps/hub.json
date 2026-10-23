@@ -6,7 +6,7 @@
   "height": 38,
   "spawn": {
     "x": 12.9,
-    "y": 21.5,
+    "y": 22.6,
     "facing": "ny"
   },
   "legend": {
@@ -70,9 +70,9 @@
     "#llllll=hhhhhhhhh=aaaaaaa=gggppgggggppgggppggggg",
     "#llllll=hhhhhhhhh=aaaaaaa=gggppggggppggggppggggg",
     "#llllll=hhhhhhhhh=aaaaaaa=gggppggggppggggppggggg",
-    "============hh============gggppgggppggggggppgggg",
-    "ggggggggggggppgggggggggggggggppgggppggggggppgggg",
-    "ggggggggggggppgggggggggggggggppggppggggggggppggg",
+    "========hhhhhhhhh=========gggppgggppggggggppgggg",
+    "ggggggg=hhhhhhhhh=gggggggggggppgggppggggggppgggg",
+    "ggggggg=====hh====gggggggggggppggppggggggggppggg",
     "ggpppppppppppppppppppppppppppppppppggggggggppggg",
     "ggggggggggggppgggppppggggggggggggggggggggggppggg",
     "ggggggggggggppgggppppggggggggggggggggggggggppggg",
@@ -134,7 +134,7 @@
         "x": 7,
         "y": 9,
         "w": 10,
-        "h": 11
+        "h": 13
       },
       "status": "open",
       "description": "Le point de rencontre de tous les Malinos."
@@ -247,8 +247,8 @@
     },
     {
       "type": "reception_desk",
-      "x": 13,
-      "y": 11,
+      "x": 14,
+      "y": 16,
       "rot": 0
     },
     {
@@ -267,16 +267,23 @@
           "Pour te déplacer : touche ou clique sur le sol. Au clavier : ZQSD, WASD ou les flèches. Révolutionnaire, n’est-ce pas ?",
           "Pour utiliser un objet, touche-le ou clique dessus. Tout près, le bouton en bas de l’écran (ou la touche E) marche aussi.",
           "Le coworking est au fond à gauche, la salle de conférence au fond à droite, le salon à gauche. Le café y est virtuel, mais l’ambiance est réelle.",
-          "Tes objectifs « Premiers pas » sont en haut à droite, avec mon carnet : j’y ai caché des devinettes. Bonne visite. Let’s rock !"
+          "Tes objectifs « Premiers pas » sont en haut à droite, avec mon carnet : j’y ai caché des devinettes.",
+          "Et le jour où tu ne sauras plus quoi faire : mon écran « Que faire ? », à l’entrée du hall (ou le bouton 🧭), te donne des idées. Bonne visite. Let’s rock !"
         ]
       },
       "label": "Joshua",
       "variant": 1
     },
     {
+      "type": "board_activities",
+      "x": 10,
+      "y": 19,
+      "id": "ecran-que-faire"
+    },
+    {
       "type": "board_welcome",
       "x": 15,
-      "y": 17,
+      "y": 19,
       "id": "welcome-board"
     },
     {
@@ -310,24 +317,19 @@
       "y": 10
     },
     {
-      "type": "plant_big",
-      "x": 16,
-      "y": 10
-    },
-    {
       "type": "plant",
       "x": 8,
-      "y": 18
+      "y": 20
     },
     {
       "type": "plant",
       "x": 16,
-      "y": 18
+      "y": 20
     },
     {
       "type": "lamp_floor",
       "x": 16,
-      "y": 15
+      "y": 18
     },
     {
       "type": "sign_soon",
@@ -348,7 +350,7 @@
     {
       "type": "doormat",
       "x": 12,
-      "y": 18
+      "y": 20
     },
     {
       "type": "desk_pc",
@@ -764,13 +766,13 @@
     },
     {
       "type": "sign_hub",
-      "x": 14,
+      "x": 18,
       "y": 20,
       "id": "hub-sign"
     },
     {
       "type": "lamp_post",
-      "x": 11,
+      "x": 6,
       "y": 21
     },
     {
@@ -801,16 +803,6 @@
     {
       "type": "flowerbed",
       "x": 5,
-      "y": 20
-    },
-    {
-      "type": "flowerbed",
-      "x": 8,
-      "y": 20
-    },
-    {
-      "type": "flowerbed",
-      "x": 16,
       "y": 20
     },
     {

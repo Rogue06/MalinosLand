@@ -101,7 +101,7 @@ const closeHud = (page) => page.evaluate(() => document.querySelector('.objectiv
 // 3. Arrivée devant le Hub, objectifs visibles
 {
   const page = await openGame(['chat']);
-  await teleport(page, 12.9, 21.5, 'ny');
+  await teleport(page, 12.9, 22.6, 'ny');
   await shot(page, 'hub-arrivee');
 
   // 4. Dialogue avec Joshua
