@@ -10,6 +10,7 @@ import {
 import { fitTitle, wrapTitle } from '../src/game/art/posters';
 import {
   MUSEUM_WALL_TTL_MS,
+  demoViewerUrl,
   PROJECT_REPORT_REASONS,
   explainProjectError,
   loadMuseumWall,
@@ -22,6 +23,7 @@ import {
 import migration from '../supabase/migrations/20261027090000_museum.sql?raw';
 import museumPanelSource from '../src/ui/panels/Museum.tsx?raw';
 import museumVisitSource from '../src/ui/panels/MuseumVisit.tsx?raw';
+import museumDemoSource from '../src/ui/panels/MuseumDemo.tsx?raw';
 import hub from '../src/content/maps/hub.json';
 import type { MapFile } from '../src/world/types';
 import { URL_CASES } from './fixtures/projectUrls';
@@ -255,6 +257,34 @@ describe('Musée : la salle (v0.4, PR 9)', () => {
 
   it('fiche et liste : aucun lien direct, tout passe par ExternalLink', () => {
     expect(museumVisitSource).not.toMatch(/<a /);
-    expect(museumVisitSource).toMatch(/<ExternalLink url=\{project\.url\}/);
+    expect(museumVisitSource).toMatch(/<ExternalLink\s+url=\{project\.url\}/);
+  });
+});
+
+describe('Musée : « Essayer ici » (PR 10)', () => {
+  it('cadre au plus strict, aux deux niveaux (jeu et visionneuse)', () => {
+    expect(museumDemoSource).toContain('sandbox="allow-scripts allow-same-origin allow-forms"');
+    expect(museumDemoSource).toContain('allow=""');
+    expect(museumDemoSource).toContain('referrerpolicy="no-referrer"');
+    expect(museumDemoSource).toContain('credentialless');
+    expect(museumDemoSource).not.toMatch(
+      /allow-top-navigation|allow-popups|allow-modals|allow-downloads/,
+    );
+    // Origine affichée en clair et lien de repli toujours visible.
+    expect(museumDemoSource).toMatch(/Tu es sur/);
+    expect(museumDemoSource).toMatch(/Ouvrir dans un onglet/);
+  });
+
+  it('la démo ne se charge qu’après un clic', () => {
+    // Le cadre n'existe que dans DemoFrame, affiché seulement quand `trying` est vrai.
+    expect(museumVisitSource).not.toMatch(/<iframe/);
+    expect(museumPanelSource).not.toMatch(/<iframe/);
+    expect(museumVisitSource).toMatch(/if \(trying && viewer\)/);
+    expect(museumVisitSource).toMatch(/onClick=\{\(\) => setTrying\(true\)\}/);
+    expect(museumPanelSource).toMatch(/\{trying && embed === 'unknown' && \(\s*<DemoFrame/);
+  });
+
+  it('sans serveur temps réel : pas de visionneuse (seulement « Ouvrir le site »)', () => {
+    expect(demoViewerUrl(12)).toBeNull();
   });
 });

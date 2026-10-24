@@ -803,3 +803,61 @@ describe('base de données : Musée des Malinos (v0.4)', () => {
     ).toHaveLength(0);
   });
 });
+
+describe('base de données : « Essayer ici » du musée (PR 10)', () => {
+  const MEMBRE = '00000000-0000-4000-8000-0000000000b7';
+  const MODO2 = '00000000-0000-4000-8000-0000000000b8';
+  const quota = async (who: string) =>
+    (await as<{ ok: boolean }>(who, 'select public.embed_check_quota() as ok')).rows[0]!.ok;
+  const demo = async (id: number, trial = false) =>
+    (
+      await as<{ url: string | null }>(null, 'select public.museum_demo($1, $2) as url', [
+        id,
+        trial,
+      ])
+    ).rows[0]!.url;
+  const project = async (status: string, embed: string) => {
+    const { rows } = await as<{ id: number }>(
+      MEMBRE,
+      `insert into public.projects (title, summary, url, category)
+       values ('Démo', 'Un projet pour essayer.', 'https://demo-${status}-${embed}.fr', 'jeu') returning id`,
+    );
+    const id = rows[0]!.id;
+    if (status !== 'pending')
+      await as(MODO2, `select public.moderate_project($1, $2)`, [id, status]);
+    if (embed !== 'unknown')
+      await as(MODO2, `select public.set_project_embed($1, $2)`, [id, embed]);
+    return id;
+  };
+
+  beforeAll(async () => {
+    await db.exec(
+      `insert into auth.users (id) values ('${MEMBRE}'), ('${MODO2}') on conflict do nothing`,
+    );
+    await db.exec(`insert into public.moderators (user_id) values ('${MODO2}')`);
+  });
+
+  it('vérification technique : modérateurs seulement, 20 par heure', async () => {
+    await expect(as(null, 'select public.embed_check_quota()')).rejects.toThrow();
+    expect(await quota(MEMBRE)).toBe(false);
+    for (let i = 0; i < 20; i++) expect(await quota(MODO2)).toBe(true);
+    expect(await quota(MODO2)).toBe(false);
+    // Personne ne lit ni ne modifie le compteur directement.
+    await expect(as(MODO2, 'select * from public.embed_checks')).rejects.toThrow();
+    await expect(as(MODO2, 'delete from public.embed_checks')).rejects.toThrow();
+  });
+
+  it('visionneuse : seulement un projet exposé et intégrable (essai : pas encore refusé)', async () => {
+    const ok = await project('approved', 'ok');
+    const todo = await project('approved', 'unknown');
+    const refused = await project('approved', 'refused');
+    const pending = await project('pending', 'unknown');
+    expect(await demo(ok)).toBe('https://demo-approved-ok.fr');
+    expect(await demo(todo)).toBeNull();
+    expect(await demo(todo, true)).toBe('https://demo-approved-unknown.fr');
+    expect(await demo(refused, true)).toBeNull();
+    expect(await demo(pending, true)).toBeNull();
+    await as(MODO2, `select public.moderate_project($1, 'withdrawn')`, [ok]);
+    expect(await demo(ok)).toBeNull();
+  });
+});

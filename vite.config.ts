@@ -10,6 +10,8 @@ import { loadEnv, type Plugin } from 'vite';
  * Si VITE_REALTIME_URL (WebSocket du serveur) ou VITE_SUPABASE_URL (comptes) sont définis, leur
  * origine est ajoutée à `connect-src`, et seulement elle. Avec VITE_TURNSTILE_SITEKEY, le script
  * et le cadre de Cloudflare Turnstile (anti-robots de la boîte à idées) sont autorisés.
+ * Cadres : seulement Turnstile et la visionneuse des démos du musée (`/demo/:id`, servie par le
+ * serveur temps réel) ; jamais `https:` en entier (DEC-038).
  */
 export const TURNSTILE_ORIGIN = 'https://challenges.cloudflare.com';
 
@@ -21,10 +23,17 @@ export function buildCsp(realtimeUrl?: string, supabaseUrl?: string, turnstile =
     connect.push(origin, origin.replace(/^ws/, 'http'));
   }
   if (supabaseUrl && /^https:\/\//.test(supabaseUrl)) connect.push(new URL(supabaseUrl).origin);
+  const frames = [
+    ...(turnstile ? [TURNSTILE_ORIGIN] : []),
+    // Visionneuse des démos du musée : même hôte que le serveur temps réel.
+    ...(realtimeUrl && /^wss?:\/\//.test(realtimeUrl)
+      ? [new URL(realtimeUrl).origin.replace(/^ws/, 'http')]
+      : []),
+  ];
   return [
     "default-src 'self'",
     turnstile ? `script-src 'self' ${TURNSTILE_ORIGIN}` : "script-src 'self'",
-    ...(turnstile ? [`frame-src ${TURNSTILE_ORIGIN}`] : []),
+    ...(frames.length > 0 ? [`frame-src ${frames.join(' ')}`] : []),
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     `connect-src ${connect.join(' ')}`,

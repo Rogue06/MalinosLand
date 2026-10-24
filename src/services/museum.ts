@@ -16,8 +16,8 @@ import {
 } from '../core/museum';
 import { Store } from '../core/store';
 import { sanitizeName, sanitizeText } from '../core/text';
-import { SUPABASE_KEY, SUPABASE_URL } from '../config';
-import { AccountError, accountStore, load } from './account';
+import { REALTIME_HTTP, SUPABASE_KEY, SUPABASE_URL } from '../config';
+import { AccountError, accessToken, accountStore, load } from './account';
 
 export type ProjectStatus = 'pending' | 'approved' | 'rejected' | 'withdrawn';
 
@@ -355,5 +355,52 @@ export async function setProjectReportStatus(
 ): Promise<void> {
   const { db } = await load();
   const { error } = await db.from('project_reports').update({ status }).eq('id', id);
+  if (error) throw fail();
+}
+
+/**
+ * « Essayer ici » (PR 10) : adresse de la visionneuse isolée servie par le serveur temps réel,
+ * ou null sans serveur (on garde alors seulement « Ouvrir le site »). `trial` : essai d'un
+ * modérateur avant de marquer la démo intégrable.
+ */
+export function demoViewerUrl(id: number, trial = false): string | null {
+  if (!REALTIME_HTTP || !Number.isSafeInteger(id) || id <= 0) return null;
+  return `${REALTIME_HTTP}/demo/${id}${trial ? '?essai' : ''}`;
+}
+
+export type EmbedVerdict = 'accepte' | 'refuse' | 'injoignable';
+
+/** Modérateurs : vérification technique (en-têtes du site), faite par le serveur. */
+export async function checkProjectEmbed(
+  id: number,
+): Promise<{ verdict: EmbedVerdict; reason: string }> {
+  if (!REALTIME_HTTP) throw new AccountError('Vérification possible seulement en ligne.');
+  const token = await accessToken();
+  if (!token) throw new AccountError('Connecte-toi d’abord.');
+  let res: Response;
+  try {
+    res = await fetch(`${REALTIME_HTTP}/embed-check`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+  } catch {
+    throw new AccountError('Le serveur ne répond pas. Réessaie dans un instant.');
+  }
+  const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+  if (!res.ok) throw new AccountError(sanitizeText(body.error, 120) || 'Vérification impossible.');
+  const verdict = ['accepte', 'refuse', 'injoignable'].includes(body.verdict as string)
+    ? (body.verdict as EmbedVerdict)
+    : 'injoignable';
+  return { verdict, reason: sanitizeText(body.reason, 200) };
+}
+
+/** Modérateurs : démo intégrable, refusée, ou à revérifier (la base vérifie le rôle). */
+export async function setProjectEmbed(
+  id: number,
+  embed: 'unknown' | 'ok' | 'refused',
+): Promise<void> {
+  const { db } = await load();
+  const { error } = await db.rpc('set_project_embed', { p_id: id, p_embed: embed });
   if (error) throw fail();
 }

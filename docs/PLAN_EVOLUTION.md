@@ -491,6 +491,9 @@ démo, une CSP minimale, le clic volontaire, la validation humaine et la possibi
 6. **Tests** : règles d’adresses (y compris IP déguisées et redirections), lecture des en-têtes
    (`DENY`, `SAMEORIGIN`, `frame-ancestors` divers), refus d’un non-modérateur, CSP de la
    visionneuse limitée à l’origine du projet, cadre jamais chargé sans clic.
+7. _Réalisé (DEC-038)_ : vérification à partir du **numéro du projet** (l’adresse vient de la
+   base, pas du modérateur), plafond compté par la base, redirection vers une autre origine
+   refusée, visionneuse affichable seulement dans un cadre (`Sec-Fetch-Dest`).
 
 ### PR 11 — Chantier et nouveautés (S)
 

@@ -20,7 +20,10 @@ import {
   PROJECT_REPORT_REASONS,
   listApproved,
   listPending,
+  checkProjectEmbed,
+  demoViewerUrl,
   listProjectReports,
+  setProjectEmbed,
   moderateProject,
   setProjectReportStatus,
   myProjects,
@@ -29,6 +32,7 @@ import {
   type ModeratedProject,
   type ProjectReport,
   type ProjectStatus,
+  type EmbedVerdict,
   type MuseumProject,
   type MyProject,
 } from '../../services/museum';
@@ -36,6 +40,7 @@ import { profileStore } from '../../services/profile';
 import { panelStore, pushToast } from '../../state';
 import { useStore } from '../hooks';
 import { Modal } from './Modal';
+import { DemoFrame } from './MuseumDemo';
 
 /** Affiche du projet, redessinée quand ses données changent. */
 export function PosterCanvas({ data, width }: { data: PosterData; width: number }) {
@@ -588,6 +593,7 @@ export function MuseumModeration() {
               <p class="small">
                 <ExternalLink url={p.url} />
               </p>
+              {'embed' in p && <EmbedReview project={p} />}
               <Decision project={p} mode={list} onDone={() => remove(p.id)} />
             </div>
           </li>
@@ -699,5 +705,119 @@ function ProjectReportsList() {
         ))}
       </ul>
     </>
+  );
+}
+
+const EMBED_LABEL: Record<MuseumProject['embed'], string> = {
+  unknown: 'Démo : à vérifier',
+  ok: 'Démo intégrable',
+  refused: 'Démo refusée',
+};
+
+/**
+ * « Essayer ici » : validation en deux temps (DEC-038). 1. vérification technique par le
+ * serveur (en-têtes du site) ; 2. essai réel dans la visionneuse. Le bouton « Intégrable »
+ * n'apparaît qu'après les deux. La base vérifie le rôle de modérateur.
+ */
+function EmbedReview({ project }: { project: MuseumProject }) {
+  const [embed, setEmbed] = useState(project.embed);
+  const [check, setCheck] = useState<{ verdict: EmbedVerdict; reason: string } | null>(null);
+  const [tried, setTried] = useState(false);
+  const [trying, setTrying] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const trial = demoViewerUrl(project.id, true);
+  if (!trial) return null; // version sans serveur : pas de démo intégrée
+
+  const run = async (fn: () => Promise<void>) => {
+    setBusy(true);
+    setError(null);
+    try {
+      await fn();
+    } catch (e) {
+      setError(e instanceof AccountError ? e.message : 'Action impossible.');
+    }
+    setBusy(false);
+  };
+  const decide = (value: MuseumProject['embed']) =>
+    run(async () => {
+      await setProjectEmbed(project.id, value);
+      setEmbed(value);
+      setCheck(null);
+      setTried(false);
+      setTrying(false);
+      pushToast(`« ${project.title} » : ${EMBED_LABEL[value].toLowerCase()}.`, '🛡️', 4000);
+    });
+
+  return (
+    <div class="embed-review">
+      <p class="small">
+        <span class={`badge embed-${embed}`}>{EMBED_LABEL[embed]}</span>
+        {check && (
+          <span class={`small embed-verdict ${check.verdict}`}>
+            {' '}
+            {check.verdict === 'accepte' ? '✓ en-têtes compatibles' : `✗ ${check.verdict}`} :{' '}
+            {check.reason}
+          </span>
+        )}
+      </p>
+      {embed === 'unknown' && (
+        <div class="row start wrap">
+          <button
+            type="button"
+            class="btn ghost small"
+            disabled={busy}
+            onClick={() => void run(async () => setCheck(await checkProjectEmbed(project.id)))}
+          >
+            1. Vérifier les en-têtes
+          </button>
+          <button
+            type="button"
+            class="btn ghost small"
+            disabled={check?.verdict !== 'accepte'}
+            onClick={() => {
+              setTrying(true);
+              setTried(true);
+            }}
+          >
+            2. Essayer la démo
+          </button>
+          {check?.verdict === 'accepte' && tried && (
+            <button
+              type="button"
+              class="btn primary small"
+              disabled={busy}
+              onClick={() => void decide('ok')}
+            >
+              ✓ Ça marche : intégrable
+            </button>
+          )}
+          {check && (
+            <button
+              type="button"
+              class="btn ghost small"
+              disabled={busy}
+              onClick={() => void decide('refused')}
+            >
+              Ne pas intégrer
+            </button>
+          )}
+        </div>
+      )}
+      {embed !== 'unknown' && (
+        <button
+          type="button"
+          class="btn ghost small"
+          disabled={busy}
+          onClick={() => void decide('unknown')}
+        >
+          {embed === 'ok' ? 'Retirer l’intégration (à revérifier)' : 'Revérifier la démo'}
+        </button>
+      )}
+      {trying && embed === 'unknown' && (
+        <DemoFrame viewer={trial} url={project.url} onClose={() => setTrying(false)} />
+      )}
+      {error && <p class="error">{error}</p>}
+    </div>
   );
 }

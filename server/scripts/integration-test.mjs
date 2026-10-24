@@ -20,7 +20,29 @@ const DB_PORT = 8790;
 const VALID_TOKEN = 'aaaa.bbbb.cccc';
 const ACCOUNT = { id: '0b1c2d3e-0000-4000-8000-000000000001', name: 'Élodie' };
 const ACCOUNT_PLAYER = ACCOUNT.id.replaceAll('-', '');
-const fakeDb = createServer((req, res) => {
+// Musée (« Essayer ici ») : seul MOD_TOKEN est modérateur ; le projet 5 est intégrable.
+const MOD_TOKEN = 'mmmm.oooo.dddd';
+const readBody = (req) =>
+  new Promise((resolve) => {
+    let b = '';
+    req.on('data', (c) => (b += c));
+    req.on('end', () => resolve(b));
+  });
+const fakeDb = createServer(async (req, res) => {
+  if (req.method === 'POST' && req.url === '/rest/v1/rpc/museum_demo') {
+    const { p_id } = JSON.parse((await readBody(req)) || '{}');
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify(p_id === 5 ? 'https://projet-demo.fr/app' : null));
+  }
+  if (req.method === 'POST' && req.url === '/rest/v1/rpc/embed_check_quota') {
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify(req.headers.authorization === `Bearer ${MOD_TOKEN}`));
+  }
+  if (req.method === 'GET' && req.url?.startsWith('/rest/v1/projects?id=eq.9')) {
+    // Adresse locale : refusée par le serveur sans jamais être contactée.
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify([{ url: 'https://imprimante.local/' }]));
+  }
   // Logements : seul le compte de test (son propre jeton) peut entrer ; un visiteur, non.
   if (req.method === 'POST' && req.url === '/rest/v1/rpc/can_enter_home') {
     res.setHeader('Content-Type', 'application/json');
@@ -127,6 +149,43 @@ try {
   check(
     noToken.status === 403,
     'l’historique des connexions est refusé sans le jeton du responsable',
+  );
+
+  // Visionneuse des démos du musée : seulement dans un cadre, CSP limitée au projet.
+  const demoOutside = await fetch(`${BASE}/demo/5`);
+  check(demoOutside.status === 403, 'démo : la visionneuse refuse d’être ouverte hors d’un cadre');
+  const demo = await fetch(`${BASE}/demo/5`, { headers: { 'Sec-Fetch-Dest': 'iframe' } });
+  const csp = demo.headers.get('content-security-policy') ?? '';
+  const html = await demo.text();
+  check(
+    demo.status === 200 &&
+      csp.includes("default-src 'none'") &&
+      csp.includes('frame-src https://projet-demo.fr;') &&
+      csp.includes(`frame-ancestors ${ORIGIN};`) &&
+      html.includes('sandbox="allow-scripts allow-same-origin allow-forms"') &&
+      !html.includes('<script'),
+    'démo : visionneuse isolée, CSP limitée à l’origine du projet et au jeu',
+  );
+  const demoMissing = await fetch(`${BASE}/demo/6`, { headers: { 'Sec-Fetch-Dest': 'iframe' } });
+  check(demoMissing.status === 404, 'démo : un projet non intégrable n’est jamais encadré');
+  const checkAs = (token) =>
+    fetch(`${BASE}/embed-check`, {
+      method: 'POST',
+      headers: {
+        Origin: ORIGIN,
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ id: 9 }),
+    });
+  check(
+    (await checkAs(VALID_TOKEN)).status === 403,
+    'démo : vérification refusée à un non-modérateur',
+  );
+  const modCheck = await (await checkAs(MOD_TOKEN)).json();
+  check(
+    modCheck.verdict === 'refuse' && /locale/.test(modCheck.reason),
+    'démo : une adresse locale est refusée sans être contactée',
   );
 
   const evil = await client('https://site-pirate.example');

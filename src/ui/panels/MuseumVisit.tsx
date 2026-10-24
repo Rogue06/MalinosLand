@@ -7,6 +7,7 @@ import {
   MUSEUM_WALL_TTL_MS,
   PROJECT_REPORT_DETAILS_MAX,
   PROJECT_REPORT_REASONS,
+  demoViewerUrl,
   listApproved,
   museumWallStore,
   reportProject,
@@ -17,6 +18,7 @@ import { panelStore, projectFocusStore, pushToast } from '../../state';
 import { useStore } from '../hooks';
 import { Modal } from './Modal';
 import { ExternalLink, PosterCanvas } from './Museum';
+import { DemoFrame } from './MuseumDemo';
 
 /**
  * Visite du Musée des Malinos (v0.4) : la liste « Toutes les créations » (borne du musée) et la
@@ -210,10 +212,22 @@ function ReportProject({ project, onDone }: { project: MuseumProject; onDone: ()
 export function ProjectPanel() {
   const project = useStore(projectFocusStore);
   const [reporting, setReporting] = useState(false);
-  useEffect(() => setReporting(false), [project?.id]);
+  // La démo ne se charge qu'après un clic sur « Essayer ici », jamais toute seule.
+  const [trying, setTrying] = useState(false);
+  useEffect(() => {
+    setReporting(false);
+    setTrying(false);
+  }, [project?.id]);
   if (!project) return null;
   const cat = museumCategory(project.category);
   const host = new URL(project.url).hostname;
+  const viewer = project.embed === 'ok' ? demoViewerUrl(project.id) : null;
+  if (trying && viewer)
+    return (
+      <Modal title={project.title} icon="▶️" wide>
+        <DemoFrame viewer={viewer} url={project.url} onClose={() => setTrying(false)} />
+      </Modal>
+    );
   return (
     <Modal title="Musée des Malinos" icon="🖼️" wide>
       <div class="museum-sheet">
@@ -243,12 +257,24 @@ export function ProjectPanel() {
           )}
           <p>{project.summary}</p>
           <p class="notice small">
-            <b>Site externe</b> ({host}) : il s’ouvre dans un nouvel onglet. MalinosLand ne
-            l’héberge pas et ne le vérifie pas en continu ; ne donne pas d’informations personnelles
-            sans raison.
+            <b>Site externe</b> ({host}) :{' '}
+            {viewer
+              ? 'tu peux l’essayer ici, dans une fenêtre isolée, ou l’ouvrir dans un nouvel onglet.'
+              : 'il s’ouvre dans un nouvel onglet.'}{' '}
+            MalinosLand ne l’héberge pas et ne le vérifie pas en continu ; ne donne pas
+            d’informations personnelles sans raison.
           </p>
           <div class="row start wrap">
-            <ExternalLink url={project.url} label="Ouvrir le site" className="btn primary small" />
+            {viewer && (
+              <button type="button" class="btn primary small" onClick={() => setTrying(true)}>
+                ▶ Essayer ici
+              </button>
+            )}
+            <ExternalLink
+              url={project.url}
+              label="Ouvrir le site"
+              className={`btn ${viewer ? 'ghost' : 'primary'} small`}
+            />
             <button type="button" class="btn ghost small" onClick={() => setReporting(!reporting)}>
               🚩 Signaler
             </button>
