@@ -6,7 +6,7 @@
 **Dernière mise à jour : 22/10/2026 — v0.3 terminée (logements, décoration, carnet, rôles, jour
 et nuit). Plan validé pour la suite : [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) (v0.35 panneau
 « Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). v0.35 complète (PR 1 à 6
-fusionnées) ; PR 7 (base du Musée) fusionnée ; en cours : PR 8 (exposer et modérer). Une PR à
+fusionnées) ; PR 7 et PR 8 du Musée fusionnées ; en cours : PR 9 (la salle). Une PR à
 la fois, présentée au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
@@ -102,6 +102,13 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **24/10 (suite)** — PR #53 (exposer et modérer) fusionnée et en ligne. Branche
+  `feature/musee-salle` (PR 9, DEC-037) : galerie ouverte et renommée « Musée des Malinos »,
+  7 stands (`stand-1` à `stand-7`) avec affiches plaquées en perspective, borne « Toutes les
+  créations », fiche du projet (lien externe, signalement), onglet 🚩 Signalés en modération,
+  outil de débogage `museumSample()`, étape e2e stand → fiche → lien. **Non testé en ligne**
+  avec de vrais projets : à vérifier après fusion. Suite : PR 10 (« Essayer ici » sécurisé).
 
 - **24/10 (nuit)** — PR #51 (base du musée) fusionnée, migration appliquée sur Supabase, mise en
   ligne réussie (main avait reçu les commits Blender du responsable : conflit de documentation

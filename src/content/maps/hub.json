@@ -141,16 +141,15 @@
     },
     {
       "id": "gallery",
-      "name": "Galerie des Malinos",
+      "name": "Musée des Malinos",
       "rect": {
         "x": 17,
         "y": 10,
         "w": 8,
         "h": 9
       },
-      "status": "soon",
-      "plannedFor": "v0.4",
-      "description": "Le musée des créations de la communauté."
+      "status": "open",
+      "description": "Les créations de la communauté, validées par les modérateurs."
     },
     {
       "id": "terrace",
@@ -332,15 +331,10 @@
       "y": 18
     },
     {
-      "type": "sign_soon",
+      "type": "sign_museum",
       "x": 16,
       "y": 12,
-      "id": "gallery-sign",
-      "interaction": {
-        "kind": "panel",
-        "label": "Exposer mon projet au musée",
-        "panel": "museum"
-      }
+      "id": "gallery-sign"
     },
     {
       "type": "doormat",
@@ -696,58 +690,88 @@
       "y": 16
     },
     {
-      "type": "rope_barrier",
-      "x": 17,
-      "y": 13,
-      "rot": 1
-    },
-    {
-      "type": "rope_barrier",
-      "x": 17,
-      "y": 14,
-      "rot": 1
-    },
-    {
-      "type": "pedestal",
+      "type": "museum_stand",
       "x": 20,
       "y": 12,
-      "variant": 0
+      "variant": 0,
+      "id": "stand-4",
+      "interaction": {
+        "kind": "stand",
+        "label": "Voir le projet",
+        "slot": 3
+      }
     },
     {
-      "type": "pedestal",
+      "type": "museum_stand",
       "x": 22,
       "y": 12,
-      "variant": 1
+      "variant": 1,
+      "id": "stand-5",
+      "interaction": {
+        "kind": "stand",
+        "label": "Voir le projet",
+        "slot": 4
+      }
     },
     {
-      "type": "pedestal",
+      "type": "museum_stand",
       "x": 20,
       "y": 15,
-      "variant": 2
+      "variant": 2,
+      "id": "stand-6",
+      "interaction": {
+        "kind": "stand",
+        "label": "Voir le projet",
+        "slot": 5
+      }
     },
     {
-      "type": "pedestal",
+      "type": "museum_stand",
       "x": 22,
       "y": 15,
-      "variant": 0
+      "variant": 0,
+      "id": "stand-7",
+      "interaction": {
+        "kind": "stand",
+        "label": "Voir le projet",
+        "slot": 6
+      }
     },
     {
-      "type": "gallery_panel",
+      "type": "museum_wall",
       "x": 19,
       "y": 10,
-      "variant": 0
+      "variant": 0,
+      "id": "stand-1",
+      "interaction": {
+        "kind": "stand",
+        "label": "Voir le projet",
+        "slot": 0
+      }
     },
     {
-      "type": "gallery_panel",
+      "type": "museum_wall",
       "x": 21,
       "y": 10,
-      "variant": 1
+      "variant": 1,
+      "id": "stand-2",
+      "interaction": {
+        "kind": "stand",
+        "label": "Voir le projet",
+        "slot": 1
+      }
     },
     {
-      "type": "gallery_panel",
+      "type": "museum_wall",
       "x": 23,
       "y": 10,
-      "variant": 2
+      "variant": 0,
+      "id": "stand-3",
+      "interaction": {
+        "kind": "stand",
+        "label": "Voir le projet",
+        "slot": 2
+      }
     },
     {
       "type": "plant",
@@ -2021,6 +2045,12 @@
       "x": 45,
       "y": 35,
       "variant": 0
+    },
+    {
+      "type": "museum_kiosk",
+      "x": 18,
+      "y": 11,
+      "id": "museum-kiosk"
     }
   ],
   "wallDecor": [

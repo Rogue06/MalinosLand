@@ -4,6 +4,7 @@ import type { SkyPhase } from './core/daylight';
 import type { Vec2 } from './core/iso';
 import { Store } from './core/store';
 import type { ChatScope, Emote, Role } from './multiplayer/protocol';
+import type { MuseumProject } from './services/museum';
 import type { MapFile, PanelId, ZoneDef } from './world/types';
 
 /**
@@ -69,6 +70,8 @@ export const panelStore = new Store<
   PanelId | 'settings' | 'help' | 'players' | 'moderation' | null
 >(null);
 export const dialogStore = new Store<DialogState | null>(null);
+/** Projet du musée dont la fiche est ouverte (stand cliqué ou liste « Toutes les créations »). */
+export const projectFocusStore = new Store<MuseumProject | null>(null);
 export const chatStore = new Store<ChatEntry[]>([]);
 export const presenceStore = new Store<PresenceEntry[]>([]);
 export const playerPosStore = new Store<Vec2>({ x: 0, y: 0 });

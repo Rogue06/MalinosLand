@@ -639,9 +639,83 @@ export function drawPoster(ctx: CanvasRenderingContext2D, data: PosterData, scal
 
 /** Affiche dans un nouveau canevas (aperçu du formulaire, page de prévisualisation). */
 export function renderPoster(data: PosterData, scale = 2): HTMLCanvasElement {
+  return posterCanvas(data, scale);
+}
+
+/**
+ * Affiche d'un stand encore libre : invitation à exposer sa création (cadre identique, fond
+ * clair, contour pointillé et grand « + »).
+ */
+export function drawEmptyPoster(ctx: CanvasRenderingContext2D, scale = 1): void {
+  const w = POSTER_W - 2 * ART;
+  const h = POSTER_H - 2 * ART;
+  const cx = w / 2;
+  ctx.save();
+  ctx.scale(scale, scale);
+  drawFrame(ctx);
+  ctx.save();
+  ctx.translate(ART, ART);
+  const bg = ctx.createLinearGradient(0, 0, 0, h);
+  bg.addColorStop(0, '#f4efe4');
+  bg.addColorStop(1, '#e2d8c6');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, w, h);
+  // Fin quadrillage isométrique, comme un plan d'architecte.
+  ctx.strokeStyle = rgba(P.slate, 0.08);
+  ctx.lineWidth = 0.5;
+  for (let k = -h; k < w + h; k += 10) {
+    ctx.beginPath();
+    ctx.moveTo(k, 0);
+    ctx.lineTo(k + h * 2, h);
+    ctx.moveTo(k, 0);
+    ctx.lineTo(k - h * 2, h);
+    ctx.stroke();
+  }
+  ctx.setLineDash([4, 3]);
+  ctx.strokeStyle = rgba(P.teal, 0.75);
+  ctx.lineWidth = 1.2;
+  roundRect(ctx, 7, 7, w - 14, h - 14, 6);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // Grand « + » dans un disque turquoise.
+  const cy = h * 0.4;
+  const g = ctx.createRadialGradient(cx, cy, 2, cx, cy, 24);
+  g.addColorStop(0, rgba(P.tealLight, 0.5));
+  g.addColorStop(1, rgba(P.tealLight, 0));
+  ctx.fillStyle = g;
+  ctx.fillRect(cx - 24, cy - 24, 48, 48);
+  ctx.fillStyle = P.teal;
+  ctx.beginPath();
+  ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(cx - 6.5, cy);
+  ctx.lineTo(cx + 6.5, cy);
+  ctx.moveTo(cx, cy - 6.5);
+  ctx.lineTo(cx, cy + 6.5);
+  ctx.stroke();
+  ctx.textAlign = 'center';
+  ctx.fillStyle = P.slate;
+  ctx.font = `800 11px ${FONT}`;
+  ctx.fillText('Ta création', cx, h * 0.66);
+  ctx.fillText('ici ?', cx, h * 0.66 + 13);
+  ctx.font = `600 7px ${FONT}`;
+  ctx.fillStyle = darken(P.teal, 0.15);
+  ctx.fillText('Expose-la au musée', cx, h - 16);
+  ctx.restore();
+  ctx.restore();
+}
+
+/** Affiche (ou affiche d'invitation si `data` est null) dans un canevas, pour le jeu. */
+export function posterCanvas(data: PosterData | null, scale = 2): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(POSTER_W * scale);
   canvas.height = Math.round(POSTER_H * scale);
-  drawPoster(canvas.getContext('2d')!, data, scale);
+  const ctx = canvas.getContext('2d')!;
+  if (data) drawPoster(ctx, data, scale);
+  else drawEmptyPoster(ctx, scale);
   return canvas;
 }

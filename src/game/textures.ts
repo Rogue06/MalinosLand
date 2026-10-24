@@ -8,6 +8,8 @@ import { frameName, renderAvatarSheet, AVATAR_FACINGS, AVATAR_POSES } from './ar
 import { drawFloor } from './art/floors';
 import { IsoBuilder, type RenderedSprite } from './art/iso3d';
 import { DECOR_ART, OBJECT_ART, type ObjectArt } from './art/objects';
+import { STAND_ART } from './art/museum';
+import { posterCanvas, type PosterData } from './art/posters';
 import { drawWall, wallFaceY } from './art/walls';
 
 export interface TextureInfo {
@@ -109,6 +111,22 @@ export class TextureFactory {
     if (!entry || !art) throw new Error(`Aucun dessin pour l’objet « ${type} »`);
     const b = new IsoBuilder(rot, entry.footprint[0], entry.footprint[1]);
     art(b, variant);
+    return this.register(key, b.render(this.texScale));
+  }
+
+  /**
+   * Stand du musée portant l'affiche d'un projet (null : affiche d'invitation). Même cadrage que
+   * l'objet du catalogue, pour remplacer sa texture une fois la liste du musée chargée.
+   */
+  stand(type: string, rot: Rotation, variant: number, poster: PosterData | null): TextureInfo {
+    const art = STAND_ART[type as keyof typeof STAND_ART];
+    if (!poster || !art) return this.object(type, rot, variant);
+    const key = `obj:${type}:${rot}:${variant}:poster:${poster.id ?? 0}:${poster.category}:${poster.title}:${poster.author ?? ''}`;
+    const cached = this.infos.get(key);
+    if (cached) return cached;
+    const entry = CATALOG[type]!;
+    const b = new IsoBuilder(rot, entry.footprint[0], entry.footprint[1]);
+    art(b, variant, posterCanvas(poster, 1.5));
     return this.register(key, b.render(this.texScale));
   }
 

@@ -265,6 +265,22 @@ export class WorldRenderer {
     for (const l of this.labels) l.setVisible(visible);
   }
 
+  /**
+   * Change l'image d'un objet déjà affiché (affiche d'un stand du musée). La zone cliquable suit
+   * la nouvelle image.
+   */
+  setObjectTexture(id: string, info: TextureInfo): void {
+    const r = this.objects.get(id);
+    if (!r) return;
+    const interactive = !!r.image.input;
+    r.image.setTexture(info.key, info.frame).setOrigin(info.originX, info.originY);
+    r.image.setScale(info.scale);
+    if (interactive) {
+      r.image.removeInteractive();
+      r.image.setInteractive({ pixelPerfect: true, alphaTolerance: 40, useHandCursor: true });
+    }
+  }
+
   /** Bulle temporaire au-dessus d'un objet (ex. Joshua qui salue). */
   objectBubble(id: string, text: string, durationMs = 5000): void {
     const r = this.objects.get(id);

@@ -1870,7 +1870,77 @@ button.presence-chip {
   color: var(--teal-light);
   overflow-wrap: anywhere;
 }
+.grow {
+  flex: 1;
+  min-width: 200px;
+  margin: 0;
+}
+.museum-filters {
+  margin: 10px 0;
+}
+.museum-grid {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+  gap: 10px;
+}
+.museum-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
+}
+.museum-card:hover,
+.museum-card:focus-visible {
+  transform: translateY(-2px);
+  border-color: var(--teal);
+}
+.museum-card-title {
+  font-weight: 700;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.museum-sheet {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+}
+.museum-sheet-text {
+  flex: 1;
+  min-width: 0;
+}
+.museum-sheet-text h3 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+.museum-sheet-text p {
+  margin: 8px 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .museum-card {
+    transition: none;
+  }
+}
 @media (max-width: 620px) {
+  .museum-sheet {
+    flex-direction: column;
+    align-items: center;
+  }
   .museum-submit {
     grid-template-columns: 1fr;
   }

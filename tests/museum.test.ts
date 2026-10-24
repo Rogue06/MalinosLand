@@ -9,13 +9,21 @@ import {
 } from '../src/core/museum';
 import { fitTitle, wrapTitle } from '../src/game/art/posters';
 import {
+  MUSEUM_WALL_TTL_MS,
+  PROJECT_REPORT_REASONS,
   explainProjectError,
+  loadMuseumWall,
+  museumWallStore,
   parseMuseumProjects,
+  parseProjectReports,
   parseMyProjects,
   parseProject,
 } from '../src/services/museum';
 import migration from '../supabase/migrations/20261027090000_museum.sql?raw';
 import museumPanelSource from '../src/ui/panels/Museum.tsx?raw';
+import museumVisitSource from '../src/ui/panels/MuseumVisit.tsx?raw';
+import hub from '../src/content/maps/hub.json';
+import type { MapFile } from '../src/world/types';
 import { URL_CASES } from './fixtures/projectUrls';
 
 describe('Musée : adresses des projets', () => {
@@ -173,5 +181,80 @@ describe('Musée : catégories et affiches', () => {
   it('liens externes : nouvel onglet, sans transmettre la page d’origine', () => {
     expect(museumPanelSource).toMatch(/target="_blank" rel="noopener noreferrer"/);
     expect(museumPanelSource.match(/<a /g)).toHaveLength(1);
+  });
+});
+
+describe('Musée : la salle (v0.4, PR 9)', () => {
+  const map = hub as unknown as MapFile;
+
+  it('la galerie est ouverte et devient le Musée des Malinos, sans barrière à l’entrée', () => {
+    const zone = map.zones.find((z) => z.id === 'gallery')!;
+    expect(zone).toMatchObject({ name: 'Musée des Malinos', status: 'open' });
+    const inside = (o: { x: number; y: number }) =>
+      o.x >= zone.rect.x &&
+      o.x < zone.rect.x + zone.rect.w &&
+      o.y >= zone.rect.y &&
+      o.y < zone.rect.y + zone.rect.h;
+    expect(map.objects.filter((o) => o.type === 'rope_barrier' && inside(o))).toEqual([]);
+    expect(map.objects.some((o) => o.type === 'museum_kiosk' && inside(o))).toBe(true);
+    expect(map.objects.find((o) => o.id === 'gallery-sign')?.type).toBe('sign_museum');
+  });
+
+  it('7 stands, chacun à sa place (0 = le projet le plus récent)', () => {
+    const slots = map.objects.flatMap((o) =>
+      o.interaction?.kind === 'stand' ? [o.interaction.slot] : [],
+    );
+    expect([...slots].sort()).toEqual([0, 1, 2, 3, 4, 5, 6]);
+    for (const o of map.objects.filter((x) => x.interaction?.kind === 'stand'))
+      expect(['museum_wall', 'museum_stand']).toContain(o.type);
+  });
+
+  it('liste des stands : hors ligne, stands libres ; une seule lecture toutes les 5 minutes', async () => {
+    museumWallStore.set({ status: 'idle', projects: [], at: 0 });
+    await loadMuseumWall(1000);
+    // Pas de serveur de comptes dans les tests : rien n'est demandé au réseau.
+    expect(museumWallStore.get()).toEqual({ status: 'offline', projects: [], at: 1000 });
+    const ready = { status: 'ready' as const, projects: [], at: 5000 };
+    museumWallStore.set(ready);
+    await loadMuseumWall(5000 + MUSEUM_WALL_TTL_MS - 1);
+    expect(museumWallStore.get()).toBe(ready);
+  });
+
+  it('signalements de projets : mêmes motifs que la base, données relues', () => {
+    const sql = /reason in \(([^)]*)\)/.exec(
+      migration.slice(migration.indexOf('project_reports')),
+    )![1]!;
+    expect([...sql.matchAll(/'([^']+)'/g)].map((m) => m[1]).sort()).toEqual(
+      PROJECT_REPORT_REASONS.map((r) => r.id).sort(),
+    );
+    expect(
+      parseProjectReports([
+        {
+          id: 1,
+          project_id: 4,
+          reason: 'arnaque',
+          details: 'Demande\nmon mot de passe',
+          status: 'ouvert',
+          created_at: '2026-10-24T10:00:00Z',
+          projects: { title: 'Projet', url: 'javascript:alert(1)', status: 'approved' },
+        },
+        { id: 'x' },
+      ]),
+    ).toEqual([
+      {
+        id: 1,
+        projectId: 4,
+        status: 'ouvert',
+        reason: 'arnaque',
+        details: 'Demande mon mot de passe',
+        createdAt: '2026-10-24T10:00:00Z',
+        project: { title: 'Projet', url: '', status: 'approved' },
+      },
+    ]);
+  });
+
+  it('fiche et liste : aucun lien direct, tout passe par ExternalLink', () => {
+    expect(museumVisitSource).not.toMatch(/<a /);
+    expect(museumVisitSource).toMatch(/<ExternalLink url=\{project\.url\}/);
   });
 });

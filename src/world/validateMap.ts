@@ -139,6 +139,10 @@ function validateInteraction(it: InteractionDef): string[] {
     case 'emote':
       if (!it.emoji || !it.text) errors.push('emote incomplète');
       break;
+    case 'stand':
+      if (!Number.isInteger(it.slot) || it.slot < 0 || it.slot >= 20)
+        errors.push(`place de stand invalide « ${String(it.slot)} »`);
+      break;
     default:
       errors.push('type d’interaction inconnu');
   }

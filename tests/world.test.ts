@@ -96,6 +96,35 @@ describe('validateMap', () => {
     expect(errors.some((e) => e.includes('chevauche'))).toBe(true);
   });
 
+  it('stand du musée : place entière de 0 à 19', () => {
+    const map = base();
+    map.objects = [
+      {
+        type: 'museum_stand',
+        x: 0,
+        y: 0,
+        id: 'a',
+        interaction: { kind: 'stand', label: 'Voir', slot: 0 },
+      },
+      {
+        type: 'museum_stand',
+        x: 2,
+        y: 0,
+        id: 'b',
+        interaction: { kind: 'stand', label: 'Voir', slot: 20 },
+      },
+      {
+        type: 'museum_stand',
+        x: 0,
+        y: 2,
+        id: 'c',
+        interaction: { kind: 'stand', label: 'Voir', slot: 1.5 },
+      },
+    ];
+    const errors = validateMap(map, CATALOG);
+    expect(errors.filter((e) => e.includes('place de stand invalide'))).toHaveLength(2);
+  });
+
   it('exige un id pour les objets interactifs', () => {
     const map = base();
     map.objects = [{ type: 'arcade', x: 2, y: 2 }];

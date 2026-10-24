@@ -5,6 +5,20 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (v0.4 : Musée des Malinos, la salle)
+
+- La galerie devient le **Musée des Malinos** (ouverte, sans barrière) : 3 cimaises et 4 stands
+  sur socle portent les **affiches** des 7 projets les plus récents, plaquées en perspective sur
+  le mobilier, avec de petits projecteurs. Un stand libre invite à exposer sa création.
+- **Fiche du projet** (clic sur un stand) : auteur, catégorie, mots-clés, description, bouton
+  **Ouvrir le site** (nouvel onglet, avertissement « site externe ») et **🚩 Signaler**.
+- Borne **« Toutes les créations »** : liste filtrée par catégorie, par pages de 20.
+- Panneau d’entrée « Musée des Malinos » ; onglet de modération **🚩 Signalés** (traiter ou
+  retirer le projet).
+- Une seule lecture de la liste en approchant (hall ou musée), gardée 5 minutes.
+- Feuille de route du jeu et badge de version : v0.35 terminée, v0.4 en cours. Outil
+  `museumSample()` (débogage).
+
 ### Ajouté (v0.4 : Musée des Malinos, exposer et modérer)
 
 - Formulaire **« Exposer mon projet »** (compte nécessaire) : titre, catégorie, adresse,

@@ -50,7 +50,7 @@ export const ROADMAP: RoadmapStep[] = [
   {
     version: '0.35',
     title: 'Que faire ? S’amuser tout de suite',
-    status: 'current',
+    status: 'done',
     items: [
       'Panneau « Que faire maintenant ? » près de Joshua',
       'Quiz IA des Malinos sur une borne d’arcade',
@@ -60,7 +60,7 @@ export const ROADMAP: RoadmapStep[] = [
   {
     version: '0.4',
     title: 'Le Musée des Malinos',
-    status: 'planned',
+    status: 'current',
     items: [
       'Exposer son projet (validé par les modérateurs)',
       'Stands et affiches dans la galerie',

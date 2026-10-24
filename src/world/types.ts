@@ -63,6 +63,8 @@ export const PANEL_IDS = [
   'activities',
   'quiz',
   'museum',
+  'creations',
+  'project',
 ] as const;
 export type PanelId = (typeof PANEL_IDS)[number];
 
@@ -82,6 +84,14 @@ export type InteractionDef =
       panel: PanelId;
       quest?: string;
       /** Secret révélé par cette interaction (voir src/content/secrets.ts). */
+      secret?: string;
+    }
+  | {
+      /** Stand du musée : montre le projet exposé à cette place (0 = le plus récent). */
+      kind: 'stand';
+      label: string;
+      slot: number;
+      quest?: string;
       secret?: string;
     }
   | {

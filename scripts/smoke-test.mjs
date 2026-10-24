@@ -332,18 +332,42 @@ try {
     await waitGone('.modal');
   });
 
-  await step(
-    'Musée des Malinos : le panneau devant la galerie ouvre « Exposer mon projet »',
-    async () => {
-      await teleport(14.5, 12.5, 'px');
-      await dbg(() => window.__malinosDebug.use('gallery-sign'));
-      await waitUi('.modal', 'Musée des Malinos');
-      // Hors ligne : pas de compte possible, le panneau le dit au lieu d'afficher le formulaire.
-      await waitUi('.modal', 'version en ligne');
-      await page.keyboard.press('Escape');
-      await waitGone('.modal');
-    },
-  );
+  await step('Musée des Malinos : le panneau d’entrée ouvre « Exposer mon projet »', async () => {
+    await teleport(14.5, 12.5, 'px');
+    await dbg(() => window.__malinosDebug.use('gallery-sign'));
+    await waitUi('.modal', 'Musée des Malinos');
+    // Hors ligne : pas de compte possible, le panneau le dit au lieu d'afficher le formulaire.
+    await waitUi('.modal', 'version en ligne');
+    await page.keyboard.press('Escape');
+    await waitGone('.modal');
+  });
+
+  await step('Musée des Malinos : stand → fiche du projet → lien vers le site', async () => {
+    // Projets d'exemple (outil de débogage, sans réseau) : les stands affichent leurs affiches.
+    await dbg(() => window.__malinosDebug.museumSample());
+    await teleport(20.5, 13.5, 'ny');
+    await dbg(() => window.__malinosDebug.use('stand-1'));
+    await waitUi('.modal', 'Malino Notes');
+    await waitUi('.modal', 'Site externe');
+    const link = await page.locator('.modal a', { hasText: 'Ouvrir le site' }).evaluate((a) => ({
+      href: a.getAttribute('href'),
+      target: a.getAttribute('target'),
+      rel: a.getAttribute('rel'),
+    }));
+    if (
+      link.href !== 'https://exemple.org/notes' ||
+      link.target !== '_blank' ||
+      link.rel !== 'noopener noreferrer'
+    )
+      fail(`lien du projet inattendu : ${JSON.stringify(link)}`);
+    await page.screenshot({ path: `${outDir}/07e-musee-fiche.png` });
+    await page.keyboard.press('Escape');
+    await waitGone('.modal');
+    await dbg(() => window.__malinosDebug.use('museum-kiosk'));
+    await waitUi('.modal', 'Toutes les créations');
+    await page.keyboard.press('Escape');
+    await waitGone('.modal');
+  });
 
   await step('jour et nuit (heure de Paris imposée)', async () => {
     const night = await page.evaluate(() => window.__malinosDebug.time(23));
