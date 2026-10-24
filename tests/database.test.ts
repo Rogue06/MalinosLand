@@ -861,3 +861,51 @@ describe('base de données : « Essayer ici » du musée (PR 10)', () => {
     expect(await demo(ok)).toBeNull();
   });
 });
+
+describe('base de données : aperçus automatiques du musée', () => {
+  const AUTEUR2 = '00000000-0000-4000-8000-0000000000a7';
+  const MODO3 = '00000000-0000-4000-8000-0000000000a8';
+
+  beforeAll(async () => {
+    await db.exec(
+      `insert into auth.users (id) values ('${AUTEUR2}'), ('${MODO3}') on conflict do nothing`,
+    );
+    await db.exec(`insert into public.moderators (user_id) values ('${MODO3}')`);
+  });
+
+  it('seul un modérateur note un aperçu ; la galerie publique le renvoie', async () => {
+    const { rows } = await as<{ id: number }>(
+      AUTEUR2,
+      `insert into public.projects (title, summary, url, category)
+       values ('Aperçu', 'Un projet avec aperçu.', 'https://apercu-test.fr', 'site') returning id`,
+    );
+    const id = rows[0]!.id;
+    await expect(
+      as(AUTEUR2, `select public.set_project_preview($1, 'abc123')`, [id]),
+    ).rejects.toThrow(/modérateurs/);
+    await expect(
+      as(null, `select public.set_project_preview($1, 'abc123')`, [id]),
+    ).rejects.toThrow();
+    await expect(as(MODO3, `select public.set_project_preview($1, '../x')`, [id])).rejects.toThrow(
+      /invalide/,
+    );
+    await as(MODO3, `select public.set_project_preview($1, 'abc123')`, [id]);
+    const gallery = async () =>
+      (
+        await as<{ id: number; preview: string | null }>(
+          null,
+          'select id, preview from public.museum_gallery()',
+        )
+      ).rows.filter((r) => r.id === id);
+    // Pas encore exposé : invisible.
+    expect(await gallery()).toEqual([]);
+    await as(MODO3, `select public.moderate_project($1, 'approved')`, [id]);
+    expect(await gallery()).toEqual([{ id, preview: 'abc123' }]);
+    await as(MODO3, `select public.set_project_preview($1, null)`, [id]);
+    expect(await gallery()).toEqual([{ id, preview: null }]);
+    // L'auteur ne peut pas écrire la miniature lui-même.
+    await expect(
+      as(AUTEUR2, `update public.projects set thumbnail = 'x' where id = $1`, [id]),
+    ).rejects.toThrow();
+  });
+});

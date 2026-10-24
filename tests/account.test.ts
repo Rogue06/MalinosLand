@@ -46,5 +46,8 @@ describe('comptes joueurs', () => {
     );
     expect(online).not.toMatch(/frame-src[^;]*https:(;| )/);
     expect(buildCsp()).not.toContain('frame-src');
+    // Images : celles du jeu, et les aperçus du musée servis par le serveur temps réel.
+    expect(online).toContain("img-src 'self' data: blob: https://rt.example.workers.dev;");
+    expect(buildCsp()).toContain("img-src 'self' data: blob:;");
   });
 });

@@ -4,6 +4,8 @@
 name = "malinosland-realtime"
 main = "src/index.ts"
 compatibility_date = "2025-09-01"
+# Nécessaire à @cloudflare/puppeteer (captures du musée, DEC-040).
+compatibility_flags = ["nodejs_compat"]
 
 [[durable_objects.bindings]]
 name = "WORLD"
@@ -13,6 +15,16 @@ class_name = "WorldRoom"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["WorldRoom"]
+
+# Musée : aperçus automatiques des projets (DEC-040), offres gratuites.
+# Navigateur de Cloudflare pour les captures (10 minutes par jour, sans frais au-delà : erreur).
+[browser]
+binding = "BROWSER"
+
+# Stockage des images d'aperçu (Workers KV : 1 Go, 1 000 écritures par jour). Sans « id » :
+# Wrangler crée l'espace tout seul à la première mise en ligne.
+[[kv_namespaces]]
+binding = "PREVIEWS"
 
 [vars]
 # Développement local : le jeu tourne sur ces adresses. À remplacer par l'adresse publique du jeu

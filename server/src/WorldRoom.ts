@@ -29,6 +29,10 @@ export interface Env extends SupabaseConfig {
   MAX_PLAYERS_PER_ROOM: string;
   /** Budget quotidien de messages entrants, fixé sous le quota gratuit (voir FREE_INFRASTRUCTURE.md). */
   DAILY_MESSAGE_BUDGET: string;
+  /** Navigateur de Cloudflare (captures du musée) ; absent : pas d'aperçus. */
+  BROWSER?: Fetcher;
+  /** Stockage des aperçus du musée (Workers KV). */
+  PREVIEWS?: KVNamespace;
 }
 
 interface QuotaState {

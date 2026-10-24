@@ -1961,6 +1961,28 @@ button.presence-chip {
   border-radius: 10px;
   background: #fff;
 }
+.museum-capture {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+  margin-bottom: 10px;
+  background: #0d1220;
+}
+.preview-thumb {
+  display: block;
+  width: 240px;
+  max-width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
 .embed-review {
   margin: 6px 0;
   padding: 8px;

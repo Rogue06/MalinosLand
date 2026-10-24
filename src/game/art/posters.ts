@@ -21,6 +21,11 @@ export interface PosterData {
   title: string;
   author?: string;
   category: string;
+  /**
+   * Aperçu automatique du site (capture 16:10, DEC-040) : affiché comme un petit écran à la
+   * place du socle et du pictogramme. Absent : affiche dessinée seulement.
+   */
+  image?: CanvasImageSource | null;
 }
 
 const FONT = "system-ui, -apple-system, 'Segoe UI', Roboto, Ubuntu, sans-serif";
@@ -524,6 +529,62 @@ function drawPedestal(
   ctx.restore();
 }
 
+/** Aperçu du site en petit écran : cadre sombre, image recadrée, reflet et pied. */
+function drawScreen(
+  ctx: CanvasRenderingContext2D,
+  cat: MuseumCategoryDef,
+  image: CanvasImageSource,
+  w: number,
+) {
+  const x = 6;
+  const y = 20;
+  const sw = w - 12;
+  const sh = sw * 0.625; // 16:10, comme les captures
+  const cx = w / 2;
+  // Halo de la couleur d'accent derrière l'écran.
+  const halo = ctx.createRadialGradient(cx, y + sh / 2, 4, cx, y + sh / 2, sw * 0.75);
+  halo.addColorStop(0, rgba(cat.poster.accent, 0.45));
+  halo.addColorStop(1, rgba(cat.poster.accent, 0));
+  ctx.fillStyle = halo;
+  ctx.fillRect(0, y - 20, w, sh + 40);
+  // Pied de l'écran.
+  ctx.fillStyle = darken(cat.poster.bottom, 0.35);
+  ctx.fillRect(cx - 4, y + sh + 1, 8, 7);
+  ctx.beginPath();
+  ctx.ellipse(cx, y + sh + 9, 16, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Cadre, puis l'image recadrée pour remplir l'écran.
+  ctx.save();
+  ctx.shadowColor = rgba('#000000', 0.45);
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetY = 2;
+  ctx.fillStyle = '#0d1220';
+  roundRect(ctx, x - 2.5, y - 2.5, sw + 5, sh + 5, 3);
+  ctx.fill();
+  ctx.restore();
+  ctx.save();
+  roundRect(ctx, x, y, sw, sh, 1.5);
+  ctx.clip();
+  const iw = (image as { width: number }).width || 640;
+  const ih = (image as { height: number }).height || 400;
+  const k = Math.max(sw / iw, sh / ih);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(image, x + (sw - iw * k) / 2, y + (sh - ih * k) / 2, iw * k, ih * k);
+  // Reflet de la vitre.
+  const glass = ctx.createLinearGradient(x, y, x + sw, y + sh);
+  glass.addColorStop(0, rgba('#ffffff', 0.16));
+  glass.addColorStop(0.35, rgba('#ffffff', 0.02));
+  glass.addColorStop(1, rgba('#ffffff', 0));
+  ctx.fillStyle = glass;
+  ctx.fillRect(x, y, sw, sh);
+  ctx.restore();
+  ctx.strokeStyle = rgba(cat.poster.accent, 0.7);
+  ctx.lineWidth = 0.6;
+  roundRect(ctx, x - 2.5, y - 2.5, sw + 5, sh + 5, 3);
+  ctx.stroke();
+}
+
 /** Dessine l'affiche dans `ctx`, en unités logiques (POSTER_W × POSTER_H) multipliées par `scale`. */
 export function drawPoster(ctx: CanvasRenderingContext2D, data: PosterData, scale = 1): void {
   const cat = museumCategory(data.category);
@@ -556,22 +617,25 @@ export function drawPoster(ctx: CanvasRenderingContext2D, data: PosterData, scal
   ctx.fillStyle = spot;
   ctx.fillRect(0, 0, w, h);
 
-  // Socle et pictogramme flottant, avec un halo de la couleur d'accent.
-  const ty = 72;
-  drawPedestal(ctx, cat, cx, ty);
-  ctx.save();
-  ctx.translate(cx, ty - 26);
-  const halo = ctx.createRadialGradient(0, 0, 2, 0, 0, 26);
-  halo.addColorStop(0, rgba(cat.poster.accent, 0.55));
-  halo.addColorStop(1, rgba(cat.poster.accent, 0));
-  ctx.fillStyle = halo;
-  ctx.fillRect(-26, -26, 52, 52);
-  ctx.shadowColor = rgba(darken(cat.poster.bottom, 0.4), 0.6);
-  ctx.shadowBlur = 3 * scale;
-  ctx.shadowOffsetY = 1.5 * scale;
-  ctx.scale(1.15, 1.15);
-  drawGlyph(ctx, cat);
-  ctx.restore();
+  if (data.image) drawScreen(ctx, cat, data.image, w);
+  else {
+    // Socle et pictogramme flottant, avec un halo de la couleur d'accent.
+    const ty = 72;
+    drawPedestal(ctx, cat, cx, ty);
+    ctx.save();
+    ctx.translate(cx, ty - 26);
+    const halo = ctx.createRadialGradient(0, 0, 2, 0, 0, 26);
+    halo.addColorStop(0, rgba(cat.poster.accent, 0.55));
+    halo.addColorStop(1, rgba(cat.poster.accent, 0));
+    ctx.fillStyle = halo;
+    ctx.fillRect(-26, -26, 52, 52);
+    ctx.shadowColor = rgba(darken(cat.poster.bottom, 0.4), 0.6);
+    ctx.shadowBlur = 3 * scale;
+    ctx.shadowOffsetY = 1.5 * scale;
+    ctx.scale(1.15, 1.15);
+    drawGlyph(ctx, cat);
+    ctx.restore();
+  }
 
   // Étiquette de catégorie et numéro d'inventaire.
   ctx.font = `800 6.5px ${FONT}`;

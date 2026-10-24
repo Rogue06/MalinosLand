@@ -23,19 +23,22 @@ export function buildCsp(realtimeUrl?: string, supabaseUrl?: string, turnstile =
     connect.push(origin, origin.replace(/^ws/, 'http'));
   }
   if (supabaseUrl && /^https:\/\//.test(supabaseUrl)) connect.push(new URL(supabaseUrl).origin);
+  // Serveur temps réel en http(s) : visionneuse des démos et images d'aperçu du musée.
+  const realtimeHttp =
+    realtimeUrl && /^wss?:\/\//.test(realtimeUrl)
+      ? new URL(realtimeUrl).origin.replace(/^ws/, 'http')
+      : null;
   const frames = [
     ...(turnstile ? [TURNSTILE_ORIGIN] : []),
     // Visionneuse des démos du musée : même hôte que le serveur temps réel.
-    ...(realtimeUrl && /^wss?:\/\//.test(realtimeUrl)
-      ? [new URL(realtimeUrl).origin.replace(/^ws/, 'http')]
-      : []),
+    ...(realtimeHttp ? [realtimeHttp] : []),
   ];
   return [
     "default-src 'self'",
     turnstile ? `script-src 'self' ${TURNSTILE_ORIGIN}` : "script-src 'self'",
     ...(frames.length > 0 ? [`frame-src ${frames.join(' ')}`] : []),
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    `img-src 'self' data: blob:${realtimeHttp ? ` ${realtimeHttp}` : ''}`,
     `connect-src ${connect.join(' ')}`,
     "object-src 'none'",
     "base-uri 'self'",

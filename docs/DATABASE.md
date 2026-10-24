@@ -59,6 +59,11 @@
   seulement, 20 vérifications par heure, appelée par le serveur avec son jeton) et
   `museum_demo(id, essai)` (adresse d’un projet exposé et intégrable, ou pas encore refusé pour
   un essai ; lisible par tous, rien de privé).
+- **Aperçu automatique** (migration `20261029090000_museum_preview.sql`, DEC-040) :
+  `set_project_preview(id, version)` (modérateurs ; écrit la version de la capture dans
+  `projects.thumbnail`, null pour la masquer) et `museum_gallery(...)` (comme `museum_projects`,
+  avec la colonne `preview`). L’image elle-même est rangée par le serveur temps réel, pas dans la
+  base.
 
 > Le schéma ci-dessous était la **cible** de départ : `profiles`, `reports`, `feedback`, `homes`
 > et `home_invites` existent désormais (sous une forme parfois différente, voir les migrations) ;

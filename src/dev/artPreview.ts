@@ -54,6 +54,45 @@ MUSEUM_CATEGORIES.forEach((cat, i) => {
   );
 });
 
+/** Fausse capture de site (640 × 400) pour voir les affiches avec aperçu. */
+function fakeSite(hue: number, title: string): HTMLCanvasElement {
+  const c = document.createElement('canvas');
+  c.width = 640;
+  c.height = 400;
+  const g = c.getContext('2d')!;
+  g.fillStyle = `hsl(${hue} 45% 96%)`;
+  g.fillRect(0, 0, 640, 400);
+  g.fillStyle = `hsl(${hue} 55% 35%)`;
+  g.fillRect(0, 0, 640, 56);
+  g.fillStyle = '#fff';
+  g.font = '700 26px system-ui';
+  g.fillText(title, 28, 37);
+  g.fillStyle = `hsl(${hue} 60% 50%)`;
+  g.fillRect(28, 96, 330, 34);
+  g.fillStyle = '#ccd';
+  for (let i = 0; i < 5; i++) g.fillRect(28, 150 + i * 22, 300 - (i % 3) * 40, 10);
+  g.fillStyle = `hsl(${(hue + 40) % 360} 70% 60%)`;
+  g.fillRect(400, 90, 200, 180);
+  g.fillStyle = `hsl(${hue} 60% 45%)`;
+  g.fillRect(28, 290, 140, 40);
+  return c;
+}
+const withPreview = section('Affiches avec aperçu automatique');
+(
+  [
+    ['outil-ia', 170, 'Malino Notes'],
+    ['jeu', 15, 'Le jeu du pixel perdu'],
+    ['site', 215, 'Mon site de recettes'],
+  ] as const
+).forEach(([category, hue, title], i) =>
+  card(withPreview, title, [
+    renderPoster(
+      { id: 40 + i, title, author: 'Rogue06', category, image: fakeSite(hue, title) },
+      2,
+    ),
+  ]),
+);
+
 const objects = section('Objets du catalogue (4 rotations)');
 for (const [type, entry] of Object.entries(CATALOG)) {
   const art = OBJECT_ART[type];

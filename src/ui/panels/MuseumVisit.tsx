@@ -9,6 +9,7 @@ import {
   PROJECT_REPORT_REASONS,
   demoViewerUrl,
   listApproved,
+  previewUrl,
   museumWallStore,
   reportProject,
   type MuseumProject,
@@ -132,6 +133,7 @@ export function CreationsPanel() {
                   <PosterCanvas
                     data={{ id: p.id, title: p.title, author: p.author, category: p.category }}
                     width={104}
+                    preview={previewUrl(p)}
                   />
                   <span class="museum-card-title">{p.title}</span>
                   <span class="muted small">par {p.author}</span>
@@ -222,6 +224,7 @@ export function ProjectPanel() {
   const cat = museumCategory(project.category);
   const host = new URL(project.url).hostname;
   const viewer = project.embed === 'ok' ? demoViewerUrl(project.id) : null;
+  const capture = previewUrl(project);
   if (trying && viewer)
     return (
       <Modal title={project.title} icon="▶️" wide>
@@ -239,8 +242,18 @@ export function ProjectPanel() {
             category: project.category,
           }}
           width={180}
+          preview={capture}
         />
         <div class="museum-sheet-text">
+          {capture && (
+            <img
+              class="museum-capture"
+              src={capture}
+              alt={`Aperçu du site ${host}`}
+              width={640}
+              height={400}
+            />
+          )}
           <h3>{project.title}</h3>
           <p class="muted small">
             par <b>{project.author}</b> · {cat.icon} {cat.label}

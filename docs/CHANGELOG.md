@@ -5,6 +5,17 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (v0.4 : Musée des Malinos, aperçu automatique)
+
+- **Aperçu automatique** des projets : à la validation, le serveur prend une capture du site
+  (navigateur de Cloudflare, offre gratuite) et la range dans son stockage gratuit (≈ 20 Ko,
+  WebP). Les stands du musée la montrent comme un petit écran sur l’affiche ; la fiche l’affiche
+  en grand ; la liste « Toutes les créations » aussi.
+- Modération : **Prendre / Reprendre l’aperçu** et **Masquer l’aperçu** dans « Exposés ».
+- Serveur : routes `/preview` (modérateurs, plafond partagé de 20 par heure) et `/apercu/:id`
+  (image publique, jamais interprétée). Base : `set_project_preview`, `museum_gallery`
+  (migration additive). CSP du jeu : images autorisées seulement depuis ce serveur en plus.
+
 ### Modifié (sons)
 
 - Bruitages des pièces (claviers du coworking, ascenseur du hall, bornes d’arcade, cheminée du

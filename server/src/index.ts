@@ -5,9 +5,13 @@
  *   GET /visits  → historique des connexions, pour le responsable du site seulement
  *   POST /embed-check → vérification d'une démo du musée, pour les modérateurs (embed.ts)
  *   GET /demo/:id → visionneuse isolée d'une démo du musée (embed.ts)
+ *   POST /preview → aperçu automatique d'un projet, pris par un modérateur (preview.ts)
+ *   GET /apercu/:id → image de l'aperçu d'un projet (preview.ts)
  */
 import { ACCOUNT_HEADER, encodeAccountHeader, readProtocols, verifyAccount } from './account';
+import { browserCapture } from './capture';
 import { demoPage, embedCheck } from './embed';
+import { previewImage, previewRoute } from './preview';
 import { originAllowed, visits, WORLD_NAME } from './routes';
 import type { Env } from './WorldRoom';
 
@@ -39,6 +43,9 @@ export default {
     if (url.pathname === '/visits') return visits(request, env);
     if (url.pathname === '/embed-check') return embedCheck(request, env);
     if (url.pathname.startsWith('/demo/')) return demoPage(request, env);
+    if (url.pathname === '/preview')
+      return previewRoute(request, env, env.BROWSER ? browserCapture(env.BROWSER) : null);
+    if (url.pathname.startsWith('/apercu/')) return previewImage(request, env);
     return new Response('Introuvable', { status: 404 });
   },
 } satisfies ExportedHandler<Env>;

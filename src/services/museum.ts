@@ -52,6 +52,8 @@ export interface MuseumProject extends Project {
   author: string;
   embed: 'unknown' | 'ok' | 'refused';
   approvedAt: string;
+  /** Version de l'aperçu automatique (capture du site), ou null s'il n'y en a pas. */
+  preview: string | null;
 }
 
 /** Projet vu par un modérateur. */
@@ -111,6 +113,8 @@ export function parseMuseumProjects(rows: unknown): MuseumProject[] {
         author: sanitizeName(r.author) ?? 'Malino',
         embed,
         approvedAt: isoDate(r.approved_at),
+        preview:
+          typeof r.preview === 'string' && /^[a-z0-9]{1,16}$/.test(r.preview) ? r.preview : null,
       },
     ];
   });
@@ -184,7 +188,7 @@ export async function listApproved(
   page = 0,
 ): Promise<MuseumProject[]> {
   const { db } = await load();
-  const { data, error } = await db.rpc('museum_projects', {
+  const { data, error } = await db.rpc('museum_gallery', {
     p_category: category,
     p_limit: MUSEUM_PAGE_SIZE,
     p_offset: Math.max(0, page) * MUSEUM_PAGE_SIZE,
@@ -403,4 +407,38 @@ export async function setProjectEmbed(
   const { db } = await load();
   const { error } = await db.rpc('set_project_embed', { p_id: id, p_embed: embed });
   if (error) throw fail();
+}
+
+/**
+ * Aperçu automatique (DEC-040) : adresse de l'image d'un projet, servie par le serveur temps
+ * réel ; null sans serveur ou sans aperçu. La version dans l'adresse change à chaque capture.
+ */
+export function previewUrl(p: { id: number; preview: string | null }): string | null {
+  if (!REALTIME_HTTP || !p.preview || !/^[a-z0-9]{1,16}$/.test(p.preview)) return null;
+  return `${REALTIME_HTTP}/apercu/${p.id}?v=${p.preview}`;
+}
+
+/** Modérateurs : prendre (ou reprendre) l'aperçu d'un projet, ou le masquer. */
+export async function updatePreview(
+  id: number,
+  action: 'capture' | 'remove',
+): Promise<string | null> {
+  if (!REALTIME_HTTP) throw new AccountError('Aperçus possibles seulement en ligne.');
+  const token = await accessToken();
+  if (!token) throw new AccountError('Connecte-toi d’abord.');
+  let res: Response;
+  try {
+    res = await fetch(`${REALTIME_HTTP}/preview`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, action }),
+    });
+  } catch {
+    throw new AccountError('Le serveur ne répond pas. Réessaie dans un instant.');
+  }
+  const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+  if (!res.ok) throw new AccountError(sanitizeText(body.error, 120) || 'Aperçu impossible.');
+  return typeof body.preview === 'string' && /^[a-z0-9]{1,16}$/.test(body.preview)
+    ? body.preview
+    : null;
 }
