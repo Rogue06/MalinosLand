@@ -39,5 +39,12 @@ describe('comptes joueurs', () => {
     const withCaptcha = buildCsp(undefined, 'https://abc.supabase.co', true);
     expect(withCaptcha).toContain("script-src 'self' https://challenges.cloudflare.com;");
     expect(withCaptcha).toContain('frame-src https://challenges.cloudflare.com;');
+    // Cadres : Turnstile et la visionneuse des démos (serveur temps réel), jamais tout https:.
+    const online = buildCsp('wss://rt.example.workers.dev/ws', 'https://abc.supabase.co', true);
+    expect(online).toContain(
+      'frame-src https://challenges.cloudflare.com https://rt.example.workers.dev;',
+    );
+    expect(online).not.toMatch(/frame-src[^;]*https:(;| )/);
+    expect(buildCsp()).not.toContain('frame-src');
   });
 });

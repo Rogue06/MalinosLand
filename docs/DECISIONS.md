@@ -545,3 +545,29 @@ réutilise cette lecture. Les signalements de projets ont leur onglet de modéra
 (le hall est un passage fréquent, choix assumé pour ne jamais montrer des stands faussement
 vides). Un visiteur sans compte télécharge le client Supabase en approchant (comme pour les
 logements). Les affiches restent lisibles en zoomant ; la fiche donne tous les détails.
+
+## DEC-038 — « Essayer ici » : visionneuse servie par le Worker, validation en deux temps (24/10/2026)
+
+**Contexte.** PR 10 du plan : essayer la démo d’un projet du musée sans quitter le jeu, avec les
+exigences de sécurité du responsable (cadre strict chargé au clic, CSP du jeu non élargie,
+vérification réservée aux modérateurs et protégée contre les requêtes détournées, jamais de
+contournement d’un refus, validation humaine).
+**Décision.** Le jeu n’encadre que la **visionneuse** `/demo/:id` du Worker existant ; celle-ci
+encadre le site du projet avec une CSP construite pour lui seul (`default-src 'none'; frame-src
+<origine du projet>; frame-ancestors <origines du jeu>`), sans script, et refuse d’être ouverte
+hors d’un cadre (`Sec-Fetch-Dest`). Mêmes restrictions aux deux niveaux : `sandbox="allow-scripts
+allow-same-origin allow-forms"`, `allow=""`, `referrerpolicy="no-referrer"`, `credentialless`.
+La base décide de l’adresse (`museum_demo` : projet exposé et intégrable, ou pas encore refusé pour
+l’essai d’un modérateur). `/embed-check` lit l’adresse dans la base avec le jeton du modérateur,
+et c’est la base qui vérifie le rôle et compte le plafond (`embed_check_quota`, 20 par heure) : le
+Worker n’a ni secret ni mémoire. Redirections suivies à la main (3 au plus), chacune revérifiée,
+refusées si elles changent d’origine (la CSP de la visionneuse bloquerait le site). En-têtes
+seulement, contenu jamais lu. Lecture prudente : un seul refus (`X-Frame-Options` ou
+`frame-ancestors`, en comptant le jeu **et** la visionneuse comme parents) suffit.
+**Écarts et limites dits honnêtement.** Le mode « essai » de la visionneuse n’est pas
+authentifié (un cadre ne peut pas envoyer de jeton) : il ne sert que des projets **déjà exposés**,
+dont l’adresse est publique, et seulement à l’intérieur du jeu. L’enchaînement « vérification
+puis essai » est guidé par l’interface ; la base garantit seulement que la décision vient d’un
+modérateur. Un site validé peut changer : signalement (remet « à vérifier ») et retrait.
+**Conséquences.** Une requête Worker et une lecture de base par démo ouverte, quelques
+vérifications par jour : négligeable face aux quotas gratuits. Aucune dépendance ni secret ajouté.

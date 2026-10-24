@@ -54,6 +54,11 @@
   Plafonds : 3 en attente, 10 exposés, 5 propositions par jour. `project_reports` : un
   signalement par membre et par projet (10 par jour), lu par les modérateurs ; il remet la démo
   intégrée « à vérifier ».
+- **« Essayer ici »** (migration `20261028090000_museum_demo.sql`, DEC-038) : `embed_checks`
+  (compteur privé, aucune règle d’accès) et deux fonctions : `embed_check_quota()` (modérateur
+  seulement, 20 vérifications par heure, appelée par le serveur avec son jeton) et
+  `museum_demo(id, essai)` (adresse d’un projet exposé et intégrable, ou pas encore refusé pour
+  un essai ; lisible par tous, rien de privé).
 
 > Le schéma ci-dessous était la **cible** de départ : `profiles`, `reports`, `feedback`, `homes`
 > et `home_invites` existent désormais (sous une forme parfois différente, voir les migrations) ;

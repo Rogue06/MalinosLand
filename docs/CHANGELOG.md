@@ -5,6 +5,21 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (v0.4 : Musée des Malinos, « Essayer ici »)
+
+- **▶ Essayer ici** sur la fiche d’un projet validé : la démo s’ouvre dans le jeu, seulement
+  après le clic, dans un cadre isolé (pas de navigation du jeu, de fenêtres, de téléchargements
+  ni de permissions ; aucune provenance transmise). Adresse affichée en clair, rappel sur
+  l’adresse IP, « Ouvrir dans un onglet » toujours visible.
+- Serveur temps réel : **visionneuse** `/demo/:id` (une page sans script dont la CSP n’autorise que
+  le site du projet, affichable seulement dans le jeu) et **vérification** `/embed-check` pour les
+  modérateurs (en-têtes seulement, redirections suivies à la main et revérifiées, IP et adresses
+  locales refusées, 5 secondes, 20 par heure).
+- Modération : vérifier les en-têtes, essayer la démo, puis marquer « intégrable » ; retrait à
+  tout moment.
+- Base : `embed_check_quota` et `museum_demo` (migration additive). La CSP du jeu n’autorise en
+  cadre que Turnstile et cette visionneuse, jamais tout `https:`.
+
 ### Ajouté (v0.4 : Musée des Malinos, la salle)
 
 - La galerie devient le **Musée des Malinos** (ouverte, sans barrière) : 3 cimaises et 4 stands

@@ -6,7 +6,7 @@
 **Dernière mise à jour : 22/10/2026 — v0.3 terminée (logements, décoration, carnet, rôles, jour
 et nuit). Plan validé pour la suite : [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) (v0.35 panneau
 « Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). v0.35 complète (PR 1 à 6
-fusionnées) ; PR 7 et PR 8 du Musée fusionnées ; en cours : PR 9 (la salle). Une PR à
+fusionnées) ; PR 7 à PR 9 du Musée fusionnées ; en cours : PR 10 (« Essayer ici »). Une PR à
 la fois, présentée au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
@@ -102,6 +102,25 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **24/10 (soir, suite)** — PR #54 (la salle du musée) fusionnée et en ligne ; site un moment
+  inaccessible chez le responsable, revenu de lui-même (mise en ligne relancée sans changement :
+  site et serveur répondaient). Branche `feature/musee-essayer-ici` (PR 10, DEC-038) : visionneuse
+  `/demo/:id` et vérification `/embed-check` sur le Worker (`server/src/embed.ts`), migration
+  `20261028090000_museum_demo.sql` (**à appliquer sur Supabase à la fusion**, comme la PR 7),
+  bouton « Essayer ici », validation en deux temps en modération. Testé : unitaires, base,
+  intégration Worker, chaîne complète dans un navigateur avec un faux site (pas d’Internet dans la
+  session). **Non testé en ligne avec un vrai site.**
+  **Demandes du responsable à traiter ensuite (une PR à la fois) :**
+  1. Bruitages (clavier, borne d’arcade, ascenseur, coworking…) : seulement les **10 premières
+     secondes** dans une pièce, rejoués si l’on change de pièce ou si l’on revient après 30 s.
+  2. **Miniature** facultative du projet (capture, photo) affichée en jeu, image très légère ;
+     nécessite un espace de stockage Supabase (gratuit, 1 Go) : **accord à demander** avant de
+     créer le compartiment ; la colonne `thumbnail` existe déjà (vide).
+  3. Futur **Bâtiment des créations** : façades largement **vitrées**, pour voir de l’extérieur
+     les Malinos marcher dedans (à prévoir dans sa conception, PR 11 et suite).
+  4. Texte de présentation (`publication/texte-nouveautes.md` dans le dossier temporaire) :
+     parler des « nouveautés de la semaine ».
 
 - **24/10 (suite)** — PR #53 (exposer et modérer) fusionnée et en ligne. Branche
   `feature/musee-salle` (PR 9, DEC-037) : galerie ouverte et renommée « Musée des Malinos »,

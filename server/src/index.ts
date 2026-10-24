@@ -3,8 +3,11 @@
  *   GET /health  → état du service
  *   GET /ws      → connexion WebSocket au monde (Durable Object « WorldRoom »)
  *   GET /visits  → historique des connexions, pour le responsable du site seulement
+ *   POST /embed-check → vérification d'une démo du musée, pour les modérateurs (embed.ts)
+ *   GET /demo/:id → visionneuse isolée d'une démo du musée (embed.ts)
  */
 import { ACCOUNT_HEADER, encodeAccountHeader, readProtocols, verifyAccount } from './account';
+import { demoPage, embedCheck } from './embed';
 import { originAllowed, visits, WORLD_NAME } from './routes';
 import type { Env } from './WorldRoom';
 
@@ -34,6 +37,8 @@ export default {
       return stub.fetch(new Request(request, { headers }));
     }
     if (url.pathname === '/visits') return visits(request, env);
+    if (url.pathname === '/embed-check') return embedCheck(request, env);
+    if (url.pathname.startsWith('/demo/')) return demoPage(request, env);
     return new Response('Introuvable', { status: 404 });
   },
 } satisfies ExportedHandler<Env>;

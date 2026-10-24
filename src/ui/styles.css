@@ -1936,6 +1936,55 @@ button.presence-chip {
     transition: none;
   }
 }
+.demo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.demo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.demo-host {
+  overflow-wrap: anywhere;
+}
+.demo-note {
+  margin: 0;
+}
+.demo-frame {
+  width: 100%;
+  height: min(66vh, 620px);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+.embed-review {
+  margin: 6px 0;
+  padding: 8px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+}
+.embed-review .row {
+  margin-top: 6px;
+}
+.badge.embed-unknown {
+  background: rgba(255, 200, 87, 0.18);
+  color: var(--sun);
+}
+.badge.embed-refused {
+  background: rgba(255, 122, 89, 0.16);
+  color: var(--coral);
+}
+.embed-verdict.accepte {
+  color: var(--teal-light);
+}
+.embed-verdict.refuse,
+.embed-verdict.injoignable {
+  color: var(--coral);
+}
 @media (max-width: 620px) {
   .museum-sheet {
     flex-direction: column;
