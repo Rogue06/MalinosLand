@@ -470,6 +470,57 @@ export class IsoBuilder {
     return this;
   }
 
+  /**
+   * Image plaquée sur une face verticale, en perspective (affiches du musée). `corner` est le
+   * coin bas-gauche de l'image (coordonnées canoniques), `w` sa largeur le long de la face et `h`
+   * sa hauteur, en tuiles. Rien n'est dessiné si la face regarde vers l'arrière.
+   */
+  image(corner: Vec3, face: 'py' | 'px', w: number, h: number, source: CanvasImageSource): this {
+    const f = this.rotFace(face);
+    if (f === 'nx' || f === 'ny') return this;
+    const uDir: Vec3 = face === 'px' ? { x: 0, y: -1, z: 0 } : { x: 1, y: 0, z: 0 };
+    const at = (u: number, v: number): Vec3 => ({
+      x: corner.x + uDir.x * u,
+      y: corner.y + uDir.y * u,
+      z: corner.z + v,
+    });
+    const local = [at(0, 0), at(w, 0), at(w, h), at(0, h)].map((p) => this.tr(p));
+    const [bl, br, , tl] = local.map(proj) as [Vec2, Vec2, Vec2, Vec2];
+    this.extend(local.map(proj));
+    this.items.push({
+      layer: this.layer,
+      min: {
+        x: Math.min(...local.map((p) => p.x)),
+        y: Math.min(...local.map((p) => p.y)),
+        z: corner.z,
+      },
+      max: {
+        x: Math.max(...local.map((p) => p.x)),
+        y: Math.max(...local.map((p) => p.y)),
+        z: corner.z + h,
+      },
+      draw: (ctx) => {
+        const sw = (source as { width: number }).width;
+        const sh = (source as { height: number }).height;
+        ctx.save();
+        // Repère de l'image : (0,0) en haut à gauche, x le long de la face, y vers le bas.
+        ctx.transform(
+          (br.x - bl.x) / sw,
+          (br.y - bl.y) / sw,
+          (bl.x - tl.x) / sh,
+          (bl.y - tl.y) / sh,
+          tl.x,
+          tl.y,
+        );
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(source, 0, 0);
+        ctx.restore();
+      },
+    });
+    return this;
+  }
+
   /** Dessin 2D libre positionné sur un point 3D (lueurs, émojis…), toujours au premier plan. */
   overlay(
     anchor: Vec3,

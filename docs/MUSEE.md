@@ -5,9 +5,36 @@
 > valide ; il est ensuite exposé à tous. L’auteur peut le retirer quand il veut. Le jeu dessine
 > lui-même l’**affiche** de chaque projet : aucune image n’est envoyée ni stockée.
 >
-> État (v0.4 en cours) : la base (PR 7) et le formulaire avec la modération (PR 8) sont faits.
-> La **salle du musée** (stands, affiches dans le Hub, fiche du projet) arrive avec la PR 9 ; la
-> démo « Essayer ici » avec la PR 10. Voir [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md).
+> État (v0.4 en cours) : la base (PR 7), le formulaire avec la modération (PR 8) et la **salle**
+> (PR 9 : stands, borne « Toutes les créations », fiche, signalements) sont faits. La démo
+> « Essayer ici » arrive avec la PR 10. Voir [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md).
+
+## Visiter le musée
+
+L’ancienne galerie, à droite du hall d’accueil, est devenue le **Musée des Malinos**. Ses
+**7 stands** (3 cimaises au mur, 4 présentoirs sur socle) portent les affiches des projets les
+plus récents ; un stand encore libre montre une invitation « Ta création ici ? ».
+
+![Le Musée des Malinos : stands, borne et panneau d’entrée](images/musee-salle.png)
+
+- **Clique sur un stand** pour ouvrir la **fiche** du projet : affiche, auteur, catégorie,
+  mots-clés, description et le bouton **Ouvrir le site** (nouvel onglet, avec un avertissement
+  « site externe »). Un stand libre ouvre le formulaire pour exposer son projet.
+- La borne **« Toutes les créations »** liste tous les projets exposés, filtrés par catégorie,
+  par pages de 20.
+- **🚩 Signaler** (compte nécessaire) : lien cassé, contenu choquant, arnaque, droits d’auteur ou
+  autre. Le signalement va aux modérateurs ; la démo intégrée (PR 10) sera revérifiée.
+- Le soir, les projecteurs du musée éclairent les affiches.
+
+![La fiche d’un projet](images/musee-fiche.png)
+
+![La borne « Toutes les créations »](images/musee-creations.png)
+
+![Le musée le soir](images/musee-nuit.png)
+
+La liste des stands est lue **une seule fois** quand on approche (hall ou musée), puis gardée
+5 minutes : une petite requête par visite, sans coût. _Captures faites avec des projets
+d’exemple._
 
 ## Pour les membres : exposer un projet
 
@@ -46,6 +73,8 @@ Panneau 🛡️ **Modération** → onglet **🖼️ Musée** :
   sujet, contenu inapproprié, données personnelles, description à préciser) ou un texte libre de
   140 caractères ; ce motif est montré à l’auteur.
 - **Exposés** : les projets visibles, avec **Retirer…** (même choix de motif).
+- **🚩 Signalés** : les signalements de projets, avec **Marquer comme traité** ou **Retirer le
+  projet** (le motif du signalement est montré à l’auteur).
 
 ![Onglet Musée du panneau de modération](images/musee-moderation.png)
 
@@ -61,18 +90,22 @@ socle isométrique. Le motif varie d’un projet à l’autre ; le titre s’ada
 ![Les affiches des six catégories](images/musee-affiches.png)
 
 Toutes les affiches sont visibles sur la page de développement `/art-preview.html`
-(`npm run dev`).
+(`npm run dev`). Dans le jeu, `?debug` puis `__malinosDebug.museumSample()` remplit les stands
+avec des projets d’exemple, sans réseau (captures et test de bout en bout).
 
 ## Pour les développeurs
 
-| Fichier                                         | Rôle                                                                   |
-| ----------------------------------------------- | ---------------------------------------------------------------------- |
-| `supabase/migrations/20261027090000_museum.sql` | Tables, règles d’accès, plafonds, fonctions (voir DATABASE.md)         |
-| `src/content/museum.ts`                         | Catégories : libellés, icônes, couleurs des affiches                   |
-| `src/core/museum.ts`                            | Vérification du formulaire, mêmes règles d’adresse que la base (testé) |
-| `src/services/museum.ts`                        | Appels à la base ; données reçues relues et nettoyées avant affichage  |
-| `src/game/art/posters.ts`                       | Dessin des affiches (Canvas 2D, sans Phaser : formulaire et salle)     |
-| `src/ui/panels/Museum.tsx`                      | Panneau du musée et onglet de modération                               |
+| Fichier                                         | Rôle                                                                    |
+| ----------------------------------------------- | ----------------------------------------------------------------------- |
+| `supabase/migrations/20261027090000_museum.sql` | Tables, règles d’accès, plafonds, fonctions (voir DATABASE.md)          |
+| `src/content/museum.ts`                         | Catégories : libellés, icônes, couleurs des affiches                    |
+| `src/core/museum.ts`                            | Vérification du formulaire, mêmes règles d’adresse que la base (testé)  |
+| `src/services/museum.ts`                        | Appels à la base ; données reçues relues et nettoyées avant affichage   |
+| `src/game/art/posters.ts`                       | Dessin des affiches (Canvas 2D, sans Phaser : formulaire et salle)      |
+| `src/ui/panels/Museum.tsx`                      | Panneau du musée et onglet de modération                                |
+| `src/ui/panels/MuseumVisit.tsx`                 | Borne « Toutes les créations » et fiche d’un projet                     |
+| `src/game/art/museum.ts`                        | Cimaises, stands, borne et panneau ; affiche plaquée en perspective     |
+| `src/content/maps/hub.json`                     | Salle : stands `stand-1` à `stand-7` (interaction `stand`, place 0 à 6) |
 
 Sécurité : les textes passent par `sanitizeText` / `sanitizeName` et ne sont jamais interprétés
 comme du HTML ; une adresse qui ne passe pas `isValidProjectUrl` n’est jamais affichée comme lien ;

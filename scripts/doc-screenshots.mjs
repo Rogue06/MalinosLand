@@ -116,7 +116,7 @@ const closeHud = (page) => page.evaluate(() => document.querySelector('.objectiv
   await teleport(page, 5.5, 4.5, 'ny');
   await shot(page, 'coworking');
 
-  // 6. Salle de conférence et galerie (bientôt)
+  // 6. Salle de conférence et Musée des Malinos
   await teleport(page, 18.5, 3.5, 'py');
   await shot(page, 'conference-et-galerie');
 

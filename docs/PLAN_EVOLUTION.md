@@ -438,6 +438,8 @@ Migration `supabase/migrations/2026…_museum.sql` :
 - Fiche du projet : titre, auteur, catégorie, mots-clés, résumé, bouton **« Ouvrir le site »**
   (nouvel onglet, `rel="noopener noreferrer"`, avertissement « site externe »).
 - Chargement : une seule lecture de la liste à l’entrée dans le musée, gardée 5 minutes.
+- _Réalisé (DEC-037)_ : 7 stands (3 cimaises, 4 présentoirs), affiches plaquées en perspective,
+  liste lue en approchant (hall ou musée), signalement depuis la fiche et onglet 🚩 Signalés.
 
 ### PR 10 — Musée : « Essayer ici » sécurisé (M)
 

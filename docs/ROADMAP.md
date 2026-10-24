@@ -140,7 +140,10 @@ Rien de tout cela ne sollicite le serveur ni la base de données : c’est calcu
 **En une phrase :** les Malinos exposent leurs créations (sites, applis, outils IA, jeux, projets
 open source) et tout le monde peut les découvrir dans le jeu.
 
-![La galerie, encore fermée](images/conference-et-galerie.jpg)
+![Le Musée des Malinos](images/musee-salle.png)
+
+_Fait : exposer son projet, modération, la salle avec ses stands, la borne et les fiches.
+Reste : « Essayer ici » et le Bâtiment des créations._
 
 - **exposer son projet** avec un compte : titre, résumé, adresse, catégorie ; **validé par les
   modérateurs** avant d’apparaître, retiré quand on veut ;

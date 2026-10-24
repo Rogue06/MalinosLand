@@ -36,6 +36,13 @@ import {
   type SpotSound,
 } from '../../services/audio';
 import { isTouchDevice } from '../../services/device';
+import {
+  loadMuseumWall,
+  museumWallStore,
+  type MuseumProject,
+  type MuseumWall,
+} from '../../services/museum';
+import { MUSEUM_SAMPLES } from '../../content/museum';
 import { fetchDecor, myHomeAccess, saveMyDecor, type HomeAccess } from '../../services/homes';
 import { checkPendingInvitations } from '../../services/invitations';
 import {
@@ -56,6 +63,7 @@ import {
   peersPosStore,
   playerPosStore,
   presenceStore,
+  projectFocusStore,
   pushChat,
   pushInvitation,
   pushToast,
@@ -305,6 +313,7 @@ export class WorldScene extends Phaser.Scene {
     this.cleanups.push(settingsStore.subscribe((s) => this.applySettings(s)));
     this.cleanups.push(profileStore.subscribe((p) => p && this.onProfileChanged(p)));
     this.cleanups.push(accountStore.subscribe(() => this.onAccountChanged()));
+    this.cleanups.push(museumWallStore.subscribe((w) => this.applyMuseumWall(w)));
     this.cleanups.push(
       hiddenStore.subscribe(() => {
         for (const [id, r] of this.remotes) r.view.setHidden(isHidden(id));
@@ -373,6 +382,7 @@ export class WorldScene extends Phaser.Scene {
       hiDpi: settings.quality === 'high',
     });
     this.renderer3d.build();
+    this.applyMuseumWall(museumWallStore.get());
     this.depthIndex = new DepthIndex(this.world.width, this.renderer3d.depthBoxes);
     // Vie du décor (fontaine, oiseaux, papillons, vapeur) : rien n'est envoyé sur le réseau.
     this.life = settings.reducedMotion
@@ -758,6 +768,9 @@ export class WorldScene extends Phaser.Scene {
       case 'panel':
         panelStore.set(it.panel);
         break;
+      case 'stand':
+        this.openStand(it.slot);
+        break;
       case 'emote':
         this.avatar.say(it.emoji, 3500);
         pushToast(it.text, it.emoji);
@@ -767,6 +780,38 @@ export class WorldScene extends Phaser.Scene {
     }
     if (it.quest) this.quest(it.quest);
     if (it.secret) this.secret(it.secret);
+  }
+
+  /**
+   * Stands du musée : chacun porte l'affiche du projet exposé à sa place (les plus récents
+   * d'abord) ; un stand sans projet montre une invitation à exposer le sien.
+   */
+  private applyMuseumWall(wall: MuseumWall): void {
+    if (!this.renderer3d || this.room !== HUB_ROOM) return;
+    for (const obj of this.world.objects) {
+      const it = obj.interaction;
+      if (it?.kind !== 'stand') continue;
+      const p = wall.projects[it.slot];
+      const poster = p
+        ? { id: p.id, title: p.title, author: p.author, category: p.category }
+        : null;
+      this.renderer3d.setObjectTexture(
+        obj.id,
+        this.tex.stand(obj.type, obj.rot, obj.variant, poster),
+      );
+    }
+  }
+
+  /** Clic sur un stand : la fiche du projet, ou le formulaire si la place est libre. */
+  private openStand(slot: number): void {
+    const project: MuseumProject | undefined = museumWallStore.get().projects[slot];
+    if (project) {
+      projectFocusStore.set(project);
+      panelStore.set('project');
+    } else {
+      pushToast('Cette place attend une création : pourquoi pas la tienne ?', '🖼️', 4000);
+      panelStore.set('museum');
+    }
   }
 
   /**
@@ -1494,6 +1539,8 @@ export class WorldScene extends Phaser.Scene {
     if (id === this.zoneId) return;
     this.zoneId = id;
     zoneStore.set(zone && homeOwner(this.room) ? { ...zone, name: this.homeLabel() } : zone);
+    // Musée : la liste des stands est lue en approchant (hall ou musée), puis gardée 5 minutes.
+    if (this.room === HUB_ROOM && (id === 'hall' || id === 'gallery')) void loadMuseumWall();
     setAmbience(ambienceForZone(id));
     if (id) {
       this.indoor = ambienceForZone(id) !== 'outdoor';
@@ -1578,6 +1625,15 @@ export class WorldScene extends Phaser.Scene {
         const obj = this.world.getObject(id);
         if (obj) this.useObject(obj);
         return !!obj;
+      },
+      /** Remplit les stands du musée avec des projets d'exemple, sans réseau (captures, tests). */
+      museumSample: (n = MUSEUM_SAMPLES.length) => {
+        museumWallStore.set({
+          status: 'ready',
+          projects: MUSEUM_SAMPLES.slice(0, n).map((p, i) => ({ ...p, id: 900 + i })),
+          at: Date.now(),
+        });
+        return museumWallStore.get().projects.length;
       },
       useType: (type: string) => {
         const obj = this.world.objects.find((o) => o.type === type);

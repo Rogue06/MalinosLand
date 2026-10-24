@@ -2,6 +2,7 @@ import type { Vec3 } from '../../core/iso';
 import { facesCamera, rotateFacing } from '../../core/rotation';
 import { darken, lighten } from './color';
 import type { BoxSpec, Decal, IsoBuilder } from './iso3d';
+import { MUSEUM_ART } from './museum';
 import { PALETTE as P } from './palette';
 
 /**
@@ -1037,6 +1038,7 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
       fit: 0.42,
     });
   },
+  ...MUSEUM_ART,
 };
 
 // ---------------------------------------------------------------------------

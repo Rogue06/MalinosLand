@@ -17,13 +17,18 @@ import { AccountError, accountStore } from '../../services/account';
 import {
   MUSEUM_PAGE_SIZE,
   PROJECT_STATUS_LABEL,
+  PROJECT_REPORT_REASONS,
   listApproved,
   listPending,
+  listProjectReports,
   moderateProject,
+  setProjectReportStatus,
   myProjects,
   submitProject,
   withdrawProject,
   type ModeratedProject,
+  type ProjectReport,
+  type ProjectStatus,
   type MuseumProject,
   type MyProject,
 } from '../../services/museum';
@@ -59,9 +64,17 @@ const DATE_FMT = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long
 const formatDate = (iso: string) => (iso ? DATE_FMT.format(new Date(iso)) : '');
 
 /** Lien vers un site externe : nouvel onglet, sans transmettre d'où l'on vient. */
-function ExternalLink({ url, label }: { url: string; label?: string }) {
+export function ExternalLink({
+  url,
+  label,
+  className = 'external-link',
+}: {
+  url: string;
+  label?: string;
+  className?: string;
+}) {
   return (
-    <a class="external-link" href={url} target="_blank" rel="noopener noreferrer">
+    <a class={className} href={url} target="_blank" rel="noopener noreferrer">
       {label ?? url} ↗
     </a>
   );
@@ -326,7 +339,7 @@ export function MuseumPanel() {
     <Modal title="Musée des Malinos" icon="🖼️" wide>
       <p class="muted">
         Expose ton site, ton application, ton outil IA ou ta création. Chaque projet est relu par un
-        modérateur avant d’être visible ; la salle du musée ouvre bientôt dans le Hub.
+        modérateur avant d’être visible, puis exposé sur un stand du musée, à côté du hall.
       </p>
       {!online ? (
         <p class="notice">Le musée est disponible dans la version en ligne du jeu.</p>
@@ -468,6 +481,7 @@ function Decision({
 
 /** Onglet « Musée » du panneau 🛡️ Modération (la base vérifie le rôle de modérateur). */
 export function MuseumModeration() {
+  const [reports, setReports] = useState(false);
   const [list, setList] = useState<'pending' | 'approved'>('pending');
   const [rows, setRows] = useState<Array<ModeratedProject | MuseumProject> | null>(null);
   const [page, setPage] = useState(0);
@@ -493,28 +507,47 @@ export function MuseumModeration() {
 
   const remove = (id: number) => setRows((r) => (r ?? []).filter((p) => p.id !== id));
   const show = (l: 'pending' | 'approved') => {
+    setReports(false);
     setPage(0);
     setList(l);
   };
 
+  const tabs = (
+    <div class="row start wrap">
+      <button
+        type="button"
+        class={`btn small ${!reports && list === 'pending' ? 'primary' : 'ghost'}`}
+        onClick={() => show('pending')}
+      >
+        En attente
+      </button>
+      <button
+        type="button"
+        class={`btn small ${!reports && list === 'approved' ? 'primary' : 'ghost'}`}
+        onClick={() => show('approved')}
+      >
+        Exposés
+      </button>
+      <button
+        type="button"
+        class={`btn small ${reports ? 'primary' : 'ghost'}`}
+        onClick={() => setReports(true)}
+      >
+        🚩 Signalés
+      </button>
+    </div>
+  );
+  if (reports)
+    return (
+      <>
+        {tabs}
+        <ProjectReportsList />
+      </>
+    );
+
   return (
     <>
-      <div class="row start">
-        <button
-          type="button"
-          class={`btn small ${list === 'pending' ? 'primary' : 'ghost'}`}
-          onClick={() => show('pending')}
-        >
-          En attente
-        </button>
-        <button
-          type="button"
-          class={`btn small ${list === 'approved' ? 'primary' : 'ghost'}`}
-          onClick={() => show('approved')}
-        >
-          Exposés
-        </button>
-      </div>
+      {tabs}
       <p class="muted small">
         Ouvre le site et vérifie-le avant de valider : il doit fonctionner, correspondre à la
         description et ne rien demander de suspect. Le motif de refus est montré à l’auteur.
@@ -565,6 +598,106 @@ export function MuseumModeration() {
           Voir plus
         </button>
       )}
+    </>
+  );
+}
+
+const PROJECT_REASON_LABEL: Record<string, string> = Object.fromEntries(
+  PROJECT_REPORT_REASONS.map((r) => [r.id, r.label]),
+);
+
+/** Signalements de projets exposés : marquer comme traité, ou retirer le projet du musée. */
+function ProjectReportsList() {
+  const [status, setStatus] = useState<'ouvert' | 'traite'>('ouvert');
+  const [rows, setRows] = useState<ProjectReport[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setRows(null);
+    setError(null);
+    listProjectReports(status)
+      .then(setRows)
+      .catch(() => setError('Chargement impossible.'));
+  }, [status]);
+
+  const done = (id: number) => setRows((list) => (list ?? []).filter((r) => r.id !== id));
+  const toggle = async (r: ProjectReport) => {
+    try {
+      await setProjectReportStatus(r.id, r.status === 'ouvert' ? 'traite' : 'ouvert');
+      done(r.id);
+    } catch {
+      setError('Modification impossible.');
+    }
+  };
+  const withdraw = async (r: ProjectReport) => {
+    try {
+      await moderateProject(r.projectId, 'withdrawn', PROJECT_REASON_LABEL[r.reason] ?? '');
+      await setProjectReportStatus(r.id, 'traite');
+      pushToast(`« ${r.project?.title ?? 'Projet'} » est retiré du musée.`, '🛡️', 4000);
+      done(r.id);
+    } catch (e) {
+      setError(e instanceof AccountError ? e.message : 'Retrait impossible.');
+    }
+  };
+
+  return (
+    <>
+      <div class="row start">
+        <button
+          type="button"
+          class={`btn small ${status === 'ouvert' ? 'primary' : 'ghost'}`}
+          onClick={() => setStatus('ouvert')}
+        >
+          À traiter
+        </button>
+        <button
+          type="button"
+          class={`btn small ${status === 'traite' ? 'primary' : 'ghost'}`}
+          onClick={() => setStatus('traite')}
+        >
+          Traités
+        </button>
+      </div>
+      {error && <p class="error">{error}</p>}
+      {rows === null && !error && <p class="muted">Chargement…</p>}
+      {rows?.length === 0 && <p class="muted">Aucun signalement de projet.</p>}
+      <ul class="reports">
+        {rows?.map((r) => (
+          <li key={r.id}>
+            <div class="player-row">
+              <span class="player-name">
+                {r.project?.title ?? 'Projet supprimé'}
+                {r.project && r.project.status !== 'approved' && (
+                  <span class="muted">
+                    {' '}
+                    · {PROJECT_STATUS_LABEL[r.project.status as ProjectStatus]}
+                  </span>
+                )}
+              </span>
+              <span class="muted small">{new Date(r.createdAt).toLocaleString('fr-FR')}</span>
+            </div>
+            <p class="small">
+              <b>{PROJECT_REASON_LABEL[r.reason] ?? r.reason}</b>
+              {r.details && <> — {r.details}</>}
+            </p>
+            {r.project?.url && (
+              <p class="small">
+                <ExternalLink url={r.project.url} />
+              </p>
+            )}
+            <div class="row start">
+              <button type="button" class="btn ghost small" onClick={() => void toggle(r)}>
+                {r.status === 'ouvert' ? 'Marquer comme traité' : 'Rouvrir'}
+              </button>
+              {r.status === 'ouvert' && r.project?.status === 'approved' && (
+                <button type="button" class="btn small danger" onClick={() => void withdraw(r)}>
+                  Retirer le projet
+                </button>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
     </>
   );
 }

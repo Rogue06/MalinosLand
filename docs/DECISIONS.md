@@ -529,3 +529,19 @@ Côté services, les fonctions s’appellent `moderateProject` (au lieu de `setS
 **Conséquences.** Aucune image, aucun service ni dépendance en plus ; quelques kilo-octets de
 code. Le texte est dessiné (`fillText`), jamais interprété. Les données reçues de la base sont
 relues : une adresse invalide n’est jamais affichée comme lien.
+
+## DEC-037 — Salle du musée : affiches plaquées sur le mobilier, liste lue en approchant (24/10/2026)
+
+**Contexte.** PR 9 du plan : ouvrir la galerie comme Musée des Malinos, avec des stands qui
+montrent les projets validés. Les objets du jeu sont des images précalculées par `IsoBuilder`.
+**Décision.** `IsoBuilder.image()` plaque une image sur une face verticale, en perspective
+(transformation affine du canevas). Cimaises et stands (`src/game/art/museum.ts`) reçoivent
+l’affiche de `posters.ts` ; quand la liste arrive, le jeu recalcule l’image de chaque stand (même
+cadrage, clé de cache par projet) et la remplace (`WorldRenderer.setObjectTexture`). Nouvelle
+interaction `stand` (place 0 = projet le plus récent), validée par `validateMap`. La liste est
+lue par `museum_projects` **en approchant** (zones hall ou musée), gardée 5 minutes ; la borne
+réutilise cette lecture. Les signalements de projets ont leur onglet de modération.
+**Conséquences.** Aucune image stockée ni service ajouté ; une requête légère par visite du Hub
+(le hall est un passage fréquent, choix assumé pour ne jamais montrer des stands faussement
+vides). Un visiteur sans compte télécharge le client Supabase en approchant (comme pour les
+logements). Les affiches restent lisibles en zoomant ; la fiche donne tous les détails.

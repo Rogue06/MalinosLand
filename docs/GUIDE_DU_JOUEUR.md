@@ -97,16 +97,16 @@ la tour et le toit-terrasse sont encore marqués **« bientôt »**.
 
 Des bureaux pour travailler ensemble. Un des ordinateurs affiche **l’astuce IA du jour**.
 
-### La salle de conférence et la galerie
+### La salle de conférence et le Musée des Malinos
 
-![Conférence et galerie](images/conference-et-galerie.jpg)
+![Le Musée des Malinos](images/musee-salle.png)
 
 La **salle de conférence** (scène, écran géant, sièges) accueillera des événements à partir de la
-v0.5. Juste devant, la galerie est encore fermée par une corde : elle deviendra le **Musée des
-Malinos** en v0.4, pour exposer les créations de la communauté. Tu peux **déjà proposer ton
-projet** : clique sur le panneau devant la galerie (« Exposer mon projet au musée »), ou ouvre
-⚙️ Réglages → 🖼️ Mes projets quand tu es connecté. Un modérateur le valide avant qu’il soit
-exposé (voir [MUSEE.md](MUSEE.md)).
+v0.5. Juste devant, le **Musée des Malinos** expose les créations de la communauté : clique sur
+un **stand** pour voir la fiche du projet et ouvrir son site, ou sur la borne **« Toutes les
+créations »** pour tout parcourir par catégorie. Pour **exposer ton projet**, clique sur le
+panneau à l’entrée du musée ou sur un stand libre, ou ouvre ⚙️ Réglages → 🖼️ Mes projets quand
+tu es connecté. Un modérateur le valide avant qu’il soit exposé (voir [MUSEE.md](MUSEE.md)).
 
 ### Le salon détente
 

@@ -14,7 +14,9 @@ import {
   isValidProjectUrl,
   type ProjectDraft,
 } from '../core/museum';
+import { Store } from '../core/store';
 import { sanitizeName, sanitizeText } from '../core/text';
+import { SUPABASE_KEY, SUPABASE_URL } from '../config';
 import { AccountError, accountStore, load } from './account';
 
 export type ProjectStatus = 'pending' | 'approved' | 'rejected' | 'withdrawn';
@@ -231,4 +233,127 @@ export async function moderateProject(
     throw /Réservé aux modérateurs/.test(error.message ?? '')
       ? new AccountError('Réservé aux modérateurs.')
       : fail();
+}
+
+/** Projets des stands du musée : les plus récents, lus une fois puis gardés 5 minutes. */
+export interface MuseumWall {
+  status: 'idle' | 'loading' | 'ready' | 'offline' | 'error';
+  projects: MuseumProject[];
+  /** Moment de la dernière lecture réussie (ms). */
+  at: number;
+}
+
+export const MUSEUM_WALL_TTL_MS = 5 * 60_000;
+export const museumWallStore = new Store<MuseumWall>({ status: 'idle', projects: [], at: 0 });
+
+/**
+ * Charge la liste des stands (une seule lecture, au plus toutes les 5 minutes). Sans serveur de
+ * comptes (version hors ligne), les stands restent libres.
+ */
+export async function loadMuseumWall(now = Date.now()): Promise<void> {
+  const wall = museumWallStore.get();
+  if (wall.status === 'loading') return;
+  if (wall.status === 'ready' && now - wall.at < MUSEUM_WALL_TTL_MS) return;
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    museumWallStore.set({ status: 'offline', projects: [], at: now });
+    return;
+  }
+  museumWallStore.set({ ...wall, status: 'loading' });
+  try {
+    museumWallStore.set({ status: 'ready', projects: await listApproved(null, 0), at: now });
+  } catch {
+    museumWallStore.set({ ...wall, status: 'error' });
+  }
+}
+
+/** Motifs de signalement d'un projet (identiques à la contrainte de la base). */
+export const PROJECT_REPORT_REASONS = [
+  { id: 'lien-casse', label: 'Le lien ne marche pas' },
+  { id: 'contenu', label: 'Contenu choquant ou inapproprié' },
+  { id: 'arnaque', label: 'Arnaque ou demande suspecte' },
+  { id: 'droits', label: 'Ce n’est pas son projet (droits d’auteur)' },
+  { id: 'autre', label: 'Autre' },
+] as const;
+export type ProjectReportReason = (typeof PROJECT_REPORT_REASONS)[number]['id'];
+export const PROJECT_REPORT_DETAILS_MAX = 500;
+
+/** Signale un projet exposé (compte nécessaire ; un signalement par membre et par projet). */
+export async function reportProject(
+  id: number,
+  reason: ProjectReportReason,
+  details: string,
+): Promise<void> {
+  if (accountStore.get().status !== 'signed-in')
+    throw new AccountError('Connecte-toi à ton compte pour signaler un projet.');
+  const { db } = await load();
+  const { error } = await db.from('project_reports').insert({
+    project_id: id,
+    reason,
+    details: sanitizeText(details, PROJECT_REPORT_DETAILS_MAX),
+  });
+  if (!error) return;
+  if (error.code === '23505') throw new AccountError('Tu as déjà signalé ce projet. Merci !');
+  if (/Trop de signalements/.test(error.message ?? ''))
+    throw new AccountError('Tu as atteint la limite de signalements pour aujourd’hui.');
+  throw fail();
+}
+
+export interface ProjectReport {
+  id: number;
+  projectId: number;
+  status: 'ouvert' | 'traite';
+  reason: string;
+  details: string;
+  createdAt: string;
+  project: { title: string; url: string; status: string } | null;
+}
+
+export function parseProjectReports(rows: unknown): ProjectReport[] {
+  if (!Array.isArray(rows)) return [];
+  return rows.flatMap((raw: Record<string, unknown>) => {
+    const id = Number(raw?.id);
+    const projectId = Number(raw?.project_id);
+    if (!Number.isSafeInteger(id) || !Number.isSafeInteger(projectId)) return [];
+    const p = raw.projects as Record<string, unknown> | null | undefined;
+    const url = typeof p?.url === 'string' && isValidProjectUrl(p.url) ? p.url : '';
+    return [
+      {
+        id,
+        projectId,
+        status: raw.status === 'traite' ? ('traite' as const) : ('ouvert' as const),
+        reason: sanitizeText(raw.reason, 20),
+        details: sanitizeText(raw.details, PROJECT_REPORT_DETAILS_MAX),
+        createdAt: isoDate(raw.created_at),
+        project: p
+          ? {
+              title: sanitizeText(p.title, PROJECT_TITLE_MAX) || 'Projet',
+              url,
+              status: STATUSES.includes(p.status as string) ? (p.status as string) : 'pending',
+            }
+          : null,
+      },
+    ];
+  });
+}
+
+/** Modérateurs : signalements de projets (la base vérifie le rôle). */
+export async function listProjectReports(status: 'ouvert' | 'traite'): Promise<ProjectReport[]> {
+  const { db } = await load();
+  const { data, error } = await db
+    .from('project_reports')
+    .select('id, project_id, reason, details, status, created_at, projects(title, url, status)')
+    .eq('status', status)
+    .order('created_at', { ascending: false })
+    .limit(50);
+  if (error) throw fail();
+  return parseProjectReports(data);
+}
+
+export async function setProjectReportStatus(
+  id: number,
+  status: 'ouvert' | 'traite',
+): Promise<void> {
+  const { db } = await load();
+  const { error } = await db.from('project_reports').update({ status }).eq('id', id);
+  if (error) throw fail();
 }

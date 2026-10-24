@@ -139,4 +139,5 @@ Ajouter `?debug` à l’URL du jeu expose `window.__malinosDebug` : `pos()`, `st
 `room()`, `travel(salle)` (aller directement au Hub ou dans un studio `home-…`), `peers()`, `fps()`,
 `role(r)` (aperçu local du statut doré ou du badge sur son avatar, rien n’est envoyé),
 `time(h?)` (impose une heure de Paris pour voir la nuit ; sans argument, revient à l’heure réelle),
-`panel(id)` (ouvre un panneau de l’interface, ex. `panel('quiz')`). Utilisé par les tests de bout en bout et les captures de documentation.
+`panel(id)` (ouvre un panneau de l’interface, ex. `panel('quiz')`), `museumSample(n?)` (remplit
+les stands du musée avec des projets d’exemple, sans réseau). Utilisé par les tests de bout en bout et les captures de documentation.
