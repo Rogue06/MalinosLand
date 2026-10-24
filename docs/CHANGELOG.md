@@ -5,6 +5,14 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Modifié (sons)
+
+- Bruitages des pièces (claviers du coworking, ascenseur du hall, bornes d’arcade, cheminée du
+  salon, oiseaux et vent dehors) : on ne les entend plus que les **10 premières secondes** en
+  entrant, puis ils s’éteignent doucement. Ils reviennent dans une autre pièce, ou dans la même
+  après **30 secondes** d’absence. Les sons de proximité (feu de camp, fontaine) et la musique
+  de la ronde ne changent pas.
+
 ### Ajouté (v0.4 : Musée des Malinos, « Essayer ici »)
 
 - **▶ Essayer ici** sur la fiche d’un projet validé : la démo s’ouvre dans le jeu, seulement
