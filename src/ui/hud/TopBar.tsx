@@ -29,11 +29,11 @@ export function TopBar({
           class="badge"
           title={
             REALTIME_URL
-              ? 'Version en ligne, en construction : v0.3 (logements) terminée, v0.35 (panneau « Que faire ? » et quiz IA) en préparation'
+              ? 'Version en ligne, en construction : v0.35 (panneau « Que faire ? » et quiz IA) terminée, v0.4 (Musée des Malinos) en cours'
               : 'Version locale : fonctionne sans serveur'
           }
         >
-          v0.3 · en construction
+          v0.4 · en construction
         </span>
         {zone && (
           <span class={`zone-chip ${zone.status}`} title={zone.description}>

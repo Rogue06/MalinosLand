@@ -16,7 +16,8 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 - Panneau d’entrée « Musée des Malinos » ; onglet de modération **🚩 Signalés** (traiter ou
   retirer le projet).
 - Une seule lecture de la liste en approchant (hall ou musée), gardée 5 minutes.
-- Feuille de route du jeu : v0.35 terminée, v0.4 en cours. Outil `museumSample()` (débogage).
+- Feuille de route du jeu et badge de version : v0.35 terminée, v0.4 en cours. Outil
+  `museumSample()` (débogage).
 
 ### Ajouté (v0.4 : Musée des Malinos, exposer et modérer)
 
