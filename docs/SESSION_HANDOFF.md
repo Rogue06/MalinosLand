@@ -105,8 +105,8 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
 
 - **24/10 (nuit)** — PR #55 (« Essayer ici ») fusionnée et en ligne. Migration
   `20261028090000_museum_demo.sql` **appliquée à moitié** : `museum_demo` est installée, mais
-  `embed_checks` + `embed_check_quota` attendent (Supabase a demandé une confirmation restée sans
-  réponse) ; tant qu’elle manque, « Vérifier les en-têtes » est refusé aux modérateurs (rien ne
+  `embed_checks` + `embed_check_quota` attendent (Supabase demandait une confirmation à cause du
+  ménage automatique `delete`, retiré par la PR « fix: quota… » pour pouvoir l’appliquer) ; tant qu’elle manque, « Vérifier les en-têtes » est refusé aux modérateurs (rien ne
   casse pour les joueurs). Branche `fix/bruitages-10-secondes` (DEC-039). Miniatures : le
   responsable préfère un **aperçu automatique** du site (voir la proposition en attente de son
   accord dans la conversation : capture par le serveur, stockage gratuit, validation au besoin).
