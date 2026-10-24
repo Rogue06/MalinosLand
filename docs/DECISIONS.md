@@ -571,3 +571,15 @@ puis essai » est guidé par l’interface ; la base garantit seulement que la d
 modérateur. Un site validé peut changer : signalement (remet « à vérifier ») et retrait.
 **Conséquences.** Une requête Worker et une lecture de base par démo ouverte, quelques
 vérifications par jour : négligeable face aux quotas gratuits. Aucune dépendance ni secret ajouté.
+
+## DEC-039 — Bruitages des pièces limités aux 10 premières secondes (24/10/2026)
+
+**Contexte.** Le responsable trouve les bruitages répétés pénibles à la longue (clavier, borne
+d’arcade, ascenseur…).
+**Décision.** Règle pure `AmbienceWindow` (`src/core/ambienceWindow.ts`) : en entrant dans un
+lieu, ses bruitages jouent 10 secondes puis s’éteignent en fondu ; ils rejouent dans un autre
+lieu ou après 30 secondes d’absence ; un retour rapide reprend les secondes restantes. La fenêtre
+démarre au premier clic si le navigateur n’autorisait pas encore le son. Un volume dédié
+(`zoneGain`) permet le fondu sans toucher aux sons de proximité ni à la musique de la ronde.
+**Conséquences.** Aucun fichier ni dépendance ; mesuré dans le navigateur (sons émis seulement
+pendant les 10 premières secondes). Valeurs ajustables dans un seul fichier.

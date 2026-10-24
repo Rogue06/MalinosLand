@@ -198,7 +198,7 @@ Bouton 🗺️ : les prochaines versions résumées. Détails dans [ROADMAP.md](
 | **Réduire les animations**    | Pour un affichage plus calme.                                                                                                                              |
 | **Afficher les noms**         | Montre ou cache les pseudos au-dessus des têtes.                                                                                                           |
 | **Sons**                      | Petit son à l’arrivée d’un message et quand on te mentionne (@pseudo).                                                                                     |
-| **Ambiance sonore**           | Oiseaux et vent dehors, claviers au coworking, ascenseur dans le hall, cheminée au salon.                                                                  |
+| **Ambiance sonore**           | Oiseaux et vent dehors, claviers au coworking, ascenseur dans le hall, cheminée au salon : les 10 premières secondes dans chaque lieu, puis silence.       |
 | **Volume**                    | Volume de tous les sons du jeu.                                                                                                                            |
 | **Afficher les performances** | Montre les images par seconde (utile pour signaler un souci).                                                                                              |
 | **Compte**                    | Se connecter avec GitHub ou Google, se déconnecter, supprimer son compte.                                                                                  |

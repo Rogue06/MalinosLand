@@ -103,6 +103,14 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
 
 ## Dernières sessions
 
+- **24/10 (nuit)** — PR #55 (« Essayer ici ») fusionnée et en ligne. Migration
+  `20261028090000_museum_demo.sql` **appliquée à moitié** : `museum_demo` est installée, mais
+  `embed_checks` + `embed_check_quota` attendent (Supabase a demandé une confirmation restée sans
+  réponse) ; tant qu’elle manque, « Vérifier les en-têtes » est refusé aux modérateurs (rien ne
+  casse pour les joueurs). Branche `fix/bruitages-10-secondes` (DEC-039). Miniatures : le
+  responsable préfère un **aperçu automatique** du site (voir la proposition en attente de son
+  accord dans la conversation : capture par le serveur, stockage gratuit, validation au besoin).
+
 - **24/10 (soir, suite)** — PR #54 (la salle du musée) fusionnée et en ligne ; site un moment
   inaccessible chez le responsable, revenu de lui-même (mise en ligne relancée sans changement :
   site et serveur répondaient). Branche `feature/musee-essayer-ici` (PR 10, DEC-038) : visionneuse
@@ -112,8 +120,7 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   intégration Worker, chaîne complète dans un navigateur avec un faux site (pas d’Internet dans la
   session). **Non testé en ligne avec un vrai site.**
   **Demandes du responsable à traiter ensuite (une PR à la fois) :**
-  1. Bruitages (clavier, borne d’arcade, ascenseur, coworking…) : seulement les **10 premières
-     secondes** dans une pièce, rejoués si l’on change de pièce ou si l’on revient après 30 s.
+  1. ~~Bruitages limités à 10 s~~ : fait (branche `fix/bruitages-10-secondes`, DEC-039).
   2. **Miniature** facultative du projet (capture, photo) affichée en jeu, image très légère ;
      nécessite un espace de stockage Supabase (gratuit, 1 Go) : **accord à demander** avant de
      créer le compartiment ; la colonne `thumbnail` existe déjà (vide).
