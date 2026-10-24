@@ -6,6 +6,8 @@
 --   un projet exposé et marqué « intégrable » (ou, pour l'essai d'un modérateur, pas encore
 --   refusé). Projets exposés uniquement : rien de privé n'en sort.
 -- Migration purement additive. Tests : tests/database.test.ts (PGlite).
+-- Pas de ménage automatique du compteur : une suppression dans une migration demande une
+-- confirmation manuelle sur Supabase. Quelques lignes par jour au plus : négligeable.
 
 create table public.embed_checks (
   id bigint generated always as identity primary key,
@@ -33,8 +35,6 @@ begin
   if me is null or not public.is_moderator() then
     return false;
   end if;
-  -- Ménage : on ne garde qu'un jour d'historique.
-  delete from public.embed_checks where created_at < now() - interval '1 day';
   if (
     select count(*) from public.embed_checks c
     where c.moderator_id = me and c.created_at > now() - interval '1 hour'
