@@ -513,3 +513,19 @@ des colonnes obligatoires sans objet ici) ; la migration reste purement additive
 les joueurs, signaler demande un compte.
 **Conséquences.** ≈ 1 Ko par projet ; une lecture paginée (20) à l’entrée du musée. La démo
 intégrée (PR 10) s’appuiera sur `embed`, que seul un modérateur règle.
+
+## DEC-036 — Affiches du musée dessinées en Canvas 2D, partagées par l’interface et le jeu (24/10/2026)
+
+**Contexte.** PR 8 du plan : le formulaire « Exposer mon projet » doit montrer l’affiche avant
+l’envoi, et la salle du musée (PR 9) doit montrer la même. Le responsable veut une affiche
+soignée, sans stocker d’image.
+**Décision.** `src/game/art/posters.ts` dessine l’affiche avec l’API Canvas 2D du navigateur,
+**sans importer Phaser** : l’interface Preact l’utilise pour l’aperçu (elle ne connaît toujours
+pas Phaser), et le jeu pourra en faire une texture. Le dessin est déterministe (même projet →
+même affiche, motif varié par un hachage du numéro et du titre). L’affiche est donc avancée de la
+PR 9 à la PR 8. La vérification du formulaire (`src/core/museum.ts`) reprend exactement les
+règles d’adresse de la base ; une même liste d’adresses est testée côté jeu et côté base.
+Côté services, les fonctions s’appellent `moderateProject` (au lieu de `setStatus` dans le plan).
+**Conséquences.** Aucune image, aucun service ni dépendance en plus ; quelques kilo-octets de
+code. Le texte est dessiné (`fillText`), jamais interprété. Les données reçues de la base sont
+relues : une adresse invalide n’est jamais affichée comme lien.

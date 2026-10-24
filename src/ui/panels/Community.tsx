@@ -50,6 +50,7 @@ import {
 } from '../../state';
 import { useStore } from '../hooks';
 import { Modal } from './Modal';
+import { MuseumModeration } from './Museum';
 
 const REASON_LABEL: Record<string, string> = Object.fromEntries(
   REPORT_REASONS.map((r) => [r.id, r.label]),
@@ -473,10 +474,10 @@ function messagesOf(row: ReportRow): string[] {
 export function ModerationPanel() {
   const account = useStore(accountStore);
   const owner = account.status === 'signed-in' && account.owner;
-  const [section, setSection] = useState<'reports' | 'feedback' | 'visits'>('reports');
+  const [section, setSection] = useState<'reports' | 'feedback' | 'museum' | 'visits'>('reports');
   return (
     <Modal title="Modération" icon="🛡️" wide>
-      <div class="row start">
+      <div class="row start wrap">
         <button
           type="button"
           class={`btn small ${section === 'reports' ? 'primary' : 'ghost'}`}
@@ -490,6 +491,13 @@ export function ModerationPanel() {
           onClick={() => setSection('feedback')}
         >
           💡 Idées & bugs
+        </button>
+        <button
+          type="button"
+          class={`btn small ${section === 'museum' ? 'primary' : 'ghost'}`}
+          onClick={() => setSection('museum')}
+        >
+          🖼️ Musée
         </button>
         {owner && (
           <button
@@ -505,6 +513,8 @@ export function ModerationPanel() {
         <ReportsList />
       ) : section === 'feedback' ? (
         <FeedbackList />
+      ) : section === 'museum' ? (
+        <MuseumModeration />
       ) : (
         <VisitsList />
       )}

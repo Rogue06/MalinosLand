@@ -11,6 +11,8 @@ import { DECOR_ART, OBJECT_ART } from '../game/art/objects';
 import { drawFloor } from '../game/art/floors';
 import { drawWall, wallFaceY } from '../game/art/walls';
 import { renderAvatarSheet } from '../game/art/characters';
+import { renderPoster } from '../game/art/posters';
+import { MUSEUM_CATEGORIES } from '../content/museum';
 
 const root = document.getElementById('root')!;
 
@@ -37,6 +39,20 @@ function card(parent: HTMLElement, label: string, canvases: HTMLCanvasElement[])
   c.append(row, span);
   parent.append(c);
 }
+
+// Affiches du musée : un titre court et un titre long par catégorie (voir docs/MUSEE.md).
+const POSTER_SAMPLES = [
+  { title: 'Malino Notes', author: 'Rogue06' },
+  { title: 'Un générateur de quiz pour réviser avec ses enfants', author: 'Joshua' },
+];
+const posters = section('Affiches du Musée des Malinos');
+MUSEUM_CATEGORIES.forEach((cat, i) => {
+  card(
+    posters,
+    cat.label,
+    POSTER_SAMPLES.map((s, k) => renderPoster({ ...s, id: 7 + i * 2 + k, category: cat.id }, 2)),
+  );
+});
 
 const objects = section('Objets du catalogue (4 rotations)');
 for (const [type, entry] of Object.entries(CATALOG)) {
