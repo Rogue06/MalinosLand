@@ -24,6 +24,8 @@ import {
   demoViewerUrl,
   listProjectReports,
   setProjectEmbed,
+  previewUrl,
+  updatePreview,
   moderateProject,
   setProjectReportStatus,
   myProjects,
@@ -43,15 +45,25 @@ import { Modal } from './Modal';
 import { DemoFrame } from './MuseumDemo';
 
 /** Affiche du projet, redessinée quand ses données changent. */
-export function PosterCanvas({ data, width }: { data: PosterData; width: number }) {
+export function PosterCanvas({
+  data,
+  width,
+  preview = null,
+}: {
+  data: PosterData;
+  width: number;
+  /** Adresse de l'aperçu automatique (src/services/museum.ts, previewUrl), s'il existe. */
+  preview?: string | null;
+}) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const image = usePreviewImage(preview);
   // Résolution adaptée à l'écran (par demi-pas, au plus ×3) pour un dessin net.
   const pixels = (width / POSTER_W) * (window.devicePixelRatio || 1);
   const scale = Math.min(3, Math.ceil(pixels * 2) / 2);
   useEffect(() => {
     const ctx = ref.current?.getContext('2d');
-    if (ctx) drawPoster(ctx, data, scale);
-  }, [data.id, data.title, data.author, data.category, scale]);
+    if (ctx) drawPoster(ctx, { ...data, image }, scale);
+  }, [data.id, data.title, data.author, data.category, scale, image]);
   return (
     <canvas
       ref={ref}
@@ -63,6 +75,25 @@ export function PosterCanvas({ data, width }: { data: PosterData; width: number 
       aria-label={`Affiche : ${data.title} (${museumCategory(data.category).label})`}
     />
   );
+}
+
+/** Image d'aperçu chargée (null tant qu'elle n'est pas arrivée, ou en cas d'erreur). */
+export function usePreviewImage(url: string | null): HTMLImageElement | null {
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  useEffect(() => {
+    setImage(null);
+    if (!url) return;
+    let alive = true;
+    const img = new Image();
+    // Dessinée dans un canevas : lecture autorisée par le serveur (Access-Control-Allow-Origin).
+    img.crossOrigin = 'anonymous';
+    img.onload = () => alive && setImage(img);
+    img.src = url;
+    return () => {
+      alive = false;
+    };
+  }, [url]);
+  return image;
 }
 
 const DATE_FMT = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long' });
@@ -422,6 +453,22 @@ function Decision({
       await moderateProject(project.id, status, reason);
       const what = { approved: 'exposé', rejected: 'refusé', withdrawn: 'retiré' }[status];
       pushToast(`« ${project.title} » : ${what}.`, '🛡️', 4000);
+      // Projet validé : son aperçu automatique est pris aussitôt (en arrière-plan).
+      if (status === 'approved' && demoViewerUrl(project.id))
+        void updatePreview(project.id, 'capture').then(
+          () =>
+            pushToast(
+              `Aperçu de « ${project.title} » pris : visible dans « Exposés ».`,
+              '📸',
+              5000,
+            ),
+          (e: unknown) =>
+            pushToast(
+              `${e instanceof AccountError ? e.message : 'Aperçu impossible'} : tu pourras le reprendre dans « Exposés ».`,
+              '📸',
+              6000,
+            ),
+        );
       onDone();
     } catch (e) {
       setError(e instanceof AccountError ? e.message : 'Décision impossible.');
@@ -570,6 +617,7 @@ export function MuseumModeration() {
             <PosterCanvas
               data={{ id: p.id, title: p.title, author: p.author, category: p.category }}
               width={64}
+              preview={'preview' in p ? previewUrl(p) : null}
             />
             <div class="museum-item-text">
               <div class="player-row">
@@ -593,6 +641,7 @@ export function MuseumModeration() {
               <p class="small">
                 <ExternalLink url={p.url} />
               </p>
+              {'embed' in p && <PreviewReview project={p} />}
               {'embed' in p && <EmbedReview project={p} />}
               <Decision project={p} mode={list} onDone={() => remove(p.id)} />
             </div>
@@ -817,6 +866,63 @@ function EmbedReview({ project }: { project: MuseumProject }) {
       {trying && embed === 'unknown' && (
         <DemoFrame viewer={trial} url={project.url} onClose={() => setTrying(false)} />
       )}
+      {error && <p class="error">{error}</p>}
+    </div>
+  );
+}
+
+/**
+ * Aperçu automatique (DEC-040) : la capture du site, prise par le serveur à la validation.
+ * Le modérateur la voit, peut la reprendre (site modifié) ou la masquer (contenu gênant).
+ */
+function PreviewReview({ project }: { project: MuseumProject }) {
+  const [preview, setPreview] = useState(project.preview);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (!demoViewerUrl(project.id)) return null; // version sans serveur : pas d'aperçu
+  const url = previewUrl({ id: project.id, preview });
+  const run = async (action: 'capture' | 'remove') => {
+    setBusy(true);
+    setError(null);
+    try {
+      setPreview(await updatePreview(project.id, action));
+      pushToast(
+        action === 'capture' ? `Aperçu de « ${project.title} » pris.` : 'Aperçu masqué.',
+        '📸',
+        4000,
+      );
+    } catch (e) {
+      setError(e instanceof AccountError ? e.message : 'Aperçu impossible.');
+    }
+    setBusy(false);
+  };
+  return (
+    <div class="embed-review preview-review">
+      {url ? (
+        <img class="preview-thumb" src={url} alt={`Aperçu de ${project.title}`} loading="lazy" />
+      ) : (
+        <p class="muted small">Pas encore d’aperçu : l’affiche dessinée est montrée à la place.</p>
+      )}
+      <div class="row start wrap">
+        <button
+          type="button"
+          class="btn ghost small"
+          disabled={busy}
+          onClick={() => void run('capture')}
+        >
+          {busy ? 'Capture en cours…' : url ? '📸 Reprendre l’aperçu' : '📸 Prendre l’aperçu'}
+        </button>
+        {url && (
+          <button
+            type="button"
+            class="btn ghost small"
+            disabled={busy}
+            onClick={() => void run('remove')}
+          >
+            Masquer l’aperçu
+          </button>
+        )}
+      </div>
       {error && <p class="error">{error}</p>}
     </div>
   );

@@ -103,6 +103,15 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
 
 ## Dernières sessions
 
+- **25/10** — PR #56 (sons 10 s) fusionnée et en ligne ; PR #57 (quota sans ménage automatique)
+  ouverte, **la partie quota de la migration du musée reste à appliquer après sa fusion**.
+  Branche `feature/musee-apercu` (DEC-040) : aperçu automatique (capture par Browser Rendering,
+  stockage Workers KV créé automatiquement à la mise en ligne, `@cloudflare/puppeteer`,
+  `nodejs_compat`), migration `20261029090000_museum_preview.sql` **à appliquer avant la mise en
+  ligne** (la liste du musée appelle `museum_gallery`). Accord du responsable obtenu pour les
+  ressources et la dépendance. Non testé avec un vrai site (pas d’Internet) ; surveiller la
+  première mise en ligne (création du stockage, droits du jeton).
+
 - **24/10 (nuit)** — PR #55 (« Essayer ici ») fusionnée et en ligne. Migration
   `20261028090000_museum_demo.sql` **appliquée à moitié** : `museum_demo` est installée, mais
   `embed_checks` + `embed_check_quota` attendent (Supabase a demandé une confirmation restée sans

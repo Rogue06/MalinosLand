@@ -39,6 +39,7 @@ import { isTouchDevice } from '../../services/device';
 import {
   loadMuseumWall,
   museumWallStore,
+  previewUrl,
   type MuseumProject,
   type MuseumWall,
 } from '../../services/museum';
@@ -792,14 +793,41 @@ export class WorldScene extends Phaser.Scene {
       const it = obj.interaction;
       if (it?.kind !== 'stand') continue;
       const p = wall.projects[it.slot];
+      const url = p ? previewUrl(p) : null;
+      const image = url ? this.previewImage(url) : null;
       const poster = p
-        ? { id: p.id, title: p.title, author: p.author, category: p.category }
+        ? { id: p.id, title: p.title, author: p.author, category: p.category, image }
         : null;
       this.renderer3d.setObjectTexture(
         obj.id,
-        this.tex.stand(obj.type, obj.rot, obj.variant, poster),
+        this.tex.stand(obj.type, obj.rot, obj.variant, poster, url ?? ''),
       );
     }
+  }
+
+  /** Aperçus du musée déjà chargés (ou en cours) : une seule lecture par image. */
+  private previewImages = new Map<string, HTMLImageElement | 'loading' | 'error'>();
+
+  /**
+   * Image d'aperçu d'un projet (servie par le serveur temps réel, autorisée par la CSP). Pas
+   * encore chargée : null, et les stands sont redessinés à son arrivée.
+   */
+  private previewImage(url: string): HTMLImageElement | null {
+    const known = this.previewImages.get(url);
+    if (known instanceof HTMLImageElement) return known;
+    if (known) return null;
+    this.previewImages.set(url, 'loading');
+    const img = new Image();
+    // Image d'une autre origine dessinée dans un canevas : lecture autorisée par le serveur.
+    img.crossOrigin = 'anonymous';
+    img.decoding = 'async';
+    img.onload = () => {
+      this.previewImages.set(url, img);
+      this.applyMuseumWall(museumWallStore.get());
+    };
+    img.onerror = () => this.previewImages.set(url, 'error');
+    img.src = url;
+    return null;
   }
 
   /** Clic sur un stand : la fiche du projet, ou le formulaire si la place est libre. */
@@ -1630,7 +1658,11 @@ export class WorldScene extends Phaser.Scene {
       museumSample: (n = MUSEUM_SAMPLES.length) => {
         museumWallStore.set({
           status: 'ready',
-          projects: MUSEUM_SAMPLES.slice(0, n).map((p, i) => ({ ...p, id: 900 + i })),
+          projects: MUSEUM_SAMPLES.slice(0, n).map((p, i) => ({
+            ...p,
+            id: 900 + i,
+            preview: null,
+          })),
           at: Date.now(),
         });
         return museumWallStore.get().projects.length;

@@ -118,10 +118,17 @@ export class TextureFactory {
    * Stand du musée portant l'affiche d'un projet (null : affiche d'invitation). Même cadrage que
    * l'objet du catalogue, pour remplacer sa texture une fois la liste du musée chargée.
    */
-  stand(type: string, rot: Rotation, variant: number, poster: PosterData | null): TextureInfo {
+  stand(
+    type: string,
+    rot: Rotation,
+    variant: number,
+    poster: PosterData | null,
+    /** Identifie l'aperçu dessiné sur l'affiche (adresse de l'image), pour le cache. */
+    imageKey = '',
+  ): TextureInfo {
     const art = STAND_ART[type as keyof typeof STAND_ART];
     if (!poster || !art) return this.object(type, rot, variant);
-    const key = `obj:${type}:${rot}:${variant}:poster:${poster.id ?? 0}:${poster.category}:${poster.title}:${poster.author ?? ''}`;
+    const key = `obj:${type}:${rot}:${variant}:poster:${poster.id ?? 0}:${poster.category}:${poster.title}:${poster.author ?? ''}:${poster.image ? imageKey : ''}`;
     const cached = this.infos.get(key);
     if (cached) return cached;
     const entry = CATALOG[type]!;

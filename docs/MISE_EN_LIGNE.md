@@ -29,6 +29,10 @@
 2. À la ligne **Edit Cloudflare Workers**, cliquer sur **Use template**.
 3. Dans **Permissions**, cliquer sur **+ Add more** et ajouter :
    **Account** · **Cloudflare Pages** · **Edit**.
+   Le modèle « Edit Cloudflare Workers » donne déjà **Workers KV Storage · Edit** (stockage des
+   aperçus du musée, DEC-040). Si la mise en ligne échoue avec un message sur le navigateur de
+   capture (« Browser Rendering » ou « Browser Run »), ajouter aussi **Account** · **Browser
+   Rendering** · **Edit**.
 4. **Account Resources** : _Include_ → ton compte. **Zone Resources** : _All zones_.
 5. **Continue to summary** → **Create Token**.
 6. **Copier le jeton affiché** (il n’est montré qu’une fois). Ne le colle **nulle part ailleurs**

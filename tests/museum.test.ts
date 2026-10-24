@@ -11,6 +11,7 @@ import { fitTitle, wrapTitle } from '../src/game/art/posters';
 import {
   MUSEUM_WALL_TTL_MS,
   demoViewerUrl,
+  previewUrl,
   PROJECT_REPORT_REASONS,
   explainProjectError,
   loadMuseumWall,
@@ -286,5 +287,34 @@ describe('Musée : « Essayer ici » (PR 10)', () => {
 
   it('sans serveur temps réel : pas de visionneuse (seulement « Ouvrir le site »)', () => {
     expect(demoViewerUrl(12)).toBeNull();
+  });
+});
+
+describe('Musée : aperçu automatique (DEC-040)', () => {
+  const row = {
+    id: 3,
+    title: 'Projet',
+    summary: 'Un résumé assez long.',
+    url: 'https://projet.fr',
+    category: 'site',
+    tags: [],
+    author: 'Lina',
+    embed: 'unknown',
+    approved_at: '2026-10-24T10:00:00Z',
+  };
+
+  it('version d’aperçu relue : lettres et chiffres seulement', () => {
+    const [ok, bad, none] = parseMuseumProjects([
+      { ...row, preview: 'mh3k2a' },
+      { ...row, preview: '../../x' },
+      row,
+    ]);
+    expect(ok!.preview).toBe('mh3k2a');
+    expect(bad!.preview).toBeNull();
+    expect(none!.preview).toBeNull();
+  });
+
+  it('sans serveur temps réel : pas d’image d’aperçu (affiche dessinée)', () => {
+    expect(previewUrl({ id: 3, preview: 'mh3k2a' })).toBeNull();
   });
 });

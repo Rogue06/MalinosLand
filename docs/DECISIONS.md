@@ -583,3 +583,31 @@ démarre au premier clic si le navigateur n’autorisait pas encore le son. Un v
 (`zoneGain`) permet le fondu sans toucher aux sons de proximité ni à la musique de la ronde.
 **Conséquences.** Aucun fichier ni dépendance ; mesuré dans le navigateur (sons émis seulement
 pendant les 10 premières secondes). Valeurs ajustables dans un seul fichier.
+
+## DEC-040 — Aperçu automatique des projets : capture par le navigateur de Cloudflare (25/10/2026)
+
+**Contexte.** Le responsable veut qu’en entrant dans le musée on voie déjà à quoi ressemble chaque
+projet, sans que l’auteur ait à envoyer d’image, avec un peu de contrôle et des images très
+légères. Il a autorisé les ressources gratuites nécessaires et la dépendance.
+**Décision.** À la validation (ou à la demande d’un modérateur), `POST /preview` lit l’adresse
+du projet dans la base avec le jeton du modérateur (rôle et plafond comptés par la base, plafond
+partagé avec `/embed-check`), puis `server/src/capture.ts` ouvre le site avec
+`@cloudflare/puppeteer` dans **Browser Rendering** (gratuit : 10 minutes par jour, 3 navigateurs)
+et prend une capture WebP 640 × 400 (≈ 20 Ko, 80 Ko au plus, en-tête WebP vérifié). Pendant la
+capture, seules les adresses https publiques sont chargées (mêmes règles que la démo) et les
+dialogues sont fermés. L’image est rangée dans **Workers KV** (gratuit : 1 Go, 1 000 écritures et
+100 000 lectures par jour), servie par `GET /apercu/:id` avec une adresse versionnée (cache d’un
+an, `Access-Control-Allow-Origin: *` pour le canevas, `nosniff`, CSP `default-src 'none'`). La
+base garde seulement la version (`projects.thumbnail`, via `set_project_preview`, modérateurs) et
+la renvoie dans `museum_gallery`. Le jeu dessine la capture comme un écran sur l’affiche ; sans
+capture, l’affiche dessinée reste. Ressources créées automatiquement par Wrangler à la mise en
+ligne (KV sans identifiant dans `wrangler.toml`), option `nodejs_compat` exigée par la
+bibliothèque.
+**Écarts et limites, honnêtement.** `npm audit` signale des failles dans des sous-paquets de
+`@cloudflare/puppeteer` qui servent à télécharger et décompresser un navigateur local
+(`extract-zip`) : ce code ne s’exécute pas sur Cloudflare (on s’y connecte à leur navigateur),
+mais l’alerte reste visible. La capture ne peut pas être essayée dans les sessions sans Internet :
+testée avec une fausse capture (routes, stockage, droits) et un vrai navigateur pour l’affichage.
+Un site peut changer après sa capture : « Reprendre l’aperçu » et signalement.
+**Conséquences.** Aucun coût : au-delà des quotas, la capture échoue avec une erreur, jamais de
+facturation. Serveur : 165 Ko compressés (limite gratuite : 3 Mo).

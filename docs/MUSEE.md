@@ -63,6 +63,23 @@ L’onglet **Mes projets** montre le statut de chacun (en attente, exposé, refu
 
 _Captures faites avec des données d’exemple._
 
+## L’aperçu automatique
+
+Quand un modérateur valide un projet, le serveur ouvre le site dans le navigateur de Cloudflare et
+en prend une **capture** (640 × 400, environ 20 Ko). L’auteur n’a rien à envoyer.
+
+- Dans le musée, l’affiche du stand montre la capture comme un **petit écran** : on voit à quoi
+  ressemble le projet rien qu’en passant devant. Un clic ouvre la fiche, avec la capture en grand.
+- Sans capture (site trop lent, refus, version hors ligne), l’affiche dessinée reste affichée.
+- Contrôle léger : le modérateur voit la capture et peut la **reprendre** (site modifié) ou la
+  **masquer** (contenu gênant), dans **Exposés**.
+
+![Le musée avec les aperçus](images/musee-apercus.png)
+
+![La fiche d’un projet avec son aperçu](images/musee-fiche-apercu.png)
+
+_Captures faites avec des projets et des sites d’exemple._
+
 ## Essayer une démo sans quitter le jeu
 
 Quand un modérateur l’a validé, un projet affiche **▶ Essayer ici** sur sa fiche : le site
@@ -127,20 +144,22 @@ avec des projets d’exemple, sans réseau (captures et test de bout en bout).
 
 ## Pour les développeurs
 
-| Fichier                                              | Rôle                                                                    |
-| ---------------------------------------------------- | ----------------------------------------------------------------------- |
-| `supabase/migrations/20261027090000_museum.sql`      | Tables, règles d’accès, plafonds, fonctions (voir DATABASE.md)          |
-| `src/content/museum.ts`                              | Catégories : libellés, icônes, couleurs des affiches                    |
-| `src/core/museum.ts`                                 | Vérification du formulaire, mêmes règles d’adresse que la base (testé)  |
-| `src/services/museum.ts`                             | Appels à la base ; données reçues relues et nettoyées avant affichage   |
-| `src/game/art/posters.ts`                            | Dessin des affiches (Canvas 2D, sans Phaser : formulaire et salle)      |
-| `src/ui/panels/Museum.tsx`                           | Panneau du musée et onglet de modération                                |
-| `supabase/migrations/20261028090000_museum_demo.sql` | Plafond des vérifications, adresse de la visionneuse (`museum_demo`)    |
-| `server/src/embed.ts`                                | Routes `/embed-check` et `/demo/:id` du serveur (testées)               |
-| `src/ui/panels/MuseumDemo.tsx`                       | Cadre isolé de la démo, affiché après un clic                           |
-| `src/ui/panels/MuseumVisit.tsx`                      | Borne « Toutes les créations » et fiche d’un projet                     |
-| `src/game/art/museum.ts`                             | Cimaises, stands, borne et panneau ; affiche plaquée en perspective     |
-| `src/content/maps/hub.json`                          | Salle : stands `stand-1` à `stand-7` (interaction `stand`, place 0 à 6) |
+| Fichier                                                 | Rôle                                                                        |
+| ------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `supabase/migrations/20261027090000_museum.sql`         | Tables, règles d’accès, plafonds, fonctions (voir DATABASE.md)              |
+| `src/content/museum.ts`                                 | Catégories : libellés, icônes, couleurs des affiches                        |
+| `src/core/museum.ts`                                    | Vérification du formulaire, mêmes règles d’adresse que la base (testé)      |
+| `src/services/museum.ts`                                | Appels à la base ; données reçues relues et nettoyées avant affichage       |
+| `src/game/art/posters.ts`                               | Dessin des affiches (Canvas 2D, sans Phaser : formulaire et salle)          |
+| `src/ui/panels/Museum.tsx`                              | Panneau du musée et onglet de modération                                    |
+| `supabase/migrations/20261028090000_museum_demo.sql`    | Plafond des vérifications, adresse de la visionneuse (`museum_demo`)        |
+| `supabase/migrations/20261029090000_museum_preview.sql` | Version de l’aperçu (`set_project_preview`), liste `museum_gallery`         |
+| `server/src/preview.ts`, `server/src/capture.ts`        | Routes `/preview` et `/apercu/:id`, capture par le navigateur de Cloudflare |
+| `server/src/embed.ts`                                   | Routes `/embed-check` et `/demo/:id` du serveur (testées)                   |
+| `src/ui/panels/MuseumDemo.tsx`                          | Cadre isolé de la démo, affiché après un clic                               |
+| `src/ui/panels/MuseumVisit.tsx`                         | Borne « Toutes les créations » et fiche d’un projet                         |
+| `src/game/art/museum.ts`                                | Cimaises, stands, borne et panneau ; affiche plaquée en perspective         |
+| `src/content/maps/hub.json`                             | Salle : stands `stand-1` à `stand-7` (interaction `stand`, place 0 à 6)     |
 
 Sécurité : les textes passent par `sanitizeText` / `sanitizeName` et ne sont jamais interprétés
 comme du HTML ; une adresse qui ne passe pas `isValidProjectUrl` n’est jamais affichée comme lien ;
