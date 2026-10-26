@@ -110,10 +110,13 @@ function homeFallbackPlugin(): Plugin {
 // Import dynamique : pas besoin des types Node pour ce simple test de présence.
 const fs = (await import('node:' + 'fs')) as { existsSync(path: string): boolean };
 const withHome = fs.existsSync('index.html') && fs.existsSync('src/landing/main.ts');
-/** Pages construites : la page d'accueil (racine, légère, sans Phaser) si présente, et le jeu. */
+/**
+ * Pages construites : la page d'accueil (racine, légère, sans Phaser) si présente, le jeu, et le
+ * prototype « Chantier des mondes » (`/chantier/`, page à part, non reliée au jeu : DEC-043).
+ */
 const pages: Record<string, string> = withHome
-  ? { accueil: 'index.html', jouer: 'jouer/index.html' }
-  : { jouer: 'jouer/index.html' };
+  ? { accueil: 'index.html', jouer: 'jouer/index.html', chantier: 'chantier/index.html' }
+  : { jouer: 'jouer/index.html', chantier: 'chantier/index.html' };
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', 'VITE_');
@@ -133,6 +136,8 @@ export default defineConfig(({ mode }) => {
           manualChunks(id) {
             if (id.includes('node_modules/phaser')) return 'phaser';
             if (id.includes('node_modules/preact')) return 'preact';
+            // Three.js : seulement pour le prototype du Chantier des mondes (DEC-043).
+            if (id.includes('node_modules/three')) return 'three';
             return undefined;
           },
         },

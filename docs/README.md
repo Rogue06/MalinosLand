@@ -27,6 +27,7 @@ Pas besoin de tout lire ! Choisis ton chemin.
 | Proposition en discussion        | [Vie du jeu : histoire, étincelles, secrets](PROPOSITION_VIE_DU_JEU.md) |
 | Cahier des charges (village)     | [Du monde à visiter au village IA](CAHIER_DES_CHARGES_VILLAGE.md)       |
 | État des lieux et prochains lots | [ETAT_DES_LIEUX.md](ETAT_DES_LIEUX.md)                                  |
+| Jeu de cubes (prototype)         | [Chantier des mondes](CHANTIER_DES_MONDES.md)                           |
 | Plan à valider                   | [Évolution : panneau, quiz, musée](PLAN_EVOLUTION.md)                   |
 | Salles, cartes, étages           | [WORLD_DESIGN.md](WORLD_DESIGN.md)                                      |
 | Multijoueur                      | [REALTIME_NETWORK.md](REALTIME_NETWORK.md)                              |

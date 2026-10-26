@@ -103,6 +103,15 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
 
 ## Dernières sessions
 
+- **26/10 (nuit)** — PR #63 (« Aujourd’hui ») fusionnée et mise en ligne lancée. Branche
+  `feature/bac-a-sable-b0` (PR 13, DEC-043) : **Chantier des mondes**, page `/chantier/`
+  (Three.js 0.186.1, accord du responsable), jeu de cubes en première personne **ou** vue
+  isométrique, survie douce (récolte, 12 recettes, pioches, four, torches, grottes) et créatif.
+  Solo, sauvegarde dans le navigateur. Testé : unitaires (`tests/sandbox.test.ts`), e2e (couper,
+  fabriquer, poser), captures. **Non mesuré sur vrai matériel** (≈ 14 images/s sans carte
+  graphique). **À demander à la fusion : accord pour mettre la page en ligne** (non reliée au
+  jeu). Questions ouvertes : vue préférée, rythme, suite (multijoueur ou contenu solo).
+
 - **26/10 (soir)** — PR #62 (cahier des charges, état des lieux) fusionnée. Accord du
   responsable pour **Three.js** (rendu 3D du prototype B0 seulement). Branche
   `feature/aujourdhui` (PR 12, DEC-042) : trois envies (carte non bloquante), panneau
