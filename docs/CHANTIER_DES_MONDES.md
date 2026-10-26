@@ -20,21 +20,26 @@
 Deux modes, deux mondes séparés (ce qu’on obtient en créatif ne passe jamais en survie) :
 
 - **Survie douce** : on part les mains vides. Ni monstres, ni faim, ni perte d’objets.
-- **Créatif** : tous les cubes à volonté, on casse en un clic, on peut voler (F) et annuler
-  (Ctrl+Z).
+- **Créatif** : tous les cubes à volonté, on casse en un clic, on peut voler (double Espace ou
+  F) et annuler (Ctrl+Z).
 
 ## Jouer
 
-| Action                               | Clavier et souris                                                | Au doigt                                                 |
-| ------------------------------------ | ---------------------------------------------------------------- | -------------------------------------------------------- |
-| Marcher, sauter, courir              | ZQSD / WASD ou flèches, Espace, Ctrl                             | Manette à gauche, ⤒                                      |
-| Regarder (1re personne)              | Souris (clic pour « attraper » la souris, Échap pour la libérer) | Glisser l’écran                                          |
-| Creuser                              | Clic gauche **maintenu**                                         | ⛏ maintenu (1re personne) ; ⛏ puis toucher un cube (iso) |
-| Poser (le cube choisi dans la barre) | Clic droit, ou Ctrl + clic                                       | 🧱 (1re personne) ; 🧱 puis toucher une face (iso)       |
-| Choisir dans la barre                | 1 à 9, molette                                                   | Toucher une case                                         |
-| Sac et fabrication                   | E (ou clic droit sur un établi / un four)                        | 🎒 Sac                                                   |
-| Changer de vue                       | V                                                                | 👁                                                        |
-| Tourner / zoomer (iso)               | R, molette                                                       | ⟲ ⟳, deux doigts                                         |
+Les touches sont celles des jeux de construction en cubes les plus connus (sur un clavier
+français, ZQSD remplace WASD automatiquement).
+
+| Action                               | Clavier et souris                                                               | Au doigt                                                 |
+| ------------------------------------ | ------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Marcher, sauter, courir, s’accroupir | ZQSD / WASD ou flèches, Espace, Ctrl ou double Z, Maj (on ne tombe pas du bord) | Manette à gauche, ⤒                                      |
+| Regarder (1re personne)              | Souris (clic pour « attraper » la souris, Échap pour la libérer)                | Glisser l’écran                                          |
+| Creuser                              | Clic gauche **maintenu**                                                        | ⛏ maintenu (1re personne) ; ⛏ puis toucher un cube (iso) |
+| Poser (le cube choisi dans la barre) | Clic droit, ou Ctrl + clic                                                      | 🧱 (1re personne) ; 🧱 puis toucher une face (iso)       |
+| Choisir dans la barre                | 1 à 9, molette                                                                  | Toucher une case                                         |
+| Sac et fabrication                   | E (ou clic droit sur un établi / un four)                                       | 🎒 Sac                                                   |
+| Changer de vue                       | F5 ou V                                                                         | 👁                                                        |
+| Prendre le cube visé                 | Clic molette                                                                    | —                                                        |
+| Voler (créatif)                      | Double Espace ou F ; Espace monte, Maj descend                                  | —                                                        |
+| Tourner / zoomer (iso)               | R, molette                                                                      | ⟲ ⟳, deux doigts                                         |
 
 ![En première personne](images/chantier-premiere-personne.jpg)
 

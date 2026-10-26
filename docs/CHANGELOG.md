@@ -16,6 +16,9 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
   fait (« clic droit : poser ») ; **Ctrl + clic** fonctionne comme le clic droit (pavés tactiles) ;
   un message quand on vise l’endroit où l’on se tient.
 - La dalle de départ porte le losange de MalinosLand (lisible de tous les côtés).
+- **Touches des jeux de cubes** : Maj pour s’accroupir (plus lent, on ne tombe pas du bord ;
+  descendre en vol), Ctrl **ou double Z** pour courir, **double Espace** pour voler en créatif,
+  **F5** (ou V) pour changer de vue, **clic molette** pour prendre en main le cube visé.
 
 ### Ajouté (prototype : Chantier des mondes, PR 13)
 

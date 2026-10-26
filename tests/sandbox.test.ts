@@ -296,6 +296,26 @@ describe('Chantier des mondes : déplacements', () => {
     expect(q.x).toBeGreaterThan(13); // monté, passé par-dessus, redescendu
   });
 
+  it('accroupi (Maj) : plus lent, et on reste au bord au lieu de tomber', () => {
+    const w = flatWorld();
+    // Un trou de deux cubes de large devant le joueur (x = 12 et 13).
+    for (let z = 1; z <= 4; z++)
+      for (let y = 0; y < SIZE_Y; y++) {
+        w.blocks[w.index(12, y, z)] = AIR;
+        w.blocks[w.index(13, y, z)] = AIR;
+      }
+    const walk = { wish: { x: 1, y: 0 }, jump: false, sprint: false };
+    const p = at(w, 10.5, 10.5);
+    for (let i = 0; i < 180; i++) stepPlayer(p, { ...walk, sneak: true }, 1 / 60, w);
+    expect(p.z).toBeCloseTo(5, 5);
+    expect(p.x).toBeGreaterThan(11.5);
+    expect(p.x).toBeLessThan(12.3 + 1e-6);
+    // Sans Maj : on tombe dans le trou.
+    const q = at(w, 10.5, 10.5);
+    for (let i = 0; i < 60; i++) stepPlayer(q, walk, 1 / 60, w);
+    expect(q.z).toBeLessThan(5);
+  });
+
   it('bords de la parcelle infranchissables ; chute : retour au départ ; corps occupé', () => {
     const w = flatWorld();
     const p = at(w, 1, 10.5);

@@ -66,6 +66,8 @@ export class SandboxGame {
   readonly keys = new Set<string>();
   move = { x: 0, y: 0 };
   jumpHeld = false;
+  /** Course gardée après un double appui sur « avancer » (comme dans les jeux de cubes). */
+  sprintLatch = false;
   mining = false;
   /** Progression du cube en cours de creusage (0 à 1). */
   progress = 0;
@@ -437,6 +439,19 @@ export class SandboxGame {
     if (this.bits.instanceColor) this.bits.instanceColor.needsUpdate = true;
   }
 
+  /** Clic molette : met le cube visé dans la main (s'il est dans le sac, ou en créatif). */
+  pickTarget(): void {
+    const t = this.target;
+    if (!t) return;
+    const b = this.world.get(t.cell.x, t.cell.y, t.cell.z);
+    if (!itemDef(b)?.block || !this.inv.has(b))
+      return this.events.toast(`Tu n’as pas de ${blockDef(b).name.toLowerCase()} dans ton sac.`);
+    const slot = this.inv.hotbar.indexOf(b);
+    if (slot >= 0) this.inv.selected = slot;
+    else this.inv.assign(b);
+    this.events.changed();
+  }
+
   undo(): void {
     if (this.mode !== 'creative') return;
     const c = this.world.undo();
@@ -499,6 +514,8 @@ export class SandboxGame {
     const touches = new Map<number, { x: number; y: number }>();
     let pinch = 0;
     el.addEventListener('contextmenu', (e) => e.preventDefault());
+    // Clic molette : pas de défilement automatique du navigateur.
+    el.addEventListener('mousedown', (e) => e.button === 1 && e.preventDefault());
     el.addEventListener('pointerdown', (e) => {
       const r = el.getBoundingClientRect();
       this.pointer = { x: e.clientX - r.left, y: e.clientY - r.top };
@@ -521,6 +538,12 @@ export class SandboxGame {
       }
       if (this.view === 'first' && document.pointerLockElement !== el) {
         void el.requestPointerLock?.();
+        return;
+      }
+      if (e.button === 1) {
+        e.preventDefault();
+        this.updateTarget();
+        this.pickTarget();
         return;
       }
       // Ctrl + clic : clic droit des pavés tactiles (Mac).
@@ -624,9 +647,10 @@ export class SandboxGame {
       {
         wish,
         jump,
-        sprint: this.keys.has('ControlLeft') || this.keys.has('ShiftLeft'),
+        sprint: this.sprintLatch || this.keys.has('ControlLeft') || this.keys.has('ControlRight'),
+        sneak: this.keys.has('ShiftLeft') || this.keys.has('ShiftRight'),
         fly: this.fly && this.mode === 'creative',
-        down: this.keys.has('ShiftLeft') || this.keys.has('KeyC'),
+        down: this.keys.has('ShiftLeft') || this.keys.has('ShiftRight'),
         autoStep: this.autoStep,
       },
       dt,

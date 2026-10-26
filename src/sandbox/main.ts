@@ -97,18 +97,26 @@ function startScreen(): void {
           : el(
               'ul',
               {},
-              el('li', {}, 'ZQSD / WASD ou flèches : marcher · Espace : sauter · Ctrl : courir.'),
               el(
                 'li',
                 {},
-                'Souris : regarder · clic gauche maintenu : creuser · clic droit : poser.',
+                'ZQSD / WASD : marcher · Espace : sauter · Ctrl ou double Z : courir · Maj : s’accroupir (on ne tombe pas du bord).',
               ),
               el(
                 'li',
                 {},
-                '1 à 9 ou molette : choisir · E : sac et fabrication · V : changer de vue.',
+                'Souris : regarder · clic gauche maintenu : creuser · clic droit : poser · clic molette : prendre le cube visé.',
               ),
-              el('li', {}, 'Clic droit sur un établi ou un four : fabriquer. Échap : menu.'),
+              el(
+                'li',
+                {},
+                '1 à 9 ou molette : choisir · E : sac et fabrication · F5 ou V : changer de vue.',
+              ),
+              el(
+                'li',
+                {},
+                'Clic droit sur un établi ou un four : fabriquer · créatif : double Espace pour voler · Échap : menu.',
+              ),
             ),
       ),
       el('a', { class: 'back', href: '../jouer/' }, '← Retour au Hub'),
@@ -589,7 +597,9 @@ function play(mode: GameMode): void {
     panel.replaceChildren();
   }
 
-  // ---- Clavier.
+  // ---- Clavier (mêmes touches que les jeux de cubes les plus connus).
+  let lastForward = 0;
+  let lastJump = 0;
   const onKey = (e: KeyboardEvent) => {
     if (!game || game !== g) return;
     const down = e.type === 'keydown';
@@ -609,7 +619,24 @@ function play(mode: GameMode): void {
       g.inv.selected = Number(e.code.slice(5)) - 1;
       refresh();
     }
-    if (down && e.code === 'KeyV') toggleView();
+    if (down && (e.code === 'KeyV' || e.code === 'F5')) {
+      e.preventDefault();
+      toggleView();
+    }
+    // Double appui sur « avancer » : on court ; double Espace en créatif : on vole.
+    if (down && !e.repeat && (e.code === 'KeyW' || e.code === 'ArrowUp')) {
+      if (performance.now() - lastForward < 300) g.sprintLatch = true;
+      lastForward = performance.now();
+    }
+    if (!down && (e.code === 'KeyW' || e.code === 'ArrowUp')) g.sprintLatch = false;
+    if (down && !e.repeat && e.code === 'Space' && mode === 'creative') {
+      if (performance.now() - lastJump < 300) {
+        g.fly = !g.fly;
+        toast(g.fly ? 'Vol : Espace pour monter, Maj pour descendre.' : 'Vol arrêté.');
+        refresh();
+      }
+      lastJump = performance.now();
+    }
     if (down && e.code === 'KeyF' && mode === 'creative') {
       g.fly = !g.fly;
       refresh();
