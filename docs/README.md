@@ -21,23 +21,25 @@ Pas besoin de tout lire ! Choisis ton chemin.
 1. [Contribuer](CONTRIBUTING.md) puis [Architecture](ARCHITECTURE.md).
 2. Le document du sujet qui t’intéresse :
 
-| Sujet                       | Document                                                                |
-| --------------------------- | ----------------------------------------------------------------------- |
-| Mécaniques de jeu           | [GAME_DESIGN.md](GAME_DESIGN.md)                                        |
-| Proposition en discussion   | [Vie du jeu : histoire, étincelles, secrets](PROPOSITION_VIE_DU_JEU.md) |
-| Plan à valider              | [Évolution : panneau, quiz, musée](PLAN_EVOLUTION.md)                   |
-| Salles, cartes, étages      | [WORLD_DESIGN.md](WORLD_DESIGN.md)                                      |
-| Multijoueur                 | [REALTIME_NETWORK.md](REALTIME_NETWORK.md)                              |
-| Musée des Malinos           | [MUSEE.md](MUSEE.md)                                                    |
-| Base de données             | [DATABASE.md](DATABASE.md)                                              |
-| Comptes joueurs             | [COMPTES.md](COMPTES.md)                                                |
-| Hébergement gratuit, quotas | [FREE_INFRASTRUCTURE.md](FREE_INFRASTRUCTURE.md)                        |
-| Mettre le jeu en ligne      | [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md)                                    |
-| Sécurité, modération        | [SECURITY.md](SECURITY.md)                                              |
-| Tests et performances       | [TESTING.md](TESTING.md)                                                |
-| Liste des fonctionnalités   | [FEATURE_BACKLOG.md](FEATURE_BACKLOG.md)                                |
-| Pourquoi ces choix ?        | [DECISIONS.md](DECISIONS.md)                                            |
-| Historique des versions     | [CHANGELOG.md](CHANGELOG.md)                                            |
+| Sujet                            | Document                                                                |
+| -------------------------------- | ----------------------------------------------------------------------- |
+| Mécaniques de jeu                | [GAME_DESIGN.md](GAME_DESIGN.md)                                        |
+| Proposition en discussion        | [Vie du jeu : histoire, étincelles, secrets](PROPOSITION_VIE_DU_JEU.md) |
+| Cahier des charges (village)     | [Du monde à visiter au village IA](CAHIER_DES_CHARGES_VILLAGE.md)       |
+| État des lieux et prochains lots | [ETAT_DES_LIEUX.md](ETAT_DES_LIEUX.md)                                  |
+| Plan à valider                   | [Évolution : panneau, quiz, musée](PLAN_EVOLUTION.md)                   |
+| Salles, cartes, étages           | [WORLD_DESIGN.md](WORLD_DESIGN.md)                                      |
+| Multijoueur                      | [REALTIME_NETWORK.md](REALTIME_NETWORK.md)                              |
+| Musée des Malinos                | [MUSEE.md](MUSEE.md)                                                    |
+| Base de données                  | [DATABASE.md](DATABASE.md)                                              |
+| Comptes joueurs                  | [COMPTES.md](COMPTES.md)                                                |
+| Hébergement gratuit, quotas      | [FREE_INFRASTRUCTURE.md](FREE_INFRASTRUCTURE.md)                        |
+| Mettre le jeu en ligne           | [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md)                                    |
+| Sécurité, modération             | [SECURITY.md](SECURITY.md)                                              |
+| Tests et performances            | [TESTING.md](TESTING.md)                                                |
+| Liste des fonctionnalités        | [FEATURE_BACKLOG.md](FEATURE_BACKLOG.md)                                |
+| Pourquoi ces choix ?             | [DECISIONS.md](DECISIONS.md)                                            |
+| Historique des versions          | [CHANGELOG.md](CHANGELOG.md)                                            |
 
 ## 🤖 Je suis un assistant IA (ou je reprends le travail)
 
