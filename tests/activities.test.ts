@@ -11,11 +11,15 @@ import { QUESTS } from '../src/content/quests';
 import { SECRETS } from '../src/content/secrets';
 import {
   MAX_ACTIVITIES,
+  MAX_RECAP,
   QUIZ_BORNE,
   dayNumber,
+  recapActivities,
   suggestActivities,
+  type Activity,
   type ActivityContext,
 } from '../src/world/activities';
+import { parseIntent } from '../src/services/intent';
 
 const NEW_PLAYER: ActivityContext = {
   questsDone: [],
@@ -72,9 +76,11 @@ describe('panneau « Que faire maintenant ? »', () => {
 
   it('le défi de la semaine du quiz : juste après l’objectif tant qu’il n’est pas joué', () => {
     const list = suggestActivities(NEW_PLAYER);
+    // Accès direct : le quiz s'ouvre tout de suite ; la borne reste proposée à pied.
     expect(list[1]).toMatchObject({
       id: 'quiz:weekly',
-      action: { kind: 'go', object: 'arcade-jeux-1' },
+      action: { kind: 'panel', panel: 'quiz' },
+      place: 'arcade-jeux-1',
     });
     const done = suggestActivities({ ...VETERAN, quizWeeklyDone: true });
     expect(done.some((a) => a.id === 'quiz:weekly')).toBe(false);
@@ -158,7 +164,8 @@ describe('panneau « Que faire maintenant ? »', () => {
     expect(news).toBeLessThan(list.findIndex((a) => a.id.startsWith('secret:')));
     expect(list[news]).toMatchObject({
       title: 'Nouveau au musée : « MalinosLand »',
-      action: { kind: 'go', object: MUSEUM_NEWEST_STAND },
+      action: { kind: 'project', id: 12 },
+      place: MUSEUM_NEWEST_STAND,
     });
     const old = suggestActivities({
       ...VETERAN,
@@ -178,12 +185,88 @@ describe('panneau « Que faire maintenant ? »', () => {
       ...VETERAN,
       museum: { count: MUSEUM_STAND_COUNT, latest },
     });
-    expect(full.find((a) => a.id === 'museum:full')?.action).toEqual({
-      kind: 'go',
-      object: 'museum-kiosk',
+    expect(full.find((a) => a.id === 'museum:full')).toMatchObject({
+      action: { kind: 'panel', panel: 'creations' },
+      place: 'museum-kiosk',
     });
     expect(
       suggestActivities({ ...VETERAN, museum: null }).some((a) => a.id.startsWith('museum:')),
     ).toBe(false);
+  });
+
+  it('chaque lieu « à pied » des idées existe sur la carte et peut servir', () => {
+    const world = loadWorld('hub');
+    const contexts: ActivityContext[] = [
+      NEW_PLAYER,
+      VETERAN,
+      { ...NEW_PLAYER, intent: 'learn' },
+      { ...NEW_PLAYER, intent: 'create' },
+      { ...VETERAN, intent: 'create' },
+      { ...NEW_PLAYER, intent: 'meet' },
+      { ...VETERAN, museum: { count: 0, latest: null } },
+      { ...VETERAN, museum: { count: MUSEUM_STAND_COUNT, latest: null } },
+    ];
+    const all: Activity[] = contexts.flatMap((c) => suggestActivities(c));
+    for (const a of all) {
+      if (!a.place) continue;
+      const obj = world.getObject(a.place);
+      expect(obj, `${a.id} → ${a.place}`).toBeTruthy();
+      expect(!!obj!.interaction || obj!.seats.length > 0, a.place).toBe(true);
+    }
+  });
+
+  it('chaque envie mène d’abord à une réussite possible sans compte', () => {
+    const learn = suggestActivities({ ...NEW_PLAYER, intent: 'learn' });
+    expect(learn[0]).toMatchObject({ id: 'quiz:weekly', action: { kind: 'panel', panel: 'quiz' } });
+    const create = suggestActivities({ ...NEW_PLAYER, intent: 'create' });
+    expect(create[0]).toMatchObject({
+      id: 'create:avatar',
+      action: { kind: 'panel', panel: 'avatar' },
+    });
+    // Sans compte : on découvre les créations ; avec un compte : on peut exposer.
+    expect(create[1]?.id).toBe('create:creations');
+    expect(suggestActivities({ ...VETERAN, intent: 'create' })[1]?.id).toBe('create:expose');
+    const meetAlone = suggestActivities({ ...NEW_PLAYER, intent: 'meet' });
+    expect(meetAlone[0]?.id).toBe('meet:calm');
+    const meetCrowd = suggestActivities({ ...NEW_PLAYER, intent: 'meet', crowd: { games: 2 } });
+    expect(meetCrowd.slice(0, 2).map((a) => a.id)).toEqual(['crowd:games', 'meet:chat']);
+    // Jamais deux fois la même idée, jamais plus que le maximum.
+    for (const list of [learn, create, meetAlone, meetCrowd]) {
+      expect(new Set(list.map((a) => a.id)).size).toBe(list.length);
+      expect(list.length).toBeLessThanOrEqual(MAX_ACTIVITIES);
+    }
+  });
+
+  it('« Reprends ici » : 3 suites au plus, rien quand il n’y a rien à reprendre', () => {
+    const done = { ...VETERAN, quizWeeklyDone: true };
+    expect(recapActivities(done)).toEqual([]);
+    const latest = { id: 4, title: 'MalinosLand', author: 'Mickael', days: 1 };
+    const mine = recapActivities({
+      ...NEW_PLAYER,
+      secretsFound: [SECRETS[0]!.id],
+      museum: { count: 1, latest },
+      myName: 'Mickael',
+      pendingProjects: ['Mon outil'],
+    });
+    expect(mine.length).toBe(MAX_RECAP);
+    expect(mine.map((a) => a.id)).toEqual(['recap:mine:4', 'recap:pending', 'quiz:weekly']);
+    expect(mine[0]).toMatchObject({ action: { kind: 'project', id: 4 } });
+    // Le projet d’un autre : annoncé comme nouveauté, après le reste.
+    const other = recapActivities({ ...done, museum: { count: 1, latest }, myName: 'Bloom' });
+    expect(other.map((a) => a.id)).toEqual(['museum:new:4']);
+  });
+
+  it('envie gardée dans le navigateur : données relues prudemment', () => {
+    expect(parseIntent({ intent: 'learn', answered: true, shownDay: 20000 })).toEqual({
+      intent: 'learn',
+      answered: true,
+      shownDay: 20000,
+    });
+    expect(parseIntent({ intent: 'pirate', answered: 'oui', shownDay: -1 })).toEqual({
+      intent: null,
+      answered: false,
+      shownDay: null,
+    });
+    expect(parseIntent(null).answered).toBe(false);
   });
 });

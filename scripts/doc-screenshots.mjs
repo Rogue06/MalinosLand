@@ -35,6 +35,9 @@ async function openGame(progress = []) {
         multiTab: false,
       });
       put('progress', progress);
+      // Carte d'arrivée déjà vue aujourd'hui : elle ne cache pas les captures.
+      const today = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60_000) / 86_400_000);
+      put('intent', { intent: null, answered: true, shownDay: today });
     },
     { look, progress },
   );

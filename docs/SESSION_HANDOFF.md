@@ -103,6 +103,13 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
 
 ## Dernières sessions
 
+- **26/10 (soir)** — PR #62 (cahier des charges, état des lieux) fusionnée. Accord du
+  responsable pour **Three.js** (rendu 3D du prototype B0 seulement). Branche
+  `feature/aujourdhui` (PR 12, DEC-042) : trois envies (carte non bloquante), panneau
+  « Aujourd’hui » avec accès direct et 🚶, « Reprends ici » au retour, menu ☰ sur téléphone. Aucune
+  migration. Testé : unitaires, e2e (première visite, panneau, téléphone, retour un autre jour).
+  **Suite : PR 13 = B0**, prototype du bac à sable (page à part, isométrique contre Three.js).
+
 - **26/10 (suite)** — PR #61 fusionnée et mise en ligne lancée. Le responsable a remis un
   **cahier des charges** pour fidéliser les joueurs (boucles « apprendre, créer, rencontrer »)
   et ouvrir d’autres univers, à commencer par un **bac à sable en cubes** :

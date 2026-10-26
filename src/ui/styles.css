@@ -561,7 +561,7 @@ button.presence-chip {
 .chat-fold {
   color: var(--muted);
 }
-/* Panneau « Que faire maintenant ? » (v0.35). */
+/* Panneau « Aujourd’hui » (ex « Que faire maintenant ? », v0.35 ; PR 12). */
 .activities {
   list-style: none;
   margin: 12px 0 0;
@@ -596,6 +596,120 @@ button.presence-chip {
 .activity .btn {
   flex: none;
 }
+.activity-actions {
+  display: flex;
+  gap: 6px;
+  flex: none;
+}
+.walk-btn {
+  padding-inline: 9px;
+}
+.activity.compact {
+  padding: 7px 10px;
+  gap: 10px;
+}
+.activity.compact .activity-icon {
+  font-size: 20px;
+}
+/* Envies du moment (PR 12) : trois grands boutons, l'envie choisie en évidence. */
+.intent-choice {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+.intent-btn {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 10px 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--glass);
+  color: inherit;
+  font-family: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+.intent-btn:hover,
+.intent-btn:focus-visible {
+  border-color: var(--teal);
+}
+.intent-btn.active {
+  border-color: var(--teal);
+  background: rgba(34, 181, 166, 0.22);
+}
+.intent-icon {
+  font-size: 22px;
+  line-height: 1.2;
+}
+.intent-label {
+  font-weight: 700;
+  font-size: 14px;
+}
+.intent-hint {
+  color: var(--muted);
+  font-size: 12px;
+}
+/* Carte d'arrivée et « Reprends ici » (PR 12) : en haut, jamais bloquante. */
+.today-card {
+  position: absolute;
+  top: 62px;
+  left: 12px;
+  width: min(440px, calc(100% - 24px));
+  padding: 12px 14px;
+  border-radius: 16px;
+  display: grid;
+  gap: 8px;
+  pointer-events: auto;
+  animation: fade-in 0.25s ease-out;
+}
+.today-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.today-card .intent-choice,
+.today-card .activities {
+  margin-top: 0;
+}
+.today-skip {
+  justify-self: center;
+}
+/* Menu ☰ : seulement sur petit écran (les boutons restent dans le bandeau sur grand écran). */
+.menu-narrow {
+  display: none;
+  position: relative;
+}
+.menu-list {
+  position: absolute;
+  right: 0;
+  top: 42px;
+  min-width: 220px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  border-radius: 12px;
+  display: grid;
+  gap: 2px;
+  z-index: 5;
+}
+.menu-list button {
+  width: 100%;
+  text-align: left;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.menu-list button:hover,
+.menu-list button:focus-visible {
+  background: rgba(34, 181, 166, 0.2);
+}
 @media (max-width: 520px) {
   .activity {
     flex-wrap: wrap;
@@ -603,7 +717,7 @@ button.presence-chip {
   .activity-text {
     flex-basis: calc(100% - 48px);
   }
-  .activity .btn {
+  .activity-actions {
     margin-left: 36px;
   }
 }
@@ -1525,6 +1639,29 @@ button.presence-chip {
   }
   .topbar-right {
     justify-content: flex-end;
+  }
+  .topbar-right .menu-wide {
+    display: none;
+  }
+  .menu-narrow {
+    display: block;
+  }
+  /* Bandeau sur deux lignes : la carte du jour passe dessous. */
+  .today-card {
+    top: 104px;
+  }
+  .intent-choice {
+    grid-template-columns: 1fr;
+  }
+  .intent-btn {
+    grid-template-columns: auto 1fr;
+    justify-items: start;
+    text-align: left;
+    column-gap: 10px;
+  }
+  .intent-icon {
+    grid-row: span 2;
+    align-self: center;
   }
   .topbar-left .sky-chip {
     display: none;

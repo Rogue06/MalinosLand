@@ -5,6 +5,18 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (village, étape 1 : « Aujourd’hui », PR 12)
+
+- **Trois envies** à la première visite (« Comprendre l’IA », « Créer quelque chose »,
+  « Rencontrer les Malinos », ou « Passer »), dans une carte qui ne bloque pas le jeu. Chaque
+  envie mène d’abord à une réussite possible **sans compte** (quiz, personnage, créations).
+- Le panneau 🧭 devient **« Aujourd’hui »** : chaque idée s’ouvre **directement** (bouton
+  principal) ou à pied (bouton 🚶) ; l’envie du moment se change en haut du panneau.
+- **« Reprends ici »** au retour un autre jour : 3 suites au plus (projet exposé ou en attente,
+  défi de la semaine, carnet entamé, nouveauté du musée), une fois par jour.
+- Téléphone : les boutons secondaires du bandeau sont regroupés dans un menu **☰**.
+- Rien n’est envoyé : l’envie reste dans le navigateur (DEC-042).
+
 ### Documentation (cahier des charges du village)
 
 - Cahier des charges du responsable (`docs/CAHIER_DES_CHARGES_VILLAGE.md`) et état des lieux

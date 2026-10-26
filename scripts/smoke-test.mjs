@@ -221,6 +221,21 @@ try {
     await page.screenshot({ path: `${outDir}/02-arrivee.png` });
   });
 
+  await step('carte d’arrivée : trois envies, puis une première réussite sans compte', async () => {
+    await waitUi('.today-card', 'Qu’est-ce qui te ferait plaisir');
+    await page.screenshot({ path: `${outDir}/02b-envies.png` });
+    await page.locator('.today-card .intent-btn', { hasText: 'Comprendre l’IA' }).click();
+    await waitUi('.modal', 'Aujourd’hui');
+    await waitGone('.today-card');
+    // Première idée : le défi du quiz, ouvert directement (sans marcher jusqu’à la borne).
+    const first = page.locator('.modal .activity').first();
+    if (!(await first.textContent()).includes('Quiz IA')) fail('le quiz devrait venir en premier');
+    await first.getByRole('button', { name: 'Jouer' }).click();
+    await waitUi('.modal', 'Quiz IA des Malinos');
+    await page.keyboard.press('Escape');
+    await waitGone('.modal');
+  });
+
   await step('déplacement au clavier', async () => {
     const before = await dbg(() => window.__malinosDebug.pos());
     await page.keyboard.down('ArrowUp');
@@ -289,8 +304,8 @@ try {
 
   await step('panneau « Que faire maintenant ? » et « Y aller »', async () => {
     await teleport(4.5, 15.5, 'nx');
-    await page.click('button[title="Que faire maintenant ?"]');
-    await waitUi('.modal', 'Que faire maintenant ?');
+    await page.click('button[aria-label="Aujourd’hui"]');
+    await waitUi('.modal', 'Aujourd’hui');
     const count = await page.evaluate(() => document.querySelectorAll('.activity').length);
     if (count < 3) fail(`au moins 3 idées attendues, ${count} affichées`);
     await page.screenshot({ path: `${outDir}/07a-que-faire.png` });
@@ -307,7 +322,7 @@ try {
   await step('écran « Que faire ? » à l’entrée du hall', async () => {
     await teleport(9.5, 19.5, 'px');
     await dbg(() => window.__malinosDebug.use('ecran-que-faire'));
-    await waitUi('.modal', 'Que faire maintenant ?');
+    await waitUi('.modal', 'Aujourd’hui');
     await page.screenshot({ path: `${outDir}/07c-ecran-hall.png` });
     await page.keyboard.press('Escape');
     await waitGone('.modal');
@@ -453,6 +468,17 @@ try {
     await p.getByPlaceholder('ex. Léa, Max_IA…').fill('Mobile');
     await p.getByText('Entrer dans MalinosLand').click();
     await pollPage(p, () => window.__malinosDebug !== undefined);
+    // Carte d’arrivée : on peut passer. Puis le menu ☰ remplace les boutons secondaires.
+    await waitUi('.today-card', 'Passer', p);
+    await p.locator('.today-skip').tap();
+    await pollPage(p, () => !document.querySelector('.today-card'), null, 'carte passée');
+    if (await p.locator('button.menu-wide[title="Réglages"]').isVisible())
+      fail('téléphone : les boutons secondaires devraient être dans le menu ☰');
+    await p.locator('button[aria-label="Menu"]').tap();
+    await p.locator('.menu-list button', { hasText: 'Réglages' }).tap();
+    await waitUi('.modal', 'Réglages', p);
+    await p.keyboard.press('Escape');
+    await pollPage(p, () => !document.querySelector('.modal'), null, 'réglages fermés');
     // Chat replié au départ sur petit écran.
     await waitUi('.chat.collapsed .chat-peek', '', p);
     // Près de Joshua, le bouton d'action remplace la touche E.
@@ -480,6 +506,39 @@ try {
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
     await pollPage(p, (z) => window.__malinosDebug.zoom() > z, z0, 'zoom à deux doigts');
     await phone.close();
+  });
+
+  await step('retour un autre jour : « Reprends ici », 3 suites au plus', async () => {
+    const back = await browser.newContext({ viewport: { width: 1280, height: 760 } });
+    back.setDefaultTimeout(TIMEOUT);
+    if (process.env.E2E_QUALITY !== 'normal') await back.addInitScript(lowQuality);
+    await back.addInitScript(() => {
+      // Seulement au premier chargement : un rechargement doit garder ce que le jeu a noté.
+      if (localStorage.getItem('malinosland:intent')) return;
+      const put = (k, data) =>
+        localStorage.setItem(`malinosland:${k}`, JSON.stringify({ v: 1, data }));
+      put('profile', {
+        name: 'Revenant',
+        look: { body: 0, skin: 1, hair: 6, hairColor: 7, top: 2, bottom: 3, accessory: 2 },
+      });
+      // Envie choisie un jour précédent : la carte du retour peut s’afficher aujourd’hui.
+      put('intent', { intent: 'learn', answered: true, shownDay: 1 });
+    });
+    const p = await back.newPage();
+    p.on('pageerror', (e) => fail(`retour — erreur JS : ${e.message}`));
+    await p.goto(url, { waitUntil: 'networkidle' });
+    await waitUi('.today-card', 'Reprends ici', p);
+    const n = await p.locator('.today-card .activity').count();
+    if (n < 1 || n > 3) fail(`retour : 1 à 3 suites attendues, ${n} affichées`);
+    await p.screenshot({ path: `${outDir}/02c-reprends-ici.png` });
+    await p.locator('.today-card button[aria-label="Fermer"]').click();
+    await pollPage(p, () => !document.querySelector('.today-card'), null, 'carte fermée');
+    // Une fois par jour : rechargée, la page ne la remontre pas.
+    await p.reload({ waitUntil: 'networkidle' });
+    await pollPage(p, () => window.__malinosDebug !== undefined);
+    await p.waitForTimeout(1500);
+    if ((await p.locator('.today-card').count()) > 0) fail('retour : carte remontrée le même jour');
+    await back.close();
   });
 
   const fps = await dbg(() => window.__malinosDebug.fps());

@@ -1,9 +1,23 @@
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { REALTIME_URL } from '../../config';
+import type { PanelId } from '../../world/types';
 import { commands, panelStore, presenceStore, roomStore, skyStore, zoneStore } from '../../state';
 import { useStore } from '../hooks';
 
 const SKY_ICON = { nuit: '🌙', aube: '🌅', jour: '☀️', crepuscule: '🌇' } as const;
 const SKY_LABEL = { nuit: 'la nuit', aube: 'l’aube', jour: 'le jour', crepuscule: 'le crépuscule' };
+
+/**
+ * Entrées secondaires du bandeau : boutons sur grand écran, regroupées dans le menu ☰ sur
+ * téléphone (cahier des charges du village, §6 : pas six boutons permanents sur mobile).
+ */
+const MENU: ReadonlyArray<{ panel: PanelId | 'settings' | 'help'; icon: string; label: string }> = [
+  { panel: 'avatar', icon: '🧑', label: 'Mon avatar' },
+  { panel: 'roadmap', icon: '🗺️', label: 'Feuille de route' },
+  { panel: 'ideas', icon: '💡', label: 'Boîte à idées et bugs' },
+  { panel: 'help', icon: '❔', label: 'Aide et commandes' },
+  { panel: 'settings', icon: '⚙️', label: 'Réglages' },
+];
 
 export function TopBar({
   onToggleObjectives,
@@ -16,6 +30,22 @@ export function TopBar({
   const presence = useStore(presenceStore);
   const room = useStore(roomStore);
   const sky = useStore(skyStore);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  // Menu ☰ ouvert : un toucher ailleurs ou Échap le referme.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const away = (e: PointerEvent) => {
+      if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
+    };
+    const key = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false);
+    window.addEventListener('pointerdown', away);
+    window.addEventListener('keydown', key);
+    return () => {
+      window.removeEventListener('pointerdown', away);
+      window.removeEventListener('keydown', key);
+    };
+  }, [menuOpen]);
   return (
     <header class="topbar">
       <div class="topbar-left">
@@ -75,8 +105,8 @@ export function TopBar({
         <button
           class="icon-btn"
           onClick={() => panelStore.set('activities')}
-          title="Que faire maintenant ?"
-          aria-label="Que faire maintenant ?"
+          title="Aujourd’hui : que faire maintenant ?"
+          aria-label="Aujourd’hui"
         >
           🧭
         </button>
@@ -88,25 +118,44 @@ export function TopBar({
         >
           🎯
         </button>
-        <button class="icon-btn" onClick={() => panelStore.set('avatar')} title="Mon avatar">
-          🧑
-        </button>
-        <button class="icon-btn" onClick={() => panelStore.set('roadmap')} title="Feuille de route">
-          🗺️
-        </button>
-        <button
-          class="icon-btn"
-          onClick={() => panelStore.set('ideas')}
-          title="Boîte à idées et bugs"
-        >
-          💡
-        </button>
-        <button class="icon-btn" onClick={() => panelStore.set('help')} title="Aide et commandes">
-          ❔
-        </button>
-        <button class="icon-btn" onClick={() => panelStore.set('settings')} title="Réglages">
-          ⚙️
-        </button>
+        {MENU.map((m) => (
+          <button
+            key={m.panel}
+            class="icon-btn menu-wide"
+            onClick={() => panelStore.set(m.panel)}
+            title={m.label}
+          >
+            {m.icon}
+          </button>
+        ))}
+        <div class="menu-narrow" ref={menuRef}>
+          <button
+            class={`icon-btn ${menuOpen ? 'active' : ''}`}
+            onClick={() => setMenuOpen(!menuOpen)}
+            title="Menu"
+            aria-label="Menu"
+            aria-expanded={menuOpen}
+          >
+            ☰
+          </button>
+          {menuOpen && (
+            <ul class="menu-list panel-glass">
+              {MENU.map((m) => (
+                <li key={m.panel}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenuOpen(false);
+                      panelStore.set(m.panel);
+                    }}
+                  >
+                    <span aria-hidden="true">{m.icon}</span> {m.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </nav>
     </header>
   );
