@@ -1654,6 +1654,23 @@ export class WorldScene extends Phaser.Scene {
         if (obj) this.useObject(obj);
         return !!obj;
       },
+      /**
+       * Point de la page (pixels CSS) au milieu de l'image d'un objet, pour y cliquer vraiment
+       * avec la souris dans les tests (null : objet absent ou hors de l'écran).
+       */
+      screenOf: (id: string) => {
+        const img = this.renderer3d.objects.get(id)?.image;
+        if (!img) return null;
+        const cam = this.cameras.main;
+        const b = img.getBounds();
+        const rect = this.game.canvas.getBoundingClientRect();
+        const k = rect.width / this.scale.width;
+        const x = rect.left + (b.centerX - cam.worldView.x) * cam.zoom * k;
+        const y = rect.top + (b.centerY - cam.worldView.y) * cam.zoom * k;
+        return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
+          ? { x, y }
+          : null;
+      },
       /** Remplit les stands du musée avec des projets d'exemple, sans réseau (captures, tests). */
       museumSample: (n = MUSEUM_SAMPLES.length) => {
         museumWallStore.set({

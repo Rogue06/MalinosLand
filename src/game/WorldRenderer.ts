@@ -267,17 +267,19 @@ export class WorldRenderer {
 
   /**
    * Change l'image d'un objet déjà affiché (affiche d'un stand du musée). La zone cliquable suit
-   * la nouvelle image.
+   * la nouvelle image : on redimensionne celle qui existe (le test au pixel lit toujours l'image
+   * actuelle). Surtout pas removeInteractive() puis setInteractive() : Phaser retire l'objet de
+   * la liste des cliquables à l'image suivante, et le stand ne réagissait plus au clic.
    */
   setObjectTexture(id: string, info: TextureInfo): void {
     const r = this.objects.get(id);
     if (!r) return;
-    const interactive = !!r.image.input;
     r.image.setTexture(info.key, info.frame).setOrigin(info.originX, info.originY);
     r.image.setScale(info.scale);
-    if (interactive) {
-      r.image.removeInteractive();
-      r.image.setInteractive({ pixelPerfect: true, alphaTolerance: 40, useHandCursor: true });
+    const area = r.image.input?.hitArea as { width: number; height: number } | undefined;
+    if (area) {
+      area.width = r.image.width;
+      area.height = r.image.height;
     }
   }
 

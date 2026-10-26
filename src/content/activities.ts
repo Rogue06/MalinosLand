@@ -79,3 +79,12 @@ export const AMBIENT_IDEAS: Record<
     },
   ],
 };
+
+/**
+ * Stand du projet le plus récemment exposé (place 0 : la première cimaise du musée), et nombre
+ * de stands. Un test vérifie qu'ils correspondent à la carte du Hub.
+ */
+export const MUSEUM_NEWEST_STAND = 'stand-1';
+export const MUSEUM_STAND_COUNT = 7;
+/** Un projet reste « nouveau au musée » pendant une semaine après sa validation. */
+export const MUSEUM_NEW_DAYS = 7;

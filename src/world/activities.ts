@@ -1,4 +1,11 @@
-import { AMBIENT_IDEAS, QUEST_TARGETS, ZONE_SPOTS } from '../content/activities';
+import {
+  AMBIENT_IDEAS,
+  MUSEUM_NEW_DAYS,
+  MUSEUM_NEWEST_STAND,
+  MUSEUM_STAND_COUNT,
+  QUEST_TARGETS,
+  ZONE_SPOTS,
+} from '../content/activities';
 import { QUESTS } from '../content/quests';
 import { SECRETS } from '../content/secrets';
 import type { SkyPhase } from '../core/daylight';
@@ -45,6 +52,14 @@ export interface ActivityContext {
   quizWeeklyDone: boolean;
   /** Numéro du jour, pour varier les idées d'un jour à l'autre (sans hasard : testable). */
   day: number;
+  /**
+   * Musée des Malinos, d'après la liste des stands déjà lue (null : inconnue ou hors ligne).
+   * `latest` : le projet exposé le plus récent, et depuis combien de jours.
+   */
+  museum?: {
+    count: number;
+    latest: { id: number; title: string; author: string; days: number } | null;
+  } | null;
 }
 
 /** Nombre maximal d'idées affichées : assez pour choisir, pas trop pour lire d'un coup d'œil. */
@@ -130,6 +145,45 @@ function ambient(ctx: ActivityContext, taken: ReadonlySet<string>): Activity | n
   };
 }
 
+/**
+ * Nouvelles du musée (PR 11) : le dernier projet exposé pendant sa première semaine, une
+ * invitation à exposer tant que le musée est vide, ou la borne quand tous les stands sont pris.
+ */
+function museum(ctx: ActivityContext): Activity | null {
+  const m = ctx.museum;
+  if (!m) return null;
+  if (m.latest && m.latest.days < MUSEUM_NEW_DAYS)
+    return {
+      id: `museum:new:${m.latest.id}`,
+      icon: '🆕',
+      title: `Nouveau au musée : « ${m.latest.title} »`,
+      detail: `Exposé par ${m.latest.author}. Son stand est le premier du musée, à côté du hall.`,
+      cta: 'Y aller',
+      action: { kind: 'go', object: MUSEUM_NEWEST_STAND },
+    };
+  if (m.count === 0)
+    return {
+      id: 'museum:first',
+      icon: '🖼️',
+      title: 'Le musée attend ses premiers projets',
+      detail:
+        'Un site, une appli, un outil IA, une création ? Expose-le : la première place est libre.',
+      cta: 'Exposer',
+      action: { kind: 'panel', panel: 'museum' },
+    };
+  if (m.count >= MUSEUM_STAND_COUNT)
+    return {
+      id: 'museum:full',
+      icon: '🖼️',
+      title: 'Le musée affiche complet',
+      detail:
+        'Tous les stands sont pris : la borne « Toutes les créations » montre chaque projet. Le Bâtiment des créations s’élèvera bientôt sur le chantier.',
+      cta: 'Y aller',
+      action: { kind: 'go', object: 'museum-kiosk' },
+    };
+  return null;
+}
+
 function myStudio(ctx: ActivityContext): Activity {
   return ctx.signedIn
     ? {
@@ -185,7 +239,11 @@ export function suggestActivities(ctx: ActivityContext): Activity[] {
   // Le défi de la semaine passe avant le reste tant qu'il n'est pas joué.
   if (!ctx.quizWeeklyDone) add(quiz(ctx));
   add(crowd(ctx));
+  const news = museum(ctx);
+  // Un projet tout juste exposé passe avant les secrets ; les autres nouvelles, après.
+  if (news?.id.startsWith('museum:new:')) add(news);
   add(secret(ctx));
+  if (news && !news.id.startsWith('museum:new:')) add(news);
   add(openHome(ctx));
   if (ctx.quizWeeklyDone) add(quiz(ctx));
   const taken = new Set(list.flatMap((a) => (a.action.kind === 'go' ? [a.action.object] : [])));

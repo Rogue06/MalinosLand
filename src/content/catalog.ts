@@ -579,6 +579,24 @@ export const CATALOG: Record<string, CatalogEntry> = {
       ],
     },
   },
+  site_billboard: {
+    name: 'Maquette du Bâtiment des créations',
+    category: 'decor',
+    footprint: [2, 1],
+    blocking: true,
+    // Éclaire le panneau la nuit, à la place du lampadaire voisin.
+    light: { color: 0xfff2c9, radius: 1.6, z: 1.9 },
+    defaultInteraction: {
+      kind: 'dialog',
+      label: 'Regarder la maquette',
+      speaker: 'Maquette',
+      lines: [
+        'Le futur Bâtiment des créations : quand les stands du musée seront pleins, le musée des Malinos s’agrandira ici.',
+        'Ses façades seront presque entièrement vitrées : depuis le jardin, on verra les Malinos se promener entre les expositions.',
+        'Il n’est pas encore construit. En attendant, le Musée des Malinos est ouvert à côté du hall : tu as un projet ? Expose-le !',
+      ],
+    },
+  },
   sign_hub: {
     name: 'Totem MalinosLand',
     category: 'decor',

@@ -363,6 +363,14 @@ try {
     await page.screenshot({ path: `${outDir}/07e-musee-fiche.png` });
     await page.keyboard.press('Escape');
     await waitGone('.modal');
+    // Un vrai clic de souris sur l'affiche d'un autre stand ouvre aussi sa fiche (le stand reste
+    // cliquable après le changement de son image).
+    const spot = await dbg(() => window.__malinosDebug.screenOf('stand-4'));
+    if (!spot) fail('stand-4 hors de l’écran');
+    await page.mouse.click(spot.x, spot.y);
+    await waitFor(() => window.__malinosDebug.state().panel === 'project');
+    await page.keyboard.press('Escape');
+    await waitGone('.modal');
     await dbg(() => window.__malinosDebug.use('museum-kiosk'));
     await waitUi('.modal', 'Toutes les créations');
     await page.keyboard.press('Escape');

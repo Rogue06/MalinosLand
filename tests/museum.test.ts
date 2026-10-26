@@ -223,6 +223,10 @@ describe('Musée : la salle (v0.4, PR 9)', () => {
     museumWallStore.set(ready);
     await loadMuseumWall(5000 + MUSEUM_WALL_TTL_MS - 1);
     expect(museumWallStore.get()).toBe(ready);
+    // Après une décision de modération : relue aussitôt, même avant les 5 minutes.
+    museumWallStore.set({ ...ready, status: 'loading' });
+    await loadMuseumWall(6000, true);
+    expect(museumWallStore.get()).toEqual({ status: 'offline', projects: [], at: 6000 });
   });
 
   it('signalements de projets : mêmes motifs que la base, données relues', () => {

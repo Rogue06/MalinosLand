@@ -5,6 +5,25 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (v0.4 : chantier et nouvelles du musée, PR 11)
+
+- **Maquette du futur Bâtiment des créations** sur le chantier : un grand panneau au bord de
+  l’allée montre l’immeuble prévu, aux façades presque entièrement vitrées (on y voit des
+  Malinos visiter les expositions), avec une grue et le titre « Futur Bâtiment des créations ».
+  On peut la regarder (E ou clic). Elle éclaire le chantier la nuit. Le bâtiment lui-même reste
+  à construire.
+- Panneau 🧭 « Que faire maintenant ? » : **Nouveau au musée** (le dernier projet exposé,
+  pendant une semaine, bouton « Y aller » jusqu’à son stand), invitation à exposer tant que le
+  musée est vide, et la borne « Toutes les créations » quand tous les stands sont pris.
+
+### Corrigé (musée)
+
+- Les **stands du musée** se cliquent de nouveau à la souris ou au doigt : ils perdaient leur
+  zone cliquable dès que la liste des projets était chargée (seules la touche E et la borne
+  marchaient). Le test de bout en bout clique maintenant vraiment sur une affiche.
+- Après une validation, un retrait ou un nouvel aperçu, les stands du musée sont relus
+  **aussitôt** : plus besoin de recharger la page pour voir le projet et sa capture.
+
 ### Modifié (musée)
 
 - MalinosLand peut s’exposer dans son propre musée : l’adresse exacte du jeu

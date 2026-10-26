@@ -237,6 +237,7 @@ export async function moderateProject(
     throw /Réservé aux modérateurs/.test(error.message ?? '')
       ? new AccountError('Réservé aux modérateurs.')
       : fail();
+  refreshMuseumWall();
 }
 
 /** Projets des stands du musée : les plus récents, lus une fois puis gardés 5 minutes. */
@@ -250,24 +251,38 @@ export interface MuseumWall {
 export const MUSEUM_WALL_TTL_MS = 5 * 60_000;
 export const museumWallStore = new Store<MuseumWall>({ status: 'idle', projects: [], at: 0 });
 
+/** Numéro de la dernière lecture lancée : seule la plus récente met les stands à jour. */
+let wallRequest = 0;
+
 /**
  * Charge la liste des stands (une seule lecture, au plus toutes les 5 minutes). Sans serveur de
- * comptes (version hors ligne), les stands restent libres.
+ * comptes (version hors ligne), les stands restent libres. `force` relit tout de suite, même
+ * pendant une lecture en cours (après une décision de modération).
  */
-export async function loadMuseumWall(now = Date.now()): Promise<void> {
+export async function loadMuseumWall(now = Date.now(), force = false): Promise<void> {
   const wall = museumWallStore.get();
-  if (wall.status === 'loading') return;
-  if (wall.status === 'ready' && now - wall.at < MUSEUM_WALL_TTL_MS) return;
+  if (!force && wall.status === 'loading') return;
+  if (!force && wall.status === 'ready' && now - wall.at < MUSEUM_WALL_TTL_MS) return;
   if (!SUPABASE_URL || !SUPABASE_KEY) {
     museumWallStore.set({ status: 'offline', projects: [], at: now });
     return;
   }
+  const request = ++wallRequest;
   museumWallStore.set({ ...wall, status: 'loading' });
   try {
-    museumWallStore.set({ status: 'ready', projects: await listApproved(null, 0), at: now });
+    const projects = await listApproved(null, 0);
+    if (request === wallRequest) museumWallStore.set({ status: 'ready', projects, at: now });
   } catch {
-    museumWallStore.set({ ...wall, status: 'error' });
+    if (request === wallRequest) museumWallStore.set({ ...wall, status: 'error' });
   }
+}
+
+/**
+ * Relit les stands aussitôt : un projet validé, retiré ou dont l'aperçu change apparaît (ou
+ * disparaît) dans le musée sans recharger la page.
+ */
+export function refreshMuseumWall(): void {
+  void loadMuseumWall(Date.now(), true);
 }
 
 /** Motifs de signalement d'un projet (identiques à la contrainte de la base). */
@@ -438,6 +453,7 @@ export async function updatePreview(
   }
   const body = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   if (!res.ok) throw new AccountError(sanitizeText(body.error, 120) || 'Aperçu impossible.');
+  refreshMuseumWall();
   return typeof body.preview === 'string' && /^[a-z0-9]{1,16}$/.test(body.preview)
     ? body.preview
     : null;
