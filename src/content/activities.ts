@@ -88,3 +88,21 @@ export const MUSEUM_NEWEST_STAND = 'stand-1';
 export const MUSEUM_STAND_COUNT = 7;
 /** Un projet reste « nouveau au musée » pendant une semaine après sa validation. */
 export const MUSEUM_NEW_DAYS = 7;
+
+/** Envies proposées à l'arrivée (cahier des charges du village, §6). */
+export type Intent = 'learn' | 'create' | 'meet';
+export const INTENTS: ReadonlyArray<{ id: Intent; icon: string; label: string; hint: string }> = [
+  { id: 'learn', icon: '💡', label: 'Comprendre l’IA', hint: 'Un quiz, des outils à essayer' },
+  {
+    id: 'create',
+    icon: '🎨',
+    label: 'Créer quelque chose',
+    hint: 'Ton Malino, ton studio, tes projets',
+  },
+  {
+    id: 'meet',
+    icon: '👋',
+    label: 'Rencontrer les Malinos',
+    hint: 'Qui est là, les studios ouverts',
+  },
+];

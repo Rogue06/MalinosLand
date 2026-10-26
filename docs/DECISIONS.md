@@ -626,3 +626,26 @@ pendant la capture.
 **Conséquences.** Aucune nouvelle ressource. Les tests de la base vident les plans gardés en
 cache après les migrations (une fonction remplacée était sinon encore utilisée par un plan
 préparé dans PGlite).
+
+## DEC-042 — « Aujourd’hui » : envies, accès direct et reprise, sans nouvelle mesure (26/10/2026)
+
+**Contexte.** Étape 1 du [cahier des charges du village](CAHIER_DES_CHARGES_VILLAGE.md) : les
+visiteurs font le tour et repartent ; les non-joueurs doivent trouver vite une première réussite
+et une raison de revenir. Voir [ETAT_DES_LIEUX.md](ETAT_DES_LIEUX.md).
+**Décision.**
+
+- Les **trois envies** s’affichent dans une **carte non bloquante** (pas une fenêtre) à la première
+  visite ; le choix (ou « Passer ») est gardé **dans le navigateur seulement**
+  (`malinosland:intent`) : rien n’est envoyé, aucune nouvelle mesure.
+- Le panneau 🧭 devient **« Aujourd’hui »** : chaque idée **ouvre directement** son panneau
+  (quiz, musée, avatar, carnet…), avec un bouton secondaire **🚶** pour y aller à pied. Mêmes
+  données, mêmes panneaux : pas une 2ᵉ application.
+- Au retour, **« Reprends ici »** : 3 suites au plus, une fois par jour, rien s’il n’y a rien à
+  reprendre. Une seule lecture supplémentaire, et seulement à ce moment-là : mes projets en
+  attente (compte connecté). La liste du musée et les studios ouverts réutilisent leur cache de
+  5 minutes.
+- Sur téléphone, les boutons secondaires du bandeau passent dans un menu ☰.
+
+**Conséquences.** Aucune migration ni dépendance. Logique pure et testée
+(`src/world/activities.ts`) ; test de bout en bout : première visite, panneau, téléphone et retour
+un autre jour.

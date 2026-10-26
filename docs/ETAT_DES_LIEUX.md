@@ -85,6 +85,11 @@ de **valider son propre projet** (sécurité du musée).
 
 ## 5. Premier lot proposé — étape 1 : « Aujourd’hui » (PR 12)
 
+> _Réalisé dans la PR 12 (DEC-042)_ : envies dans une carte non bloquante, panneau
+> « Aujourd’hui » avec accès direct et 🚶, « Reprends ici » une fois par jour, menu ☰ sur
+> téléphone. Écart avec le plan : l’envie « Créer » commence par le personnage (le studio et
+> l’exposition demandent un compte).
+
 **But :** qu’un nouveau venu, même non joueur, fasse une première chose réussie en moins d’une
 minute, et qu’un habitué retrouve tout de suite de quoi faire. Aucun nouveau contenu : on rend
 accessible ce qui existe.

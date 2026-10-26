@@ -9,6 +9,7 @@ import { InvitationCard } from './hud/Invitations';
 import { Minimap } from './hud/Minimap';
 import { Objectives } from './hud/Objectives';
 import { DialogBox, Hint, Stats, Toasts } from './hud/Overlays';
+import { TodayCard } from './hud/Today';
 import { TopBar } from './hud/TopBar';
 import { Onboarding } from './Onboarding';
 import { FeedbackPanel, ModerationPanel, PlayersPanel } from './panels/Community';
@@ -96,6 +97,7 @@ export function App() {
     <div class={`hud${chatOpen ? ' chat-open' : ''}${editing ? ' editing' : ''}`}>
       <TopBar objectivesOpen={objectives} onToggleObjectives={() => setObjectives(!objectives)} />
       {objectives && <Objectives onClose={() => setObjectives(false)} />}
+      <TodayCard />
       <Toasts />
       <Minimap />
       <Chat open={chatOpen} onToggle={setChatOpen} />

@@ -157,12 +157,23 @@ Dix **secrets** sont cachés dans le Hub. Le **carnet de Joshua** (bouton 🎯, 
 une **devinette** pour chacun ; une fois trouvé, il dévoile une page de l’histoire de Joshua. Avec
 un compte, tes découvertes te suivent sur tous tes appareils.
 
-### Que faire maintenant ? 🧭
+### Aujourd’hui 🧭
 
-Tu ne sais pas quoi faire ? L’**écran « Que faire ? »**, à gauche de l’entrée du hall, ou le
-bouton **🧭** en haut de l’écran proposent quelques idées du moment :
-ton prochain objectif, des Malinos à rejoindre, un secret à chercher, un studio ouvert à visiter
-ou une balade selon l’heure. **« Y aller »** t’y emmène tout seul.
+À ta première visite, une petite carte te demande **ce qui te ferait plaisir** : « Comprendre
+l’IA », « Créer quelque chose » ou « Rencontrer les Malinos » (ou « Passer »). Tu peux continuer à
+jouer pendant qu’elle est affichée. Ton choix reste dans ton navigateur et se change quand tu veux.
+
+Le bouton **🧭 Aujourd’hui** en haut de l’écran (ou l’**écran « Que faire ? »**, à gauche de
+l’entrée du hall) propose quelques idées du moment, selon ton envie : une partie de quiz, ton
+prochain objectif, des Malinos à rejoindre, un secret, un studio ouvert, une nouveauté du musée…
+Le grand bouton **ouvre directement** l’activité ; le petit **🚶** t’y emmène à pied.
+
+Quand tu reviens un autre jour, une carte **« Reprends ici »** te propose au plus trois suites (ton
+projet exposé ou en attente, le défi de la semaine, ton carnet de secrets…). Elle ne s’affiche
+qu’une fois par jour, et pas du tout s’il n’y a rien à reprendre.
+
+Sur téléphone, les boutons secondaires (avatar, feuille de route, idées, aide, réglages) sont
+regroupés dans le menu **☰**.
 
 ## 5. Les objectifs « Premiers pas »
 

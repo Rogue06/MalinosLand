@@ -338,7 +338,7 @@ export const CATALOG: Record<string, CatalogEntry> = {
     category: 'tech',
     footprint: [1, 1],
     blocking: true,
-    defaultInteraction: { kind: 'panel', label: 'Que faire maintenant ?', panel: 'activities' },
+    defaultInteraction: { kind: 'panel', label: 'Que faire aujourd’hui ?', panel: 'activities' },
     light: { color: 0x5fe3d0, radius: 1.2, z: 1.4 },
   },
   board_roadmap: {
