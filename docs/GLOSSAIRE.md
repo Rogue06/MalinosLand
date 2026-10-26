@@ -39,6 +39,9 @@ Les mots techniques utilisés dans le projet, expliqués simplement.
 | **Build**                     | La transformation du code en fichiers prêts à être mis en ligne.                                                           |
 | **Test automatique**          | Un petit programme qui vérifie qu’une partie du jeu fonctionne comme prévu.                                                |
 | **Phaser**                    | Le moteur de jeu utilisé pour afficher le monde.                                                                           |
+| **Three.js**                  | La bibliothèque 3D du jeu de cubes « Chantier des mondes » (page à part).                                                  |
+| **Maillage**                  | La forme 3D dessinée par la carte graphique : ici, seulement les faces de cubes que l’on peut voir.                        |
+| **Atlas de textures**         | Une seule image qui regroupe tous les petits motifs des cubes, pour dessiner plus vite.                                    |
 | **Preact**                    | La bibliothèque utilisée pour l’interface (menus, chat, fenêtres).                                                         |
 | **TypeScript**                | Le langage de programmation du projet (du JavaScript avec des vérifications en plus).                                      |
 | **Hébergement**               | Le service qui met le jeu en ligne pour que tout le monde y accède.                                                        |

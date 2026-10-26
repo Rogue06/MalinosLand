@@ -649,3 +649,28 @@ et une raison de revenir. Voir [ETAT_DES_LIEUX.md](ETAT_DES_LIEUX.md).
 **Conséquences.** Aucune migration ni dépendance. Logique pure et testée
 (`src/world/activities.ts`) ; test de bout en bout : première visite, panneau, téléphone et retour
 un autre jour.
+
+## DEC-043 — Chantier des mondes : Three.js, page à part, deux vues (26/10/2026)
+
+**Contexte.** Palier B0 du [cahier des charges du village](CAHIER_DES_CHARGES_VILLAGE.md) (§13) :
+un bac à sable en cubes où l’on creuse sous la surface, construit en hauteur et fabrique. Le
+responsable veut « un jeu dans le jeu » très inspiré des jeux de construction en cubes, et le
+choix entre une vue **isométrique** et une vue **à la première personne**. Le moteur du Hub
+(Phaser, images 2D) ne sait pas afficher un terrain en volume que l’on creuse.
+**Décision.**
+
+- **Three.js 0.186.1** (licence MIT, version exacte), accepté par le responsable le 26/10.
+  531 Ko (132 Ko compressés), dans un fichier à part, chargé **seulement** par la page
+  `/chantier/` : le Hub ne change pas de poids. Écartés : Babylon.js (bien plus lourd), un rendu
+  isométrique maison en 2D (pas de première personne possible).
+- **Un seul monde, deux caméras** : perspective (première personne) et orthographique
+  (isométrique, avec coupe automatique sous les toits et sous terre). Même terrain, mêmes
+  règles, même sauvegarde.
+- Logique **pure et testée** à part du rendu (terrain, déplacements, sac et recettes, maillages,
+  lumière) ; textures et bruitages **fabriqués par le code** (aucune image ni son téléchargé).
+- Prototype **solo**, sauvegardé dans le navigateur (seulement les modifications du terrain).
+  Page non reliée au jeu (`noindex`) : la mise en ligne reste soumise à l’accord du responsable.
+
+**Conséquences.** Une dépendance de plus (`three`, et `@types/three` pour le développement).
+Aucune ressource en ligne, aucun quota consommé. Les paliers suivants (sauvegarde en ligne,
+jeu à plusieurs) demanderont une étude des quotas (Durable Objects) avant d’être engagés.

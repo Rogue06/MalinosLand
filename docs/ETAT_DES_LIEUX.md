@@ -122,6 +122,12 @@ accessible ce qui existe.
 
 ## 6. Prototype du bac à sable — palier B0 (PR 13)
 
+> _Réalisé dans la PR 13 (DEC-043), voir [CHANTIER_DES_MONDES.md](CHANTIER_DES_MONDES.md)_. Le
+> responsable a demandé en cours de route un vrai jeu très inspiré des jeux de construction en
+> cubes, avec le choix entre première personne et vue isométrique : la comparaison « deux
+> rendus séparés » est devenue **un seul moteur 3D (Three.js) avec deux caméras**, et le
+> prototype contient déjà récolte, outils et fabrication (une partie du palier B3).
+
 Le jeu actuel dessine des objets en 2D qui **semblent** en volume : il n’a pas de terrain en
 cubes que l’on peut creuser. B0 compare deux rendus **sur une page de prototype à part**
 (`/chantier.html`, non reliée au jeu, comme `/art-preview.html`), sans serveur ni base :

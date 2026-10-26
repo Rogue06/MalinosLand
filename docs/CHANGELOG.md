@@ -5,6 +5,17 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (prototype : Chantier des mondes, PR 13)
+
+- **Jeu de construction en cubes** sur une page à part (`/chantier/`) : creuser (clic maintenu),
+  récolter, fabriquer (sac, établi, four : 12 recettes), poser, éclairer les grottes avec des
+  torches. **Survie douce** (ni monstres ni faim) ou **créatif** (tout à volonté, vol).
+- **Deux vues au choix** : première personne ou isométrique (coupe automatique sous terre).
+- Monde de 64 × 64 × 32 cubes : collines, plages, arbres, grottes, charbon et cristal ;
+  textures et bruitages fabriqués par le code, propres à MalinosLand.
+- Commandes clavier et souris, et commandes tactiles (manette, boutons, deux doigts pour zoomer).
+- Partie gardée dans le navigateur. Moteur Three.js chargé seulement sur cette page (DEC-043).
+
 ### Ajouté (village, étape 1 : « Aujourd’hui », PR 12)
 
 - **Trois envies** à la première visite (« Comprendre l’IA », « Créer quelque chose »,
