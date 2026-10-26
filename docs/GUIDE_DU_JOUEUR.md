@@ -163,10 +163,14 @@ un compte, tes découvertes te suivent sur tous tes appareils.
 l’IA », « Créer quelque chose » ou « Rencontrer les Malinos » (ou « Passer »). Tu peux continuer à
 jouer pendant qu’elle est affichée. Ton choix reste dans ton navigateur et se change quand tu veux.
 
+![Carte d’arrivée : les trois envies](images/envies.jpg)
+
 Le bouton **🧭 Aujourd’hui** en haut de l’écran (ou l’**écran « Que faire ? »**, à gauche de
 l’entrée du hall) propose quelques idées du moment, selon ton envie : une partie de quiz, ton
 prochain objectif, des Malinos à rejoindre, un secret, un studio ouvert, une nouveauté du musée…
 Le grand bouton **ouvre directement** l’activité ; le petit **🚶** t’y emmène à pied.
+
+![Le panneau « Aujourd’hui »](images/aujourdhui.jpg)
 
 Quand tu reviens un autre jour, une carte **« Reprends ici »** te propose au plus trois suites (ton
 projet exposé ou en attente, le défi de la semaine, ton carnet de secrets…). Elle ne s’affiche
