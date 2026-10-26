@@ -103,6 +103,15 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
 
 ## Dernières sessions
 
+- **26/10 (suite)** — PR #61 fusionnée et mise en ligne lancée. Le responsable a remis un
+  **cahier des charges** pour fidéliser les joueurs (boucles « apprendre, créer, rencontrer »)
+  et ouvrir d’autres univers, à commencer par un **bac à sable en cubes** :
+  [CAHIER_DES_CHARGES_VILLAGE.md](CAHIER_DES_CHARGES_VILLAGE.md). Étape 0 faite :
+  [ETAT_DES_LIEUX.md](ETAT_DES_LIEUX.md) (existant, limites, mesures, écarts, lots suivants).
+  **Prochain lot proposé : PR 12 « Aujourd’hui »** (trois envies, accès direct, reprise), puis
+  **PR 13 B0** (prototype du bac à sable, isométrique contre 3D) ; accord à demander pour
+  Three.js (rendu 3D du prototype).
+
 - **26/10** — PR #59 et #60 fusionnées et en ligne (#60 : MalinosLand peut s’exposer dans son
   propre musée, migration `20261030090000_museum_malinosland.sql` **appliquée**). Le responsable
   a exposé MalinosLand : l’aperçu automatique **marche en vrai**. Branche

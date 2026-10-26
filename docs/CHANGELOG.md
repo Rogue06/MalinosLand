@@ -5,6 +5,11 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Documentation (cahier des charges du village)
+
+- Cahier des charges du responsable (`docs/CAHIER_DES_CHARGES_VILLAGE.md`) et état des lieux
+  de l’étape 0 avec les deux prochains lots (`docs/ETAT_DES_LIEUX.md`).
+
 ### Ajouté (v0.4 : chantier et nouvelles du musée, PR 11)
 
 - **Maquette du futur Bâtiment des créations** sur le chantier : un grand panneau au bord de
