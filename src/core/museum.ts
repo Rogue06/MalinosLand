@@ -43,7 +43,16 @@ const URL_RE =
   // eslint-disable-next-line no-control-regex
   /^https:\/\/[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*\.[a-z]{2,63}([/?#][^\s\u0000-\u001f\u007f-\u009f]*)?$/;
 const LOCAL_HOST_RE = /(^|\.)(localhost|local|internal|lan|home|arpa|test|example|invalid)$/;
-const OWN_HOST_RE = /(^|\.)(malinosland\.pages\.dev|supabase\.(co|com|in))$/;
+// MalinosLand lui-même peut s'exposer (adresse exacte du jeu, DEC-041) ; ses sous-adresses
+// (essais de mise en ligne) et Supabase, non.
+const OWN_HOST_RE = /(\.malinosland\.pages\.dev|(^|\.)supabase\.(co|com|in))$/;
+/** Adresse publique du jeu. */
+export const GAME_HOST = 'malinosland.pages.dev';
+
+/** Le projet est-il MalinosLand lui-même ? (pas de démo intégrée pour lui) */
+export function isGameSite(u: string): boolean {
+  return /^https:\/\/([^/?#]+)/.exec(u)?.[1] === GAME_HOST;
+}
 
 /**
  * Remet une adresse saisie en forme : espaces autour retirés, « https:// » ajouté s'il manque,
@@ -81,7 +90,9 @@ export function projectUrlProblem(u: string): string | null {
   if (LOCAL_HOST_RE.test(host))
     return 'Cette adresse n’est pas accessible depuis Internet : indique l’adresse publique.';
   if (OWN_HOST_RE.test(host))
-    return 'Les adresses de MalinosLand ne peuvent pas être exposées au musée.';
+    return host.endsWith(GAME_HOST)
+      ? `Adresse d’essai de MalinosLand : utilise https://${GAME_HOST}.`
+      : 'Les adresses techniques de MalinosLand ne peuvent pas être exposées au musée.';
   return 'Adresse invalide. Exemple : https://mon-projet.github.io';
 }
 

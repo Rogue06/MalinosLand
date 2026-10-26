@@ -5,6 +5,13 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Modifié (musée)
+
+- MalinosLand peut s’exposer dans son propre musée : l’adresse exacte du jeu
+  (`https://malinosland.pages.dev/…`) est acceptée comme projet, avec son aperçu automatique.
+  Pas de « Essayer ici » pour lui (même origine que le jeu). Ses adresses d’essai et Supabase
+  restent refusées.
+
 ### Ajouté (v0.4 : Musée des Malinos, aperçu automatique)
 
 - **Aperçu automatique** des projets : à la validation, le serveur prend une capture du site

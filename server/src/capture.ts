@@ -12,7 +12,7 @@ import { PREVIEW_SIZE, type Capture } from './preview';
 const LOAD_TIMEOUT_MS = 15_000;
 
 export function browserCapture(binding: Fetcher): Capture {
-  return async (url, ownHosts) => {
+  return async (url, hosts) => {
     const browser = await puppeteer.launch(binding);
     try {
       const page = await browser.newPage();
@@ -24,7 +24,9 @@ export function browserCapture(binding: Fetcher): Capture {
         // Seulement des adresses https publiques (mêmes règles que la démo), et les données
         // intégrées à la page.
         if (u.startsWith('data:') || u.startsWith('blob:')) return void req.continue();
-        if (demoTargetProblem(u, ownHosts)) return void req.abort();
+        const host = /^https:\/\/([^/?#:@]+)([/?#]|$)/.exec(u)?.[1];
+        if (host && hosts.allowed.includes(host)) return void req.continue();
+        if (demoTargetProblem(u, hosts.blocked)) return void req.abort();
         void req.continue();
       });
       page.on('dialog', (d) => void d.dismiss());

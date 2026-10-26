@@ -24,8 +24,15 @@ export interface PreviewEnv extends EmbedEnv {
   PREVIEWS?: PreviewStore;
 }
 
-/** Prend la capture d'une adresse déjà vérifiée ; renvoie l'image WebP. */
-export type Capture = (url: string, ownHosts: readonly string[]) => Promise<Uint8Array>;
+/**
+ * Prend la capture d'une adresse déjà vérifiée ; renvoie l'image WebP. `blocked` : hôtes jamais
+ * chargés ; `allowed` : hôtes du jeu, chargés seulement quand on photographie MalinosLand
+ * lui-même (DEC-041).
+ */
+export type Capture = (
+  url: string,
+  hosts: { blocked: readonly string[]; allowed: readonly string[] },
+) => Promise<Uint8Array>;
 
 /** Taille maximale d'un aperçu (au-delà, refus : il doit rester très léger). */
 export const PREVIEW_MAX_BYTES = 80_000;
@@ -118,11 +125,21 @@ export async function previewRoute(
     const rows = (await res.json()) as Array<{ url?: unknown }>;
     if (!res.ok || typeof rows[0]?.url !== 'string') return deny(404, 'projet introuvable');
     const url = rows[0].url;
-    const problem = demoTargetProblem(url, ownHosts(request, env));
+    // MalinosLand lui-même (adresse exacte du jeu) peut être photographié ; rien d'autre du
+    // côté de MalinosLand.
+    const gameHosts = gameOrigins(env.ALLOWED_ORIGINS)
+      .filter((o) => o.startsWith('https://'))
+      .map((o) => new URL(o).hostname);
+    const host = /^https:\/\/([^/?#]+)/.exec(url)?.[1] ?? '';
+    const self = gameHosts.includes(host) && /^https:\/\/[^/?#:@]+([/?#]|$)/.test(url);
+    const problem = self ? null : demoTargetProblem(url, ownHosts(request, env));
     if (problem) return deny(400, `adresse refusée : ${problem}`);
     let image: Uint8Array;
     try {
-      image = await capture(url, ownHosts(request, env));
+      image = await capture(url, {
+        blocked: ownHosts(request, env),
+        allowed: self ? [host] : [],
+      });
     } catch {
       return deny(502, 'capture impossible (site trop lent ou injoignable)');
     }

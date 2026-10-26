@@ -48,8 +48,11 @@ au musée »), ou depuis ⚙️ Réglages → **🖼️ Mes projets** quand on e
   phrases, 280 caractères au plus) et jusqu’à **3 mots-clés**.
 - L’adresse doit être **publique et sécurisée** (`https://`). Si on oublie `https://`, le jeu
   l’ajoute. Sont refusées : les adresses `http://`, les adresses IP, les numéros de port, les
-  identifiants dans l’adresse, les adresses locales et celles de MalinosLand. Le message dit
-  quoi corriger.
+  identifiants dans l’adresse, les adresses locales, les adresses techniques (Supabase) et les
+  adresses d’essai de MalinosLand (`….malinosland.pages.dev`). Le message dit quoi corriger.
+  MalinosLand lui-même (`https://malinosland.pages.dev/…`) peut être exposé, avec son aperçu
+  automatique, mais sans le bouton « Essayer ici » : on ne lance pas le jeu dans le jeu
+  (DEC-041).
 - L’**aperçu** à droite montre l’affiche qui sera exposée ; il change pendant qu’on écrit.
 - Une case à cocher confirme que c’est son projet (ou qu’on y a participé) et qu’il ne demande
   pas d’informations personnelles sans raison.

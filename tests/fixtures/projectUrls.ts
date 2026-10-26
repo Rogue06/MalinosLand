@@ -14,7 +14,9 @@ export const URL_CASES: Array<[string, boolean]> = [
   ['https://serveur.local', false],
   ['https://mon-site.fr:8443/', false],
   ['https://user:motdepasse@mon-site.fr', false],
-  ['https://malinosland.pages.dev/jouer/', false],
+  // MalinosLand peut s'exposer lui-même (DEC-041) ; ses sous-adresses, non.
+  ['https://malinosland.pages.dev/', true],
+  ['https://malinosland.pages.dev/jouer/', true],
   ['https://essai.malinosland.pages.dev', false],
   ['https://xezisaqffltiuyeblknt.supabase.co/rest/v1/', false],
   ['javascript:alert(1)', false],

@@ -8,6 +8,7 @@ import {
   PROJECT_URL_MAX,
   REJECT_REASON_MAX,
   checkProjectDraft,
+  isGameSite,
   type DraftErrors,
   type ProjectInput,
 } from '../../core/museum';
@@ -642,7 +643,7 @@ export function MuseumModeration() {
                 <ExternalLink url={p.url} />
               </p>
               {'embed' in p && <PreviewReview project={p} />}
-              {'embed' in p && <EmbedReview project={p} />}
+              {'embed' in p && !isGameSite(p.url) && <EmbedReview project={p} />}
               <Decision project={p} mode={list} onDone={() => remove(p.id)} />
             </div>
           </li>
