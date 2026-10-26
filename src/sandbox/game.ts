@@ -22,6 +22,17 @@ export const REACH_ISO = 6.5;
 const SAVE_VERSION = 1;
 const store = new VersionedStorage();
 
+/** Durée d'un coup de pioche (s) et moment de l'impact dans le geste (0 à 1). */
+export const STRIKE = 0.32;
+export const IMPACT = 0.6;
+
+/** Angle du bras selon la phase du coup : on lève (0 → IMPACT), on frappe, on revient. */
+export function strikeAngle(phase: number): number {
+  if (phase < IMPACT) return 0.85 * Math.sin(((phase / IMPACT) * Math.PI) / 2);
+  const k = (phase - IMPACT) / (1 - IMPACT);
+  return k < 0.35 ? 0.85 - (k / 0.35) * 1.45 : -0.6 * (1 - (k - 0.35) / 0.65);
+}
+
 export interface GameEvents {
   /** L'inventaire, l'objet tenu ou la vue ont changé : la barre rapide se redessine. */
   changed(): void;
@@ -76,17 +87,24 @@ export class SandboxGame {
   private readonly crack: THREE.Mesh;
   private readonly ghost: THREE.Mesh;
   private readonly avatar: THREE.Group;
-  private readonly hand: THREE.Mesh;
+  private readonly hand: THREE.Group;
+  private readonly handParts: { arm: THREE.Mesh; cube: THREE.Mesh; pick: THREE.Group };
   private torchSticks: THREE.InstancedMesh;
   /** Éclats d'un cube cassé : petits cubes qui retombent (purement décoratif). */
   private readonly bits: THREE.InstancedMesh;
   private bitList: Array<{ p: THREE.Vector3; v: THREE.Vector3; life: number; color: THREE.Color }> =
     [];
-  private hitTimer = 0;
+  /** Coup de pioche en cours : phase de 0 à 1 (le bruit part à l'impact, IMPACT). */
+  private strike = 0;
+  /** Petit geste du bras quand on pose un cube (1 → 0). */
+  private jab = 0;
+  /** Pour le tutoriel : regard et marche cumulés, types de cubes posés. */
+  looked = 0;
+  walked = 0;
+  readonly placedTypes = new Set<number>();
   private torchFlames: THREE.InstancedMesh;
   private mineCell: string | null = null;
   private lastBreak = 0;
-  private swing = 0;
   private walkPhase = 0;
   private pointer: { x: number; y: number } | null = null;
   private dirty = false;
@@ -153,13 +171,12 @@ export class SandboxGame {
 
     this.avatar = makeAvatar();
     this.scene.add(this.avatar);
-    // Main ou objet tenu, en bas à droite de l'écran (première personne).
-    this.hand = new THREE.Mesh(
-      new THREE.BoxGeometry(0.16, 0.16, 0.16),
-      new THREE.MeshBasicMaterial({ color: 0xffffff }),
-    );
-    this.hand.position.set(0.5, -0.42, -0.85);
-    this.hand.rotation.set(0.2, -0.5, 0);
+    // Bras, cube ou pioche tenus, en bas à droite de l'écran (première personne). Le groupe
+    // tourne autour du poignet : c'est lui qui frappe.
+    this.handParts = makeHand();
+    this.hand = new THREE.Group();
+    this.hand.add(this.handParts.arm, this.handParts.cube, this.handParts.pick);
+    this.hand.position.set(0.46, -0.5, -0.72);
     this.fpCam.add(this.hand);
 
     const stick = new THREE.BoxGeometry(0.12, 0.55, 0.12);
@@ -362,9 +379,13 @@ export class SandboxGame {
     }
     const held = this.inv.held();
     if (held === null) return this.events.toast('Choisis un cube dans ta barre (1 à 9).');
-    if (!itemDef(held)?.block) return this.events.toast(`${itemDef(held)?.name} ne se pose pas.`);
+    if (!itemDef(held)?.block)
+      return this.events.toast(
+        `${itemDef(held)?.name} ne se pose pas : choisis un cube dans ta barre (1 à 9).`,
+      );
     const c = t.before;
-    if (occupies(this.player, c)) return;
+    if (occupies(this.player, c))
+      return this.events.toast('Recule d’un pas : tu es à l’endroit où tu veux poser ce cube.');
     const problem = this.world.placeProblem(c.x, c.y, c.z, held);
     if (problem) return this.events.toast(problem);
     this.world.place(c.x, c.y, c.z, held);
@@ -372,7 +393,8 @@ export class SandboxGame {
       this.inv.remove(held, 1);
       this.world.clearUndo();
     }
-    this.swing = 1;
+    this.jab = 1;
+    this.placedTypes.add(held);
     sfx.placed(blockDef(held).sound ?? 'soft');
     this.changedCell(c);
     this.events.changed();
@@ -441,6 +463,7 @@ export class SandboxGame {
   }
 
   look(dx: number, dy: number): void {
+    this.looked += (Math.abs(dx) + Math.abs(dy)) * 0.0042;
     this.yaw += dx * 0.0042;
     this.pitch = Math.max(-1.5, Math.min(1.5, this.pitch - dy * 0.0042));
   }
@@ -500,8 +523,10 @@ export class SandboxGame {
         void el.requestPointerLock?.();
         return;
       }
-      if (e.button === 0) this.mining = true;
-      if (e.button === 2) {
+      // Ctrl + clic : clic droit des pavés tactiles (Mac).
+      const right = e.button === 2 || (e.button === 0 && e.ctrlKey);
+      if (e.button === 0 && !right) this.mining = true;
+      if (right) {
         this.updateTarget();
         this.placeOrUse(e.shiftKey);
       }
@@ -593,6 +618,7 @@ export class SandboxGame {
   private update(dt: number): void {
     const wish = this.wish();
     const jump = this.jumpHeld || this.keys.has('Space');
+    const before = { x: this.player.x, y: this.player.y };
     stepPlayer(
       this.player,
       {
@@ -606,6 +632,7 @@ export class SandboxGame {
       dt,
       this.world,
     );
+    this.walked += Math.hypot(this.player.x - before.x, this.player.y - before.y);
     if (this.player.z < FALL_LIMIT) respawn(this.player, this.world);
     const moving = Math.hypot(wish.x, wish.y) > 0.01;
     if (moving) this.walkPhase += dt * 9;
@@ -613,7 +640,8 @@ export class SandboxGame {
     this.updateCut();
     this.updateTarget();
     this.updateMining(dt);
-    this.swing = Math.max(0, this.swing - dt * 4);
+    this.jab = Math.max(0, this.jab - dt * 5);
+    if (!this.mining || !this.target) this.strike = 0;
     this.updateBits(dt);
 
     this.saveTimer += dt;
@@ -684,6 +712,8 @@ export class SandboxGame {
     if (key !== this.mineCell) {
       this.mineCell = key;
       this.progress = 0;
+      // Le premier coup part vite : bras déjà levé.
+      this.strike = 0.3;
       const problem = this.world.breakProblem(t.cell.x, t.cell.y, t.cell.z);
       if (problem) {
         this.events.toast(problem);
@@ -696,16 +726,16 @@ export class SandboxGame {
     if (this.mode === 'creative') {
       if (performance.now() - this.lastBreak < 180) return;
       this.progress = 1;
+      this.strike = IMPACT;
     } else {
       const time = breakTime(block, held);
       if (time === Infinity) return;
       this.progress += dt / Math.max(0.05, time);
-      this.swing = Math.max(this.swing, 0.6);
-      this.hitTimer -= dt;
-      if (this.hitTimer <= 0) {
-        this.hitTimer = 0.24;
-        sfx.hit(blockDef(block).sound ?? 'soft');
-      }
+      // Un coup toutes les STRIKE secondes : le bruit part quand le bras touche le cube.
+      const before = this.strike;
+      this.strike += dt / STRIKE;
+      if (before < IMPACT && this.strike >= IMPACT) sfx.hit(blockDef(block).sound ?? 'soft');
+      if (this.strike >= 1) this.strike -= 1;
     }
     if (this.progress < 1) return;
     const broken = this.world.dig(t.cell.x, t.cell.y, t.cell.z);
@@ -772,13 +802,27 @@ export class SandboxGame {
     legL!.rotation.x = swingLegs;
     legR!.rotation.x = -swingLegs;
     armL!.rotation.x = -swingLegs * 0.8;
-    armR!.rotation.x = swingLegs * 0.8 - this.swing * 1.4;
+    // Coup : bras levé puis abattu (a > 0 : levé, a < 0 : frappé), petit geste pour poser.
+    const a = this.strike > 0 ? strikeAngle(this.strike) : -0.35 * Math.sin(this.jab * Math.PI);
+    const busy = this.strike > 0 || this.jab > 0;
+    armR!.rotation.x = busy ? -0.9 - a * 1.3 : swingLegs * 0.8;
     const held = this.inv.held();
-    const color = held !== null ? (itemDef(held)?.color ?? '#ffffff') : '#f1c9a5';
-    (this.hand.material as THREE.MeshBasicMaterial).color.set(color);
-    // Mains nues : un avant-bras allongé ; un objet : un petit cube.
-    this.hand.scale.set(held === null ? 0.8 : 1, held === null ? 0.8 : 1, held === null ? 3 : 1);
-    this.hand.rotation.x = 0.2 - this.swing * 0.9;
+    const tool = held !== null ? itemDef(held)?.tool : undefined;
+    const { arm, cube, pick } = this.handParts;
+    arm.visible = held === null;
+    cube.visible = held !== null && !tool;
+    pick.visible = !!tool;
+    if (cube.visible)
+      (cube.material as THREE.MeshBasicMaterial).color.set(itemDef(held!)?.color ?? '#fff');
+    if (tool)
+      ((pick.userData.head as THREE.Mesh).material as THREE.MeshBasicMaterial).color.set(
+        itemDef(held!)!.color,
+      );
+    // Repos : légèrement penché ; le coup fait tourner le poignet vers l'avant.
+    this.hand.rotation.set(-0.35 - a * 0.9, 0.35, 0.15);
+    const bob =
+      Math.hypot(this.move.x, this.move.y) + (this.keys.size ? 1 : 0) > 0 && this.player.onGround;
+    this.hand.position.y = -0.5 + (bob ? Math.sin(this.walkPhase * 2) * 0.012 : 0);
 
     const t = this.target;
     this.outline.visible = !!t;
@@ -833,6 +877,34 @@ function toMesh(d: MeshData, material: THREE.Material): THREE.Mesh | null {
   g.setIndex(d.indices);
   g.computeBoundingSphere();
   return new THREE.Mesh(g, material);
+}
+
+/** Bras (mains nues), petit cube ou pioche, vus en première personne. */
+function makeHand(): { arm: THREE.Mesh; cube: THREE.Mesh; pick: THREE.Group } {
+  const mat = (c: string) => new THREE.MeshBasicMaterial({ color: c });
+  const armGeo = new THREE.BoxGeometry(0.13, 0.13, 0.52);
+  armGeo.translate(0, 0, 0.1);
+  const arm = new THREE.Mesh(armGeo, mat('#f1c9a5'));
+  arm.rotation.x = -0.5;
+  const cubeGeo = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+  cubeGeo.translate(0, 0.12, -0.06);
+  const cube = new THREE.Mesh(cubeGeo, mat('#ffffff'));
+  cube.rotation.y = 0.6;
+  const pick = new THREE.Group();
+  const handle = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.46, 0.05), mat('#8a5a36'));
+  handle.position.y = 0.16;
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.07, 0.08), mat('#8b93a6'));
+  head.position.y = 0.38;
+  const tipL = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.07, 0.08), head.material);
+  tipL.position.set(-0.17, 0.34, 0);
+  const tipR = tipL.clone();
+  tipR.position.x = 0.17;
+  pick.add(handle, head, tipL, tipR);
+  pick.userData.head = head;
+  pick.rotation.set(0, 0, -0.35);
+  pick.scale.setScalar(0.55);
+  pick.position.set(0.02, -0.02, -0.04);
+  return { arm, cube, pick };
 }
 
 /** Petit Malino en cubes (vue isométrique) : jambes, veste turquoise, tête et cheveux. */

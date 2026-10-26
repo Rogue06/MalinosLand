@@ -475,3 +475,39 @@ button {
     font-size: 13px;
   }
 }
+
+/* ---------- Tutoriel (survie douce) */
+.tuto {
+  position: absolute;
+  top: calc(max(10px, env(safe-area-inset-top)) + 46px);
+  left: 10px;
+  width: min(340px, calc(100% - 20px));
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--glass);
+  border: 1px solid rgba(255, 200, 87, 0.45);
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+}
+.tuto p {
+  margin: 0;
+  color: var(--muted);
+}
+.tuto-step {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sun);
+  font-weight: 700;
+}
+.tuto-skip {
+  justify-self: start;
+  margin-top: 2px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 12px;
+  text-decoration: underline;
+}

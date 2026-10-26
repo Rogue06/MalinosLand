@@ -25,16 +25,16 @@ Deux modes, deux mondes séparés (ce qu’on obtient en créatif ne passe jamai
 
 ## Jouer
 
-| Action                  | Clavier et souris                                                | Au doigt                                                 |
-| ----------------------- | ---------------------------------------------------------------- | -------------------------------------------------------- |
-| Marcher, sauter, courir | ZQSD / WASD ou flèches, Espace, Ctrl                             | Manette à gauche, ⤒                                      |
-| Regarder (1re personne) | Souris (clic pour « attraper » la souris, Échap pour la libérer) | Glisser l’écran                                          |
-| Creuser                 | Clic gauche **maintenu**                                         | ⛏ maintenu (1re personne) ; ⛏ puis toucher un cube (iso) |
-| Poser                   | Clic droit                                                       | 🧱 (1re personne) ; 🧱 puis toucher une face (iso)       |
-| Choisir dans la barre   | 1 à 9, molette                                                   | Toucher une case                                         |
-| Sac et fabrication      | E (ou clic droit sur un établi / un four)                        | 🎒 Sac                                                   |
-| Changer de vue          | V                                                                | 👁                                                        |
-| Tourner / zoomer (iso)  | R, molette                                                       | ⟲ ⟳, deux doigts                                         |
+| Action                               | Clavier et souris                                                | Au doigt                                                 |
+| ------------------------------------ | ---------------------------------------------------------------- | -------------------------------------------------------- |
+| Marcher, sauter, courir              | ZQSD / WASD ou flèches, Espace, Ctrl                             | Manette à gauche, ⤒                                      |
+| Regarder (1re personne)              | Souris (clic pour « attraper » la souris, Échap pour la libérer) | Glisser l’écran                                          |
+| Creuser                              | Clic gauche **maintenu**                                         | ⛏ maintenu (1re personne) ; ⛏ puis toucher un cube (iso) |
+| Poser (le cube choisi dans la barre) | Clic droit, ou Ctrl + clic                                       | 🧱 (1re personne) ; 🧱 puis toucher une face (iso)       |
+| Choisir dans la barre                | 1 à 9, molette                                                   | Toucher une case                                         |
+| Sac et fabrication                   | E (ou clic droit sur un établi / un four)                        | 🎒 Sac                                                   |
+| Changer de vue                       | V                                                                | 👁                                                        |
+| Tourner / zoomer (iso)               | R, molette                                                       | ⟲ ⟳, deux doigts                                         |
 
 ![En première personne](images/chantier-premiere-personne.jpg)
 
@@ -42,6 +42,13 @@ Deux modes, deux mondes séparés (ce qu’on obtient en créatif ne passe jamai
 
 En vue isométrique, quand le personnage passe sous un toit ou sous terre, les couches du dessus
 disparaissent : on voit toujours son étage (coupe automatique).
+
+## Tutoriel
+
+En survie douce, une carte en haut à gauche guide les premiers pas : regarder, marcher, couper
+un tronc, fabriquer des planches puis un établi, la pioche en bois, creuser de la pierre et
+construire. Chaque étape se valide toute seule quand on l’a faite. On peut le passer, et le
+revoir depuis le menu (« 📘 Revoir le tutoriel »).
 
 ## Ce qu’on y fait (survie douce)
 
@@ -87,6 +94,14 @@ Le menu « 📊 Mesures » affiche ces chiffres en jouant.
 - La lumière est simplifiée (ciel, ombre sous les toits, torches à portée), pas une vraie
   propagation.
 - Pas de lien depuis le Hub : un portail viendra au palier B4, si le prototype plaît.
+
+## Ce que le responsable a décidé (26/10)
+
+- Vue préférée : la **3D à la première personne** (la vue isométrique reste disponible).
+- Graphismes : validés (« top »).
+- Intégration future dans le Hub (palier B4) : un **lore** pour faire la transition vers la 3D, en
+  rapport avec l’IA. Piste du responsable : les **bornes d’arcade** de la salle de jeux, avec de
+  vieux jeux (Pong…) et un décor assorti ; l’une d’elles ouvrirait le Chantier des mondes.
 
 ## Questions pour la suite (au responsable)
 

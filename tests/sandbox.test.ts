@@ -23,7 +23,9 @@ import {
   dropOf,
   itemDef,
 } from '../src/sandbox/blocks';
+import { IMPACT, STRIKE, strikeAngle } from '../src/sandbox/game';
 import { HOTBAR_SIZE, Inventory, RECIPES, type Station } from '../src/sandbox/inventory';
+import { TUTORIAL, currentStep } from '../src/sandbox/tutorial';
 import { PATTERNS, buildChunk, computeLighting, lightAt, CAVE_LIGHT } from '../src/sandbox/mesh';
 import {
   HEIGHT,
@@ -338,5 +340,51 @@ describe('Chantier des mondes : maillages et lumière', () => {
     w.blocks[w.index(11, 10, 5)] = TORCH;
     light = computeLighting(w);
     expect(lightAt(light, 10, 10, 5)).toBeGreaterThan(0.8);
+  });
+});
+
+describe('Chantier des mondes : tutoriel et coups de pioche', () => {
+  const state = (
+    o: Partial<{ looked: number; walked: number; items: Record<number, number>; placed: number[] }>,
+  ) => ({
+    looked: o.looked ?? 0,
+    walked: o.walked ?? 0,
+    count: (i: number) => o.items?.[i] ?? 0,
+    placed: (b: number) => (o.placed ?? []).includes(b),
+  });
+
+  it('les étapes avancent avec ce que fait le joueur, dans l’ordre', () => {
+    expect(currentStep(state({}))).toBe(0);
+    expect(currentStep(state({ looked: 2 }))).toBe(1);
+    expect(currentStep(state({ looked: 2, walked: 6 }))).toBe(2);
+    expect(TUTORIAL[2]!.id).toBe('couper');
+    expect(currentStep(state({ looked: 2, walked: 6, items: { [LOG]: 1 } }))).toBe(3);
+    // Une étape déjà atteinte ne revient pas en arrière quand on dépense ses planches.
+    const later = state({ looked: 2, walked: 6, placed: [WORKBENCH] });
+    expect(currentStep(later, 4)).toBe(5);
+    const all = state({
+      looked: 2,
+      walked: 6,
+      items: { [WOOD_PICK]: 1, [STONE]: 2 },
+      placed: [WORKBENCH, STONE],
+    });
+    expect(currentStep(all, 5)).toBeNull();
+  });
+
+  it('chaque étape a une consigne au clavier et au doigt', () => {
+    for (const s of TUTORIAL) {
+      expect(s.title && s.text && s.touch, s.id).toBeTruthy();
+    }
+    expect(new Set(TUTORIAL.map((s) => s.id)).size).toBe(TUTORIAL.length);
+  });
+
+  it('le bras est levé juste avant l’impact (le bruit), puis abattu', () => {
+    expect(strikeAngle(0)).toBeCloseTo(0, 5);
+    expect(strikeAngle(IMPACT - 0.001)).toBeGreaterThan(0.8);
+    const after = strikeAngle(IMPACT + (1 - IMPACT) * 0.35);
+    expect(after).toBeLessThan(-0.5);
+    expect(strikeAngle(0.999)).toBeCloseTo(0, 1);
+    expect(STRIKE).toBeGreaterThan(0.2);
+    expect(STRIKE).toBeLessThan(0.5);
   });
 });
