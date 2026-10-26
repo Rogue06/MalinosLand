@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'preact/hooks';
 import { SUPABASE_KEY, SUPABASE_URL } from '../../config';
 import { MUSEUM_CATEGORIES, museumCategory, type MuseumCategory } from '../../content/museum';
+import { isGameSite } from '../../core/museum';
 import { AccountError, accountStore } from '../../services/account';
 import {
   MUSEUM_PAGE_SIZE,
@@ -223,7 +224,9 @@ export function ProjectPanel() {
   if (!project) return null;
   const cat = museumCategory(project.category);
   const host = new URL(project.url).hostname;
-  const viewer = project.embed === 'ok' ? demoViewerUrl(project.id) : null;
+  // Jamais de démo intégrée pour MalinosLand lui-même (même origine que le jeu : plus isolée).
+  const viewer =
+    project.embed === 'ok' && !isGameSite(project.url) ? demoViewerUrl(project.id) : null;
   const capture = previewUrl(project);
   if (trying && viewer)
     return (

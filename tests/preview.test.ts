@@ -232,3 +232,32 @@ describe('aperçus du musée : image publique', () => {
     expect(isWebp(new Uint8Array(4))).toBe(false);
   });
 });
+
+describe('aperçus du musée : MalinosLand lui-même (DEC-041)', () => {
+  it('le jeu peut être photographié (et seulement son adresse exacte)', async () => {
+    const { store, data } = memoryStore();
+    const seen: Array<{ url: string; allowed: readonly string[] }> = [];
+    const capture: Capture = async (url, hosts) => {
+      seen.push({ url, allowed: hosts.allowed });
+      return webp(500);
+    };
+    const res = await previewRoute(
+      post({ id: 7, action: 'capture' }),
+      env(store),
+      capture,
+      fakeDb({ url: 'https://malinosland.pages.dev/' }).fetcher,
+    );
+    expect(res.status).toBe(200);
+    expect(seen).toEqual([
+      { url: 'https://malinosland.pages.dev/', allowed: ['malinosland.pages.dev'] },
+    ]);
+    expect(data.has('apercu:7')).toBe(true);
+    const sub = await previewRoute(
+      post({ id: 7, action: 'capture' }),
+      env(store),
+      capture,
+      fakeDb({ url: 'https://essai.malinosland.pages.dev/' }).fetcher,
+    );
+    expect(sub.status).toBe(400);
+  });
+});

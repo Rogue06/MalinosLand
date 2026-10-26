@@ -6,6 +6,7 @@ import {
   normalizeProjectUrl,
   parseTags,
   projectUrlProblem,
+  isGameSite,
 } from '../src/core/museum';
 import { fitTitle, wrapTitle } from '../src/game/art/posters';
 import {
@@ -51,7 +52,8 @@ describe('Musée : adresses des projets', () => {
       ['https://mon-site.fr:8080', /port/],
       ['https://moi:secret@mon-site.fr', /identifiant/],
       ['https://serveur.local', /Internet/],
-      ['https://malinosland.pages.dev', /MalinosLand/],
+      ['https://essai.malinosland.pages.dev', /MalinosLand/],
+      ['https://abc.supabase.co', /MalinosLand/],
       ['https://mon-site.fr/a b', /espace/],
       [`https://mon-site.fr/${'a'.repeat(300)}`, /trop longue/],
     ];
@@ -316,5 +318,16 @@ describe('Musée : aperçu automatique (DEC-040)', () => {
 
   it('sans serveur temps réel : pas d’image d’aperçu (affiche dessinée)', () => {
     expect(previewUrl({ id: 3, preview: 'mh3k2a' })).toBeNull();
+  });
+});
+
+describe('Musée : MalinosLand dans son propre musée (DEC-041)', () => {
+  it('l’adresse exacte du jeu est acceptée, mais jamais en démo intégrée', () => {
+    expect(projectUrlProblem('https://malinosland.pages.dev/')).toBeNull();
+    expect(isGameSite('https://malinosland.pages.dev/jouer/')).toBe(true);
+    expect(isGameSite('https://essai.malinosland.pages.dev/')).toBe(false);
+    expect(isGameSite('https://mon-site.fr/malinosland.pages.dev')).toBe(false);
+    // La fiche ne propose pas « Essayer ici » pour le jeu lui-même.
+    expect(museumVisitSource).toMatch(/isGameSite\(project\.url\)/);
   });
 });

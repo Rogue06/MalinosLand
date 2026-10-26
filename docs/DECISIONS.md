@@ -611,3 +611,18 @@ testée avec une fausse capture (routes, stockage, droits) et un vrai navigateur
 Un site peut changer après sa capture : « Reprendre l’aperçu » et signalement.
 **Conséquences.** Aucun coût : au-delà des quotas, la capture échoue avec une erreur, jamais de
 facturation. Serveur : 165 Ko compressés (limite gratuite : 3 Mo).
+
+## DEC-041 — MalinosLand peut s’exposer dans son propre musée (26/10/2026)
+
+**Contexte.** Le responsable veut exposer MalinosLand comme premier projet, pour montrer
+l’exemple. Les adresses de MalinosLand étaient toutes refusées (DEC-035).
+**Décision.** L’adresse **exacte** du jeu (`malinosland.pages.dev`) est acceptée par
+`valid_project_url` (migration `20261030090000_museum_malinosland.sql`, `create or replace`, sans
+suppression) et par le formulaire ; ses sous-adresses (essais de mise en ligne) et Supabase
+restent refusées. « Essayer ici » reste impossible pour lui : le serveur refuse toujours de
+l’encadrer et le jeu n’affiche pas le bouton (un cadre de la même origine que le jeu ne serait
+plus isolé). L’aperçu automatique peut le photographier : seul l’hôte du jeu est alors autorisé
+pendant la capture.
+**Conséquences.** Aucune nouvelle ressource. Les tests de la base vident les plans gardés en
+cache après les migrations (une fonction remplacée était sinon encore utilisée par un plan
+préparé dans PGlite).

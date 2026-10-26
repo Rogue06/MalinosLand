@@ -48,6 +48,9 @@ beforeAll(async () => {
     eager: true,
   });
   for (const file of Object.keys(migrations).sort()) await db.exec(migrations[file]!);
+  // Une migration peut remplacer une fonction (ex. valid_project_url) : on repart sans plans
+  // gardés en cache, comme une nouvelle connexion à la base.
+  await db.exec('discard plans');
   await db.exec(`insert into auth.users (id) values ('${ALICE}'), ('${BOB}')`);
 });
 
