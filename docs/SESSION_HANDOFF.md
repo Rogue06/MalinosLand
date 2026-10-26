@@ -3,11 +3,11 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 22/10/2026 — v0.3 terminée (logements, décoration, carnet, rôles, jour
-et nuit). Plan validé pour la suite : [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md) (v0.35 panneau
-« Que faire maintenant ? » et Quiz IA, puis v0.4 Musée des Malinos). v0.35 complète (PR 1 à 6
-fusionnées) ; PR 7 à PR 9 du Musée fusionnées ; en cours : PR 10 (« Essayer ici »). Une PR à
-la fois, présentée au responsable avant la suivante.**
+**Dernière mise à jour : 26/10/2026 — v0.4 (Musée des Malinos) presque terminée : PR 7 à 10,
+aperçu automatique et #60 fusionnés et en ligne ; en cours : PR 11 (maquette du futur Bâtiment
+des créations, nouvelles du musée, stands de nouveau cliquables). Plan :
+[PLAN_EVOLUTION.md](PLAN_EVOLUTION.md). Une PR à la fois, présentée au responsable avant la
+suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -102,6 +102,21 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **26/10** — PR #59 et #60 fusionnées et en ligne (#60 : MalinosLand peut s’exposer dans son
+  propre musée, migration `20261030090000_museum_malinosland.sql` **appliquée**). Le responsable
+  a exposé MalinosLand : l’aperçu automatique **marche en vrai**. Branche
+  `feature/futur-batiment-creations` (PR 11) : maquette vitrée sur le chantier, nouvelles du
+  musée dans 🧭, **stands de nouveau cliquables** (bug : `removeInteractive` puis
+  `setInteractive` perdait la zone cliquable), stands relus après validation.
+  **Demandes du responsable à traiter ensuite (une PR à la fois) :**
+  1. **Aperçu choisi par l’auteur** (capture d’écran ou image), facultatif, à la place de la
+     capture automatique : image réduite dans le navigateur, ≤ 80 Ko, rangée dans le stockage
+     déjà créé, **revue par un modérateur** avant d’être montrée.
+  2. **Pseudos stylés** pour les modérateurs et pour le responsable (pas doré : réservé au
+     statut de Renaud). Le responsable n’a aujourd’hui aucun signe distinctif (DEC-027) : il
+     faut un nouveau rôle affiché, donné par la base.
+  3. Point à trancher : un modérateur peut aujourd’hui valider **son propre** projet.
 
 - **25/10 (suite)** — PR #57 et #58 fusionnées ; migrations du musée **entièrement appliquées**
   (quota, visionneuse, aperçus). Première mise en ligne de #58 refusée (jeton sans droit sur le
@@ -451,6 +466,8 @@ par le responsable, avec un 2ᵉ compte (David, Bloom…) :
 
 ## Points en attente de décision du responsable
 
+0. Modérateurs : leur interdire de valider leur propre projet (sauf le responsable) ? Style des
+   pseudos des modérateurs et du responsable (voir « Dernières sessions », 26/10).
 1. Supprimer la dernière ancienne branche `feature/initial-prototype` sur GitHub.
 2. Titre affiché sous le pseudo doré : « Le Décodeur en chef » (choisi) ; à donner à Renaud
    quand il aura un compte.

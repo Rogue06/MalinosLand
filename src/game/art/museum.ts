@@ -1,6 +1,7 @@
 import { darken, lighten } from './color';
 import type { Decal, IsoBuilder } from './iso3d';
 import { PALETTE as P } from './palette';
+import { FUTURE_H, FUTURE_W, futureBuildingCanvas } from './futureBuilding';
 import { posterCanvas } from './posters';
 
 /**
@@ -139,6 +140,30 @@ export const MUSEUM_ART: Record<string, (b: IsoBuilder, variant: number) => void
       weight: 900,
       fit: 0.42,
     });
+  },
+  /**
+   * Grand panneau du chantier (2 × 1) : maquette du futur Bâtiment des créations, sur deux
+   * pieds, cadre blanc à liseré turquoise (sa lumière l'éclaire la nuit, voir le catalogue).
+   */
+  site_billboard(b) {
+    for (const x of [0.3, 1.63]) {
+      b.box({ x: x - 0.06, y: 0.36, z: 0, w: 0.19, d: 0.22, h: 0.06, color: P.metalDark });
+      b.box({ x, y: 0.43, z: 0.06, w: 0.07, d: 0.07, h: 0.55, color: P.metal });
+    }
+    const w = 1.7;
+    const h = (w * FUTURE_H) / FUTURE_W;
+    b.box({
+      x: 1 - w / 2 - 0.07,
+      y: 0.42,
+      z: 0.56,
+      w: w + 0.14,
+      d: 0.08,
+      h: h + 0.15,
+      color: P.white,
+      top: lighten(P.white, 0.4),
+      decals: [decal('py', 0, 0, 1, 0.05, P.teal)],
+    });
+    b.image({ x: 1 - w / 2, y: 0.5 + EPS, z: 0.63 }, 'py', w, h, futureBuildingCanvas());
   },
   /** Panneau d'entrée du musée, sur pied (cadre doré, lettres sur fond nuit). */
   sign_museum(b) {

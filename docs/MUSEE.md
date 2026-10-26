@@ -6,15 +6,26 @@
 > lui-même l’**affiche** de chaque projet : aucune image n’est envoyée ni stockée.
 >
 > État (v0.4 en cours) : la base (PR 7), le formulaire avec la modération (PR 8), la **salle**
-> (PR 9 : stands, borne « Toutes les créations », fiche, signalements) et la démo **« Essayer
-> ici »** (PR 10) sont faits. Reste le Bâtiment des créations (PR 11). Voir
-> [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md).
+> (PR 9 : stands, borne « Toutes les créations », fiche, signalements), la démo **« Essayer
+> ici »** (PR 10), l’aperçu automatique et la **maquette** du futur Bâtiment des créations avec
+> les nouvelles du musée (PR 11) sont faits. Le bâtiment lui-même sera construit quand les stands
+> seront pleins. Voir [PLAN_EVOLUTION.md](PLAN_EVOLUTION.md).
 
 ## Visiter le musée
 
 L’ancienne galerie, à droite du hall d’accueil, est devenue le **Musée des Malinos**. Ses
 **7 stands** (3 cimaises au mur, 4 présentoirs sur socle) portent les affiches des projets les
-plus récents ; un stand encore libre montre une invitation « Ta création ici ? ».
+plus récents ; un stand encore libre montre une invitation « Ta création ici ? ». Un **clic sur
+un stand** (ou E en s’en approchant) ouvre la fiche du projet.
+
+Le panneau 🧭 « Que faire maintenant ? » annonce le **dernier projet exposé** pendant une
+semaine (« Nouveau au musée », avec un bouton pour aller jusqu’à son stand).
+
+Sur le chantier, à l’ouest du jardin, la **maquette du futur Bâtiment des créations** montre
+l’agrandissement prévu : des façades presque entièrement vitrées, pour voir de dehors les
+Malinos se promener entre les expositions.
+
+![Maquette du futur Bâtiment des créations, sur le chantier](images/chantier-maquette.jpg)
 
 ![Le Musée des Malinos : stands, borne et panneau d’entrée](images/musee-salle.png)
 

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { AMBIENT_IDEAS, QUEST_TARGETS, ZONE_SPOTS } from '../src/content/activities';
+import {
+  AMBIENT_IDEAS,
+  MUSEUM_NEWEST_STAND,
+  MUSEUM_STAND_COUNT,
+  QUEST_TARGETS,
+  ZONE_SPOTS,
+} from '../src/content/activities';
 import { loadWorld } from '../src/content/world';
 import { QUESTS } from '../src/content/quests';
 import { SECRETS } from '../src/content/secrets';
@@ -38,6 +44,8 @@ describe('panneau « Que faire maintenant ? »', () => {
       ...Object.values(ZONE_SPOTS).map((s) => s.object),
       ...Object.values(AMBIENT_IDEAS).flatMap((list) => list.map((i) => i.object)),
       QUIZ_BORNE,
+      MUSEUM_NEWEST_STAND,
+      'museum-kiosk',
     ];
     for (const id of ids) {
       const obj = world.getObject(id);
@@ -132,5 +140,50 @@ describe('panneau « Que faire maintenant ? »', () => {
     const c = dayNumber(new Date(2026, 9, 24, 0, 1));
     expect(a).toBe(b);
     expect(c).toBe(a + 1);
+  });
+
+  it('nouvelles du musée : stand du plus récent et nombre de stands conformes à la carte', () => {
+    const world = loadWorld('hub');
+    const stands = world.objects.filter((o) => o.interaction?.kind === 'stand');
+    expect(stands.length).toBe(MUSEUM_STAND_COUNT);
+    const newest = world.getObject(MUSEUM_NEWEST_STAND)!;
+    expect(newest.interaction).toMatchObject({ kind: 'stand', slot: 0 });
+  });
+
+  it('un projet tout juste exposé est annoncé pendant une semaine, avant les secrets', () => {
+    const latest = { id: 12, title: 'MalinosLand', author: 'Mickael', days: 0.5 };
+    const list = suggestActivities({ ...NEW_PLAYER, museum: { count: 1, latest } });
+    const news = list.findIndex((a) => a.id === 'museum:new:12');
+    expect(news).toBeGreaterThan(-1);
+    expect(news).toBeLessThan(list.findIndex((a) => a.id.startsWith('secret:')));
+    expect(list[news]).toMatchObject({
+      title: 'Nouveau au musée : « MalinosLand »',
+      action: { kind: 'go', object: MUSEUM_NEWEST_STAND },
+    });
+    const old = suggestActivities({
+      ...VETERAN,
+      museum: { count: 1, latest: { ...latest, days: 8 } },
+    });
+    expect(old.some((a) => a.id.startsWith('museum:'))).toBe(false);
+  });
+
+  it('musée vide : invitation à exposer ; musée complet : la borne ; inconnu : rien', () => {
+    const empty = suggestActivities({ ...VETERAN, museum: { count: 0, latest: null } });
+    expect(empty.find((a) => a.id === 'museum:first')?.action).toEqual({
+      kind: 'panel',
+      panel: 'museum',
+    });
+    const latest = { id: 3, title: 'Projet', author: 'Bloom', days: 30 };
+    const full = suggestActivities({
+      ...VETERAN,
+      museum: { count: MUSEUM_STAND_COUNT, latest },
+    });
+    expect(full.find((a) => a.id === 'museum:full')?.action).toEqual({
+      kind: 'go',
+      object: 'museum-kiosk',
+    });
+    expect(
+      suggestActivities({ ...VETERAN, museum: null }).some((a) => a.id.startsWith('museum:')),
+    ).toBe(false);
   });
 });

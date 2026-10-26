@@ -501,6 +501,11 @@ Panneau du chantier : « Futur Bâtiment des créations : le musée s’agrandir
 stands seront pleins » ; suggestion « Nouveau au musée » dans le panneau d’activités (lecture
 déjà en cache).
 
+_Réalisé_ : maquette du bâtiment vitré sur le chantier (objet `site_billboard`, dessin
+`src/game/art/futureBuilding.ts`), nouvelles du musée dans le panneau 🧭 (une lecture de la
+liste des stands, gardée 5 minutes), stands de nouveau cliquables, stands relus aussitôt après
+une décision de modération.
+
 ### Ce que ces PR ne font pas (volontairement)
 
 Miniatures envoyées par les auteurs, classement du quiz, commentaires et « j’aime » au musée,

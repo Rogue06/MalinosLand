@@ -120,8 +120,8 @@ changer de style.
 ![Terrasse](images/terrasse.jpg)
 
 Autour du bâtiment : fontaine, bancs, jardinières, et une terrasse avec tables à parasol et
-transats. À gauche, le **chantier du Bâtiment des créations** annonce l’agrandissement du futur
-musée.
+transats. À gauche, le **chantier du Bâtiment des créations** annonce l’agrandissement du
+musée : sa grande **maquette**, au bord de l’allée, montre le futur bâtiment aux façades vitrées.
 
 ### Le Parc des Malinos et le verger
 

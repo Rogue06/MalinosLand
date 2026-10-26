@@ -2,6 +2,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { accountPlayerId, homeRoom } from '../../multiplayer/protocol';
 import { accountStore } from '../../services/account';
 import { visitableHomes, type HomeEntry } from '../../services/homes';
+import { loadMuseumWall, museumWallStore, type MuseumProject } from '../../services/museum';
 import { progressStore, secretsStore } from '../../services/progress';
 import { quizStatsStore } from '../../services/quizStats';
 import { isoWeek } from '../../core/quiz';
@@ -19,6 +20,19 @@ async function openHomes(): Promise<HomeEntry[]> {
   const homes = await visitableHomes().catch(() => []);
   homesCache = { at: Date.now(), homes };
   return homes;
+}
+
+/** Ce que le panneau dit du musée : nombre de projets et le plus récent (liste déjà triée). */
+function museumNews(projects: readonly MuseumProject[]) {
+  const p = projects[0];
+  const at = p ? Date.parse(p.approvedAt) : NaN;
+  return {
+    count: projects.length,
+    latest:
+      p && Number.isFinite(at)
+        ? { id: p.id, title: p.title, author: p.author, days: (Date.now() - at) / 86_400_000 }
+        : null,
+  };
 }
 
 function run(a: Activity): void {
@@ -51,9 +65,12 @@ export function ActivitiesPanel() {
   const sky = useStore(skyStore);
   const account = useStore(accountStore);
   const quizStats = useStore(quizStatsStore);
+  const wall = useStore(museumWallStore);
   const [homes, setHomes] = useState<HomeEntry[] | null>(homesCache?.homes ?? null);
 
   useEffect(() => {
+    // Liste des stands : déjà lue en passant au musée, sinon une lecture (gardée 5 minutes).
+    void loadMuseumWall();
     let alive = true;
     void openHomes().then((h) => alive && setHomes(h));
     return () => {
@@ -73,6 +90,7 @@ export function ActivitiesPanel() {
     signedIn,
     quizWeeklyDone: isoWeek(new Date()).key in quizStats.weekly,
     day: dayNumber(new Date()),
+    museum: wall.status === 'ready' ? museumNews(wall.projects) : null,
   });
 
   return (
