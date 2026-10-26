@@ -5,6 +5,21 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté et modifié (Chantier des mondes, retours du responsable)
+
+- **Tutoriel** de la survie douce : 8 étapes guidées (regarder, marcher, couper un tronc,
+  planches, établi, pioche, pierre, construire), validées par ce que fait le joueur, dans une
+  carte qui ne bloque pas le jeu. « Passer le tutoriel », et « Revoir le tutoriel » dans le menu.
+- **Coups de pioche** : le bras (ou la pioche) se lève puis frappe, et le bruit part **au moment
+  de l’impact**. Une vraie petite pioche en main, un cube quand on tient un cube.
+- **Poser ce qu’on a récolté** plus clair : sous la barre, le nom de l’objet tenu et ce qu’on en
+  fait (« clic droit : poser ») ; **Ctrl + clic** fonctionne comme le clic droit (pavés tactiles) ;
+  un message quand on vise l’endroit où l’on se tient.
+- La dalle de départ porte le losange de MalinosLand (lisible de tous les côtés).
+- **Touches des jeux de cubes** : Maj pour s’accroupir (plus lent, on ne tombe pas du bord ;
+  descendre en vol), Ctrl **ou double Z** pour courir, **double Espace** pour voler en créatif,
+  **F5** (ou V) pour changer de vue, **clic molette** pour prendre en main le cube visé.
+
 ### Ajouté (prototype : Chantier des mondes, PR 13)
 
 - **Jeu de construction en cubes** sur une page à part (`/chantier/`) : creuser (clic maintenu),

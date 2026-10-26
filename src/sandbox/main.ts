@@ -3,7 +3,9 @@ import { itemDef } from './blocks';
 import { SandboxGame, type GameMode } from './game';
 import { HOTBAR_SIZE, RECIPES, STATION_LABEL } from './inventory';
 import { ALL_ITEMS } from './blocks';
+import { VersionedStorage } from '../services/storage';
 import { setSoundEnabled, sfx, soundEnabled } from './sfx';
+import { TUTORIAL, currentStep, type TutorialState } from './tutorial';
 import { drawIcon } from './textures';
 
 /**
@@ -29,6 +31,22 @@ function el<K extends keyof HTMLElementTagNameMap>(
 }
 
 const root = document.getElementById('chantier')!;
+const store = new VersionedStorage();
+
+/** Où en est le tutoriel (dans ce navigateur) : étape atteinte, ou terminé / passé. */
+interface TutoSave {
+  step: number;
+  done: boolean;
+}
+const readTuto = (): TutoSave =>
+  store.read<TutoSave>('chantier-tuto', 1, (raw) => {
+    const r = (typeof raw === 'object' && raw !== null ? raw : {}) as Record<string, unknown>;
+    const step = Number.isInteger(r.step)
+      ? Math.max(0, Math.min(TUTORIAL.length, r.step as number))
+      : 0;
+    return { step, done: r.done === true };
+  }) ?? { step: 0, done: false };
+const writeTuto = (t: TutoSave) => store.write('chantier-tuto', 1, t);
 const coarse = matchMedia('(pointer: coarse)').matches;
 let game: SandboxGame | null = null;
 
@@ -79,18 +97,26 @@ function startScreen(): void {
           : el(
               'ul',
               {},
-              el('li', {}, 'ZQSD / WASD ou flèches : marcher · Espace : sauter · Ctrl : courir.'),
               el(
                 'li',
                 {},
-                'Souris : regarder · clic gauche maintenu : creuser · clic droit : poser.',
+                'ZQSD / WASD : marcher · Espace : sauter · Ctrl ou double Z : courir · Maj : s’accroupir (on ne tombe pas du bord).',
               ),
               el(
                 'li',
                 {},
-                '1 à 9 ou molette : choisir · E : sac et fabrication · V : changer de vue.',
+                'Souris : regarder · clic gauche maintenu : creuser · clic droit : poser · clic molette : prendre le cube visé.',
               ),
-              el('li', {}, 'Clic droit sur un établi ou un four : fabriquer. Échap : menu.'),
+              el(
+                'li',
+                {},
+                '1 à 9 ou molette : choisir · E : sac et fabrication · F5 ou V : changer de vue.',
+              ),
+              el(
+                'li',
+                {},
+                'Clic droit sur un établi ou un four : fabriquer · créatif : double Espace pour voler · Échap : menu.',
+              ),
             ),
       ),
       el('a', { class: 'back', href: '../jouer/' }, '← Retour au Hub'),
@@ -153,6 +179,71 @@ function play(mode: GameMode): void {
   const hotbar = el('div', { class: 'hotbar' }, ...slots.map((s) => s.b));
   const heldName = el('div', { class: 'held-name' });
 
+  // ---- Tutoriel (survie douce) : une carte en haut à gauche, jamais bloquante.
+  let tuto = readTuto();
+  const tutoCard = el('section', { class: 'tuto', 'aria-live': 'polite' });
+  const tutoState: TutorialState = {
+    get looked() {
+      return g.looked;
+    },
+    get walked() {
+      return g.walked;
+    },
+    count: (item) => g.inv.count(item),
+    placed: (block) => g.placedTypes.has(block),
+  };
+  let shownStep = -1;
+  function renderTuto(step: number | null) {
+    if (mode !== 'survival' || tuto.done) {
+      tutoCard.hidden = true;
+      return;
+    }
+    tutoCard.hidden = false;
+    if (step === null) {
+      tutoCard.replaceChildren(
+        el('strong', {}, '🎉 Bravo, tu sais tout faire !'),
+        el(
+          'p',
+          {},
+          'Explore les grottes : le charbon donne des torches, le cristal une pioche bien plus rapide. Construis ce que tu veux.',
+        ),
+        el(
+          'button',
+          {
+            class: 'tool',
+            type: 'button',
+            onclick: () => {
+              tuto = { step: TUTORIAL.length, done: true };
+              writeTuto(tuto);
+              renderTuto(null);
+            },
+          },
+          'Terminer',
+        ),
+      );
+      return;
+    }
+    const s = TUTORIAL[step]!;
+    tutoCard.replaceChildren(
+      el('span', { class: 'tuto-step' }, `Tutoriel · ${step + 1}/${TUTORIAL.length}`),
+      el('strong', {}, s.title),
+      el('p', {}, coarse ? s.touch : s.text),
+      el(
+        'button',
+        {
+          class: 'tuto-skip',
+          type: 'button',
+          onclick: () => {
+            tuto = { step, done: true };
+            writeTuto(tuto);
+            renderTuto(null);
+          },
+        },
+        'Passer le tutoriel',
+      ),
+    );
+  }
+
   // Boutons du haut.
   const viewBtn = el('button', { class: 'tool', type: 'button', onclick: () => toggleView() });
   const flyBtn = el('button', {
@@ -201,7 +292,7 @@ function play(mode: GameMode): void {
   // Commandes tactiles.
   const touch = coarse ? touchControls(g, () => refresh()) : null;
 
-  hud.append(top, crosshair, bar, lockHint, heldName, hotbar, toastBox, stats, panel);
+  hud.append(top, tutoCard, crosshair, bar, lockHint, heldName, hotbar, toastBox, stats, panel);
   if (touch) hud.append(touch.root);
 
   function toggleView() {
@@ -235,7 +326,22 @@ function play(mode: GameMode): void {
       s.b.title = item !== null ? (itemDef(item)?.name ?? '') : 'Case vide';
     });
     const held = g.inv.held();
-    heldName.textContent = held !== null ? (itemDef(held)?.name ?? '') : 'Mains nues';
+    // Nom de l'objet tenu, et ce qu'on peut en faire.
+    const def = held !== null ? itemDef(held) : null;
+    const hint = !def
+      ? coarse
+        ? '⛏ : creuser'
+        : 'clic gauche maintenu : creuser'
+      : def.block
+        ? coarse
+          ? '🧱 : poser'
+          : 'clic droit : poser'
+        : def.tool
+          ? coarse
+            ? '⛏ : creuser plus vite'
+            : 'creuse plus vite'
+          : 'sert à fabriquer (sac)';
+    heldName.textContent = `${def?.name ?? 'Mains nues'} · ${hint}`;
     touch?.refresh();
     if (openPanel === 'bag') renderBag();
   }
@@ -436,6 +542,24 @@ function play(mode: GameMode): void {
           },
           '🔀 Changer de mode',
         ),
+        mode === 'survival'
+          ? el(
+              'button',
+              {
+                class: 'menu-btn',
+                type: 'button',
+                onclick: () => {
+                  g.looked = 0;
+                  g.walked = 0;
+                  tuto = { step: 0, done: false };
+                  writeTuto(tuto);
+                  shownStep = -1;
+                  closePanel();
+                },
+              },
+              '📘 Revoir le tutoriel',
+            )
+          : null,
         el(
           'button',
           {
@@ -473,7 +597,9 @@ function play(mode: GameMode): void {
     panel.replaceChildren();
   }
 
-  // ---- Clavier.
+  // ---- Clavier (mêmes touches que les jeux de cubes les plus connus).
+  let lastForward = 0;
+  let lastJump = 0;
   const onKey = (e: KeyboardEvent) => {
     if (!game || game !== g) return;
     const down = e.type === 'keydown';
@@ -493,7 +619,24 @@ function play(mode: GameMode): void {
       g.inv.selected = Number(e.code.slice(5)) - 1;
       refresh();
     }
-    if (down && e.code === 'KeyV') toggleView();
+    if (down && (e.code === 'KeyV' || e.code === 'F5')) {
+      e.preventDefault();
+      toggleView();
+    }
+    // Double appui sur « avancer » : on court ; double Espace en créatif : on vole.
+    if (down && !e.repeat && (e.code === 'KeyW' || e.code === 'ArrowUp')) {
+      if (performance.now() - lastForward < 300) g.sprintLatch = true;
+      lastForward = performance.now();
+    }
+    if (!down && (e.code === 'KeyW' || e.code === 'ArrowUp')) g.sprintLatch = false;
+    if (down && !e.repeat && e.code === 'Space' && mode === 'creative') {
+      if (performance.now() - lastJump < 300) {
+        g.fly = !g.fly;
+        toast(g.fly ? 'Vol : Espace pour monter, Maj pour descendre.' : 'Vol arrêté.');
+        refresh();
+      }
+      lastJump = performance.now();
+    }
     if (down && e.code === 'KeyF' && mode === 'creative') {
       g.fly = !g.fly;
       refresh();
@@ -526,6 +669,19 @@ function play(mode: GameMode): void {
     bar.classList.toggle('on', g.progress > 0);
     (bar.firstChild as HTMLElement).style.width = `${Math.round(g.progress * 100)}%`;
     lockHint.hidden = coarse || g.view !== 'first' || !!document.pointerLockElement || !!openPanel;
+    // Tutoriel : on passe à l'étape suivante dès que la consigne est faite.
+    if (mode === 'survival' && !tuto.done) {
+      const step = currentStep(tutoState, tuto.step);
+      if (step !== shownStep) {
+        if (shownStep >= 0) sfx.crafted();
+        shownStep = step ?? TUTORIAL.length;
+        if (step !== null && step !== tuto.step) {
+          tuto = { step, done: false };
+          writeTuto(tuto);
+        }
+        renderTuto(step);
+      }
+    }
     if (!stats.hidden) {
       const s = g.stats();
       stats.textContent = `${s.fps} images/s · ${s.triangles.toLocaleString('fr-FR')} triangles · ${s.calls} dessins · JavaScript chargé : ${jsKo} Ko`;
@@ -534,11 +690,9 @@ function play(mode: GameMode): void {
   };
   requestAnimationFrame(tick);
   refresh();
-  toast(
-    mode === 'survival'
-      ? 'Commence par couper un arbre : maintiens le clic sur un tronc.'
-      : 'Créatif : tous les cubes sont dans ta barre et dans le sac (E).',
-  );
+  if (mode === 'creative')
+    toast('Créatif : tous les cubes sont dans ta barre et dans le sac (E). F pour voler.');
+  else if (tuto.done) toast('Content de te revoir ! Ta partie a été gardée.');
 }
 
 /** Manette tactile : joystick, saut, creuser, poser, changer de vue. */

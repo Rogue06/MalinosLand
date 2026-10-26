@@ -103,6 +103,13 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
 
 ## Dernières sessions
 
+- **26/10 (nuit, suite)** — PR #64 fusionnée et **`/chantier/` mis en ligne** (accord du
+  responsable). Premiers retours : graphismes « top », **vue 3D première personne préférée**,
+  demande d’un tutoriel, d’un bras synchronisé avec le bruit et d’une pose plus claire des cubes
+  récoltés ; idée de lore pour l’intégration (bornes d’arcade de vieux jeux, Pong…). Branche
+  `feature/chantier-tutoriel` : tutoriel en 8 étapes, coups synchronisés, pioche en main,
+  Ctrl + clic, aide sous la barre. Le responsable continue de tester : attendre ses retours.
+
 - **26/10 (nuit)** — PR #63 (« Aujourd’hui ») fusionnée et mise en ligne lancée. Branche
   `feature/bac-a-sable-b0` (PR 13, DEC-043) : **Chantier des mondes**, page `/chantier/`
   (Three.js 0.186.1, accord du responsable), jeu de cubes en première personne **ou** vue

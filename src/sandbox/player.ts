@@ -11,6 +11,8 @@ export const HEIGHT = 1.8;
 export const EYE = 1.62;
 export const WALK_SPEED = 4.3;
 export const SPRINT_SPEED = 6.2;
+/** Accroupi (Maj) : on avance doucement et on ne tombe pas du bord. */
+export const SNEAK_SPEED = 1.4;
 export const FLY_SPEED = 10;
 export const GRAVITY = 30;
 export const JUMP_SPEED = 8.6;
@@ -30,6 +32,8 @@ export interface MoveInput {
   wish: { x: number; y: number };
   jump: boolean;
   sprint: boolean;
+  /** Accroupi : lent, et on reste au bord au lieu de tomber. */
+  sneak?: boolean;
   /** Mode vol (créatif) : monter, descendre. */
   fly?: boolean;
   down?: boolean;
@@ -76,7 +80,14 @@ export function stepPlayer(p: PlayerState, input: MoveInput, dt: number, world: 
 }
 
 function subStep(p: PlayerState, input: MoveInput, dt: number, world: VoxelWorld): void {
-  const speed = input.fly ? FLY_SPEED : input.sprint ? SPRINT_SPEED : WALK_SPEED;
+  const sneak = !!input.sneak && !input.fly;
+  const speed = input.fly
+    ? FLY_SPEED
+    : sneak
+      ? SNEAK_SPEED
+      : input.sprint
+        ? SPRINT_SPEED
+        : WALK_SPEED;
   const len = Math.hypot(input.wish.x, input.wish.y);
   const k = len > 1 ? 1 / len : 1;
   const dx = input.wish.x * k * speed * dt;
@@ -99,6 +110,8 @@ function subStep(p: PlayerState, input: MoveInput, dt: number, world: VoxelWorld
     const nx = axis === 'x' ? p.x + d : p.x;
     const ny = axis === 'y' ? p.y + d : p.y;
     if (!collides(world, nx, ny, p.z)) {
+      // Accroupi au sol : on ne fait pas le pas s'il n'y a plus rien sous les pieds.
+      if (sneak && p.onGround && !collides(world, nx, ny, p.z - 0.05)) continue;
       p.x = nx;
       p.y = ny;
     } else if (

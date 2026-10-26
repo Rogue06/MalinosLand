@@ -5,7 +5,7 @@ import { PATTERNS } from './mesh';
 /**
  * Textures du « Chantier des mondes » : petits motifs de 16 × 16 pixels dessinés par le code
  * (aucune image téléchargée ni copiée), réunis dans une seule bande (atlas). Les couleurs
- * reprennent la palette de MalinosLand ; la dalle de départ porte le « M » du logo.
+ * reprennent la palette de MalinosLand ; la dalle de départ porte le losange de MalinosLand.
  */
 export const TEX = 16;
 
@@ -138,14 +138,19 @@ const DRAW: Record<
   },
   pad: (px, r) => {
     noise(px, r, '#ffc857', 0.05);
-    // « M » du logo de MalinosLand, en relief.
-    const M = ['1000001', '1100011', '1010101', '1001001', '1000001', '1000001'];
-    M.forEach((row, y) =>
-      [...row].forEach((c, x) => c === '1' && px(x + 4, y + 5, hex('#8a5a00'))),
-    );
+    // Losange de MalinosLand : lisible de tous les côtés (une face du dessus n'a pas de sens).
+    for (let y = 0; y < TEX; y++)
+      for (let x = 0; x < TEX; x++) {
+        const d = Math.abs(x - 7.5) + Math.abs(y - 7.5);
+        if (d < 2) px(x, y, hex('#22b5a6'));
+        else if (d < 3) px(x, y, hex('#5fe3d0'));
+        else if (d >= 5 && d < 6) px(x, y, hex('#c99a2e'));
+      }
     for (let i = 0; i < TEX; i++) {
       px(i, 0, hex('#fff0c4'));
+      px(0, i, hex('#fff0c4'));
       px(i, TEX - 1, hex('#c99a2e'));
+      px(TEX - 1, i, hex('#c99a2e'));
     }
   },
   coal_ore: (px, r) => {
