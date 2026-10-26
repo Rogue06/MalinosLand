@@ -103,6 +103,12 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
 
 ## Dernières sessions
 
+- **25/10 (suite)** — PR #57 et #58 fusionnées ; migrations du musée **entièrement appliquées**
+  (quota, visionneuse, aperçus). Première mise en ligne de #58 refusée (jeton sans droit sur le
+  stockage KV) ; le responsable a ajouté **Workers KV Storage · Edit** et **Browser Run · Edit**,
+  puis mise en ligne réussie (stockage `PREVIEWS` créé). Reste à vérifier en vrai : la première
+  capture à la validation d’un projet.
+
 - **25/10** — PR #56 (sons 10 s) fusionnée et en ligne ; PR #57 (quota sans ménage automatique)
   ouverte, **la partie quota de la migration du musée reste à appliquer après sa fusion**.
   Branche `feature/musee-apercu` (DEC-040) : aperçu automatique (capture par Browser Rendering,
