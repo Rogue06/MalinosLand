@@ -5,6 +5,25 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté et modifié (Chantier des mondes : confort de jeu, PR 66)
+
+- **Touches réglables** (menu → ⌨️ Touches) : avancer, reculer, gauche, droite, sauter, courir,
+  s’accroupir, sac, vue, voler. Une touche déjà prise est échangée ; la vraie lettre du clavier
+  est affichée (Z sur un clavier français) ; « Touches par défaut » pour revenir au départ.
+- **Il faut sauter** pour monter sur un cube (la marche automatique reste dans le menu, désactivée
+  par défaut).
+- **Plus d’interruption** : en fermant le sac ou le menu, on reprend la main tout de suite, sans
+  recliquer dans le monde. Échap pendant le jeu met en pause et ouvre le menu.
+- **Casser un cube comme dans les jeux de cubes** : éclats, puis un petit cube de la matière
+  tombe au sol, tourne sur lui-même et vient dans le sac quand on passe à côté, avec un « pop ».
+  Les objets au sol restent tant qu’on ne vient pas les chercher (sauvegardés).
+
+### Corrigé (Chantier des mondes)
+
+- Fin du tutoriel : le son de réussite tournait **en boucle** et le bouton « Terminer » ne se
+  cliquait pas (la carte était redessinée à chaque image). Le changement d’étape n’est plus
+  signalé qu’une fois (test ajouté) ; la carte « Bravo » disparaît seule après quelques secondes.
+
 ### Ajouté et modifié (Chantier des mondes, retours du responsable)
 
 - **Tutoriel** de la survie douce : 8 étapes guidées (regarder, marcher, couper un tronc,

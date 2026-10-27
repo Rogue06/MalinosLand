@@ -27,15 +27,15 @@ export const TUTORIAL: readonly TutorialStep[] = [
   {
     id: 'regarder',
     title: 'Regarde autour de toi',
-    text: 'Clique dans le monde, puis bouge la souris. (Échap libère la souris.)',
+    text: 'Clique dans le monde, puis bouge la souris. (Échap met en pause et ouvre le menu.)',
     touch: 'Fais glisser ton doigt sur l’écran pour regarder autour de toi.',
     done: (s) => s.looked > 1.2,
   },
   {
     id: 'marcher',
     title: 'Marche jusqu’à un arbre',
-    text: 'Z Q S D (ou W A S D, ou les flèches) pour marcher, Espace pour sauter.',
-    touch: 'La manette à gauche pour marcher, ⤒ pour sauter.',
+    text: 'Z Q S D (ou W A S D, ou les flèches) pour marcher. Pour monter sur un cube, saute avec Espace. (Touches réglables dans le menu.)',
+    touch: 'La manette à gauche pour marcher. Pour monter sur un cube, saute avec ⤒.',
     done: (s) => s.walked > 5,
   },
   {
@@ -86,4 +86,26 @@ export const TUTORIAL: readonly TutorialStep[] = [
 export function currentStep(state: TutorialState, from = 0): number | null {
   for (let i = Math.max(0, from); i < TUTORIAL.length; i++) if (!TUTORIAL[i]!.done(state)) return i;
   return null;
+}
+
+/**
+ * Suivi de l'étape affichée : signale un changement **une seule fois** (son de réussite, carte
+ * redessinée). Tutoriel fini : l'étape vaut TUTORIAL.length, et ne « change » plus ensuite.
+ */
+export class TutorialTracker {
+  /** Étape affichée (-1 : rien encore ; TUTORIAL.length : terminé). */
+  shown = -1;
+
+  constructor(public reached = 0) {}
+
+  /** Étape actuelle, et si elle vient de changer (`progressed` : une étape a été réussie). */
+  update(state: TutorialState): { step: number | null; changed: boolean; progressed: boolean } {
+    const step = currentStep(state, this.reached);
+    const key = step ?? TUTORIAL.length;
+    if (key === this.shown) return { step, changed: false, progressed: false };
+    const progressed = this.shown >= 0 && key > this.shown;
+    this.shown = key;
+    this.reached = key;
+    return { step, changed: true, progressed };
+  }
 }

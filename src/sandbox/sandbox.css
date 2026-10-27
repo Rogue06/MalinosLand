@@ -511,3 +511,28 @@ button {
   font-size: 12px;
   text-decoration: underline;
 }
+
+/* ---------- Réglage des touches */
+.key-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.04);
+  text-align: left;
+  font-size: 14px;
+}
+.key-row:hover,
+.key-row.waiting {
+  border-color: var(--sun);
+}
+.key-row kbd {
+  font: inherit;
+  font-weight: 700;
+  color: var(--sun);
+  white-space: nowrap;
+}

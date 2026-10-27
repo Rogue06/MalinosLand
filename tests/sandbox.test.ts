@@ -23,9 +23,21 @@ import {
   dropOf,
   itemDef,
 } from '../src/sandbox/blocks';
+import {
+  ACTIONS,
+  DEFAULT_BINDINGS,
+  actionsOf,
+  copyBindings,
+  keyLabel,
+  parseBindings,
+  pressed,
+  rebind,
+  reserved,
+} from '../src/sandbox/controls';
+import { packDrops, parseDrops, spawnDrop, stepDrops } from '../src/sandbox/drops';
 import { IMPACT, STRIKE, strikeAngle } from '../src/sandbox/game';
 import { HOTBAR_SIZE, Inventory, RECIPES, type Station } from '../src/sandbox/inventory';
-import { TUTORIAL, currentStep } from '../src/sandbox/tutorial';
+import { TUTORIAL, TutorialTracker, currentStep } from '../src/sandbox/tutorial';
 import { PATTERNS, buildChunk, computeLighting, lightAt, CAVE_LIGHT } from '../src/sandbox/mesh';
 import {
   HEIGHT,
@@ -406,5 +418,114 @@ describe('Chantier des mondes : tutoriel et coups de pioche', () => {
     expect(strikeAngle(0.999)).toBeCloseTo(0, 1);
     expect(STRIKE).toBeGreaterThan(0.2);
     expect(STRIKE).toBeLessThan(0.5);
+  });
+});
+
+describe('Chantier des mondes : touches réglables', () => {
+  it('changer une touche ; une touche déjà prise est échangée, jamais perdue', () => {
+    let b = copyBindings(DEFAULT_BINDINGS);
+    b = rebind(b, 'sprint', 'KeyR');
+    expect(b.sprint[0]).toBe('KeyR');
+    expect(pressed(b, 'sprint', new Set(['KeyR']))).toBe(true);
+    // Courir prend la touche d'accroupissement : s'accroupir reçoit l'ancienne touche de course.
+    b = rebind(b, 'sprint', 'ShiftLeft');
+    expect(b.sprint[0]).toBe('ShiftLeft');
+    expect(b.sneak).toContain('ShiftRight');
+    // Avancer sur une touche unique d'une autre action : échange.
+    b = rebind(copyBindings(DEFAULT_BINDINGS), 'forward', 'KeyE');
+    expect(b.forward[0]).toBe('KeyE');
+    expect(b.inventory).toEqual(['KeyW']);
+    for (const { id } of ACTIONS) expect(b[id].length, id).toBeGreaterThan(0);
+    expect(actionsOf(b, 'KeyE')).toEqual(['forward']);
+  });
+
+  it('touches réservées refusées ; réglages relus prudemment', () => {
+    const b = copyBindings(DEFAULT_BINDINGS);
+    expect(rebind(b, 'jump', 'Escape')).toBe(b);
+    expect(rebind(b, 'jump', 'Digit3')).toBe(b);
+    expect(reserved('Digit9')).toBe(true);
+    const parsed = parseBindings({
+      forward: ['KeyI', 'KeyI', '<script>'],
+      back: 'KeyK',
+      jump: ['Escape'],
+      sprint: ['KeyI'],
+    });
+    expect(parsed.forward).toEqual(['KeyI']);
+    expect(parsed.back).toEqual(DEFAULT_BINDINGS.back);
+    expect(parsed.jump).toEqual(DEFAULT_BINDINGS.jump);
+    // KeyI déjà pris par « avancer » : « courir » garde sa touche par défaut.
+    expect(parsed.sprint).toEqual(DEFAULT_BINDINGS.sprint);
+    expect(parseBindings(null)).toEqual(DEFAULT_BINDINGS);
+  });
+
+  it('noms lisibles, avec la vraie lettre du clavier quand on la connaît', () => {
+    expect(keyLabel('KeyW')).toBe('W');
+    expect(keyLabel('KeyW', new Map([['KeyW', 'z']]))).toBe('Z');
+    expect(keyLabel('Space')).toBe('Espace');
+    expect(keyLabel('ShiftLeft')).toBe('Maj gauche');
+    expect(keyLabel('ArrowUp')).toBe('↑');
+  });
+});
+
+describe('Chantier des mondes : objets au sol', () => {
+  it('l’objet tombe, se pose, puis vient dans le sac quand on passe à côté', () => {
+    const w = flatWorld();
+    const drops = [spawnDrop({ x: 10, y: 10, z: 8 }, STONE)];
+    const far = { x: 30.5, y: 30.5, z: 5 };
+    for (let i = 0; i < 120; i++) expect(stepDrops(drops, far, w, 1 / 60, () => true)).toEqual([]);
+    expect(drops[0]!.z).toBeCloseTo(5, 5);
+    expect(drops[0]!.vz).toBe(0);
+    // Le joueur arrive à côté : l'objet est attiré puis ramassé.
+    const near = { x: 11.6, y: 10.5, z: 5 };
+    let picked: number[] = [];
+    for (let i = 0; i < 60 && picked.length === 0; i++)
+      picked = stepDrops(drops, near, w, 1 / 60, () => true);
+    expect(picked).toEqual([STONE]);
+    expect(drops).toHaveLength(0);
+  });
+
+  it('pas ramassé tout de suite, ni quand le sac est plein ; sauvegarde relue prudemment', () => {
+    const w = flatWorld();
+    const p = { x: 10.5, y: 10.5, z: 5 };
+    const drops = [spawnDrop({ x: 10, y: 10, z: 4 }, DIRT)];
+    expect(stepDrops(drops, p, w, 0.1, () => true)).toEqual([]);
+    for (let i = 0; i < 60; i++) expect(stepDrops(drops, p, w, 1 / 60, () => false)).toEqual([]);
+    expect(drops).toHaveLength(1);
+    const saved = JSON.parse(JSON.stringify(packDrops(drops)));
+    expect(parseDrops(saved, (id) => !!itemDef(id))).toHaveLength(1);
+    expect(
+      parseDrops(
+        [
+          [99999, 1, 1, 1],
+          [STONE, -5, 1, 1],
+          [STONE, 1, 1],
+          ['x', 1, 1, 1],
+        ],
+        (id) => !!itemDef(id),
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe('Chantier des mondes : fin du tutoriel', () => {
+  it('le tutoriel fini ne « change » qu’une fois : pas de son en boucle, carte stable', () => {
+    const done = {
+      looked: 2,
+      walked: 6,
+      count: (i: number) => (i === WOOD_PICK || i === STONE ? 1 : 0),
+      placed: (b: number) => b === WORKBENCH || b === STONE,
+    };
+    const t = new TutorialTracker(5);
+    const first = t.update(done);
+    expect(first).toEqual({ step: null, changed: true, progressed: false });
+    for (let i = 0; i < 100; i++) expect(t.update(done).changed).toBe(false);
+    expect(t.reached).toBe(TUTORIAL.length);
+    // Une étape réussie : un seul son.
+    const s = new TutorialTracker(0);
+    const st = { looked: 0, walked: 0, count: () => 0, placed: () => false };
+    expect(s.update(st)).toMatchObject({ step: 0, changed: true, progressed: false });
+    st.looked = 2;
+    expect(s.update(st)).toMatchObject({ step: 1, changed: true, progressed: true });
+    expect(s.update(st).changed).toBe(false);
   });
 });

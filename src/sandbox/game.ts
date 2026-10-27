@@ -1,7 +1,10 @@
 import * as THREE from 'three';
 import { VersionedStorage } from '../services/storage';
 import { AIR, ALL_ITEMS, FURNACE, WORKBENCH, blockDef, breakTime, dropOf, itemDef } from './blocks';
-import { HOTBAR_SIZE, Inventory, type Station } from './inventory';
+import { DEFAULT_BINDINGS, copyBindings, pressed, type Bindings } from './controls';
+import { MAX_DROPS, packDrops, parseDrops, spawnDrop, stepDrops, type Drop } from './drops';
+import { HOTBAR_SIZE, Inventory, MAX_STACK, type Station } from './inventory';
+import { PATTERNS } from './mesh';
 import { CHUNK, buildChunk, computeLighting, type Lighting, type MeshData } from './mesh';
 import { EYE, FALL_LIMIT, HEIGHT, occupies, respawn, stepPlayer, type PlayerState } from './player';
 import { sfx } from './sfx';
@@ -39,11 +42,14 @@ export interface GameEvents {
   toast(text: string): void;
   /** Ouvre l'inventaire (clic droit sur un établi ou un four). */
   openInventory(): void;
+  /** La souris a été libérée par le joueur (Échap) : pause, comme dans les jeux de cubes. */
+  paused(): void;
 }
 
 interface SaveData {
   edits: unknown;
   inv?: unknown;
+  drops?: unknown;
   player?: { x: number; y: number; z: number; yaw: number; pitch: number };
   view?: ViewMode;
 }
@@ -59,7 +65,17 @@ export class SandboxGame {
   yaw = 0;
   pitch = -0.2;
   fly = false;
-  autoStep = true;
+  /** Monter seul une marche : désactivé par défaut (on saute, comme dans les jeux de cubes). */
+  autoStep = false;
+  /** Touches choisies par le joueur (voir src/sandbox/controls.ts). */
+  bindings: Bindings = copyBindings(DEFAULT_BINDINGS);
+  /** Objets tombés au sol, à ramasser. */
+  drops: Drop[] = [];
+  private readonly dropMeshes = new Map<Drop, THREE.Mesh>();
+  private readonly dropGeometries = new Map<number, THREE.BufferGeometry>();
+  private dropMaterial!: THREE.MeshBasicMaterial;
+  /** Libération de la souris voulue par le jeu (sac, menu, changement de vue) : pas de pause. */
+  private unlockExpected = false;
   /** Outil des doigts en vue isométrique : creuser ou poser. */
   touchTool: 'dig' | 'place' = 'dig';
   /** Commandes (clavier, manette tactile). */
@@ -156,6 +172,8 @@ export class SandboxGame {
       }),
     };
 
+    this.dropMaterial = new THREE.MeshBasicMaterial({ map: tex, alphaTest: 0.5 });
+
     // Repères : contour du cube visé, fissures, aperçu du cube à poser.
     this.outline = new THREE.LineSegments(
       new THREE.EdgesGeometry(new THREE.BoxGeometry(1.005, 1.005, 1.005)),
@@ -210,6 +228,7 @@ export class SandboxGame {
     window.addEventListener('resize', this.resize);
     document.addEventListener('visibilitychange', this.onHide);
     window.addEventListener('pagehide', this.onHide);
+    document.addEventListener('pointerlockchange', this.onLockChange);
     this.resize();
     requestAnimationFrame(this.frame);
   }
@@ -230,7 +249,10 @@ export class SandboxGame {
     }
     this.world.load(data.edits);
     this.world.clearUndo();
-    if (this.mode === 'survival') this.inv = Inventory.parse(data.inv);
+    if (this.mode === 'survival') {
+      this.inv = Inventory.parse(data.inv);
+      this.drops = parseDrops(data.drops, (id) => !!itemDef(id));
+    }
     const p = data.player;
     if (p) {
       const x = num(p.x, 0, SIZE_X);
@@ -248,7 +270,7 @@ export class SandboxGame {
     this.dirty = false;
     const ok = store.write(this.key(), SAVE_VERSION, {
       edits: this.world.edits(),
-      ...(this.mode === 'survival' ? { inv: this.inv.toJSON() } : {}),
+      ...(this.mode === 'survival' ? { inv: this.inv.toJSON(), drops: packDrops(this.drops) } : {}),
       player: {
         x: this.player.x,
         y: this.player.y,
@@ -268,6 +290,7 @@ export class SandboxGame {
     store.remove(this.key());
     this.world.reset();
     this.inv = new Inventory();
+    this.drops = [];
     if (this.mode === 'creative') this.creativeInventory();
     respawn(this.player, this.world);
     this.light = computeLighting(this.world);
@@ -405,7 +428,7 @@ export class SandboxGame {
   /** Éclats colorés à l'endroit d'un cube cassé. */
   private burst(c: Cell, color: string): void {
     const col = new THREE.Color(color);
-    for (let i = 0; i < 10; i++)
+    for (let i = 0; i < 16; i++)
       this.bitList.push({
         p: new THREE.Vector3(
           c.x + 0.2 + Math.random() * 0.6,
@@ -439,6 +462,86 @@ export class SandboxGame {
     if (this.bits.instanceColor) this.bits.instanceColor.needsUpdate = true;
   }
 
+  /** Petit cube d'un objet au sol : texture de la matière (cube) ou couleur (autre objet). */
+  private dropGeometry(item: number): THREE.BufferGeometry {
+    const known = this.dropGeometries.get(item);
+    if (known) return known;
+    const g = new THREE.BoxGeometry(0.26, 0.26, 0.26);
+    const def = itemDef(item);
+    const b = blockDef(item);
+    const n = PATTERNS.length;
+    const uv = g.getAttribute('uv') as THREE.BufferAttribute;
+    // Faces de BoxGeometry : +X, -X, +Y (dessus), -Y (dessous), +Z, -Z ; 4 sommets chacune.
+    for (let f = 0; f < 6; f++) {
+      const pattern = !def?.block
+        ? null
+        : f === 2
+          ? b.tex.top
+          : f === 3
+            ? b.tex.bottom
+            : b.tex.side;
+      const tile = pattern ? PATTERNS.indexOf(pattern) : -1;
+      for (let v = 0; v < 4; v++) {
+        const i = f * 4 + v;
+        if (tile < 0) uv.setXY(i, 0.5 / (n * 16), 0.5 / 16);
+        else uv.setXY(i, (tile + 0.05 + uv.getX(i) * 0.9) / n, 0.05 + uv.getY(i) * 0.9);
+      }
+    }
+    uv.needsUpdate = true;
+    this.dropGeometries.set(item, g);
+    return g;
+  }
+
+  private renderDrops(): void {
+    const t = performance.now() / 1000;
+    for (const [d, m] of this.dropMeshes)
+      if (!this.drops.includes(d)) {
+        this.scene.remove(m);
+        this.dropMeshes.delete(d);
+      }
+    for (const d of this.drops) {
+      let m = this.dropMeshes.get(d);
+      if (!m) {
+        const def = itemDef(d.item);
+        const material = def?.block
+          ? this.dropMaterial
+          : new THREE.MeshBasicMaterial({ color: def?.color ?? '#ffffff' });
+        m = new THREE.Mesh(this.dropGeometry(d.item), material);
+        this.scene.add(m);
+        this.dropMeshes.set(d, m);
+      }
+      const bob = d.vz === 0 ? Math.sin(t * 2.4 + d.x) * 0.06 : 0;
+      m.position.set(d.x, d.z + 0.16 + bob, d.y);
+      m.rotation.y = t * 1.6 + d.x;
+    }
+  }
+
+  /** Reprend la souris (après le sac ou le menu) : on rejoue sans recliquer dans le monde. */
+  lockPointer(): void {
+    if (this.view !== 'first' || document.pointerLockElement) return;
+    try {
+      const p = this.renderer.domElement.requestPointerLock?.() as unknown;
+      if (p instanceof Promise) p.catch(() => {});
+    } catch {
+      /* refusé par le navigateur (pas de geste du joueur) : un clic suffira */
+    }
+  }
+
+  /** Libère la souris sans mettre le jeu en pause (sac, menu…). */
+  releasePointer(): void {
+    if (!document.pointerLockElement) return;
+    this.unlockExpected = true;
+    document.exitPointerLock();
+  }
+
+  private onLockChange = () => {
+    if (!document.pointerLockElement && this.wasLocked && !this.unlockExpected)
+      this.events.paused();
+    this.wasLocked = !!document.pointerLockElement;
+    if (!document.pointerLockElement) this.unlockExpected = false;
+  };
+  private wasLocked = false;
+
   /** Clic molette : met le cube visé dans la main (s'il est dans le sac, ou en créatif). */
   pickTarget(): void {
     const t = this.target;
@@ -464,7 +567,7 @@ export class SandboxGame {
 
   setView(v: ViewMode): void {
     this.view = v;
-    if (document.pointerLockElement) document.exitPointerLock();
+    this.releasePointer();
     this.updateCut(true);
     this.events.changed();
   }
@@ -598,10 +701,11 @@ export class SandboxGame {
     const k = this.keys;
     let f = this.move.y;
     let r = this.move.x;
-    if (k.has('KeyW') || k.has('ArrowUp')) f += 1;
-    if (k.has('KeyS') || k.has('ArrowDown')) f -= 1;
-    if (k.has('KeyD') || k.has('ArrowRight')) r += 1;
-    if (k.has('KeyA') || k.has('ArrowLeft')) r -= 1;
+    const b = this.bindings;
+    if (pressed(b, 'forward', k)) f += 1;
+    if (pressed(b, 'back', k)) f -= 1;
+    if (pressed(b, 'right', k)) r += 1;
+    if (pressed(b, 'left', k)) r -= 1;
     if (f === 0 && r === 0) return { x: 0, y: 0 };
     let fwd: { x: number; y: number };
     let right: { x: number; y: number };
@@ -640,17 +744,17 @@ export class SandboxGame {
 
   private update(dt: number): void {
     const wish = this.wish();
-    const jump = this.jumpHeld || this.keys.has('Space');
+    const jump = this.jumpHeld || pressed(this.bindings, 'jump', this.keys);
     const before = { x: this.player.x, y: this.player.y };
     stepPlayer(
       this.player,
       {
         wish,
         jump,
-        sprint: this.sprintLatch || this.keys.has('ControlLeft') || this.keys.has('ControlRight'),
-        sneak: this.keys.has('ShiftLeft') || this.keys.has('ShiftRight'),
+        sprint: this.sprintLatch || pressed(this.bindings, 'sprint', this.keys),
+        sneak: pressed(this.bindings, 'sneak', this.keys),
         fly: this.fly && this.mode === 'creative',
-        down: this.keys.has('ShiftLeft') || this.keys.has('ShiftRight'),
+        down: pressed(this.bindings, 'sneak', this.keys),
         autoStep: this.autoStep,
       },
       dt,
@@ -667,6 +771,23 @@ export class SandboxGame {
     this.jab = Math.max(0, this.jab - dt * 5);
     if (!this.mining || !this.target) this.strike = 0;
     this.updateBits(dt);
+    if (this.drops.length > 0) {
+      const picked = stepDrops(
+        this.drops,
+        this.player,
+        this.world,
+        dt,
+        (item) => this.inv.count(item) < MAX_STACK,
+      );
+      for (const item of picked) {
+        this.inv.add(item, 1);
+        sfx.pop();
+      }
+      if (picked.length > 0) {
+        this.dirty = true;
+        this.events.changed();
+      }
+    }
 
     this.saveTimer += dt;
     if (this.dirty && this.saveTimer > 4) {
@@ -772,8 +893,11 @@ export class SandboxGame {
     if (this.mode === 'survival') {
       this.world.clearUndo();
       const drop = dropOf(broken, held);
-      if (drop !== null) this.inv.add(drop, 1);
-      else if (blockDef(broken).tier > 0)
+      if (drop !== null) {
+        // Comme dans les jeux de cubes : un petit cube tombe, on le ramasse en passant.
+        if (this.drops.length < MAX_DROPS) this.drops.push(spawnDrop(t.cell, drop));
+        else this.inv.add(drop, 1);
+      } else if (blockDef(broken).tier > 0)
         this.events.toast(
           `Il te faut une meilleure pioche pour récupérer : ${blockDef(broken).name}.`,
         );
@@ -862,6 +986,7 @@ export class SandboxGame {
         this.ghost.position.set(t.before.x + 0.5, t.before.z + 0.5, t.before.y + 0.5);
       }
     }
+    this.renderDrops();
     this.renderer.render(this.scene, cam);
   }
 
@@ -887,6 +1012,7 @@ export class SandboxGame {
     window.removeEventListener('resize', this.resize);
     document.removeEventListener('visibilitychange', this.onHide);
     window.removeEventListener('pagehide', this.onHide);
+    document.removeEventListener('pointerlockchange', this.onLockChange);
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }

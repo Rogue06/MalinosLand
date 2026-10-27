@@ -60,6 +60,24 @@ export const sfx = {
   hit: (m: Material) => knock(m, 0.35),
   broken: (m: Material) => knock(m, 0.6, 2.4),
   placed: (m: Material) => knock(m === 'glass' ? 'glass' : 'soft', 0.45, 1.6),
+  /** « Pop » : un objet ramassé arrive dans le sac (petit son qui monte, hauteur variable). */
+  pop(): void {
+    const a = audio();
+    if (!a) return;
+    const o = a.createOscillator();
+    const g = a.createGain();
+    const at = a.currentTime;
+    const base = 520 + Math.random() * 260;
+    o.type = 'sine';
+    o.frequency.setValueAtTime(base, at);
+    o.frequency.exponentialRampToValueAtTime(base * 2.1, at + 0.07);
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.exponentialRampToValueAtTime(0.22, at + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + 0.12);
+    o.connect(g).connect(a.destination);
+    o.start(at);
+    o.stop(at + 0.14);
+  },
   crafted(): void {
     const a = audio();
     if (!a) return;
