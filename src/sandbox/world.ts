@@ -7,11 +7,10 @@ import {
   DIRT,
   GRASS,
   GRAVEL,
-  HUB_FLOOR,
-  HUB_GLASS,
-  HUB_LIGHT,
-  HUB_TRIM,
-  HUB_WALL,
+  PORTAL_FLOOR,
+  PORTAL_LIGHT,
+  PORTAL_TRIM,
+  PORTAL_STONE,
   LEAVES,
   LOG,
   PAD,
@@ -45,16 +44,18 @@ export const MAX_UNDO = 100;
 export const SPAWN_RADIUS = 1;
 /** Hauteur d'air gardée libre au-dessus de la dalle de départ. */
 export const SPAWN_CLEAR = 3;
-/** Point de départ : au sud du centre, face au Hub que l'on voit au loin, au nord. */
+/** Point de départ : au sud du centre, face au portail et à MalinosLand, au nord. */
 export const SPAWN_X = 96;
 export const SPAWN_Y = 120;
 
 /**
- * Le Hub des Malinos, vu de loin (pas encore relié) : rectangle au sol, hauteur du dallage. On
- * ne peut ni le casser ni construire tout contre (bande de PROTECT cubes autour).
+ * Le Portail des Malinos, au bout du chemin de gravier, au nord : une place dallée et une arche.
+ * Derrière lui, très loin dans le ciel, flotte MalinosLand (le vrai jeu en 2D isométrique) : le
+ * passage d'un monde à l'autre ouvrira ici (DEC-046). On ne casse pas la place et on ne
+ * construit pas tout contre (bande de PORTAL_PROTECT cubes autour).
  */
-export const HUB = { x0: 70, y0: 8, w: 52, d: 34, z: 20 } as const;
-const HUB_PROTECT = 3;
+export const PORTAL = { x0: 84, y0: 10, w: 25, d: 15, z: 20 } as const;
+const PORTAL_PROTECT = 3;
 
 export interface Cell {
   x: number;
@@ -92,21 +93,21 @@ const smooth = (t: number) => {
   return c * c * (3 - 2 * c);
 };
 
-/** Distance (en cubes) d'une colonne au rectangle du Hub (0 dedans). */
-function hubDistance(x: number, y: number): number {
-  const dx = Math.max(HUB.x0 - x, 0, x - (HUB.x0 + HUB.w - 1));
-  const dy = Math.max(HUB.y0 - y, 0, y - (HUB.y0 + HUB.d - 1));
+/** Distance (en cubes) d'une colonne à la place du portail (0 dedans). */
+function portalDistance(x: number, y: number): number {
+  const dx = Math.max(PORTAL.x0 - x, 0, x - (PORTAL.x0 + PORTAL.w - 1));
+  const dy = Math.max(PORTAL.y0 - y, 0, y - (PORTAL.y0 + PORTAL.d - 1));
   return Math.hypot(dx, dy);
 }
 
-/** Le chemin de gravier entre la dalle de départ et l'entrée du Hub. */
+/** Le chemin de gravier entre la dalle de départ et le portail. */
 function onPath(x: number, y: number): boolean {
-  return Math.abs(x - SPAWN_X) <= 1 && y >= HUB.y0 + HUB.d && y < SPAWN_Y - 2;
+  return Math.abs(x - SPAWN_X) <= 1 && y >= PORTAL.y0 + PORTAL.d && y < SPAWN_Y - 2;
 }
 
 /**
  * Hauteur du sol d'une colonne : plaines, collines, montagnes (sommets enneigés), aplanie en
- * douceur autour du Hub, de la dalle de départ et du chemin.
+ * douceur autour du portail, de la dalle de départ et du chemin.
  */
 export function columnHeight(seed: number, x: number, y: number): number {
   const hills =
@@ -115,64 +116,53 @@ export function columnHeight(seed: number, x: number, y: number): number {
     noise2(seed + 3, x, y, 5) * 0.1;
   const mount = smooth((noise2(seed + 11, x, y, 52) - 0.55) / 0.3);
   let h = 13 + hills * 9 + mount * mount * 22;
-  // Le Hub est posé sur un plateau ; la dalle et le chemin sur un terrain doux.
-  const hub = smooth(1 - hubDistance(x, y) / 18);
-  h = h * (1 - hub) + HUB.z * hub;
+  // Le portail est posé sur un plateau ; la dalle et le chemin sur un terrain doux.
+  const plaza = smooth(1 - portalDistance(x, y) / 18);
+  h = h * (1 - plaza) + PORTAL.z * plaza;
   const spawn = smooth(1 - Math.hypot(x - SPAWN_X, y - SPAWN_Y) / 14);
-  const path = Math.abs(x - SPAWN_X) <= 4 && y > HUB.y0 + HUB.d && y < SPAWN_Y ? 0.6 : 0;
+  const path = Math.abs(x - SPAWN_X) <= 4 && y > PORTAL.y0 + PORTAL.d && y < SPAWN_Y ? 0.6 : 0;
   const flat = Math.max(spawn, path);
-  const target = HUB.z - 2 + (y - (HUB.y0 + HUB.d)) * 0.02;
+  const target = PORTAL.z - 2 + (y - (PORTAL.y0 + PORTAL.d)) * 0.02;
   h = h * (1 - flat) + target * flat;
   return Math.max(4, Math.min(SIZE_Z - 8, Math.round(h)));
 }
 
-/** Sommet de la tour du Hub : un faisceau de lumière en part, visible de tout le monde. */
-export const HUB_BEACON = { x: HUB.x0 + 11.5, y: HUB.y0 + 10.5, z: HUB.z + 27 };
+/** Arche du portail : centre de l'ouverture (au sol) et taille de l'ouverture. */
+export const PORTAL_GATE = {
+  x: PORTAL.x0 + Math.floor(PORTAL.w / 2) + 0.5,
+  y: PORTAL.y0 + 5 + 0.5,
+  z: PORTAL.z + 1,
+  width: 7,
+  height: 9,
+};
 
-/** Les cubes du Hub (null : pas de Hub ici). Dallage, grand hall vitré, entrée, logo, tour. */
-export function hubBlock(x: number, y: number, z: number): number | null {
-  const lx = x - HUB.x0;
-  const ly = y - HUB.y0;
-  if (lx < 0 || ly < 0 || lx >= HUB.w || ly >= HUB.d) return null;
-  const h = z - HUB.z;
-  if (h === 0) return HUB_FLOOR;
+/** Les cubes du portail (null : pas de portail ici). Dallage, bordure, lanternes, arche. */
+export function portalBlock(x: number, y: number, z: number): number | null {
+  const lx = x - PORTAL.x0;
+  const ly = y - PORTAL.y0;
+  if (lx < 0 || ly < 0 || lx >= PORTAL.w || ly >= PORTAL.d) return null;
+  const h = z - PORTAL.z;
   if (h < 0) return null;
-  // Lanternes aux quatre coins du dallage.
-  const corner = (lx === 1 || lx === HUB.w - 2) && (ly === 1 || ly === HUB.d - 2);
-  if (corner) return h <= 2 ? HUB_WALL : h === 3 ? HUB_LIGHT : AIR;
-  // Grand hall : murs sombres, bordure turquoise, fenêtres, toit plat.
-  const ix = lx - 4;
-  const iy = ly - 4;
-  const W = HUB.w - 8;
-  const D = HUB.d - 8;
-  const inside = ix >= 0 && iy >= 0 && ix < W && iy < D;
-  // Tour (les futurs logements), au fond à gauche, plus haute que tout.
-  const tx = ix - 3;
-  const ty = iy - 2;
-  if (tx >= 0 && ty >= 0 && tx < 9 && ty < 9 && h <= 26) {
-    const edge = tx === 0 || ty === 0 || tx === 8 || ty === 8;
-    if (h === 26) return HUB_LIGHT;
-    if (h === 25) return HUB_TRIM;
-    if (!edge) return h % 5 === 0 ? HUB_FLOOR : AIR;
-    return h % 5 === 3 ? HUB_GLASS : HUB_WALL;
+  const ring = lx === 0 || ly === 0 || lx === PORTAL.w - 1 || ly === PORTAL.d - 1;
+  if (h === 0) return ring ? PORTAL_TRIM : PORTAL_FLOOR;
+  // Lanternes aux quatre coins de la place.
+  const corner = (lx === 1 || lx === PORTAL.w - 2) && (ly === 1 || ly === PORTAL.d - 2);
+  if (corner) return h <= 2 ? PORTAL_STONE : h === 3 ? PORTAL_LIGHT : AIR;
+  // L'arche, tournée vers le sud (vers le départ) : deux piliers, un linteau, des lanternes.
+  const gx = Math.floor(PORTAL_GATE.x);
+  const gy = Math.floor(PORTAL_GATE.y);
+  const half = (PORTAL_GATE.width + 1) / 2;
+  const top = PORTAL_GATE.height + 1;
+  if (y === gy && Math.abs(x - gx) <= half) {
+    const pillar = Math.abs(x - gx) === half;
+    if (pillar && h <= top) return h % 3 === 0 ? PORTAL_TRIM : PORTAL_STONE;
+    if (h === top) return PORTAL_TRIM;
+    if (h === top + 1) return Math.abs(x - gx) === half || x === gx ? PORTAL_LIGHT : PORTAL_STONE;
+    return AIR;
   }
-  if (!inside || h > 12) return AIR;
-  const edge = ix === 0 || iy === 0 || ix === W - 1 || iy === D - 1;
-  if (h === 12) return edge ? HUB_TRIM : HUB_WALL;
-  if (!edge) return AIR;
-  if (h === 11) return HUB_TRIM;
-  const front = iy === D - 1;
-  const mid = Math.floor(W / 2);
-  // Entrée vitrée (on voit dedans, on n'entre pas encore) et grand « M » au-dessus.
-  if (front && Math.abs(ix - mid) <= 2 && h <= 5) return HUB_GLASS;
-  if (front && Math.abs(ix - mid) <= 3 && h >= 6 && h <= 10) {
-    const M = ['1000001', '1100011', '1010101', '1001001', '1000001'];
-    return M[10 - h]![ix - mid + 3] === '1' ? HUB_TRIM : HUB_WALL;
-  }
-  // Bandes de fenêtres sur tout le tour.
-  const along = iy === 0 || front ? ix : iy;
-  if (h >= 3 && h <= 8 && along % 4 !== 0) return HUB_GLASS;
-  return HUB_WALL;
+  // Socle des piliers (un cube de chaque côté, devant et derrière).
+  if (Math.abs(y - gy) === 1 && Math.abs(x - gx) === half && h <= 2) return PORTAL_STONE;
+  return AIR;
 }
 
 /** Où pousse un arbre : une case sur une grille de 7 × 7, décalée, selon la forêt. */
@@ -187,8 +177,8 @@ function treeAt(
   const forest = noise2(seed + 21, x, y, 30);
   if ((h >> 16) % 100 > forest * 120 - 20) return null;
   if (x < 3 || y < 3 || x >= SIZE_X - 3 || y >= SIZE_Y - 3) return null;
-  if (hubDistance(x, y) < 6 || Math.hypot(x - SPAWN_X, y - SPAWN_Y) < 6) return null;
-  if (Math.abs(x - SPAWN_X) <= 3 && y > HUB.y0 + HUB.d - 2 && y < SPAWN_Y) return null;
+  if (portalDistance(x, y) < 6 || Math.hypot(x - SPAWN_X, y - SPAWN_Y) < 6) return null;
+  if (Math.abs(x - SPAWN_X) <= 3 && y > PORTAL.y0 + PORTAL.d - 2 && y < SPAWN_Y) return null;
   return { x, y, trunk: 4 + ((h >> 4) % 3) };
 }
 
@@ -206,7 +196,7 @@ export function genChunk(seed: number, cx: number, cy: number): Uint8Array {
       const x = x0 + lx;
       const y = y0 + ly;
       const h = columnHeight(seed, x, y);
-      const hubNear = hubDistance(x, y) < 6;
+      const portalNear = portalDistance(x, y) < 6;
       const spawnNear = Math.hypot(x - SPAWN_X, y - SPAWN_Y) < 5;
       for (let z = 0; z <= h; z++) {
         let b =
@@ -230,8 +220,8 @@ export function genChunk(seed: number, cx: number, cy: number): Uint8Array {
         // Montagnes : la roche affleure sur les pentes hautes.
         if (b === GRASS && h >= 29) b = STONE;
         if (z === h && onPath(x, y)) b = GRAVEL;
-        // Grottes : poches creusées sous la surface (jamais sous le Hub ni la dalle).
-        if (z >= 2 && z < h - 2 && !hubNear && !spawnNear) {
+        // Grottes : poches creusées sous la surface (jamais sous le portail ni la dalle).
+        if (z >= 2 && z < h - 2 && !portalNear && !spawnNear) {
           const c = noise3(seed + 50, x, y, z, 8);
           const d = noise3(seed + 90, x, y, z, 6);
           if (Math.abs(c - 0.5) < 0.055 && d > 0.35) b = AIR;
@@ -268,12 +258,17 @@ export function genChunk(seed: number, cx: number, cy: number): Uint8Array {
           }
       }
     }
-  // Le Hub, au nord.
-  if (x0 < HUB.x0 + HUB.w && x0 + CHUNK > HUB.x0 && y0 < HUB.y0 + HUB.d && y0 + CHUNK > HUB.y0)
+  // Le portail, au nord.
+  if (
+    x0 < PORTAL.x0 + PORTAL.w &&
+    x0 + CHUNK > PORTAL.x0 &&
+    y0 < PORTAL.y0 + PORTAL.d &&
+    y0 + CHUNK > PORTAL.y0
+  )
     for (let ly = 0; ly < CHUNK; ly++)
       for (let lx = 0; lx < CHUNK; lx++)
-        for (let z = HUB.z; z < SIZE_Z; z++) {
-          const b = hubBlock(x0 + lx, y0 + ly, z);
+        for (let z = PORTAL.z; z < SIZE_Z; z++) {
+          const b = portalBlock(x0 + lx, y0 + ly, z);
           if (b !== null) out[at(lx, ly, z)] = b;
         }
   // Dalle de départ (3 × 3), avec de l'air au-dessus.
@@ -387,17 +382,17 @@ export class VoxelWorld {
     return -1;
   }
 
-  /** Zone protégée : la dalle de départ, et le Hub avec une bande autour. */
+  /** Zone protégée : la dalle de départ, et le portail avec une bande autour. */
   protectedCell(x: number, y: number, z: number): boolean {
-    if (hubDistance(x, y) < HUB_PROTECT && z >= HUB.z - 1) return true;
+    if (portalDistance(x, y) < PORTAL_PROTECT && z >= PORTAL.z - 1) return true;
     const near =
       Math.abs(x - this.spawn.x) <= SPAWN_RADIUS && Math.abs(y - this.spawn.y) <= SPAWN_RADIUS;
     return near && z >= this.spawn.z - 1 && z < this.spawn.z + SPAWN_CLEAR;
   }
 
   private protectedReason(x: number, y: number): string {
-    return hubDistance(x, y) < HUB_PROTECT
-      ? 'Le Hub des Malinos est protégé : on n’y touche pas (il sera bientôt relié à ce monde).'
+    return portalDistance(x, y) < PORTAL_PROTECT
+      ? 'Le Portail des Malinos est protégé : c’est d’ici que l’on passera bientôt dans MalinosLand.'
       : 'La zone de départ est protégée.';
   }
 
@@ -405,7 +400,7 @@ export class VoxelWorld {
   breakProblem(x: number, y: number, z: number): string | null {
     const b = this.get(x, y, z);
     if (b === AIR || !this.inBounds(x, y, z)) return 'Il n’y a rien à creuser ici.';
-    if (blockDef(b).hub) return this.protectedReason(x, y);
+    if (blockDef(b).portal) return this.protectedReason(x, y);
     if (blockDef(b).hardness === Infinity) return 'Ce cube ne se casse pas.';
     if (this.protectedCell(x, y, z)) return this.protectedReason(x, y);
     return null;
@@ -526,7 +521,7 @@ export class VoxelWorld {
     if (this.generated[ci]) {
       for (const i of old?.keys() ?? []) this.blocks[i] = this.base[i]!;
       for (const [i, b] of m) {
-        // Un cube incassable du terrain de départ (socle, Hub) ne change jamais.
+        // Un cube incassable du terrain de départ (socle, portail) ne change jamais.
         if (blockDef(this.base[i]!).hardness === Infinity) m.delete(i);
         else this.blocks[i] = b;
       }

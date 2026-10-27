@@ -3,9 +3,10 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 27/10/2026 — Chantier des mondes : PR #67 (grand monde, Hub au loin)
-fusionnée et mise en ligne ; en cours : PR 68 (survie partagée à plusieurs). Ensuite : PR 69
-(protections, modération). Une PR à la fois, présentée au responsable avant la suivante.**
+**Dernière mise à jour : 27/10/2026 — Chantier des mondes : PR #68 (survie partagée)
+fusionnée et mise en ligne ; en cours : PR 69 (MalinosLand en île flottante au loin, portail).
+Ensuite : PR 70 (eau, feu, matériaux et recettes), puis protections et modération du monde
+partagé. Une PR à la fois, présentée au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -100,6 +101,14 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **27/10 (soir)** — PR #68 fusionnée et **mise en ligne** (accord du responsable), workflow
+  réussi : la classe `ChantierRoom` est créée sur Cloudflare. Le responsable précise : depuis le
+  monde des cubes, on doit voir **le vrai MalinosLand en 2D isométrique**, plus éloigné (pas un
+  Hub reconstruit en cubes), en vue d’un futur passage (TP…) entre les deux mondes. Branche
+  `feature/chantier-vue-malinosland` (PR 69, DEC-046) : île flottante (vraie capture du jeu,
+  `npm run chantier:vue`), Portail des Malinos au bout du chemin, pont de lumière. **Suite :
+  attendre « fusionne 69 », puis PR 70** (eau, feu, matériaux et recettes façon jeux de cubes).
 
 - **27/10 (fin)** — PR #67 fusionnée puis **mise en ligne** (demande du responsable : « déploie ce
   qui a été fait »), workflow réussi. Branche `feature/chantier-multijoueur` (PR 68, DEC-045) :

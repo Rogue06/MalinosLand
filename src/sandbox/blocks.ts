@@ -31,10 +31,10 @@ export type Pattern =
   | 'snow'
   | 'snow_side'
   | 'gravel'
-  | 'hub_wall'
-  | 'hub_trim'
-  | 'hub_floor'
-  | 'hub_light';
+  | 'portal_stone'
+  | 'portal_trim'
+  | 'portal_floor'
+  | 'portal_light';
 
 export interface BlockDef {
   id: number;
@@ -61,10 +61,10 @@ export interface BlockDef {
   small?: boolean;
   /** Atelier de fabrication (établi, four). */
   station?: 'workbench' | 'furnace';
-  /** Émet de la lumière (torche, lanternes du Hub). */
+  /** Émet de la lumière (torche, lanternes du portail). */
   light?: boolean;
-  /** Fait partie du Hub des Malinos (vu de loin, protégé, pas encore relié). */
-  hub?: boolean;
+  /** Fait partie du Portail des Malinos (protégé : on ne le casse pas). */
+  portal?: boolean;
   /** Bruit des coups (voir src/sandbox/sfx.ts). */
   sound?: 'soft' | 'wood' | 'stone' | 'glass';
 }
@@ -90,11 +90,11 @@ export const FURNACE = 17;
 export const TORCH = 18;
 export const SNOW = 19;
 export const GRAVEL = 20;
-export const HUB_WALL = 21;
-export const HUB_TRIM = 22;
-export const HUB_GLASS = 23;
-export const HUB_FLOOR = 24;
-export const HUB_LIGHT = 25;
+export const PORTAL_STONE = 21;
+export const PORTAL_TRIM = 22;
+export const PORTAL_GLASS = 23;
+export const PORTAL_FLOOR = 24;
+export const PORTAL_LIGHT = 25;
 
 /** Objets qui ne sont pas des cubes. */
 export const STICK = 100;
@@ -175,19 +175,28 @@ export const BLOCKS: readonly BlockDef[] = [
     drop: DIRT,
   }),
   cube(GRAVEL, 'Gravier', 'gravel', '#a59f97', 0.7, { sound: 'stone' }),
-  // Le Hub des Malinos, vu de loin : protégé et pas encore relié (on ne le casse pas).
-  cube(HUB_WALL, 'Mur du Hub', 'hub_wall', '#2b3352', Infinity, { drop: null, hub: true }),
-  cube(HUB_TRIM, 'Bordure du Hub', 'hub_trim', '#22b5a6', Infinity, { drop: null, hub: true }),
-  cube(HUB_GLASS, 'Vitre du Hub', 'glass', '#bfeaf5', Infinity, {
+  // Le Portail des Malinos (vers MalinosLand) : protégé, on ne le casse pas.
+  cube(PORTAL_STONE, 'Pierre du portail', 'portal_stone', '#2b3352', Infinity, {
     drop: null,
-    hub: true,
+    portal: true,
+  }),
+  cube(PORTAL_TRIM, 'Bordure du portail', 'portal_trim', '#22b5a6', Infinity, {
+    drop: null,
+    portal: true,
+  }),
+  cube(PORTAL_GLASS, 'Vitre du portail', 'glass', '#bfeaf5', Infinity, {
+    drop: null,
+    portal: true,
     translucent: true,
     seeThrough: true,
   }),
-  cube(HUB_FLOOR, 'Dallage du Hub', 'hub_floor', '#e6dccb', Infinity, { drop: null, hub: true }),
-  cube(HUB_LIGHT, 'Lanterne du Hub', 'hub_light', '#ffc857', Infinity, {
+  cube(PORTAL_FLOOR, 'Dallage du portail', 'portal_floor', '#e6dccb', Infinity, {
     drop: null,
-    hub: true,
+    portal: true,
+  }),
+  cube(PORTAL_LIGHT, 'Lanterne du portail', 'portal_light', '#ffc857', Infinity, {
+    drop: null,
+    portal: true,
     light: true,
   }),
 ];

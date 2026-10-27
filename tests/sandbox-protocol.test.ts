@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AIR, DIRT, HUB_WALL, PAD, STONE, WOOD_PICK } from '../src/sandbox/blocks';
+import { AIR, DIRT, PORTAL_STONE, PAD, STONE, WOOD_PICK } from '../src/sandbox/blocks';
 import { Inventory } from '../src/sandbox/inventory';
 import {
   CELLS,
@@ -80,7 +80,7 @@ describe('Chantier partagé : protocole', () => {
     expect(unpackChunk(ci, fromBase64(text)!)).toEqual(changes);
     expect(fromBase64('pas du base64 !')).toBeNull();
     expect(unpackChunk(ci, new Uint8Array([0, 0]))).toBeNull();
-    expect(unpackChunk(ci, new Uint8Array([0, 0, HUB_WALL]))).toBeNull();
+    expect(unpackChunk(ci, new Uint8Array([0, 0, PORTAL_STONE]))).toBeNull();
     expect(unpackChunk(ci, new Uint8Array([0xff, 0xff, DIRT]))).toBeNull();
   });
 

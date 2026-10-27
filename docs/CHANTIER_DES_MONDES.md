@@ -77,33 +77,39 @@ revoir depuis le menu (« 📘 Revoir le tutoriel »).
 12 recettes au total. Une fabrication vérifie tout avant de retirer quoi que ce soit : elle ne
 peut ni dupliquer ni perdre d’objets.
 
-## Le monde et le Hub au loin
+## Le monde, le portail et MalinosLand au loin
 
 Le monde fait **192 × 192 cubes au sol et 48 de haut** (neuf fois la surface du premier
 prototype) : collines, forêts, **montagnes enneigées**, plages de sable, grottes sous terre. On
 démarre au sud, sur une **dalle de départ protégée** (bouton « Revenir au départ » dans le menu si
-l’on est coincé). Un **chemin de gravier** mène vers le nord, jusqu’au **Hub des Malinos**, construit
-en cubes : grand hall sombre aux bandes turquoise, logo « M », entrée vitrée, lanternes et la
-**tour** des futurs logements. Un **faisceau de lumière** part du haut de la tour : on le voit de
-partout, même à travers la brume.
+l’on est coincé). Un **chemin de gravier** mène vers le nord, jusqu’au **Portail des Malinos** :
+une place dallée, des lanternes et une grande arche où chatoie une surface turquoise.
 
-![Depuis le départ : le chemin, et le faisceau du Hub au loin](images/chantier-hub-au-loin.jpg)
+Loin derrière le portail, dans le ciel, flotte **MalinosLand**, le vrai jeu en 2D isométrique (le
+Hub, le jardin, le musée…) posé sur une île. Un **pont de lumière** relie l’arche à l’île. C’est
+la promesse du passage entre les deux mondes : plus tard, les Malinos du Hub pourront venir ici,
+et ceux d’ici retourner dans le Hub, par ce portail (décision du responsable, 27/10). Pour
+l’instant, traverser l’arche affiche « le passage ouvrira bientôt ».
 
-![Le Hub en cubes, au bout du chemin](images/chantier-hub-pres.jpg)
+![Depuis le départ : MalinosLand flotte au loin, au-dessus du chemin](images/chantier-malinosland-au-loin.jpg)
 
-Le Hub est **protégé** (on ne peut ni le casser ni construire dessus, ni juste autour) et on ne
-peut **pas encore y entrer** : c’est le même Hub que celui du jeu, vu de dehors. Les deux mondes
-seront reliés plus tard, quand le Chantier sera prêt (décision du responsable).
+![Le portail au bout du chemin, et MalinosLand dans le ciel](images/chantier-portail.jpg)
+
+L’image de MalinosLand est une **vraie capture du jeu** (sans interface, fond transparent, île
+dessinée dessous), refaite quand le Hub change : `npm run build && npm run preview`, puis
+`npm run chantier:vue` (fichier `src/sandbox/assets/malinosland.webp`, ≈ 200 Ko). Le portail
+est **protégé** (on ne le casse pas et on ne construit pas tout contre).
 
 Pour rester fluide, le monde est découpé en **tranches de 16 × 16 cubes**, calculées seulement
 quand on s’en approche, puis dessinées petit à petit (les plus proches d’abord). Au-delà de la
-**distance de vue**, les tranches sont cachées, sauf celles du Hub. Menu → « 🔭 Distance de vue » :
+**distance de vue**, les tranches sont cachées, sauf celles du portail (l’île et le pont de
+lumière restent toujours visibles). Menu → « 🔭 Distance de vue » :
 courte (5 tranches), normale (7) ou longue (11), à baisser sur une machine modeste.
 
 ## À plusieurs (survie partagée)
 
 Un seul monde pour tous les Malinos, le même grand monde que la survie douce (même terrain de
-départ, même Hub au loin). Choix du responsable (27/10) :
+départ, même portail et MalinosLand au loin). Choix du responsable (27/10) :
 
 - **Connecté à son compte** (le compte du Hub : Google ou GitHub, même site, même connexion), on
   **construit** : casser, poser, fabriquer. Le **sac** et la position de chacun sont gardés par
@@ -116,7 +122,7 @@ départ, même Hub au loin). Choix du responsable (27/10) :
 
 ![Deux joueurs dans le monde partagé](images/chantier-partage.jpg)
 
-**Le serveur décide de tout** (le navigateur ne fait que demander) : zone protégée (Hub, dalle de
+**Le serveur décide de tout** (le navigateur ne fait que demander) : zone protégée (portail, dalle de
 départ), portée des mains, temps pour casser selon l’outil (pas de cubes cassés trop vite),
 objets réellement dans le sac, établi ou four à côté pour les recettes qui en demandent,
 déplacements trop rapides refusés (le joueur est replacé). Le jeu montre tout de suite ce que fait
@@ -160,8 +166,8 @@ Le menu « 📊 Mesures » affiche ces chiffres en jouant.
 - Eau, nuit, monstres, faim, coffres, objets qui s’usent : rien de tout cela pour l’instant.
 - La lumière est simplifiée (ciel, ombre sous les toits, torches à portée), pas une vraie
   propagation.
-- Pas de lien depuis le Hub : un portail viendra au palier B4, si le prototype plaît. Le Hub
-  en cubes ne s’ouvre pas encore.
+- Pas encore de passage entre MalinosLand et le Chantier : le portail est là, il s’ouvrira au
+  palier B4. L’île au loin est une image (elle ne montre pas les joueurs du Hub en direct).
 
 ## Ce que le responsable a décidé (26/10)
 
@@ -178,7 +184,13 @@ Le menu « 📊 Mesures » affiche ces chiffres en jouant.
   soit prêt.
 - **Jouer à plusieurs** : une **survie partagée** (un seul monde commun, le sac de chacun gardé
   par le serveur) ; seuls les **comptes connectés** peuvent construire, les visiteurs regardent.
-  Ce sera la suite (PR 68), puis protections et modération (PR 69).
+  Fait dans la PR 68 ; protections et modération viendront ensuite.
+- **Précision** : le « Hub vu de loin » doit être **le vrai MalinosLand en 2D isométrique**, pas
+  un Hub reconstruit en cubes, et un peu plus éloigné : plus tard, un **passage** (TP ou autre
+  idée originale) permettra aux joueurs de MalinosLand de basculer dans le monde des cubes.
+  D’où l’île flottante et le portail (PR 69, DEC-046). À venir aussi, comme dans les jeux de
+  cubes : **eau, feu**, beaucoup plus de **matériaux et de recettes** (verre, etc.) pour bâtir
+  maisons et bâtiments communs.
 
 ## Questions pour la suite (au responsable)
 
@@ -188,7 +200,7 @@ Le menu « 📊 Mesures » affiche ces chiffres en jouant.
 
 ## Pour les développeurs
 
-`src/sandbox/` : `world.ts` (terrain par tranches calculées à la demande, Hub, règles, lancer de
+`src/sandbox/` : `world.ts` (terrain par tranches calculées à la demande, portail, règles, lancer de
 rayon ; DEC-044), `player.ts` (déplacements),
 `inventory.ts` (sac et recettes), `mesh.ts` (maillages, lumière) : logique pure, testée par
 `tests/sandbox.test.ts`. `textures.ts`, `game.ts` (Three.js, caméras, commandes), `main.ts`
