@@ -26,7 +26,9 @@ Deux modes, deux mondes séparés (ce qu’on obtient en créatif ne passe jamai
 ## Jouer
 
 Les touches sont celles des jeux de construction en cubes les plus connus (sur un clavier
-français, ZQSD remplace WASD automatiquement).
+français, ZQSD remplace WASD automatiquement). Elles se **changent** dans le menu → ⌨️ Touches.
+Pour monter sur un cube, il faut **sauter**. Échap met le jeu en pause et ouvre le menu ; en
+fermant le sac ou le menu, on reprend la main tout de suite.
 
 | Action                               | Clavier et souris                                                               | Au doigt                                                 |
 | ------------------------------------ | ------------------------------------------------------------------------------- | -------------------------------------------------------- |
@@ -57,7 +59,9 @@ revoir depuis le menu (« 📘 Revoir le tutoriel »).
 
 ## Ce qu’on y fait (survie douce)
 
-1. **Couper un arbre** (clic maintenu sur un tronc) : on récupère des troncs.
+1. **Couper un arbre** (clic maintenu sur un tronc) : un petit cube de tronc tombe au sol ; il
+   arrive dans le sac (« pop ») quand on passe à côté. Les objets au sol restent tant qu’on ne vient
+   pas les chercher.
 2. **Fabriquer** dans le sac : planches, bâtons, puis un **établi** à poser près de soi.
 3. À l’établi : **pioche en bois**, puis **pioche en pierre** (on creuse bien plus vite), un
    **four**.

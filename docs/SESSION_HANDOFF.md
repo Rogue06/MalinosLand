@@ -103,6 +103,13 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
 
 ## Dernières sessions
 
+- **27/10** — PR #65 en ligne. Le responsable demande le **multijoueur** dans le Chantier des
+  mondes, des **touches réglables**, de **sauter** pour monter un cube, de ne plus devoir recliquer
+  après l’établi, et des objets qui tombent au sol avec un « pop ». Il signale aussi un **son en
+  boucle** à la fin du tutoriel (bouton « Terminer » inutilisable) : corrigé. Branche
+  `feature/chantier-confort` (PR 66) : tout sauf le multijoueur, qui sera la PR 67 (serveur :
+  monde partagé, droits, quotas à étudier).
+
 - **26/10 (nuit, suite)** — PR #64 fusionnée et **`/chantier/` mis en ligne** (accord du
   responsable). Premiers retours : graphismes « top », **vue 3D première personne préférée**,
   demande d’un tutoriel, d’un bras synchronisé avec le bruit et d’une pose plus claire des cubes

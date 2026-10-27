@@ -4,8 +4,20 @@ import { SandboxGame, type GameMode } from './game';
 import { HOTBAR_SIZE, RECIPES, STATION_LABEL } from './inventory';
 import { ALL_ITEMS } from './blocks';
 import { VersionedStorage } from '../services/storage';
+import {
+  ACTIONS,
+  DEFAULT_BINDINGS,
+  actionsOf,
+  copyBindings,
+  keyLabel,
+  parseBindings,
+  rebind,
+  reserved,
+  type Action,
+  type Bindings,
+} from './controls';
 import { setSoundEnabled, sfx, soundEnabled } from './sfx';
-import { TUTORIAL, currentStep, type TutorialState } from './tutorial';
+import { TUTORIAL, TutorialTracker, type TutorialState } from './tutorial';
 import { drawIcon } from './textures';
 
 /**
@@ -47,6 +59,22 @@ const readTuto = (): TutoSave =>
     return { step, done: r.done === true };
   }) ?? { step: 0, done: false };
 const writeTuto = (t: TutoSave) => store.write('chantier-tuto', 1, t);
+
+/** Touches choisies par le joueur (dans ce navigateur, pour les deux modes). */
+const readBindings = (): Bindings =>
+  store.read<Bindings>('chantier-touches', 1, (raw) => parseBindings(raw)) ??
+  copyBindings(DEFAULT_BINDINGS);
+const writeBindings = (b: Bindings) => store.write('chantier-touches', 1, b);
+
+/** Vraies lettres du clavier du joueur (« Z » pour la touche W sur un clavier français). */
+let layout: ReadonlyMap<string, string> | undefined;
+void (
+  navigator as unknown as { keyboard?: { getLayoutMap(): Promise<ReadonlyMap<string, string>> } }
+).keyboard
+  ?.getLayoutMap()
+  .then((m) => (layout = m))
+  .catch(() => {});
+const keyName = (b: Bindings, a: Action) => keyLabel(b[a][0] ?? '', layout);
 const coarse = matchMedia('(pointer: coarse)').matches;
 let game: SandboxGame | null = null;
 
@@ -147,13 +175,20 @@ function play(mode: GameMode): void {
     clearTimeout(toastTimer);
     toastTimer = window.setTimeout(() => toastBox.replaceChildren(), 2600);
   };
-  let openPanel: 'bag' | 'menu' | null = null;
+  let openPanel: 'bag' | 'menu' | 'keys' | null = null;
+  /** Réglage d'une touche en cours : la prochaine touche appuyée lui est donnée. */
+  let waitingFor: Action | null = null;
 
   const g = new SandboxGame(stage, mode, {
     changed: () => refresh(),
     toast,
     openInventory: () => showPanel('bag'),
+    // Échap pendant le jeu : la souris est libérée, le menu s'ouvre (pause).
+    paused: () => {
+      if (!openPanel) showPanel('menu');
+    },
   });
+  g.bindings = readBindings();
   game = g;
 
   // Barre rapide.
@@ -192,7 +227,8 @@ function play(mode: GameMode): void {
     count: (item) => g.inv.count(item),
     placed: (block) => g.placedTypes.has(block),
   };
-  let shownStep = -1;
+  // Étape suivie : un changement n'est signalé qu'une fois (son, carte redessinée).
+  let tracker = new TutorialTracker(tuto.step);
   function renderTuto(step: number | null) {
     if (mode !== 'survival' || tuto.done) {
       tutoCard.hidden = true;
@@ -200,6 +236,14 @@ function play(mode: GameMode): void {
     }
     tutoCard.hidden = false;
     if (step === null) {
+      // Le tutoriel est fini : la carte disparaît d'elle-même (la souris est souvent capturée).
+      const finish = () => {
+        if (tuto.done) return;
+        tuto = { step: TUTORIAL.length, done: true };
+        writeTuto(tuto);
+        renderTuto(null);
+      };
+      window.setTimeout(finish, 9000);
       tutoCard.replaceChildren(
         el('strong', {}, '🎉 Bravo, tu sais tout faire !'),
         el(
@@ -212,11 +256,7 @@ function play(mode: GameMode): void {
           {
             class: 'tool',
             type: 'button',
-            onclick: () => {
-              tuto = { step: TUTORIAL.length, done: true };
-              writeTuto(tuto);
-              renderTuto(null);
-            },
+            onclick: finish,
           },
           'Terminer',
         ),
@@ -281,11 +321,7 @@ function play(mode: GameMode): void {
 
   const crosshair = el('div', { class: 'crosshair', 'aria-hidden': 'true' });
   const bar = el('div', { class: 'mine-bar' }, el('span', {}));
-  const lockHint = el(
-    'div',
-    { class: 'lock-hint' },
-    'Clique dans le monde pour jouer · Échap pour libérer la souris',
-  );
+  const lockHint = el('div', { class: 'lock-hint' }, 'Clique dans le monde pour reprendre');
   const stats = el('div', { class: 'stats', hidden: true });
   const panel = el('div', { class: 'panel-host' });
 
@@ -511,6 +547,13 @@ function play(mode: GameMode): void {
           },
           '📊 Mesures (images par seconde, poids)',
         ),
+        coarse
+          ? null
+          : el(
+              'button',
+              { class: 'menu-btn', type: 'button', onclick: () => showPanel('keys') },
+              '⌨️ Touches (avancer, courir, s’accroupir…)',
+            ),
         el(
           'button',
           {
@@ -553,7 +596,7 @@ function play(mode: GameMode): void {
                   g.walked = 0;
                   tuto = { step: 0, done: false };
                   writeTuto(tuto);
-                  shownStep = -1;
+                  tracker = new TutorialTracker(0);
                   closePanel();
                 },
               },
@@ -583,18 +626,85 @@ function play(mode: GameMode): void {
     );
   }
 
-  function showPanel(p: 'bag' | 'menu') {
+  function showPanel(p: 'bag' | 'menu' | 'keys') {
     openPanel = p;
+    waitingFor = null;
     g.keys.clear();
     g.mining = false;
-    if (document.pointerLockElement) document.exitPointerLock();
+    g.releasePointer();
     if (p === 'bag') renderBag();
+    else if (p === 'keys') renderKeys();
     else renderMenu();
   }
 
+  /** Ferme le panneau et rend la souris au jeu tout de suite (pas besoin de recliquer). */
   function closePanel() {
     openPanel = null;
+    waitingFor = null;
     panel.replaceChildren();
+    if (!coarse) g.lockPointer();
+  }
+
+  // ---- Réglage des touches.
+  function renderKeys() {
+    const b = g.bindings;
+    panel.replaceChildren(
+      el(
+        'div',
+        { class: 'panel narrow', role: 'dialog', 'aria-label': 'Touches' },
+        el(
+          'header',
+          {},
+          el('h2', {}, '⌨️ Touches'),
+          el('button', { class: 'tool', type: 'button', onclick: () => showPanel('menu') }, '←'),
+        ),
+        el(
+          'p',
+          { class: 'muted' },
+          'Clique sur une action, puis appuie sur la touche voulue. Une touche déjà prise est échangée.',
+        ),
+        ...ACTIONS.map((a) =>
+          el(
+            'button',
+            {
+              class: `key-row${waitingFor === a.id ? ' waiting' : ''}`,
+              type: 'button',
+              onclick: () => {
+                waitingFor = a.id;
+                renderKeys();
+              },
+            },
+            el('span', {}, a.label),
+            el(
+              'kbd',
+              {},
+              waitingFor === a.id
+                ? 'Appuie sur une touche… (Échap : annuler)'
+                : b[a.id].map((c) => keyLabel(c, layout)).join(' ou '),
+            ),
+          ),
+        ),
+        el(
+          'button',
+          {
+            class: 'menu-btn',
+            type: 'button',
+            onclick: () => {
+              g.bindings = copyBindings(DEFAULT_BINDINGS);
+              writeBindings(g.bindings);
+              toast('Touches remises comme au départ.');
+              renderKeys();
+            },
+          },
+          '↺ Touches par défaut',
+        ),
+        el(
+          'p',
+          { class: 'muted' },
+          'Toujours : souris pour regarder, clic gauche creuser, clic droit poser, 1 à 9 la barre, Échap le menu.',
+        ),
+      ),
+    );
   }
 
   // ---- Clavier (mêmes touches que les jeux de cubes les plus connus).
@@ -603,14 +713,29 @@ function play(mode: GameMode): void {
   const onKey = (e: KeyboardEvent) => {
     if (!game || game !== g) return;
     const down = e.type === 'keydown';
-    if (down && e.code === 'Escape') {
-      if (openPanel) closePanel();
-      else if (!document.pointerLockElement) showPanel('menu');
+    // Réglage d'une touche : la touche appuyée devient la touche de l'action.
+    if (waitingFor && down) {
+      e.preventDefault();
+      if (e.code === 'Escape') waitingFor = null;
+      else if (reserved(e.code)) toast('Cette touche est réservée (Échap, 1 à 9).');
+      else {
+        g.bindings = rebind(g.bindings, waitingFor, e.code);
+        writeBindings(g.bindings);
+        waitingFor = null;
+      }
+      renderKeys();
       return;
     }
-    if (down && e.code === 'KeyE') {
+    if (down && e.code === 'Escape') {
+      if (openPanel === 'keys') showPanel('menu');
+      else if (openPanel) closePanel();
+      else showPanel('menu');
+      return;
+    }
+    const actions = actionsOf(g.bindings, e.code);
+    if (down && actions.includes('inventory')) {
       if (openPanel === 'bag') closePanel();
-      else showPanel('bag');
+      else if (!openPanel) showPanel('bag');
       e.preventDefault();
       return;
     }
@@ -619,37 +744,41 @@ function play(mode: GameMode): void {
       g.inv.selected = Number(e.code.slice(5)) - 1;
       refresh();
     }
-    if (down && (e.code === 'KeyV' || e.code === 'F5')) {
+    if (down && actions.includes('view')) {
       e.preventDefault();
       toggleView();
     }
-    // Double appui sur « avancer » : on court ; double Espace en créatif : on vole.
-    if (down && !e.repeat && (e.code === 'KeyW' || e.code === 'ArrowUp')) {
+    // Double appui sur « avancer » : on court ; double saut en créatif : on vole.
+    if (down && !e.repeat && actions.includes('forward')) {
       if (performance.now() - lastForward < 300) g.sprintLatch = true;
       lastForward = performance.now();
     }
-    if (!down && (e.code === 'KeyW' || e.code === 'ArrowUp')) g.sprintLatch = false;
-    if (down && !e.repeat && e.code === 'Space' && mode === 'creative') {
+    if (!down && actions.includes('forward')) g.sprintLatch = false;
+    if (down && !e.repeat && actions.includes('jump') && mode === 'creative') {
       if (performance.now() - lastJump < 300) {
         g.fly = !g.fly;
-        toast(g.fly ? 'Vol : Espace pour monter, Maj pour descendre.' : 'Vol arrêté.');
+        toast(
+          g.fly
+            ? `Vol : ${keyName(g.bindings, 'jump')} pour monter, ${keyName(g.bindings, 'sneak')} pour descendre.`
+            : 'Vol arrêté.',
+        );
         refresh();
       }
       lastJump = performance.now();
     }
-    if (down && e.code === 'KeyF' && mode === 'creative') {
+    if (down && actions.includes('fly') && mode === 'creative') {
       g.fly = !g.fly;
       refresh();
     }
-    if (down && e.code === 'KeyR' && g.view === 'iso') g.rotateIso(e.shiftKey ? -1 : 1);
+    if (down && e.code === 'KeyR' && g.view === 'iso' && actions.length === 0)
+      g.rotateIso(e.shiftKey ? -1 : 1);
     if (down && e.code === 'KeyZ' && (e.ctrlKey || e.metaKey)) {
       g.undo();
       e.preventDefault();
       return;
     }
-    if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code))
-      e.preventDefault();
-    // ZQSD (clavier français) : les touches physiques W, A, S, D sont lues par leur position.
+    // Les touches de jeu ne font pas défiler ni ne déclenchent le navigateur (Ctrl + touche…).
+    if (actions.length > 0) e.preventDefault();
     if (down) g.keys.add(e.code);
     else g.keys.delete(e.code);
   };
@@ -671,15 +800,14 @@ function play(mode: GameMode): void {
     lockHint.hidden = coarse || g.view !== 'first' || !!document.pointerLockElement || !!openPanel;
     // Tutoriel : on passe à l'étape suivante dès que la consigne est faite.
     if (mode === 'survival' && !tuto.done) {
-      const step = currentStep(tutoState, tuto.step);
-      if (step !== shownStep) {
-        if (shownStep >= 0) sfx.crafted();
-        shownStep = step ?? TUTORIAL.length;
-        if (step !== null && step !== tuto.step) {
-          tuto = { step, done: false };
+      const t = tracker.update(tutoState);
+      if (t.changed) {
+        if (t.progressed) sfx.crafted();
+        if (tracker.reached !== tuto.step) {
+          tuto = { step: tracker.reached, done: false };
           writeTuto(tuto);
         }
-        renderTuto(step);
+        renderTuto(t.step);
       }
     }
     if (!stats.hidden) {
