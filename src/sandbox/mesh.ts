@@ -54,6 +54,7 @@ export const PATTERNS: readonly Pattern[] = [
   'iron_block',
   'plaster',
   'borne',
+  'lava',
 ];
 const TILE = new Map(PATTERNS.map((p, i) => [p, i]));
 
@@ -299,7 +300,11 @@ export function buildChunk(
         if (def.small) continue; // torches : dessinées à part
         const out = def.translucent ? glass : opaque;
         // Dessus d'une étendue d'eau : rien de liquide juste au-dessus.
-        const surface = !!def.fluid && (z + 1 > maxZ || !blockDef(world.get(x, y, z + 1)).fluid);
+        // (La lave, opaque, reste au ras des parois : pas de jour entre elle et la roche.)
+        const surface =
+          !!def.fluid &&
+          !!def.seeThrough &&
+          (z + 1 > maxZ || !blockDef(world.get(x, y, z + 1)).fluid);
         for (const f of FACES) {
           const nx = x + f.d[0];
           const ny = y + f.d[1];
@@ -312,7 +317,7 @@ export function buildChunk(
           const pattern =
             f.kind === 'top' ? def.tex.top : f.kind === 'bottom' ? def.tex.bottom : def.tex.side;
           const tile = TILE.get(pattern) ?? 0;
-          const lit = lightAt(light, nx, ny, nz, near) * f.shade;
+          const lit = def.glow ? 1 : lightAt(light, nx, ny, nz, near) * f.shade;
           const base = out.positions.length / 3;
           f.corners.forEach(([cx, cy, cz], i) => {
             // Occlusion ambiante : les deux voisins de côté et le voisin d'angle, devant la face.

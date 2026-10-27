@@ -48,7 +48,8 @@ export type Pattern =
   | 'lantern'
   | 'iron_block'
   | 'plaster'
-  | 'borne';
+  | 'borne'
+  | 'lava';
 
 export interface BlockDef {
   id: number;
@@ -83,6 +84,10 @@ export interface BlockDef {
   fluid?: boolean;
   /** Ne va jamais dans le sac (le feu : on l'allume avec un briquet). */
   noItem?: boolean;
+  /** Brille par lui-même (la lave) : toujours bien éclairé, même au fond d'une grotte. */
+  glow?: boolean;
+  /** Brûle : le joueur qui y tombe retourne au départ (la lave). */
+  burns?: boolean;
   /** Bruit des coups (voir src/sandbox/sfx.ts). */
   sound?: 'soft' | 'wood' | 'stone' | 'glass';
 }
@@ -127,6 +132,8 @@ export const IRON_BLOCK = 36;
 export const PLASTER = 37;
 /** Borne de protection : protège une zone autour d'elle pour son propriétaire (DEC-048). */
 export const BORNE = 38;
+/** Lave : au fond des grottes profondes. Elle brille, on ne la prend pas, elle brûle. */
+export const LAVA = 39;
 
 /** Objets qui ne sont pas des cubes. */
 export const STICK = 100;
@@ -270,6 +277,13 @@ export const BLOCKS: readonly BlockDef[] = [
   cube(IRON_BLOCK, 'Bloc de fer', 'iron_block', '#d8dde6', 5, { tier: 2, sound: 'stone' }),
   cube(PLASTER, 'Enduit blanc', 'plaster', '#f1ece2', 1, { sound: 'stone' }),
   cube(BORNE, 'Borne de protection', 'borne', '#8b6cff', 3, { light: true, sound: 'stone' }),
+  cube(LAVA, 'Lave', 'lava', '#ff6a2b', Infinity, {
+    drop: null,
+    solid: false,
+    fluid: true,
+    glow: true,
+    burns: true,
+  }),
 ];
 
 export function blockDef(id: number): BlockDef {
@@ -372,7 +386,7 @@ export function dropOf(block: number, held: number | null, roll = Math.random())
 
 /** Ce qu'on peut trouver posé dans le monde : un cube du sac, l'eau (seau) ou le feu (briquet). */
 export function placeable(block: number): boolean {
-  return !!itemDef(block)?.block || block === WATER || block === FIRE;
+  return !!itemDef(block)?.block || block === WATER || block === FIRE || block === LAVA;
 }
 
 /** Cube fixe du terrain de départ (socle, dalle, portail) : il ne change jamais. L'eau, si. */

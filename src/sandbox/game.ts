@@ -35,7 +35,16 @@ import {
   type Lighting,
   type MeshData,
 } from './mesh';
-import { EYE, FALL_LIMIT, HEIGHT, occupies, respawn, stepPlayer, type PlayerState } from './player';
+import {
+  EYE,
+  FALL_LIMIT,
+  HEIGHT,
+  inWater,
+  occupies,
+  respawn,
+  stepPlayer,
+  type PlayerState,
+} from './player';
 import vistaUrl from './assets/malinosland.webp';
 import type { SharedPeer } from './protocol';
 import { ZONE_RADIUS, type Zone } from './zones';
@@ -195,6 +204,13 @@ export class SandboxGame {
   private readonly bits: THREE.InstancedMesh;
   /** MalinosLand (le jeu en 2D isométrique), île flottante au loin, et son pont de lumière. */
   private readonly vista: THREE.Sprite;
+  /**
+   * Autour de l'île : un halo étoilé (le point de fuite qui attire l'œil de loin), une brume
+   * qui se dissipe quand on approche du portail, et des étincelles qui montent.
+   */
+  private readonly halo: THREE.Sprite;
+  private readonly mist: THREE.Sprite;
+  private readonly sparkles: THREE.Points;
   private readonly bridge: THREE.Mesh;
   /** Surface chatoyante dans l'arche du portail. */
   private readonly portalSurface: THREE.Mesh;
@@ -213,6 +229,8 @@ export class SandboxGame {
   /** Feux allumés au briquet : deux plans croisés, flammes qui dansent. */
   private readonly fires: THREE.InstancedMesh;
   private fireCells: Cell[] = [];
+  /** Le joueur nage (bruit de l'eau). */
+  private swimming = false;
   /** Coins des zones protégées. */
   private readonly zoneMarks = new THREE.Group();
   /** Voile bleu quand on a la tête sous l'eau. */
@@ -346,7 +364,37 @@ export class SandboxGame {
     );
     this.vista.position.set(VISTA.x, VISTA.z, VISTA.y);
     this.vista.scale.set(VISTA.width, VISTA.width * 0.75, 1);
-    this.scene.add(this.vista);
+    this.vista.renderOrder = 2;
+    const glow = (texture: THREE.Texture, order: number) => {
+      const sprite = new THREE.Sprite(
+        new THREE.SpriteMaterial({
+          map: texture,
+          fog: false,
+          depthWrite: false,
+          transparent: true,
+          blending: THREE.AdditiveBlending,
+        }),
+      );
+      sprite.position.copy(this.vista.position);
+      sprite.renderOrder = order;
+      return sprite;
+    };
+    this.halo = glow(haloTexture(), 1);
+    this.halo.scale.setScalar(VISTA.width * 2.2);
+    this.mist = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: mistTexture(),
+        fog: false,
+        depthWrite: false,
+        transparent: true,
+      }),
+    );
+    this.mist.position.copy(this.vista.position);
+    this.mist.scale.set(VISTA.width * 1.5, VISTA.width * 1.2, 1);
+    this.mist.renderOrder = 3;
+    this.sparkles = makeSparkles();
+    this.sparkles.renderOrder = 4;
+    this.scene.add(this.halo, this.vista, this.mist, this.sparkles);
     // Pont de lumière : du haut de l'arche jusqu'à la pointe de l'île (le futur passage). Un
     // cœur vif et un halo large : on le voit même de très loin.
     this.bridge = new THREE.Mesh();
@@ -470,7 +518,12 @@ export class SandboxGame {
   }
 
   private onHide = () => {
-    if (document.visibilityState === 'hidden' || !document.visibilityState) this.save();
+    if (document.visibilityState === 'hidden' || !document.visibilityState) {
+      this.save();
+      // Onglet caché : on coupe le bruit de l'eau (il reprendra en nageant).
+      this.swimming = false;
+      sfx.water(false);
+    }
   };
 
   /** Créatif : tous les cubes, sans limite (rien ne passe dans la partie « survie »). */
@@ -1019,6 +1072,25 @@ export class SandboxGame {
       this.world,
     );
     this.walked += Math.hypot(this.player.x - before.x, this.player.y - before.y);
+    // Dans l'eau : « plouf », puis le bruit de l'eau ; dans la lave : retour au départ.
+    const swimming = inWater(this.world, this.player);
+    if (swimming !== this.swimming) {
+      this.swimming = swimming;
+      if (swimming) sfx.splash();
+      sfx.water(swimming);
+    }
+    const body = this.world.get(
+      Math.floor(this.player.x),
+      Math.floor(this.player.y),
+      Math.floor(this.player.z + 0.2),
+    );
+    if (blockDef(body).burns) {
+      sfx.sizzle();
+      this.respawn();
+      this.events.toast(
+        '🔥 Aïe ! La lave brûle : retour à la dalle de départ (ton sac est intact).',
+      );
+    }
     if (this.player.z < FALL_LIMIT) this.respawn();
     const moving = Math.hypot(wish.x, wish.y) > 0.01;
     if (moving) this.walkPhase += dt * 9;
@@ -1225,8 +1297,14 @@ export class SandboxGame {
     this.animateFires();
     // L'île et son pont sont des repères de première personne ; vus de dessus (iso), ils gêneraient.
     this.vista.visible = first;
+    this.halo.visible = first;
+    this.mist.visible = first;
+    this.sparkles.visible = first;
     this.bridge.visible = first;
-    if (first) this.aimBridge();
+    if (first) {
+      this.aimBridge();
+      this.revealVista();
+    }
     const map = (this.portalSurface.material as THREE.MeshBasicMaterial).map!;
     map.offset.set(0, -(performance.now() / 6000) % 1);
 
@@ -1328,6 +1406,39 @@ export class SandboxGame {
       (ray as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>).material.opacity =
         (i === 0 ? 0.55 : 0.16) * pulse;
     });
+  }
+
+  /**
+   * De loin, MalinosLand est un mirage : pâle, dans la brume, au cœur d'un halo étoilé qui attire
+   * l'œil. En approchant du portail, la brume se lève, l'île prend ses couleurs (et grandit,
+   * puisqu'on s'en rapproche vraiment), le halo s'adoucit.
+   */
+  private revealVista(): void {
+    const d = Math.hypot(this.player.x - PORTAL_GATE.x, this.player.y - PORTAL_GATE.y);
+    const far = Math.max(0, Math.min(1, (d - 12) / 95));
+    const k = far * far * (3 - 2 * far);
+    const t = performance.now() / 1000;
+    (this.vista.material as THREE.SpriteMaterial).opacity = 1 - 0.55 * k;
+    // Teinte du ciel sur l'île lointaine (perspective aérienne).
+    (this.vista.material as THREE.SpriteMaterial).color.setRGB(
+      1 - 0.25 * k,
+      1 - 0.12 * k,
+      1 - 0.02 * k,
+    );
+    (this.mist.material as THREE.SpriteMaterial).opacity = 0.9 * k;
+    (this.mist.material as THREE.SpriteMaterial).rotation = Math.sin(t / 9) * 0.06;
+    const halo = this.halo.material as THREE.SpriteMaterial;
+    halo.opacity = (0.25 + 0.65 * k) * (0.85 + Math.sin(t * 1.3) * 0.15);
+    halo.rotation = t / 30;
+    // Les étincelles montent lentement autour de l'île.
+    const pos = this.sparkles.geometry.getAttribute('position') as THREE.BufferAttribute;
+    for (let i = 0; i < pos.count; i++) {
+      let y = pos.getY(i) + 0.02 + (i % 5) * 0.004;
+      if (y > VISTA.width * 0.55) y = -VISTA.width * 0.45;
+      pos.setY(i, y);
+    }
+    pos.needsUpdate = true;
+    (this.sparkles.material as THREE.PointsMaterial).opacity = 0.5 + 0.4 * (1 - k);
   }
 
   /** Le joueur traverse l'arche : le passage n'est pas encore ouvert. */
@@ -1505,6 +1616,7 @@ export class SandboxGame {
 
   dispose(): void {
     this.running = false;
+    sfx.water(false);
     this.clearPeers();
     this.save();
     window.removeEventListener('resize', this.resize);
@@ -1560,7 +1672,95 @@ function makeHand(): { arm: THREE.Mesh; cube: THREE.Mesh; pick: THREE.Group } {
  * MalinosLand vu du Chantier : centre de l'image (bien au-delà du bord nord du monde, haut dans
  * le ciel), largeur, et position de la pointe de l'île dans l'image (part de la largeur).
  */
-const VISTA = { x: 96, y: -150, z: 84, width: 190, tipX: 0.06 };
+const VISTA = { x: 96, y: -70, z: 80, width: 96, tipX: 0.06 };
+
+/** Halo étoilé : un cœur clair, des rayons turquoise et violets (dessin par le code). */
+function haloTexture(): THREE.CanvasTexture {
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const g = c.getContext('2d');
+  if (g) {
+    const r = g.createRadialGradient(128, 128, 4, 128, 128, 128);
+    r.addColorStop(0, 'rgba(255,255,255,0.9)');
+    r.addColorStop(0.18, 'rgba(160,240,230,0.55)');
+    r.addColorStop(0.45, 'rgba(139,108,255,0.22)');
+    r.addColorStop(1, 'rgba(139,108,255,0)');
+    g.fillStyle = r;
+    g.fillRect(0, 0, 256, 256);
+    // Huit rayons fins, comme une étoile.
+    g.translate(128, 128);
+    for (let i = 0; i < 8; i++) {
+      g.rotate(Math.PI / 4);
+      const ray = g.createLinearGradient(0, 0, 0, -126);
+      ray.addColorStop(0, i % 2 ? 'rgba(127,240,224,0.5)' : 'rgba(200,180,255,0.45)');
+      ray.addColorStop(1, 'rgba(127,240,224,0)');
+      g.fillStyle = ray;
+      g.beginPath();
+      g.moveTo(-3, 0);
+      g.lineTo(0, i % 2 ? -110 : -126);
+      g.lineTo(3, 0);
+      g.fill();
+    }
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+/** Brume : nuages doux de la couleur du ciel, plus épais au centre. */
+function mistTexture(): THREE.CanvasTexture {
+  const c = document.createElement('canvas');
+  c.width = 256;
+  c.height = 200;
+  const g = c.getContext('2d');
+  if (g) {
+    let seed = 11;
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 60; i++) {
+      const x = 128 + (rnd() - 0.5) * 200;
+      const y = 100 + (rnd() - 0.5) * 140;
+      const rad = 30 + rnd() * 50;
+      const center = 1 - Math.hypot((x - 128) / 128, (y - 100) / 100);
+      const r = g.createRadialGradient(x, y, 0, x, y, rad);
+      r.addColorStop(0, `rgba(226,244,252,${0.25 + 0.3 * Math.max(0, center)})`);
+      r.addColorStop(1, 'rgba(226,244,252,0)');
+      g.fillStyle = r;
+      g.fillRect(0, 0, 256, 200);
+    }
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+/** Étincelles autour de l'île (points lumineux qui montent). */
+function makeSparkles(): THREE.Points {
+  const n = 90;
+  const pos = new Float32Array(n * 3);
+  let seed = 5;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < n; i++) {
+    pos[i * 3] = (rnd() - 0.5) * VISTA.width * 1.4;
+    pos[i * 3 + 1] = (rnd() - 0.5) * VISTA.width;
+    pos[i * 3 + 2] = (rnd() - 0.5) * 30;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  const points = new THREE.Points(
+    geo,
+    new THREE.PointsMaterial({
+      color: 0xbff6ee,
+      size: 0.9,
+      transparent: true,
+      depthWrite: false,
+      fog: false,
+      blending: THREE.AdditiveBlending,
+    }),
+  );
+  points.position.set(VISTA.x, VISTA.z, VISTA.y);
+  points.frustumCulled = false;
+  return points;
+}
 
 /** Un feu : deux plans croisés avec le motif des flammes de l'atlas. */
 function fireGeometry(): THREE.BufferGeometry {

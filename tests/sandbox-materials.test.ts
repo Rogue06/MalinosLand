@@ -12,8 +12,10 @@ import {
   IRON_ORE,
   LIGHTER,
   STONE,
+  LAVA,
   WATER,
   WATER_BUCKET,
+  blockDef,
   dropOf,
   itemDef,
   placeable,
@@ -22,7 +24,15 @@ import { Inventory, RECIPES } from '../src/sandbox/inventory';
 import { inWater, stepPlayer, type PlayerState } from '../src/sandbox/player';
 import { decodeUp, packChunk, unpackChunk } from '../src/sandbox/protocol';
 import { useItem } from '../src/sandbox/rules';
-import { SIZE_X, SIZE_Y, VoxelWorld, WATER_LEVEL, raycast } from '../src/sandbox/world';
+import {
+  CAVE_LAVA,
+  CAVE_WATER,
+  SIZE_X,
+  SIZE_Y,
+  VoxelWorld,
+  WATER_LEVEL,
+  raycast,
+} from '../src/sandbox/world';
 
 /** Monde de départ entièrement calculé (une fois pour tout le fichier). */
 const full = new VoxelWorld(1);
@@ -184,5 +194,39 @@ describe('Chantier : eau, feu et matériaux', () => {
     expect(decodeUp('{"t":"use","i":5,"h":114}')).toEqual({ t: 'use', i: 5, h: BUCKET });
     expect(decodeUp('{"t":"use","i":5,"h":3}')).toBeNull();
     expect(decodeUp('{"t":"put","i":5,"b":26}')).toBeNull(); // l'eau ne se pose qu'au seau
+  });
+
+  it('grottes profondes : de la lave tout en bas, des lacs souterrains par endroits', () => {
+    let lava = 0;
+    let deepWater = 0;
+    for (let z = 1; z <= CAVE_WATER; z++)
+      for (let y = 0; y < SIZE_Y; y++)
+        for (let x = 0; x < SIZE_X; x++) {
+          const b = full.get(x, y, z);
+          if (b === LAVA) {
+            lava++;
+            expect(z).toBeLessThanOrEqual(CAVE_LAVA);
+          }
+          if (b === WATER && z < WATER_LEVEL - 6) deepWater++;
+        }
+    expect(lava).toBeGreaterThan(20);
+    expect(deepWater).toBeGreaterThan(20);
+  });
+
+  it('la lave : ni seau, ni pioche ; creusée à côté, elle remplit le trou', () => {
+    const w = new VoxelWorld(1);
+    const inv = new Inventory();
+    inv.add(BUCKET, 1);
+    const x = w.spawn.x + 6;
+    const y = w.spawn.y + 5;
+    const z = w.surface(x, y);
+    const spot = w.index(x + 1, y, z);
+    w.write(spot, LAVA);
+    expect('problem' in useItem(w, inv, BUCKET, spot)).toBe(true);
+    expect(w.breakProblem(x + 1, y, z)).toMatch(/brûle/);
+    w.dig(x, y, z);
+    expect(w.get(x, y, z)).toBe(LAVA);
+    expect(blockDef(LAVA).burns).toBe(true);
+    expect(placeable(LAVA)).toBe(true);
   });
 });

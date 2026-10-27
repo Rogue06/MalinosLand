@@ -5,10 +5,10 @@
 > choix du joueur). Gameplay inspiré des jeux de construction en cubes ; textures, noms et
 > dessins propres à MalinosLand. C’est le **palier B0** du
 > [cahier des charges](CAHIER_DES_CHARGES_VILLAGE.md) (§13), sur une page à part (`/chantier/`)
-> que le jeu ne relie pas encore. On y joue **seul** (partie gardée dans le navigateur) ou **à
-> plusieurs** dans un monde commun gardé par le serveur (DEC-045). Moteur 3D : Three.js (DEC-043).
+> que le jeu ne relie pas encore. On y joue **tous ensemble**, dans un seul monde gardé par le
+> serveur (DEC-045, DEC-049). Moteur 3D : Three.js (DEC-043).
 
-![Écran d’accueil : survie douce, créatif ou à plusieurs](images/chantier-accueil.jpg)
+![Écran d’accueil : entrer dans le monde partagé](images/chantier-accueil.jpg)
 
 ## L’essayer
 
@@ -17,12 +17,10 @@
   `https://malinosland.pages.dev/chantier/`. Elle n’est reliée à rien dans le jeu et n’est pas
   indexée par les moteurs de recherche.
 
-Trois modes, trois mondes séparés (ce qu’on obtient en créatif ne passe jamais en survie) :
-
-- **Survie douce** : on part les mains vides. Ni monstres, ni faim, ni perte d’objets.
-- **Créatif** : tous les cubes à volonté, on casse en un clic, on peut voler (double Espace ou
-  F) et annuler (Ctrl+Z).
-- **À plusieurs** : la survie douce dans **un seul monde pour tous** (voir plus bas).
+Un seul mode, décidé par le responsable (27/10) : la **survie douce à plusieurs**, dans un seul
+monde pour tous (on part les mains vides ; ni monstres, ni faim, ni perte d’objets). Les anciens
+modes solo et créatif ne sont plus proposés aux joueurs ; ils restent pour les essais et les tests
+des développeurs, avec l’adresse `/chantier/?essai` (hors ligne, rien n’est envoyé).
 
 ## Jouer
 
@@ -101,6 +99,13 @@ peut ni dupliquer ni perdre d’objets.
 
 ![Un feu allumé au briquet et un cube d’eau versé au seau](images/chantier-feu-eau.jpg)
 
+- **Bruit de l’eau** : « plouf » en entrant, puis des vagues douces tant qu’on nage.
+- **Au fond des grottes** : de la **lave** tout en bas (elle brille dans le noir ; y tomber
+  renvoie à la dalle de départ, le sac intact) et, par endroits, des **lacs souterrains**. Creusé
+  à côté de la lave, un trou se remplit de lave : on creuse prudemment.
+
+![De la lave au fond d’une grotte](images/chantier-lave.jpg)
+
 Pour rester simple (et juste à plusieurs), l’eau **ne coule pas** comme dans les jeux de cubes :
 un cube d’eau versé reste un cube ; seule une case creusée à côté de l’eau se remplit. Le feu **ne
 se propage pas** et ne brûle rien : pas de risque de voir disparaître les constructions des
@@ -114,15 +119,20 @@ démarre au sud, sur une **dalle de départ protégée** (bouton « Revenir au d
 l’on est coincé). Un **chemin de gravier** mène vers le nord, jusqu’au **Portail des Malinos** :
 une place dallée, des lanternes et une grande arche où chatoie une surface turquoise.
 
-Loin derrière le portail, dans le ciel, flotte **MalinosLand**, le vrai jeu en 2D isométrique (le
-Hub, le jardin, le musée…) posé sur une île. Un **pont de lumière** relie l’arche à l’île. C’est
+Derrière le portail, dans le ciel, flotte **MalinosLand**, le vrai jeu en 2D isométrique (le
+Hub, le jardin, le musée…) posé sur une île. **De loin, c’est un mirage** : pâle, dans une brume
+de la couleur du ciel, au cœur d’un **halo étoilé** turquoise et violet qui attire l’œil de
+partout. **En approchant du portail**, la brume se lève, l’île prend ses couleurs et grandit, des
+étincelles montent autour d’elle. Un **pont de lumière** relie l’arche à l’île. C’est
 la promesse du passage entre les deux mondes : plus tard, les Malinos du Hub pourront venir ici,
 et ceux d’ici retourner dans le Hub, par ce portail (décision du responsable, 27/10). Pour
 l’instant, traverser l’arche affiche « le passage ouvrira bientôt ».
 
-![Depuis le départ : MalinosLand flotte au loin, au-dessus du chemin](images/chantier-malinosland-au-loin.jpg)
+![Depuis le départ : un mirage dans la brume, au cœur d’un halo](images/chantier-malinosland-au-loin.jpg)
 
-![Le portail au bout du chemin, et MalinosLand dans le ciel](images/chantier-portail.jpg)
+![À mi-chemin : la brume se lève](images/chantier-malinosland-milieu.jpg)
+
+![Au portail : MalinosLand nette, avec ses étincelles](images/chantier-portail.jpg)
 
 L’image de MalinosLand est une **vraie capture du jeu** (sans interface, fond transparent, île
 dessinée dessous), refaite quand le Hub change : `npm run build && npm run preview`, puis
@@ -143,9 +153,10 @@ départ, même portail et MalinosLand au loin). Choix du responsable (27/10) :
 - **Connecté à son compte** (le compte du Hub : Google ou GitHub, même site, même connexion), on
   **construit pour de bon** : casser, poser, fabriquer. Le **sac** et la position de chacun sont
   gardés par le serveur : on les retrouve d’un appareil à l’autre.
-- **Sans compte**, on construit aussi, mais **rien n’est gardé** : quand on part, tout ce qu’on a
-  cassé ou posé revient comme avant (au plus 300 changements par visite). Un message le dit à
-  l’arrivée, et le menu propose de se connecter dans le Hub.
+- **Sans compte**, on peut **essayer** : casser ou poser **60 cubes** au plus (un rappel à 40),
+  puis il faut se connecter. Rien n’est gardé : quand on part, tout ce qu’on a cassé ou posé
+  revient comme avant. Un message le dit à l’arrivée, et le menu propose de se connecter dans le
+  Hub.
 
 ![Sans compte : le message à l’arrivée](images/chantier-sans-compte.jpg)
 
@@ -162,8 +173,7 @@ déplacements trop rapides refusés (le joueur est replacé). Le jeu montre tout
 le joueur ; si le serveur refuse, la case et le sac reviennent à leur état réel, avec un message.
 
 Limites (offre gratuite) : **20 joueurs** à la fois ; un budget de messages par jour à côté de
-celui du Hub. S’il est épuisé, le monde partagé fait une pause jusqu’au lendemain (les modes solo
-restent ouverts). Pas encore de chat dans le Chantier (le chat est dans le Hub).
+celui du Hub. S’il est épuisé, le monde partagé fait une pause jusqu’au lendemain. Pas encore de chat dans le Chantier (le chat est dans le Hub).
 
 ### Protéger sa maison : la borne de protection
 

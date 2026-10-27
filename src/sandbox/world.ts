@@ -19,6 +19,7 @@ import {
   STONE,
   CLAY,
   IRON_ORE,
+  LAVA,
   WATER,
   blockDef,
   fixed,
@@ -53,6 +54,9 @@ export const SPAWN_X = 96;
 export const SPAWN_Y = 120;
 /** Niveau de l'eau des lacs (le dessus des plaines les plus basses, sur le sable, est à 13). */
 export const WATER_LEVEL = 13;
+/** Au fond des grottes : lave jusqu'à ce niveau, ou eau (lacs souterrains) jusqu'à celui-ci. */
+export const CAVE_LAVA = 4;
+export const CAVE_WATER = 8;
 
 /**
  * Le Portail des Malinos, au bout du chemin de gravier, au nord : une place dallée et une arche.
@@ -215,6 +219,7 @@ export function genChunk(seed: number, cx: number, cy: number): Uint8Array {
       const spawnNear = Math.hypot(x - SPAWN_X, y - SPAWN_Y) < 5;
       // Lac, ou ses abords : pas de grotte (elle ouvrirait un mur d'eau sous le lac).
       const lake = lakeNoise(seed, x, y) > 0.54;
+      const cavePool = noise2(seed + 77, x, y, 48) > 0.62;
       // Eau du lac au-dessus du fond, jusqu'au niveau de l'eau.
       for (let z = h + 1; z <= WATER_LEVEL; z++) out[at(lx, ly, z)] = WATER;
       for (let z = 0; z <= h; z++) {
@@ -246,7 +251,10 @@ export function genChunk(seed: number, cx: number, cy: number): Uint8Array {
         if (z >= 2 && z < h - 2 && !portalNear && !spawnNear && !lake) {
           const c = noise3(seed + 50, x, y, z, 8);
           const d = noise3(seed + 90, x, y, z, 6);
-          if (Math.abs(c - 0.5) < 0.055 && d > 0.35) b = AIR;
+          if (Math.abs(c - 0.5) < 0.055 && d > 0.35)
+            // Au fond des grottes : un lac souterrain dans certaines régions, de la lave
+            // ailleurs, tout en bas (comme dans les jeux de cubes : on la trouve en creusant).
+            b = cavePool && z <= CAVE_WATER ? WATER : z <= CAVE_LAVA ? LAVA : AIR;
         }
         out[at(lx, ly, z)] = b;
       }
@@ -423,6 +431,7 @@ export class VoxelWorld {
     const b = this.get(x, y, z);
     if (b === AIR || !this.inBounds(x, y, z)) return 'Il n’y a rien à creuser ici.';
     if (blockDef(b).portal) return this.protectedReason(x, y);
+    if (b === LAVA) return 'La lave ne se casse pas : elle brûle !';
     if (blockDef(b).fluid) return 'L’eau ne se casse pas : prends-la avec un seau.';
     if (blockDef(b).hardness === Infinity) return 'Ce cube ne se casse pas.';
     if (this.protectedCell(x, y, z)) return this.protectedReason(x, y);
@@ -460,14 +469,18 @@ export class VoxelWorld {
     if (this.breakProblem(x, y, z)) return null;
     const before = this.get(x, y, z);
     // L'eau d'à côté (ou de dessus) vient remplir le trou : une case, elle ne coule pas plus loin.
-    const wet = [
+    // (La lave aussi : on creuse prudemment à côté.)
+    const flow = [
+      [0, 0, 1],
       [1, 0, 0],
       [-1, 0, 0],
       [0, 1, 0],
       [0, -1, 0],
-      [0, 0, 1],
-    ].some(([dx, dy, dz]) => blockDef(this.get(x + dx!, y + dy!, z + dz!)).fluid);
-    this.write(this.index(x, y, z), wet || this.baseAt(x, y, z) === WATER ? WATER : AIR);
+    ]
+      .map(([dx, dy, dz]) => this.get(x + dx!, y + dy!, z + dz!))
+      .find((n) => blockDef(n).fluid);
+    const base = this.baseAt(x, y, z);
+    this.write(this.index(x, y, z), flow ?? (blockDef(base).fluid ? base : AIR));
     // Une torche (ou un feu) posée sur ce cube tombe avec lui.
     if (this.get(x, y, z + 1) !== AIR && blockDef(this.get(x, y, z + 1)).small)
       this.write(this.index(x, y, z + 1), AIR);

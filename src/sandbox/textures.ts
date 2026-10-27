@@ -360,6 +360,14 @@ const DRAW: Record<
         else if (d < 6) px(x, y, hex('#5fe3d0'));
       }
   },
+  // Lave : orange et rouge, veines jaunes brillantes.
+  lava: (px, r) => {
+    for (let y = 0; y < TEX; y++)
+      for (let x = 0; x < TEX; x++) {
+        const v = Math.sin(x * 0.9 + Math.sin(y * 0.7) * 2) + Math.sin(y * 1.1 + x * 0.3);
+        px(x, y, hex(v > 1.1 ? '#ffd36e' : v > 0.2 ? '#ff8a3c' : '#d9481f', (r() - 0.5) * 0.12));
+      }
+  },
   torch: (px, _r, clear) => {
     for (let y = 0; y < TEX; y++) for (let x = 0; x < TEX; x++) clear(x, y);
     for (let y = 6; y < 16; y++) {

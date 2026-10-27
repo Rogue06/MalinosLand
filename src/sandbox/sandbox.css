@@ -592,3 +592,9 @@ button {
 .mod-row strong {
   flex: 1;
 }
+
+/* Accueil : un seul grand bouton (le monde partagé). */
+.modes.single {
+  grid-template-columns: minmax(0, 420px);
+  justify-content: center;
+}

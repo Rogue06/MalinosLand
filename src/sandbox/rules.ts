@@ -1,4 +1,4 @@
-import { AIR, BUCKET, FIRE, LIGHTER, WATER, WATER_BUCKET, blockDef } from './blocks';
+import { AIR, BUCKET, FIRE, LAVA, LIGHTER, WATER, WATER_BUCKET } from './blocks';
 import type { Inventory } from './inventory';
 import type { VoxelWorld } from './world';
 
@@ -24,7 +24,13 @@ export function useItem(
   const c = world.cellOf(index);
   const here = world.get(c.x, c.y, c.z);
   if (held === BUCKET) {
-    if (!blockDef(here).fluid) return { problem: 'Vise de l’eau pour remplir ton seau.' };
+    if (here !== WATER)
+      return {
+        problem:
+          here === LAVA
+            ? 'La lave ne se met pas dans un seau.'
+            : 'Vise de l’eau pour remplir ton seau.',
+      };
     if (world.protectedCell(c.x, c.y, c.z)) return { problem: 'Cet endroit est protégé.' };
     const changes: Array<[number, number]> = [];
     // L'eau d'un lac reste ; un cube d'eau versé par un joueur se reprend.

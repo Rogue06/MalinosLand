@@ -548,8 +548,9 @@ try {
       ch.setDefaultTimeout(TIMEOUT);
       const p = await ch.newPage();
       p.on('pageerror', (e) => fail(`chantier — erreur JS : ${e.message}`));
-      await p.goto(`${site}chantier/?debug`, { waitUntil: 'networkidle' });
-      await p.getByText('Survie douce').click();
+      await p.goto(`${site}chantier/?debug&essai`, { waitUntil: 'networkidle' });
+      // Le monde partagé demande un serveur : le test joue en mode d'essai hors ligne (?essai).
+      await p.getByText('Essai : survie seul').click();
       await p.locator('.sandbox-canvas').waitFor();
       await pollPage(p, () => !!window.__chantier?.(), null, 'partie lancée');
       // Face au tronc le plus proche du départ, regard droit dessus.
