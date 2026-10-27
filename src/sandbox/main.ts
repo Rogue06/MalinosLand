@@ -189,6 +189,9 @@ function play(mode: GameMode): void {
     },
   });
   g.bindings = readBindings();
+  g.setViewDistance(
+    store.read<number>('chantier-vue', 1, (v) => (typeof v === 'number' ? v : null)) ?? 7,
+  );
   game = g;
 
   // Barre rapide.
@@ -546,6 +549,21 @@ function play(mode: GameMode): void {
             },
           },
           '📊 Mesures (images par seconde, poids)',
+        ),
+        el(
+          'button',
+          {
+            class: 'menu-btn',
+            type: 'button',
+            onclick: () => {
+              // Courte (machines modestes, téléphones), normale, longue.
+              const next = g.viewChunks <= 5 ? 7 : g.viewChunks <= 7 ? 11 : 5;
+              g.setViewDistance(next);
+              store.write('chantier-vue', 1, next);
+              renderMenu();
+            },
+          },
+          `🔭 Distance de vue : ${g.viewChunks <= 5 ? 'courte' : g.viewChunks <= 7 ? 'normale' : 'longue'}`,
         ),
         coarse
           ? null

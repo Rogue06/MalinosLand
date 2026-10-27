@@ -195,6 +195,55 @@ const DRAW: Record<
     for (let x = 5; x < 11; x++) px(x, 12, hex(x % 2 ? '#ff7a59' : '#ffc857'));
     for (let x = 6; x < 10; x++) px(x, 11, hex('#ff7a59', -0.2));
   },
+  snow: (px, r) => {
+    noise(px, r, '#f4f8fc', 0.04);
+    speckle(px, r, '#dbe7f3', 10);
+  },
+  snow_side: (px, r) => {
+    noise(px, r, '#9b6a43', 0.12);
+    speckle(px, r, '#7a5235', 8);
+    for (let x = 0; x < TEX; x++) {
+      const h = 4 + Math.floor(r() * 3);
+      for (let y = 0; y < h; y++) px(x, y, hex('#f4f8fc', (r() - 0.5) * 0.06));
+    }
+  },
+  gravel: (px, r) => {
+    noise(px, r, '#a59f97', 0.12);
+    speckle(px, r, '#7d776f', 14, 2);
+    speckle(px, r, '#cbc5bc', 10);
+  },
+  hub_wall: (px, r) => {
+    noise(px, r, '#2b3352', 0.06);
+    // Joints de grands panneaux, comme les murs du Hub.
+    for (let i = 0; i < TEX; i++) {
+      px(i, TEX - 1, hex('#1f2740'));
+      px(TEX - 1, i, hex('#1f2740'));
+    }
+  },
+  hub_trim: (px, r) => {
+    noise(px, r, '#22b5a6', 0.05);
+    for (let i = 0; i < TEX; i++) {
+      px(i, 0, hex('#5fe3d0'));
+      px(i, TEX - 1, hex('#1f9284'));
+    }
+  },
+  hub_floor: (px, r) => {
+    noise(px, r, '#e6dccb', 0.04);
+    for (let i = 0; i < TEX; i++) {
+      px(i, 0, hex('#cbbfa9'));
+      px(0, i, hex('#cbbfa9'));
+    }
+  },
+  hub_light: (px, r) => {
+    noise(px, r, '#ffd36e', 0.05);
+    for (let y = 4; y < 12; y++) for (let x = 4; x < 12; x++) px(x, y, hex('#fff3c4'));
+    for (let i = 0; i < TEX; i++) {
+      px(i, 0, hex('#2b3352'));
+      px(0, i, hex('#2b3352'));
+      px(i, TEX - 1, hex('#2b3352'));
+      px(TEX - 1, i, hex('#2b3352'));
+    }
+  },
   torch: (px, _r, clear) => {
     for (let y = 0; y < TEX; y++) for (let x = 0; x < TEX; x++) clear(x, y);
     for (let y = 6; y < 16; y++) {

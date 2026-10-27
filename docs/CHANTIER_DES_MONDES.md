@@ -74,15 +74,39 @@ revoir depuis le menu (« 📘 Revoir le tutoriel »).
 ![Le sac et la fabrication](images/chantier-sac.jpg)
 
 12 recettes au total. Une fabrication vérifie tout avant de retirer quoi que ce soit : elle ne
-peut ni dupliquer ni perdre d’objets. Le terrain fait **64 × 64 cubes au sol et 32 de haut**,
-avec un socle incassable et une **dalle de départ protégée** au centre (bouton « Revenir au
-départ » dans le menu si l’on est coincé).
+peut ni dupliquer ni perdre d’objets.
+
+## Le monde et le Hub au loin
+
+Le monde fait **192 × 192 cubes au sol et 48 de haut** (neuf fois la surface du premier
+prototype) : collines, forêts, **montagnes enneigées**, plages de sable, grottes sous terre. On
+démarre au sud, sur une **dalle de départ protégée** (bouton « Revenir au départ » dans le menu si
+l’on est coincé). Un **chemin de gravier** mène vers le nord, jusqu’au **Hub des Malinos**, construit
+en cubes : grand hall sombre aux bandes turquoise, logo « M », entrée vitrée, lanternes et la
+**tour** des futurs logements. Un **faisceau de lumière** part du haut de la tour : on le voit de
+partout, même à travers la brume.
+
+![Depuis le départ : le chemin, et le faisceau du Hub au loin](images/chantier-hub-au-loin.jpg)
+
+![Le Hub en cubes, au bout du chemin](images/chantier-hub-pres.jpg)
+
+Le Hub est **protégé** (on ne peut ni le casser ni construire dessus, ni juste autour) et on ne
+peut **pas encore y entrer** : c’est le même Hub que celui du jeu, vu de dehors. Les deux mondes
+seront reliés plus tard, quand le Chantier sera prêt (décision du responsable).
+
+Pour rester fluide, le monde est découpé en **tranches de 16 × 16 cubes**, calculées seulement
+quand on s’en approche, puis dessinées petit à petit (les plus proches d’abord). Au-delà de la
+**distance de vue**, les tranches sont cachées, sauf celles du Hub. Menu → « 🔭 Distance de vue » :
+courte (5 tranches), normale (7) ou longue (11), à baisser sur une machine modeste.
 
 ## Sauvegarde et limites gratuites
 
 - La partie est gardée **dans le navigateur** (rien n’est envoyé) : seules les
   **modifications** du terrain sont enregistrées (le terrain de départ se recalcule à
-  l’identique), plus le sac et la position. Quelques centaines de Ko au plus.
+  l’identique), plus le sac et la position. Quelques centaines de Ko au plus (60 000
+  modifications au plus).
+- Les parties commencées sur l’ancien petit monde (64 × 64) **ne sont pas reprises** : le terrain
+  a changé, on recommence sur le grand monde.
 - Aucune ressource en ligne n’est utilisée : pas de serveur, pas de base, pas de quota consommé.
 
 ## Mesures (prototype)
@@ -90,9 +114,10 @@ départ » dans le menu si l’on est coincé).
 | Mesure                           | Valeur                     | Remarque                                                                                                              |
 | -------------------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | Poids de Three.js                | 531 Ko (132 Ko compressés) | Chargé **seulement** sur `/chantier/`, fichier à part (en cache ensuite)                                              |
-| Poids de la page du jeu de cubes | 43 Ko (16 Ko compressés)   | Plus 6 Ko de styles                                                                                                   |
-| Images par seconde               | ≈ 14                       | Mesuré **sans carte graphique** (rendu logiciel de la session) : à mesurer sur une vraie machine et un vrai téléphone |
-| Triangles affichés               | ≈ 75 000                   | Seules les faces visibles sont dessinées ; le monde est découpé en 16 tranches                                        |
+| Poids de la page du jeu de cubes | 66 Ko (24 Ko compressés)   | Plus 7 Ko de styles                                                                                                   |
+| Images par seconde               | ≈ 10 à 11                  | Mesuré **sans carte graphique** (rendu logiciel de la session) : à mesurer sur une vraie machine et un vrai téléphone |
+| Triangles affichés               | ≈ 325 000                  | Distance de vue normale ; seules les faces visibles sont dessinées                                                    |
+| Temps pour tout dessiner         | ≈ 28 s                     | Sans carte graphique ; on joue dès le début (les tranches proches sont dessinées en premier)                          |
 
 Le menu « 📊 Mesures » affiche ces chiffres en jouant.
 
@@ -102,7 +127,8 @@ Le menu « 📊 Mesures » affiche ces chiffres en jouant.
 - Eau, nuit, monstres, faim, coffres, objets qui s’usent : rien de tout cela pour l’instant.
 - La lumière est simplifiée (ciel, ombre sous les toits, torches à portée), pas une vraie
   propagation.
-- Pas de lien depuis le Hub : un portail viendra au palier B4, si le prototype plaît.
+- Pas de lien depuis le Hub : un portail viendra au palier B4, si le prototype plaît. Le Hub
+  en cubes ne s’ouvre pas encore.
 
 ## Ce que le responsable a décidé (26/10)
 
@@ -111,6 +137,15 @@ Le menu « 📊 Mesures » affiche ces chiffres en jouant.
 - Intégration future dans le Hub (palier B4) : un **lore** pour faire la transition vers la 3D, en
   rapport avec l’IA. Piste du responsable : les **bornes d’arcade** de la salle de jeux, avec de
   vieux jeux (Pong…) et un décor assorti ; l’une d’elles ouvrirait le Chantier des mondes.
+
+## Ce que le responsable a décidé (27/10)
+
+- **Un monde plus grand** à explorer (**192 × 192**), d’où l’on voit **le Hub au loin** : le
+  Chantier n’est pas un monde à part, les deux seront reliés, mais **pas avant** que le Chantier
+  soit prêt.
+- **Jouer à plusieurs** : une **survie partagée** (un seul monde commun, le sac de chacun gardé
+  par le serveur) ; seuls les **comptes connectés** peuvent construire, les visiteurs regardent.
+  Ce sera la suite (PR 68), puis protections et modération (PR 69).
 
 ## Questions pour la suite (au responsable)
 
@@ -121,7 +156,8 @@ Le menu « 📊 Mesures » affiche ces chiffres en jouant.
 
 ## Pour les développeurs
 
-`src/sandbox/` : `world.ts` (terrain, règles, lancer de rayon), `player.ts` (déplacements),
+`src/sandbox/` : `world.ts` (terrain par tranches calculées à la demande, Hub, règles, lancer de
+rayon ; DEC-044), `player.ts` (déplacements),
 `inventory.ts` (sac et recettes), `mesh.ts` (maillages, lumière) : logique pure, testée par
 `tests/sandbox.test.ts`. `textures.ts`, `game.ts` (Three.js, caméras, commandes), `main.ts`
 (interface), `sfx.ts` (bruitages Web Audio). Ajouter `?debug` à l’URL expose

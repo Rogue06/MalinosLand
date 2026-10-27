@@ -5,6 +5,19 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté et modifié (Chantier des mondes : grand monde et Hub au loin, PR 67)
+
+- **Monde neuf fois plus grand** : 192 × 192 cubes au sol et 48 de haut, avec collines, forêts,
+  **montagnes enneigées** (neige et gravier : nouveaux cubes), plages et grottes.
+- **Le Hub des Malinos au loin**, en cubes (hall, logo « M », entrée vitrée, tour des logements),
+  au bout d’un **chemin de gravier** qui part de la dalle de départ ; un **faisceau de lumière**
+  au sommet de la tour se voit de partout. Le Hub est protégé et ne s’ouvre pas encore : les deux
+  mondes seront reliés quand le Chantier sera prêt.
+- Monde **calculé par tranches** à la demande et dessiné petit à petit (les plus proches
+  d’abord) ; tranches lointaines cachées dans la brume. Menu → **« 🔭 Distance de vue »** :
+  courte, normale ou longue.
+- Les parties commencées sur l’ancien petit monde ne sont pas reprises (le terrain a changé).
+
 ### Ajouté et modifié (Chantier des mondes : confort de jeu, PR 66)
 
 - **Touches réglables** (menu → ⌨️ Touches) : avancer, reculer, gauche, droite, sauter, courir,

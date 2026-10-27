@@ -674,3 +674,28 @@ choix entre une vue **isométrique** et une vue **à la première personne**. Le
 **Conséquences.** Une dépendance de plus (`three`, et `@types/three` pour le développement).
 Aucune ressource en ligne, aucun quota consommé. Les paliers suivants (sauvegarde en ligne,
 jeu à plusieurs) demanderont une étude des quotas (Durable Objects) avant d’être engagés.
+
+## DEC-044 — Chantier des mondes : grand monde par tranches, Hub en repère (27/10/2026)
+
+**Contexte.** Le responsable veut un monde plus grand à explorer, d’où l’on voit le Hub au loin :
+le Chantier n’est pas un monde à part, il sera relié au Hub, mais pas avant d’être prêt. La suite
+prévue est le jeu à plusieurs : le serveur gratuit (Cloudflare Workers, offre gratuite) ne dispose
+que de quelques millisecondes de calcul par requête ; il ne pourra jamais calculer tout un monde
+d’un coup.
+
+**Décision.**
+
+- Monde de **192 × 192 × 48** (choix du responsable), découpé en **tranches de 16 × 16** sur
+  toute la hauteur. Chaque tranche se calcule **seule et à l’identique** à partir de la graine
+  (`genChunk`), y compris les arbres qui débordent d’une tranche voisine : le futur serveur pourra
+  ne calculer que les tranches touchées par les joueurs.
+- Les modifications sont rangées **par tranche**, ce qui prépare l’enregistrement par morceaux.
+- Le **Hub** est construit en cubes à partir de la même règle (`hubBlock`), protégé (incassable,
+  bande protégée autour) et non enterable pour l’instant. Un faisceau de lumière (hors brume) au
+  sommet de la tour sert de repère de loin.
+- Côté navigateur : tranches dessinées petit à petit (≈ 6 ms par image, les plus proches
+  d’abord), lumière calculée seulement autour des tranches dessinées, distance de vue réglable.
+
+**Conséquences.** Aucune dépendance, aucune ressource en ligne. Version de sauvegarde 2 : les
+parties du petit monde ne sont pas reprises. Fluidité à confirmer sur une vraie machine et un vrai
+téléphone (≈ 10 images/s mesurées sans carte graphique).

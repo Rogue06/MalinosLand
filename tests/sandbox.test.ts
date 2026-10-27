@@ -9,10 +9,15 @@ import {
   DIRT,
   GLASS,
   GRASS,
+  GRAVEL,
+  HUB_FLOOR,
+  HUB_GLASS,
+  HUB_WALL,
   LOG,
   PAD,
   PLANKS,
   SAND,
+  SNOW,
   STICK,
   STONE,
   STONE_PICK,
@@ -38,7 +43,14 @@ import { packDrops, parseDrops, spawnDrop, stepDrops } from '../src/sandbox/drop
 import { IMPACT, STRIKE, strikeAngle } from '../src/sandbox/game';
 import { HOTBAR_SIZE, Inventory, RECIPES, type Station } from '../src/sandbox/inventory';
 import { TUTORIAL, TutorialTracker, currentStep } from '../src/sandbox/tutorial';
-import { PATTERNS, buildChunk, computeLighting, lightAt, CAVE_LIGHT } from '../src/sandbox/mesh';
+import {
+  CAVE_LIGHT,
+  PATTERNS,
+  buildChunk,
+  computeLighting,
+  lightAt,
+  scanLights,
+} from '../src/sandbox/mesh';
 import {
   HEIGHT,
   collides,
@@ -48,12 +60,15 @@ import {
   type PlayerState,
 } from '../src/sandbox/player';
 import {
+  HUB,
   MAX_UNDO,
+  SPAWN_X,
+  SPAWN_Y,
   SIZE_X,
   SIZE_Y,
   SIZE_Z,
   VoxelWorld,
-  generate,
+  genChunk,
   raycast,
 } from '../src/sandbox/world';
 
@@ -63,37 +78,44 @@ const none = new Set<Station>();
 /** Petit monde plat pour les tests de déplacement : on vide tout au-dessus de z = 4. */
 function flatWorld(): VoxelWorld {
   const w = new VoxelWorld(1);
-  for (let z = 0; z < SIZE_Z; z++)
+  w.markAllGenerated();
+  for (let z = 0; z <= 4; z++)
     for (let y = 0; y < SIZE_Y; y++)
-      for (let x = 0; x < SIZE_X; x++)
-        w.blocks[w.index(x, y, z)] = z === 0 ? BEDROCK : z <= 4 ? STONE : AIR;
+      for (let x = 0; x < SIZE_X; x++) w.blocks[w.index(x, y, z)] = z === 0 ? BEDROCK : STONE;
   return w;
 }
 
 describe('Chantier des mondes : le terrain', () => {
   it('reproductible : même graine, même terrain ; autre graine, autre relief', () => {
-    expect(generate(1)).toEqual(generate(1));
-    expect(generate(1)).not.toEqual(generate(2));
+    expect(genChunk(1, 3, 5)).toEqual(genChunk(1, 3, 5));
+    expect(genChunk(1, 3, 5)).not.toEqual(genChunk(2, 3, 5));
     const w = new VoxelWorld(1);
-    for (let y = 0; y < SIZE_Y; y += 7)
+    // Rien n'est calculé d'avance : seulement les tranches dont on a besoin.
+    expect(w.isGenerated(0, 0)).toBe(false);
+    expect(w.get(3, 3, 0)).toBe(BEDROCK);
+    expect(w.isGenerated(0, 0)).toBe(true);
+    expect(w.isGenerated(5, 5)).toBe(false);
+    for (let y = 0; y < SIZE_Y; y += 23)
       for (let x = 0; x < SIZE_X; x += 7) expect(w.get(x, y, 0)).toBe(BEDROCK);
     expect(w.get(w.spawn.x, w.spawn.y, w.spawn.z - 1)).toBe(PAD);
     expect(w.get(w.spawn.x, w.spawn.y, w.spawn.z)).toBe(AIR);
   });
 
   it('de quoi explorer : arbres, minerais, grottes', () => {
-    const blocks = generate(1);
+    const w = new VoxelWorld(1);
+    w.ensureAll();
+    const blocks = w.blocks;
     const count = (b: number) => blocks.reduce((n, v) => n + (v === b ? 1 : 0), 0);
-    expect(count(LOG)).toBeGreaterThan(20);
-    expect(count(CRYSTAL_ORE)).toBeGreaterThan(5);
+    expect(count(LOG)).toBeGreaterThan(200);
+    expect(count(CRYSTAL_ORE)).toBeGreaterThan(50);
+    expect(count(SNOW)).toBeGreaterThan(20);
     expect(blocks.some((v) => v === GRASS)).toBe(true);
     // Grottes : de l'air sous la surface quelque part.
-    const w = new VoxelWorld(1);
     let caves = 0;
-    for (let y = 0; y < SIZE_Y; y++)
-      for (let x = 0; x < SIZE_X; x++)
+    for (let y = 0; y < SIZE_Y; y += 2)
+      for (let x = 0; x < SIZE_X; x += 2)
         for (let z = 2; z < w.surface(x, y) - 2; z++) if (w.get(x, y, z) === AIR) caves++;
-    expect(caves).toBeGreaterThan(50);
+    expect(caves).toBeGreaterThan(200);
   });
 
   it('creuser sous la surface, poser en hauteur, règles de la zone de départ', () => {
@@ -111,6 +133,41 @@ describe('Chantier des mondes : le terrain', () => {
     expect(w.placeProblem(s.x + 1, s.y, s.z, STONE)).toMatch(/protégée/);
     expect(w.placeProblem(2, 2, SIZE_Z - 1, STONE)).toMatch(/contre un autre cube/);
     expect(w.placeProblem(4, 4, w.surface(4, 4) + 1, STICK)).toMatch(/pas un cube/);
+  });
+
+  it('le Hub des Malinos au loin : présent, protégé, entrée vitrée, chemin de gravier', () => {
+    const w = new VoxelWorld(1);
+    const floor = w.get(HUB.x0 + 10, HUB.y0 + 10, HUB.z);
+    expect(floor).toBe(HUB_FLOOR);
+    // La tour dépasse tout : on la voit de loin.
+    let tower = 0;
+    for (let y = HUB.y0; y < HUB.y0 + HUB.d; y++)
+      for (let x = HUB.x0; x < HUB.x0 + HUB.w; x++) tower = Math.max(tower, w.surface(x, y));
+    expect(tower).toBeGreaterThanOrEqual(HUB.z + 24);
+    // Incassable, et on ne construit pas tout contre.
+    const wallX = HUB.x0 + 4;
+    const wallY = HUB.y0 + HUB.d - 5;
+    expect(w.get(wallX, wallY, HUB.z + 1)).toBe(HUB_WALL);
+    expect(w.breakProblem(wallX, wallY, HUB.z + 1)).toMatch(/Hub des Malinos/);
+    expect(w.placeProblem(HUB.x0 - 1, HUB.y0 + 5, HUB.z + 1, STONE)).toMatch(/Hub des Malinos/);
+    // Entrée vitrée en face du point de départ ; chemin de gravier jusqu'à elle.
+    expect(w.get(SPAWN_X, HUB.y0 + HUB.d - 5, HUB.z + 2)).toBe(HUB_GLASS);
+    expect(w.get(SPAWN_X, SPAWN_Y - 20, w.surface(SPAWN_X, SPAWN_Y - 20))).toBe(GRAVEL);
+    // Le Hub est au nord, à bonne distance du départ.
+    expect(SPAWN_Y - (HUB.y0 + HUB.d)).toBeGreaterThan(50);
+  });
+
+  it('tranches calculées séparément : bords raccord (arbres à cheval compris)', () => {
+    const a = new VoxelWorld(1);
+    const b = new VoxelWorld(1);
+    // Ordre de calcul différent, même monde.
+    b.ensureChunk(4, 4);
+    b.ensureChunk(3, 4);
+    a.ensureChunk(3, 4);
+    a.ensureChunk(4, 4);
+    for (let z = 0; z < SIZE_Z; z++)
+      for (let y = 64; y < 80; y++)
+        for (let x = 48; x < 80; x++) expect(a.get(x, y, z)).toBe(b.get(x, y, z));
   });
 
   it('une torche tombe avec le cube qui la porte', () => {
@@ -144,7 +201,8 @@ describe('Chantier des mondes : le terrain', () => {
     expect(saved).toHaveLength(1);
     const b = new VoxelWorld(1);
     expect(b.load(saved)).toBe(1);
-    expect(b.blocks).toEqual(a.blocks);
+    expect(b.get(6, 6, zz)).toBe(GLASS);
+    expect(b.edits()).toEqual(a.edits());
     const s = b.spawn;
     const bad = [
       [-1, 3],
@@ -157,7 +215,8 @@ describe('Chantier des mondes : le terrain', () => {
     ];
     const fresh = new VoxelWorld(1);
     expect(fresh.load(bad)).toBe(0);
-    expect(fresh.blocks).toEqual(new VoxelWorld(1).blocks);
+    expect(fresh.edits()).toEqual([]);
+    expect(fresh.get(5, 5, 0)).toBe(BEDROCK);
     expect(fresh.load('n’importe quoi')).toBe(0);
   });
 
@@ -371,6 +430,9 @@ describe('Chantier des mondes : maillages et lumière', () => {
     expect(lightAt(light, 10, 10, 5)).toBe(CAVE_LIGHT);
     w.blocks[w.index(11, 10, 5)] = TORCH;
     light = computeLighting(w);
+    // Les sources de lumière sont cherchées tranche par tranche, à la demande.
+    expect(lightAt(light, 10, 10, 5)).toBe(CAVE_LIGHT);
+    scanLights(light, 0, 0);
     expect(lightAt(light, 10, 10, 5)).toBeGreaterThan(0.8);
   });
 });

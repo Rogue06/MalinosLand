@@ -5,11 +5,29 @@ import { DEFAULT_BINDINGS, copyBindings, pressed, type Bindings } from './contro
 import { MAX_DROPS, packDrops, parseDrops, spawnDrop, stepDrops, type Drop } from './drops';
 import { HOTBAR_SIZE, Inventory, MAX_STACK, type Station } from './inventory';
 import { PATTERNS } from './mesh';
-import { CHUNK, buildChunk, computeLighting, type Lighting, type MeshData } from './mesh';
+import {
+  CHUNK,
+  buildChunk,
+  computeLighting,
+  updateLighting,
+  type Lighting,
+  type MeshData,
+} from './mesh';
 import { EYE, FALL_LIMIT, HEIGHT, occupies, respawn, stepPlayer, type PlayerState } from './player';
 import { sfx } from './sfx';
 import { buildAtlas } from './textures';
-import { SIZE_X, SIZE_Y, SIZE_Z, VoxelWorld, raycast, type Cell, type RayHit } from './world';
+import {
+  CHUNKS_X,
+  HUB,
+  HUB_BEACON,
+  SIZE_X,
+  SIZE_Y,
+  SIZE_Z,
+  VoxelWorld,
+  raycast,
+  type Cell,
+  type RayHit,
+} from './world';
 
 /**
  * Moteur du « Chantier des mondes » (prototype B0) : Three.js, chargé seulement sur cette page.
@@ -22,7 +40,8 @@ export type GameMode = 'survival' | 'creative';
 /** Portée des mains (cubes). */
 export const REACH = 5;
 export const REACH_ISO = 6.5;
-const SAVE_VERSION = 1;
+/** 2 : grand monde (192 × 192) ; les parties du petit monde ne sont pas reprises. */
+const SAVE_VERSION = 2;
 const store = new VersionedStorage();
 
 /** Durée d'un coup de pioche (s) et moment de l'impact dans le geste (0 à 1). */
@@ -92,7 +111,11 @@ export class SandboxGame {
 
   private readonly renderer: THREE.WebGLRenderer;
   private readonly scene = new THREE.Scene();
-  private readonly fog = new THREE.Fog('#9fdcf2', 40, 110);
+  private readonly fog = new THREE.Fog('#9fdcf2', 60, 7 * CHUNK);
+  /** Distance de vue, en tranches de 16 cubes (le Hub reste toujours visible au loin). */
+  viewChunks = 7;
+  /** Tranches à (re)construire, les plus proches d'abord, quelques-unes par image. */
+  private readonly queue = new Set<string>();
   private readonly fpCam: THREE.PerspectiveCamera;
   private readonly isoCam: THREE.OrthographicCamera;
   private isoRot = 0;
@@ -110,6 +133,8 @@ export class SandboxGame {
   private torchSticks: THREE.InstancedMesh;
   /** Éclats d'un cube cassé : petits cubes qui retombent (purement décoratif). */
   private readonly bits: THREE.InstancedMesh;
+  /** Faisceau au-dessus de la tour du Hub : le repère qu'on voit de loin, à travers la brume. */
+  private readonly beacon = new THREE.Group();
   private bitList: Array<{ p: THREE.Vector3; v: THREE.Vector3; life: number; color: THREE.Color }> =
     [];
   /** Coup de pioche en cours : phase de 0 à 1 (le bruit part à l'impact, IMPACT). */
@@ -150,7 +175,7 @@ export class SandboxGame {
     container.append(this.renderer.domElement);
 
     this.scene.background = new THREE.Color('#9fdcf2');
-    this.fpCam = new THREE.PerspectiveCamera(72, 1, 0.05, 220);
+    this.fpCam = new THREE.PerspectiveCamera(72, 1, 0.05, 420);
     this.fpCam.rotation.order = 'YXZ';
     this.isoCam = new THREE.OrthographicCamera(-10, 10, 10, -10, 0.1, 400);
     this.scene.add(this.fpCam);
@@ -221,6 +246,25 @@ export class SandboxGame {
     );
     this.bits.count = 0;
     this.scene.add(this.bits);
+    for (const [width, opacity] of [
+      [0.9, 0.55],
+      [2.4, 0.18],
+    ] as const) {
+      const beam = new THREE.Mesh(
+        new THREE.BoxGeometry(width, 70, width).translate(0, 35, 0),
+        new THREE.MeshBasicMaterial({
+          color: 0x7ff0e0,
+          transparent: true,
+          opacity,
+          depthWrite: false,
+          fog: false,
+          blending: THREE.AdditiveBlending,
+        }),
+      );
+      this.beacon.add(beam);
+    }
+    this.beacon.position.set(HUB_BEACON.x, HUB_BEACON.z, HUB_BEACON.y);
+    this.scene.add(this.beacon);
 
     this.light = computeLighting(this.world);
     this.rebuildAll();
@@ -312,26 +356,70 @@ export class SandboxGame {
 
   // ------------------------------------------------------------------ rendu du monde
 
+  /** Tout le monde est à (re)construire : les tranches proches viennent en premier. */
   private rebuildAll(): void {
     for (let y = 0; y < SIZE_Y; y += CHUNK)
-      for (let x = 0; x < SIZE_X; x += CHUNK) this.rebuildChunk(x, y);
+      for (let x = 0; x < SIZE_X; x += CHUNK) this.queue.add(`${x},${y}`);
     this.rebuildTorches();
   }
 
-  /** Reconstruit les tranches touchées par une modification (lumière des torches comprise). */
+  /**
+   * Une modification : sa tranche est refaite tout de suite (on voit le cube disparaître),
+   * les voisines touchées par la lumière des torches juste après.
+   */
   private rebuildAround(c: Cell): void {
+    const own = `${Math.floor(c.x / CHUNK) * CHUNK},${Math.floor(c.y / CHUNK) * CHUNK}`;
     const r = 8;
-    const done = new Set<string>();
     for (let y = c.y - r; y <= c.y + r; y += 4)
       for (let x = c.x - r; x <= c.x + r; x += 4) {
         const cx = Math.floor(Math.max(0, Math.min(SIZE_X - 1, x)) / CHUNK) * CHUNK;
         const cy = Math.floor(Math.max(0, Math.min(SIZE_Y - 1, y)) / CHUNK) * CHUNK;
         const k = `${cx},${cy}`;
-        if (done.has(k)) continue;
-        done.add(k);
-        this.rebuildChunk(cx, cy);
+        if (k !== own) this.queue.add(k);
       }
+    const [ox, oy] = own.split(',').map(Number) as [number, number];
+    this.rebuildChunk(ox, oy);
+    this.queue.delete(own);
     this.rebuildTorches();
+  }
+
+  /** Construit quelques tranches de la file, les plus proches d'abord (≈ 6 ms par image). */
+  private drainQueue(): void {
+    if (this.queue.size === 0) return;
+    const px = this.player.x;
+    const py = this.player.y;
+    const list = [...this.queue].map((k) => {
+      const [x, y] = k.split(',').map(Number) as [number, number];
+      return { k, x, y, d: Math.hypot(x + CHUNK / 2 - px, y + CHUNK / 2 - py) };
+    });
+    list.sort((a, b) => a.d - b.d);
+    const start = performance.now();
+    for (const c of list) {
+      this.queue.delete(c.k);
+      this.rebuildChunk(c.x, c.y);
+      if (performance.now() - start > 6) break;
+    }
+    if (this.queue.size === 0) this.rebuildTorches();
+  }
+
+  /** Tranches trop lointaines cachées (le Hub reste visible : c'est le repère au loin). */
+  private cullChunks(): void {
+    const max = (this.viewChunks + 0.5) * CHUNK;
+    for (const [k, meshes] of this.chunks) {
+      const [x, y] = k.split(',').map(Number) as [number, number];
+      const d = Math.hypot(x + CHUNK / 2 - this.player.x, y + CHUNK / 2 - this.player.y);
+      const hub =
+        x < HUB.x0 + HUB.w && x + CHUNK > HUB.x0 && y < HUB.y0 + HUB.d && y + CHUNK > HUB.y0;
+      const visible = this.view === 'iso' || hub || d <= max;
+      for (const m of meshes) m.visible = visible;
+    }
+  }
+
+  /** Change la distance de vue (courte, normale, longue). */
+  setViewDistance(chunks: number): void {
+    this.viewChunks = Math.max(3, Math.min(CHUNKS_X, chunks));
+    this.fog.far = this.viewChunks * CHUNK;
+    this.fog.near = this.fog.far * 0.55;
   }
 
   private rebuildChunk(x0: number, y0: number): void {
@@ -355,8 +443,8 @@ export class SandboxGame {
   private rebuildTorches(): void {
     const m = new THREE.Matrix4();
     let n = 0;
-    for (const t of this.light.torches) {
-      if (n >= 512 || t.z > this.cutZ) continue;
+    for (const t of this.light.lights.values()) {
+      if (n >= 512 || t.z > this.cutZ || !blockDef(this.world.get(t.x, t.y, t.z)).small) continue;
       m.makeTranslation(t.x + 0.5, t.z, t.y + 0.5);
       this.torchSticks.setMatrixAt(n, m);
       this.torchFlames.setMatrixAt(n, m);
@@ -387,7 +475,7 @@ export class SandboxGame {
   }
 
   private changedCell(c: Cell): void {
-    this.light = computeLighting(this.world);
+    updateLighting(this.light, c);
     this.rebuildAround(c);
     this.dirty = true;
   }
@@ -602,9 +690,7 @@ export class SandboxGame {
     }
     if (cut !== this.cutZ || force) {
       this.cutZ = cut;
-      for (let y = 0; y < SIZE_Y; y += CHUNK)
-        for (let x = 0; x < SIZE_X; x += CHUNK) this.rebuildChunk(x, y);
-      this.rebuildTorches();
+      this.rebuildAll();
     }
   }
 
@@ -743,6 +829,8 @@ export class SandboxGame {
   };
 
   private update(dt: number): void {
+    this.drainQueue();
+    this.cullChunks();
     const wish = this.wish();
     const jump = this.jumpHeld || pressed(this.bindings, 'jump', this.keys);
     const before = { x: this.player.x, y: this.player.y };
@@ -939,6 +1027,9 @@ export class SandboxGame {
     if (first) this.placeFpCamera();
     else this.placeIsoCamera();
     this.scene.fog = first ? this.fog : null;
+    // Le faisceau sert de repère en première personne ; vu de dessus (iso), il gênerait.
+    this.beacon.visible = first;
+    this.beacon.rotation.y = performance.now() / 4000;
 
     // Personnage : visible en vue isométrique, la main en première personne.
     this.avatar.visible = !first;
