@@ -1,5 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
-import type { ChantierRoom } from './ChantierRoom';
+import type { ChantierRoom } from './mondes/ChantierRoom';
 import hub from '../../src/content/maps/hub.json';
 import studio from '../../src/content/maps/studio.json';
 import { HOME_EXIT, MAX_PER_HOME } from '../../src/content/rooms';

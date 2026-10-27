@@ -122,7 +122,8 @@ accessible ce qui existe.
 
 ## 6. Prototype du bac à sable — palier B0 (PR 13)
 
-> _Réalisé dans la PR 13 (DEC-043), voir [CHANTIER_DES_MONDES.md](CHANTIER_DES_MONDES.md)_. Le
+> _Réalisé dans la PR 13 (DEC-043) ; développé depuis dans le dépôt privé `MalinosLand-mondes`
+> (DEC-050, voir [MONDES.md](MONDES.md))_. Le
 > responsable a demandé en cours de route un vrai jeu très inspiré des jeux de construction en
 > cubes, avec le choix entre première personne et vue isométrique : la comparaison « deux
 > rendus séparés » est devenue **un seul moteur 3D (Three.js) avec deux caméras**, et le

@@ -170,36 +170,12 @@ envoyée aux nouveaux venus et ne relaie qu’un vrai changement.
 - **Mise en ligne** : ✅ (workflow « Mise en ligne », [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md)).
 - Collisions vérifiées côté serveur (seule la vitesse et les limites de la carte le sont).
 
-## 4 bis. Chantier des mondes partagé (DEC-045)
+## 4 bis. Mondes de jeu (Chantier des mondes)
 
 Même Worker, autre adresse : `/chantier` (au lieu de `/ws`), même vérification de l’origine et
-du compte (jeton dans les sous-protocoles). Un Durable Object à part, `ChantierRoom`, une seule
-instance (`chantier-1`) : un seul monde en cubes pour tous. Logique pure dans
-`server/src/chantier.ts`, protocole partagé dans `src/sandbox/protocol.ts`.
-
-| Message (navigateur → serveur) | Rôle                                                          |
-| ------------------------------ | ------------------------------------------------------------- |
-| `hi`                           | Se présenter (pseudo d’un visiteur ; un compte garde le sien) |
-| `mv`                           | Position et regard, au plus 5 fois par seconde                |
-| `dig` / `put`                  | Casser (avec l’objet tenu) / poser un cube                    |
-| `craft`                        | Fabriquer une recette                                         |
-| `home`                         | Revenir au départ                                             |
-| `use`                          | Seau ou briquet sur une case                                  |
-| `mod`                          | Modération : `undo` (dernière heure) ou `kick` (1 h)          |
-
-Le serveur répond `welcome` (identité, droit de construire, sac, position, joueurs présents),
-puis une `chunk` par tranche modifiée (binaire compact en base64 : 3 octets par case). Ensuite :
-`set` (cases changées, à tous), `inv` (le sac), `join` / `p` / `left` (joueurs), `no` (refus et
-sa raison, suivi de l’état réel de la case), `pos` (le joueur est replacé), `notice`, `rate`.
-
-Règles : seuls les comptes construisent ; portée de 8 cubes ; temps pour casser selon l’outil
-(réserve de 5 s au plus) ; objets vérifiés dans le sac ; atelier à côté pour les recettes qui en
-demandent ; pas de cube dans un joueur ; zone protégée (Hub, dalle de départ) ; 60 000
-modifications au plus ; vitesse limitée (sinon `pos`). Le terrain de départ est recalculé à
-l’identique par le serveur, une tranche à la fois (≈ 5 ms), seulement autour des joueurs.
-
-Stockage (SQLite du Durable Object) : `c:<tranche>` (modifications) et `p:<compte>` (sac et
-position), écrits par lots grâce à une alarme 5 s après la première modification ; `quota`.
+du compte. Un Durable Object à part, `ChantierRoom`. Son code et sa documentation sont dans le
+dépôt **privé** `MalinosLand-mondes` (DEC-050) ; sans lui, une version « en attente » refuse les
+connexions (`npm run mondes`, voir [MONDES.md](MONDES.md)).
 
 | Variable                | Rôle                                                              |
 | ----------------------- | ----------------------------------------------------------------- |

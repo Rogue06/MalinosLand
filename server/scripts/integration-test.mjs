@@ -3,7 +3,7 @@
 // répond à la vérification des comptes.
 // Usage : cd server && npm run test:integration
 import { spawn } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -331,80 +331,12 @@ try {
 
   for (const x of [a, d, g, evil]) x.ws.close();
 
-  // Chantier des mondes partagé (DEC-045, DEC-048) : un compte construit pour de bon ; un
-  // visiteur aussi, mais ce qu'il a changé revient à son départ.
-  const visitor = await client(ORIGIN, ['malinos.v1'], '/chantier');
-  visitor.ws.send(JSON.stringify({ t: 'hi', name: 'Zoé' }));
-  await sleep(600);
-  const vw = of(visitor, 'welcome')[0];
-  check(
-    vw?.build === true && vw?.guest === true && vw?.name === 'Zoé',
-    'chantier : un visiteur entre, prévenu que ses constructions ne seront pas gardées',
-  );
-  const builder = await client(ORIGIN, ['malinos.v1', `jwt.${VALID_TOKEN}`], '/chantier');
-  builder.ws.send(JSON.stringify({ t: 'hi', name: 'Usurpateur' }));
-  await sleep(600);
-  const bw = of(builder, 'welcome')[0];
-  check(
-    bw?.build === true &&
-      bw?.guest === false &&
-      bw?.name === 'Élodie' &&
-      of(visitor, 'join').some((m) => m.name === 'Élodie'),
-    'chantier : un compte connecté entre avec son pseudo et peut construire',
-  );
-  check(of(builder, 'zones').length === 1, 'chantier : la liste des zones protégées est envoyée');
-  // Deux colonnes près du départ : le serveur refuse l'air et la distance, casse la surface.
-  const cell = (x, y, z) => x + 192 * (y + 192 * z);
-  await sleep(1600);
-  for (let z = 30; z >= 10; z--) {
-    visitor.ws.send(JSON.stringify({ t: 'dig', i: cell(93, 120, z), h: 0 }));
-    builder.ws.send(JSON.stringify({ t: 'dig', i: cell(100, 120, z), h: 0 }));
-  }
-  await sleep(800);
-  const guestHole = of(builder, 'set').find((m) => m.e[1] === 0 && m.e[0] % 192 === 93);
-  check(!!guestHole, 'chantier : le cube cassé par le visiteur disparaît chez tous');
-  const broken = of(visitor, 'set').find((m) => m.e[1] === 0 && m.e[0] % 192 === 100);
-  check(
-    !!broken && of(builder, 'inv').some((m) => m.c.length === 1 && m.c[0][1] === 1),
-    'chantier : un cube cassé par le compte disparaît chez tous, la récolte va dans son sac',
-  );
-  visitor.ws.close();
-  await sleep(800);
-  check(
-    of(builder, 'set').some((m) =>
-      m.e.some((v, k) => k % 2 === 0 && v === guestHole?.e[0] && m.e[k + 1] !== 0),
-    ),
-    'chantier : le visiteur parti, le cube qu’il avait cassé revient',
-  );
-  const late = await client(ORIGIN, ['malinos.v1'], '/chantier');
-  late.ws.send(JSON.stringify({ t: 'hi', name: 'Léo' }));
-  await sleep(600);
-  check(of(late, 'chunk').length >= 1, 'chantier : un nouvel arrivant reçoit les modifications');
-  // Un joueur ordinaire ne peut pas modérer : le message est ignoré.
-  late.ws.send(JSON.stringify({ t: 'mod', a: 'kick', target: bw?.id }));
-  await sleep(400);
-  check(!builder.closed, 'chantier : seul un modérateur peut exclure');
-  builder.ws.close();
-  await sleep(400);
-  check(
-    of(late, 'left').some((m) => m.id === bw?.id),
-    'chantier : les autres voient partir le joueur',
-  );
-  late.ws.close();
-  // Les modifications sont enregistrées par lots (quelques secondes) : on redémarre le serveur.
-  await sleep(6500);
-  kill();
-  await sleep(1500);
-  start();
-  check(await waitUp(), 'chantier : le serveur redémarre');
-  const after = await client(ORIGIN, ['malinos.v1'], '/chantier');
-  after.ws.send(JSON.stringify({ t: 'hi', name: 'Léo' }));
-  await sleep(800);
-  check(
-    of(after, 'chunk').length >= 1,
-    'chantier : le monde partagé est retrouvé après un redémarrage du serveur',
-  );
-  after.ws.close();
+  // Mondes de jeu (dépôt PRIVÉ MalinosLand-mondes, DEC-050) : leur partie, s'ils sont installés.
+  const mondes = new URL('../../scripts/mondes/integration.mjs', import.meta.url);
+  if (existsSync(mondes))
+    await (
+      await import(mondes.href)
+    ).default({ client, of, sleep, check, ORIGIN, VALID_TOKEN, kill, start, waitUp });
 } catch (err) {
   errors.push(err.message);
   console.error(logs.slice(-3000));

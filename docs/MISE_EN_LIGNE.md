@@ -78,6 +78,22 @@ Sans ce secret, la mise en ligne s’arrête avec un message clair (elle ne publ
 sans page d’accueil). Pour travailler sur la page d’accueil en local : cloner le dépôt privé à
 côté de ce projet, puis `npm run accueil` (les fichiers copiés sont ignorés par Git).
 
+### Étape 6 — Les mondes de jeu (dépôt privé)
+
+Les mondes de jeu (le Chantier des mondes, puis les suivants) sont dans le dépôt **privé**
+`Rogue06/MalinosLand-mondes` (DEC-050, [MONDES.md](MONDES.md)). Même principe que l’étape 5 :
+
+1. Plus simple : modifier la clé de l’étape 5 (**Fine-grained tokens** → la clé → **Edit**) et
+   ajouter `MalinosLand-mondes` dans **Only select repositories** (toujours **Contents :
+   Read-only**). Sinon, créer une nouvelle clé de la même façon, nom `MalinosLand mondes
+(lecture)`, avec seulement `MalinosLand-mondes`.
+2. Dans le dépôt public `MalinosLand` : **Settings** → **Secrets and variables** → **Actions**
+   → **New repository secret** : nom `MONDES_TOKEN`, valeur : la clé (la même que
+   `ACCUEIL_TOKEN` si tu as modifié celle de l’étape 5).
+
+Sans ce secret, la mise en ligne s’arrête avec un message clair (elle ne met pas en ligne un
+serveur sans ses mondes).
+
 ## Mettre en ligne (à chaque nouvelle version)
 
 1. Sur GitHub : onglet **Actions** → à gauche **Mise en ligne** → bouton **Run workflow** →

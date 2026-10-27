@@ -67,7 +67,8 @@ npm run format              # mise en forme Prettier
 npm run build && npm run preview   # version de production sur http://localhost:4173
 npm run test:e2e            # test de bout en bout dans Chrome (avec « preview » lancé)
 npm run docs:screenshots    # régénère docs/images/ (avec « preview » lancé)
-npm run chantier:vue        # refait l’image de MalinosLand vue du Chantier (avec « preview »)
+npm run mondes              # (responsable) installe les mondes de jeu depuis le dépôt privé
+npm run chantier:vue        # refait l’image de MalinosLand vue du Chantier (mondes installés)
 npm run server:install      # dépendances du serveur temps réel (dossier server/)
 npm run server:dev          # serveur temps réel local (Wrangler) sur ws://localhost:8787/ws
 npm --prefix server run test:integration   # tests du serveur dans le vrai moteur Cloudflare
@@ -94,6 +95,9 @@ src/multiplayer/ protocole, transports (hors ligne, BroadcastChannel, serveur), 
 src/services/    stockage local versionné : profil, réglages, progression
 src/ui/          interface Preact (HUD, panneaux, création du personnage)
 src/landing/     page d’accueil : dépôt PRIVÉ MalinosLand-accueil (ignorée ici, DEC-026) ; le jeu est jouer/index.html
+src/sandbox/, chantier/, server/src/mondes/, tests/mondes/, scripts/mondes/
+                 mondes de jeu (Chantier des mondes…) : dépôt PRIVÉ MalinosLand-mondes, copiés par
+                 « npm run mondes » et ignorés ici (DEC-050, docs/MONDES.md)
 src/state.ts     pont jeu ↔ interface (stores + commandes)
 server/          serveur temps réel : Cloudflare Worker + Durable Object (paquet npm séparé)
 supabase/        migrations SQL de la base des comptes (testées par tests/database.test.ts)

@@ -8,6 +8,8 @@
 //   3. npm run test:online
 import { chromium } from 'playwright-core';
 import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const base = (process.argv[2] || 'http://localhost:4173/').replace(/\/?$/, '/');
 // Le jeu est dans le dossier /jouer/ du site.
@@ -173,55 +175,11 @@ try {
   await bob.context().close();
   check(await poll(alice, () => window.__malinosDebug.peers() === 0), 'Alice voit Bob partir');
 
-  // Chantier des mondes partagé : deux visiteurs se voient et se voient bouger.
-  const cube = async (name) => {
-    const context = await browser.newContext({ viewport: { width: 1024, height: 640 } });
-    await context.addInitScript((name) => {
-      localStorage.setItem('malinosland:profile', JSON.stringify({ v: 1, data: { name } }));
-    }, name);
-    const page = await context.newPage();
-    page.on('pageerror', (e) => errors.push(`${name} (chantier) — erreur JS : ${e.message}`));
-    await page.goto(`${base}chantier/?debug`, { waitUntil: 'networkidle' });
-    await page.getByRole('button', { name: /Entrer dans le monde/ }).click();
-    return page;
-  };
-  const zoe = await cube('Zoé');
-  const leo = await cube('Léo');
-  check(
-    await poll(zoe, () => window.__chantier()?.peerNames().includes('Léo')),
-    'chantier partagé : Zoé voit Léo',
-  );
-  check(
-    await poll(leo, () => window.__chantier()?.peerNames().includes('Zoé')),
-    'chantier partagé : Léo voit Zoé',
-  );
-  check(
-    await poll(zoe, () =>
-      /En ligne · 2 joueurs · sans compte/.test(
-        document.querySelector('.net-pill')?.textContent ?? '',
-      ),
-    ),
-    'chantier partagé : « En ligne · 2 joueurs · sans compte » affiché',
-  );
-  const start = await leo.evaluate(() => window.__chantier().peerPositions()[0]);
-  await zoe.evaluate(() => {
-    window.__chantier().player.x += 2;
-  });
-  check(
-    await poll(leo, (x0) => window.__chantier().peerPositions()[0].x > x0 + 1.5, start.x),
-    'chantier partagé : Léo voit Zoé se déplacer',
-  );
-  check(
-    await zoe.evaluate(() => window.__chantier().shared.canBuild() === true),
-    'chantier partagé : sans compte, on construit aussi (rien n’est gardé au départ)',
-  );
-  if (process.env.SHOT_DIR)
-    await leo.screenshot({ path: `${process.env.SHOT_DIR}/chantier-partage.png` });
-  await zoe.context().close();
-  check(
-    await poll(leo, () => window.__chantier().peerNames().length === 0),
-    'chantier partagé : Léo voit Zoé partir',
-  );
+  // Mondes de jeu (dépôt PRIVÉ MalinosLand-mondes, DEC-050) : leur partie, s'ils sont installés.
+  if (existsSync('scripts/mondes/online.mjs')) {
+    const mondes = await import(pathToFileURL(resolve('scripts/mondes/online.mjs')).href);
+    await mondes.default({ browser, base, poll, check, errors });
+  }
 } catch (err) {
   errors.push(err.message);
 }
@@ -231,6 +189,4 @@ if (errors.length) {
   console.error(`❌ Test en ligne en échec :\n${errors.join('\n')}`);
   process.exit(1);
 }
-console.log(
-  '✅ Multijoueur en ligne : deux joueurs se voient, bougent et discutent (Hub et Chantier partagé)',
-);
+console.log('✅ Multijoueur en ligne : deux joueurs se voient, bougent et discutent');

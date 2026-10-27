@@ -7,6 +7,7 @@
   "license": "AGPL-3.0-only",
   "scripts": {
     "dev": "wrangler dev --port 8787",
+    "postinstall": "node ../scripts/mondes.mjs --si-absent",
     "typecheck": "tsc --noEmit",
     "test:integration": "node scripts/integration-test.mjs"
   },

@@ -848,3 +848,31 @@ bruit de l’eau, et une limite pour les joueurs sans compte (« 50 ou 60 cubes 
 **Conséquences.** Les parties solo déjà commencées ne sont plus accessibles aux joueurs. Les
 grottes changent un peu tout en bas (lave, eau) : une galerie creusée à cet endroit reste telle
 quelle.
+
+## DEC-050 — Les mondes de jeu passent dans un dépôt privé (27/10/2026)
+
+**Contexte.** Le responsable veut garder privé le code des mondes de jeu reliés à MalinosLand :
+le Chantier des mondes (monde en cubes) et les mini-jeux à venir. Le Hub (MalinosLand en 2D
+isométrique) reste open source ici.
+
+**Décision.**
+
+- Un **seul** dépôt privé, `Rogue06/MalinosLand-mondes`, pour tous les mondes (un dossier par
+  monde, code commun partagé), rangé aux mêmes chemins qu’ici : `src/sandbox/`, `chantier/`,
+  `server/src/mondes/`, `tests/mondes/`, `scripts/mondes/`. `npm run mondes` les copie dans ce
+  projet, où Git les ignore (`.gitignore`) ; `npm run mondes -- --rendre` les renvoie.
+- Ce dépôt garde le serveur temps réel commun : l’adresse `/chantier`, la liaison du Durable
+  Object `ChantierRoom` et ses réglages. Sans le dépôt privé, `npm install` pose une version
+  « en attente » de `ChantierRoom` (elle refuse les connexions) : tout se construit et se teste.
+- Les tests publics (bout en bout, en ligne, intégration du serveur) appellent les étapes des
+  mondes (`scripts/mondes/`) seulement s’ils sont installés. Le dépôt privé a ses propres tests
+  automatiques, qui récupèrent ce dépôt public.
+- La mise en ligne récupère le dépôt privé avec le secret `MONDES_TOKEN` (lecture seule) et
+  s’arrête s’il manque.
+- Écarté : un dépôt privé par monde (plus de clés et de chaînes de tests, code commun recopié) ;
+  possible plus tard pour un monde précis.
+
+**Conséquences.** Le code du Chantier publié jusqu’au 27/10 (PR 64 à 72) **reste lisible** dans
+l’historique de ce dépôt (et des copies ont pu être faites) ; seule la suite est privée. Le code
+envoyé aux navigateurs reste lisible, même compacté. La documentation détaillée du Chantier est
+dans le dépôt privé ; [MONDES.md](MONDES.md) explique l’organisation.

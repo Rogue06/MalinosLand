@@ -20,3 +20,11 @@ server/.dev.vars
 /index.html
 /src/landing/
 /public/accueil/
+
+# Mondes de jeu (Chantier des mondes…) : dépôt PRIVÉ MalinosLand-mondes (DEC-050), copiés par
+# « npm run mondes » ou à la mise en ligne. Ne jamais les commiter dans ce dépôt public.
+/src/sandbox/
+/chantier/
+/server/src/mondes/
+/tests/mondes/
+/scripts/mondes/
