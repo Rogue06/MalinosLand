@@ -197,11 +197,11 @@ try {
   );
   check(
     await poll(zoe, () =>
-      /En ligne · 2 joueurs · visiteur/.test(
+      /En ligne · 2 joueurs · sans compte/.test(
         document.querySelector('.net-pill')?.textContent ?? '',
       ),
     ),
-    'chantier partagé : « En ligne · 2 joueurs · visiteur » affiché',
+    'chantier partagé : « En ligne · 2 joueurs · sans compte » affiché',
   );
   const start = await leo.evaluate(() => window.__chantier().peerPositions()[0]);
   await zoe.evaluate(() => {
@@ -212,8 +212,8 @@ try {
     'chantier partagé : Léo voit Zoé se déplacer',
   );
   check(
-    await zoe.evaluate(() => window.__chantier().shared.canBuild() === false),
-    'chantier partagé : sans compte, on visite sans construire',
+    await zoe.evaluate(() => window.__chantier().shared.canBuild() === true),
+    'chantier partagé : sans compte, on construit aussi (rien n’est gardé au départ)',
   );
   if (process.env.SHOT_DIR)
     await leo.screenshot({ path: `${process.env.SHOT_DIR}/chantier-partage.png` });

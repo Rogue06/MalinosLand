@@ -184,6 +184,8 @@ instance (`chantier-1`) : un seul monde en cubes pour tous. Logique pure dans
 | `dig` / `put`                  | Casser (avec l’objet tenu) / poser un cube                    |
 | `craft`                        | Fabriquer une recette                                         |
 | `home`                         | Revenir au départ                                             |
+| `use`                          | Seau ou briquet sur une case                                  |
+| `mod`                          | Modération : `undo` (dernière heure) ou `kick` (1 h)          |
 
 Le serveur répond `welcome` (identité, droit de construire, sac, position, joueurs présents),
 puis une `chunk` par tranche modifiée (binaire compact en base64 : 3 octets par case). Ensuite :

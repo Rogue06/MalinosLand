@@ -41,7 +41,7 @@ export function parseAccount(raw: unknown): Account | null {
   const r = raw as Record<string, unknown>;
   const name = sanitizeName(r.name);
   if (typeof r.id !== 'string' || !accountPlayerId(r.id) || !name) return null;
-  return { id: r.id, name, role: parseRole(r.role) };
+  return { id: r.id, name, role: parseRole(r.role), ...(r.staff === true ? { staff: true } : {}) };
 }
 
 function parseRole(raw: unknown): Role | null {

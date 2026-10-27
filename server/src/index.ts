@@ -9,7 +9,13 @@
  *   POST /preview → aperçu automatique d'un projet, pris par un modérateur (preview.ts)
  *   GET /apercu/:id → image de l'aperçu d'un projet (preview.ts)
  */
-import { ACCOUNT_HEADER, encodeAccountHeader, readProtocols, verifyAccount } from './account';
+import {
+  ACCOUNT_HEADER,
+  encodeAccountHeader,
+  isSiteOwner,
+  readProtocols,
+  verifyAccount,
+} from './account';
 import { browserCapture } from './capture';
 import { demoPage, embedCheck } from './embed';
 import { previewImage, previewRoute } from './preview';
@@ -36,6 +42,9 @@ export default {
       // Compte du joueur (jeton vérifié par la base) ; l'en-tête interne est toujours réécrit.
       const { token } = readProtocols(request.headers.get('Sec-WebSocket-Protocol'));
       const account = await verifyAccount(token, env);
+      // Chantier des mondes : les modérateurs et le responsable du site ont des outils en plus.
+      if (account && url.pathname === '/chantier')
+        account.staff = account.role === 'mod' || (await isSiteOwner(token, env));
       const headers = new Headers(request.headers);
       headers.delete(ACCOUNT_HEADER);
       if (account) headers.set(ACCOUNT_HEADER, encodeAccountHeader(account));

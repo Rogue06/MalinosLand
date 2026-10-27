@@ -101,6 +101,10 @@ de fournisseur = écrire un nouveau transport et/ou migrer un dump Postgres.
   éveillé par jour) est partagée entre le Hub et le Chantier ; les deux très actifs en même
   temps plus de 14 h par jour la dépasseraient (au-delà : erreurs, jamais de facture). À
   surveiller dans le tableau de bord de Cloudflare.
+- ✅ Chantier, protections et modération (DEC-048) : une alarme par heure (entretien du monde,
+  24 réveils par jour) ; sac d’un compte enregistré toutes les 2 minutes et au départ, journaux
+  d’actions toutes les 1 à 3 minutes, état général à chaque changement : quelques milliers de
+  lignes écrites par jour pour quelques joueurs, sous les 100 000 gratuites.
 - ✅ Hibernation des WebSockets : le serveur ne consomme pas de temps de calcul quand personne ne
   parle ; les « ping » de maintien de connexion reçoivent une réponse automatique non facturée.
 - ✅ Plafond de 40 joueurs par salle, puis **file d’attente** (50 places par salle) : le joueur

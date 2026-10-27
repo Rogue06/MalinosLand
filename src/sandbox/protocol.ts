@@ -2,6 +2,7 @@ import { sanitizeName } from '../core/text';
 import { AIR, BLOCKS, USABLE, itemDef, placeable } from './blocks';
 import { MAX_STACK, RECIPES } from './inventory';
 import { CHUNK, CHUNKS_X, CHUNKS_Y, SIZE_X, SIZE_Y, SIZE_Z } from './world';
+import { parseZones, type Zone } from './zones';
 
 /**
  * Protocole du « Chantier des mondes » à plusieurs (survie partagée). Logique pure et testée,
@@ -26,7 +27,16 @@ export interface SharedPeer {
 }
 
 /** Raisons d'un refus du serveur (affichées au joueur). */
-export const REFUSALS = ['guest', 'far', 'rule', 'fast', 'missing', 'full'] as const;
+export const REFUSALS = [
+  'guest',
+  'far',
+  'rule',
+  'fast',
+  'missing',
+  'full',
+  'zone',
+  'limit',
+] as const;
 export type Refusal = (typeof REFUSALS)[number];
 
 export const REFUSAL_TEXT: Record<Refusal, string> = {
@@ -36,10 +46,13 @@ export const REFUSAL_TEXT: Record<Refusal, string> = {
   fast: 'Doucement : chaque cube prend un peu de temps à casser.',
   missing: 'Il te manque ce qu’il faut dans ton sac.',
   full: 'Le monde partagé a atteint sa limite de constructions pour l’instant.',
+  zone: 'Cette zone est protégée par sa propriétaire ou son propriétaire.',
+  limit:
+    'Sans compte, tu as atteint la limite de constructions : connecte-toi pour construire plus (et tout garder).',
 };
 
 /** Avis du serveur : salle pleine, quota du jour épuisé, connecté ailleurs. */
-export const SHARED_NOTICES = ['full', 'maintenance', 'duplicate'] as const;
+export const SHARED_NOTICES = ['full', 'maintenance', 'duplicate', 'kicked'] as const;
 export type SharedNotice = (typeof SHARED_NOTICES)[number];
 
 /** Messages du navigateur vers le serveur. */
@@ -57,7 +70,15 @@ export type Up =
   /** Utiliser un seau ou le briquet sur la case `i` (voir src/sandbox/rules.ts). */
   | { t: 'use'; i: number; h: number }
   /** Revenir au départ (coincé, tombé). */
-  | { t: 'home' };
+  | { t: 'home' }
+  /**
+   * Modération (comptes de modérateurs seulement, vérifié par le serveur) : annuler les actions
+   * d'un joueur de la dernière heure, ou l'exclure du chantier pour une heure.
+   */
+  | { t: 'mod'; a: ModAction; target: string };
+
+export const MOD_ACTIONS = ['undo', 'kick'] as const;
+export type ModAction = (typeof MOD_ACTIONS)[number];
 
 /** Messages du serveur vers le navigateur. */
 export type Down =
@@ -65,8 +86,12 @@ export type Down =
       t: 'welcome';
       id: string;
       name: string;
-      /** Peut construire (compte connecté). */
+      /** Peut construire. */
       build: boolean;
+      /** Sans compte : ce qu'il construit disparaît quand il part. */
+      guest: boolean;
+      /** Modérateur (ou responsable du site) : outils de modération. */
+      staff: boolean;
       inv: Stack[];
       x: number;
       y: number;
@@ -82,7 +107,12 @@ export type Down =
   | ({ t: 'join' } & SharedPeer)
   | { t: 'p'; id: string; x: number; y: number; z: number; a: number }
   | { t: 'left'; id: string }
-  | { t: 'no'; why: Refusal }
+  /** Refus ; `who` : pseudo du propriétaire de la zone protégée. */
+  | { t: 'no'; why: Refusal; who?: string }
+  /** Zones protégées du monde (toutes, à chaque changement). */
+  | { t: 'zones'; z: Zone[] }
+  /** Modération faite : `n` cases remises en état (annulation). */
+  | { t: 'done'; a: ModAction; n: number }
   /** Le serveur replace le joueur (départ, déplacement refusé). */
   | { t: 'pos'; x: number; y: number; z: number }
   | { t: 'notice'; code: SharedNotice }
@@ -146,6 +176,10 @@ export function decodeUp(raw: unknown): Up | null {
       return { t: 'use', i: r.i, h: r.h as number };
     case 'home':
       return { t: 'home' };
+    case 'mod':
+      if (!MOD_ACTIONS.includes(r.a as ModAction)) return null;
+      if (typeof r.target !== 'string' || !PLAYER_ID_RE.test(r.target)) return null;
+      return { t: 'mod', a: r.a as ModAction, target: r.target };
     default:
       return null;
   }
@@ -188,6 +222,8 @@ export function decodeDown(raw: unknown): Down | null {
         id,
         name,
         build: r.build === true,
+        guest: r.guest === true,
+        staff: r.staff === true,
         inv,
         x,
         y,
@@ -219,8 +255,17 @@ export function decodeDown(raw: unknown): Down | null {
     }
     case 'left':
       return typeof r.id === 'string' && PLAYER_ID_RE.test(r.id) ? { t: 'left', id: r.id } : null;
-    case 'no':
-      return REFUSALS.includes(r.why as Refusal) ? { t: 'no', why: r.why as Refusal } : null;
+    case 'no': {
+      if (!REFUSALS.includes(r.why as Refusal)) return null;
+      const who = sanitizeName(r.who);
+      return { t: 'no', why: r.why as Refusal, ...(who ? { who } : {}) };
+    }
+    case 'zones':
+      return Array.isArray(r.z) && r.z.length <= 300 ? { t: 'zones', z: parseZones(r.z) } : null;
+    case 'done':
+      return MOD_ACTIONS.includes(r.a as ModAction) && int(r.n, 0, 100_000)
+        ? { t: 'done', a: r.a as ModAction, n: r.n }
+        : null;
     case 'pos': {
       const p = position(r);
       return p ? { t: 'pos', ...p } : null;

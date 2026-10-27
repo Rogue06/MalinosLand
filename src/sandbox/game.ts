@@ -38,6 +38,7 @@ import {
 import { EYE, FALL_LIMIT, HEIGHT, occupies, respawn, stepPlayer, type PlayerState } from './player';
 import vistaUrl from './assets/malinosland.webp';
 import type { SharedPeer } from './protocol';
+import { ZONE_RADIUS, type Zone } from './zones';
 import { sfx } from './sfx';
 import { buildAtlas } from './textures';
 import {
@@ -69,8 +70,10 @@ export type GameMode = 'survival' | 'creative' | 'shared';
 export interface SharedHooks {
   /** Compte connecté et serveur joignable. */
   canBuild(): boolean;
-  /** Pourquoi on ne peut pas construire (visiteur, hors ligne). */
+  /** Pourquoi on ne peut pas construire (hors ligne). */
   whyNot(): string;
+  /** Pourquoi on ne peut pas changer cette colonne (zone protégée, borne mal placée), ou null. */
+  editProblem(x: number, y: number, block?: number): string | null;
   dig(index: number, held: number): void;
   put(index: number, block: number): void;
   craft(recipe: number): void;
@@ -210,6 +213,8 @@ export class SandboxGame {
   /** Feux allumés au briquet : deux plans croisés, flammes qui dansent. */
   private readonly fires: THREE.InstancedMesh;
   private fireCells: Cell[] = [];
+  /** Coins des zones protégées. */
+  private readonly zoneMarks = new THREE.Group();
   /** Voile bleu quand on a la tête sous l'eau. */
   private readonly waterVeil: HTMLDivElement;
   private mineCell: string | null = null;
@@ -321,6 +326,7 @@ export class SandboxGame {
     this.fires.count = 0;
     this.fires.frustumCulled = false;
     this.scene.add(this.fires);
+    this.scene.add(this.zoneMarks);
     this.bits = new THREE.InstancedMesh(
       new THREE.BoxGeometry(0.12, 0.12, 0.12),
       new THREE.MeshBasicMaterial({ color: 0xffffff }),
@@ -633,7 +639,8 @@ export class SandboxGame {
     const c = t.before;
     if (occupies(this.player, c))
       return this.events.toast('Recule d’un pas : tu es à l’endroit où tu veux poser ce cube.');
-    const problem = this.world.placeProblem(c.x, c.y, c.z, held);
+    const problem =
+      this.shared?.editProblem(c.x, c.y, held) ?? this.world.placeProblem(c.x, c.y, c.z, held);
     if (problem) return this.events.toast(problem);
     this.world.place(c.x, c.y, c.z, held);
     if (this.mode !== 'creative') {
@@ -654,6 +661,8 @@ export class SandboxGame {
     const c = held === BUCKET ? t.cell : t.before;
     if (held === WATER_BUCKET && occupies(this.player, c))
       return this.events.toast('Recule d’un pas pour verser l’eau.');
+    const zone = this.shared?.editProblem(c.x, c.y);
+    if (zone) return this.events.toast(zone);
     const index = this.world.index(c.x, c.y, c.z);
     const result = useItem(this.world, this.inv, held, index, {
       consume: this.mode !== 'creative',
@@ -1117,7 +1126,8 @@ export class SandboxGame {
       const problem =
         this.shared?.canBuild() === false
           ? this.shared.whyNot()
-          : this.world.breakProblem(t.cell.x, t.cell.y, t.cell.z);
+          : (this.shared?.editProblem(t.cell.x, t.cell.y) ??
+            this.world.breakProblem(t.cell.x, t.cell.y, t.cell.z));
       if (problem) {
         this.events.toast(problem);
         this.mining = false;
@@ -1414,6 +1424,39 @@ export class SandboxGame {
 
   clearPeers(): void {
     for (const id of [...this.peers.keys()]) this.peerLeft(id);
+  }
+
+  /** Repères des zones protégées : quatre fins piliers violets aux coins de chaque zone. */
+  setZones(zones: readonly Zone[]): void {
+    for (const m of [...this.zoneMarks.children]) {
+      this.zoneMarks.remove(m);
+      (m as THREE.Mesh).geometry.dispose();
+    }
+    const material = new THREE.MeshBasicMaterial({
+      color: 0x8b6cff,
+      transparent: true,
+      opacity: 0.6,
+      depthWrite: false,
+    });
+    for (const z of zones)
+      for (const [sx, sy] of [
+        [-1, -1],
+        [1, -1],
+        [1, 1],
+        [-1, 1],
+      ] as const) {
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.24, 9, 0.24), material);
+        // Le coin de la zone, au ras des colonnes protégées.
+        const x = z.x + 0.5 + sx * (ZONE_RADIUS + 0.5);
+        const y = z.y + 0.5 + sy * (ZONE_RADIUS + 0.5);
+        pillar.position.set(x, z.z + 2.5, y);
+        this.zoneMarks.add(pillar);
+      }
+  }
+
+  /** Autres joueurs (identifiant et pseudo), pour la modération. */
+  peerList(): Array<{ id: string; name: string }> {
+    return [...this.peers].map(([id, p]) => ({ id, name: p.name }));
   }
 
   /** Joueurs visibles (et leur pseudo), pour l'interface et les tests. */

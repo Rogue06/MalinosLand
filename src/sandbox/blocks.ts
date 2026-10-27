@@ -47,7 +47,8 @@ export type Pattern =
   | 'dark_planks'
   | 'lantern'
   | 'iron_block'
-  | 'plaster';
+  | 'plaster'
+  | 'borne';
 
 export interface BlockDef {
   id: number;
@@ -124,6 +125,8 @@ export const DARK_PLANKS = 34;
 export const LANTERN = 35;
 export const IRON_BLOCK = 36;
 export const PLASTER = 37;
+/** Borne de protection : protège une zone autour d'elle pour son propriétaire (DEC-048). */
+export const BORNE = 38;
 
 /** Objets qui ne sont pas des cubes. */
 export const STICK = 100;
@@ -266,6 +269,7 @@ export const BLOCKS: readonly BlockDef[] = [
   cube(LANTERN, 'Lanterne', 'lantern', '#ffd36e', 1, { light: true, sound: 'glass' }),
   cube(IRON_BLOCK, 'Bloc de fer', 'iron_block', '#d8dde6', 5, { tier: 2, sound: 'stone' }),
   cube(PLASTER, 'Enduit blanc', 'plaster', '#f1ece2', 1, { sound: 'stone' }),
+  cube(BORNE, 'Borne de protection', 'borne', '#8b6cff', 3, { light: true, sound: 'stone' }),
 ];
 
 export function blockDef(id: number): BlockDef {

@@ -780,3 +780,43 @@ simulation continue, et un feu qui se propage détruirait les constructions des 
 
 **Conséquences.** Aucune dépendance. Une eau qui coule ou un feu qui se propage pourront être
 étudiés plus tard, avec la modération du monde partagé.
+
+## DEC-048 — Chantier des mondes : bornes de protection, visiteurs, entretien, modération (27/10/2026)
+
+**Contexte.** Le monde partagé est en ligne. Le responsable demande : une protection fabriquée
+et rattachée à son compte ; qu’une maison abandonnée deux semaines se défasse petit à petit ;
+que les joueurs sans compte puissent construire mais que tout revienne à leur départ (et qu’on
+les prévienne) ; que le monde ne se vide pas quand des joueurs creusent et gardent les cubes,
+sans effacer les galeries ; des outils de modération. Contraintes : offre gratuite (calcul par
+réveil limité, 100 000 lignes écrites par jour), rien ne doit pouvoir être contourné depuis le
+navigateur.
+
+**Décision.**
+
+- **Borne de protection** (cube, recette à l’établi) : une zone de 17 × 17 colonnes, toute la
+  hauteur, à son propriétaire (compte). Deux par compte, pas collées entre elles, ni au portail
+  ni au départ. Règles pures dans `src/sandbox/zones.ts`, partagées par le jeu (messages clairs)
+  et le serveur (qui décide). Les modérateurs peuvent agir dans les zones (réparer).
+- **Activité** : une visite ou une modification dans la zone la renouvelle (au plus une écriture
+  par heure). Après 14 jours sans activité, la borne s’éteint et la zone se défait de 40 cases
+  par heure jusqu’au terrain de départ.
+- **Visiteurs sans compte** : ils construisent ; chacune de leurs actions est notée (journal),
+  et tout est défait à leur départ (case par case, si personne ne l’a retouchée depuis). Au plus
+  300 changements par visite. Les journaux de visiteurs partis sans prévenir (redémarrage du
+  serveur) sont défaits par l’entretien horaire.
+- **Équilibre du monde** : au-delà de 4 000 cubes retirés, l’entretien horaire referme 80 trous
+  de **surface** par heure, par le fond, dans les tranches non touchées depuis deux jours, hors
+  zones et loin des joueurs. Les galeries profondes sont gardées.
+- **Modération** : un modérateur (rôle `mod` dans la base) ou le responsable du site
+  (`is_site_owner`, vérifié par le Worker) peut annuler la dernière heure d’un joueur (journal de
+  ses 400 dernières actions) ou l’exclure une heure. Le serveur vérifie le statut à chaque
+  demande.
+- **Écritures** : les cubes restent enregistrés en 5 s ; le sac d’un compte toutes les 2 minutes
+  et à son départ (il est aussi gardé avec la connexion), les journaux toutes les 1 à 3 minutes,
+  l’état général (zones, exclusions) à chaque changement et chaque heure. Une seule tranche de
+  terrain recalculée par entretien (≈ 5 ms).
+
+**Conséquences.** Remplace la règle « seuls les comptes construisent » de DEC-045. Une alarme
+réveille le Durable Object chaque heure (24 réveils par jour, sans joueurs). Si le serveur
+redémarre avant d’avoir enregistré un journal (au plus quelques minutes), une annulation peut
+être incomplète. Pas encore : inviter d’autres joueurs à construire dans sa zone, chat du Chantier.

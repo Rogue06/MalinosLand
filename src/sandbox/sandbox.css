@@ -570,3 +570,25 @@ button {
 .water-veil[hidden] {
   display: none;
 }
+
+/* Menu du monde partagé : compte, zones protégées. */
+.menu-info p {
+  margin: 4px 0 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.menu-info a {
+  color: var(--teal);
+}
+/* Modération : une ligne par joueur. */
+.mod-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+}
+.mod-row strong {
+  flex: 1;
+}

@@ -1,4 +1,5 @@
 import {
+  BORNE,
   BUCKET,
   CLAY,
   DARK_PLANKS,
@@ -205,6 +206,15 @@ export const RECIPES: readonly Recipe[] = [
     station: 'furnace',
   },
   { id: 'tuiles', out: [ROOF_TILES, 4], needs: [[TERRACOTTA, 3]], station: 'workbench' },
+  {
+    id: 'borne',
+    out: [BORNE, 1],
+    needs: [
+      [IRON_INGOT, 4],
+      [CRYSTAL, 1],
+    ],
+    station: 'workbench',
+  },
 ];
 
 export const STATION_LABEL: Record<Station, string> = {

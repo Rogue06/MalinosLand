@@ -349,6 +349,17 @@ const DRAW: Record<
     noise(px, r, '#f1ece2', 0.03);
     speckle(px, r, '#e2dccf', 8);
   },
+  // Borne de protection : pierre sombre, losange violet lumineux (couleurs de MalinosLand).
+  borne: (px, r) => {
+    noise(px, r, '#2b3352', 0.06);
+    for (let y = 0; y < TEX; y++)
+      for (let x = 0; x < TEX; x++) {
+        const d = Math.abs(x - 7.5) + Math.abs(y - 7.5);
+        if (d < 3) px(x, y, hex('#e9e2ff'));
+        else if (d < 5) px(x, y, hex('#8b6cff', (r() - 0.5) * 0.1));
+        else if (d < 6) px(x, y, hex('#5fe3d0'));
+      }
+  },
   torch: (px, _r, clear) => {
     for (let y = 0; y < TEX; y++) for (let x = 0; x < TEX; x++) clear(x, y);
     for (let y = 6; y < 16; y++) {
