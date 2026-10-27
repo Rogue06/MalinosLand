@@ -81,6 +81,11 @@ void (
 const keyName = (b: Bindings, a: Action) => keyLabel(b[a][0] ?? '', layout);
 const coarse = matchMedia('(pointer: coarse)').matches;
 let game: SandboxGame | null = null;
+/**
+ * Le monde partagé est le seul mode proposé (décision du responsable, 27/10). Les modes hors
+ * ligne restent pour les essais et les tests (adresse avec `?essai`), sans être montrés aux joueurs.
+ */
+const TRIAL = new URLSearchParams(location.search).has('essai');
 /** Connexion au monde partagé (null : partie solo). */
 let link: SharedLink | null = null;
 
@@ -98,6 +103,10 @@ const USE_HINT: Record<number, string> = {
   [WATER_BUCKET]: 'verser l’eau',
   [LIGHTER]: 'allumer un feu sur un cube',
 };
+
+/** Sans compte : 60 changements par visite (règle du serveur), prévenu à 40. */
+const GUEST_LIMIT = 60;
+const GUEST_WARNING = 40;
 
 const NOTICE_TEXT: Record<SharedNotice, string> = {
   full: 'Le monde partagé est plein pour l’instant : nouvel essai dans une minute.',
@@ -123,33 +132,40 @@ function startScreen(): void {
       el(
         'p',
         { class: 'lead' },
-        'Creuse, récolte, fabrique tes outils et construis ce que tu veux. Seul, ta partie est gardée dans ce navigateur ; à plusieurs, le monde est commun et gardé par le serveur.',
+        'Un seul monde en cubes pour tous les Malinos : creuse, récolte, fabrique tes outils et construis avec les autres. Connecte-toi à ton compte (dans le Hub) pour garder ce que tu bâtis.',
       ),
       el(
         'div',
-        { class: 'modes' },
-        modeButton(
-          'survival',
-          '⛏️',
-          'Survie douce',
-          'Coupe des arbres, fabrique un établi et des pioches, trouve du charbon et du cristal, éclaire les grottes. Ni monstres ni faim.',
-        ),
-        modeButton(
-          'creative',
-          '🎨',
-          'Créatif',
-          'Tous les cubes à volonté, casse en un clic, vole avec F. Construis sans limite (un monde à part).',
-        ),
+        { class: 'modes single' },
         modeButton(
           'shared',
           '🌍',
-          'À plusieurs',
+          'Entrer dans le monde',
           SHARED_URL
-            ? 'Un seul monde pour tous les Malinos, en survie douce. Connecté à ton compte, tu construis avec les autres ; sans compte, tu visites.'
-            : 'Bientôt : le serveur du monde partagé n’est pas configuré ici.',
+            ? 'Survie douce, ensemble : ni monstres ni faim. Coupe des arbres, fabrique des outils, trouve du fer et du cristal, bâtis ta maison et protège-la.'
+            : 'Le serveur du monde partagé n’est pas configuré ici (VITE_REALTIME_URL).',
           !SHARED_URL,
         ),
       ),
+      // Modes hors ligne, seulement pour les essais des développeurs (adresse avec ?essai).
+      TRIAL
+        ? el(
+            'div',
+            { class: 'modes' },
+            modeButton(
+              'survival',
+              '⛏️',
+              'Essai : survie seul',
+              'Hors ligne, gardé dans ce navigateur.',
+            ),
+            modeButton(
+              'creative',
+              '🎨',
+              'Essai : créatif',
+              'Hors ligne, tous les cubes à volonté.',
+            ),
+          )
+        : null,
       el(
         'div',
         { class: 'help' },
@@ -183,7 +199,7 @@ function startScreen(): void {
               el(
                 'li',
                 {},
-                'Clic droit sur un établi ou un four : fabriquer · créatif : double Espace pour voler · Échap : menu.',
+                'Clic droit sur un établi ou un four : fabriquer · seau et briquet : clic droit · Échap : menu.',
               ),
             ),
       ),
@@ -244,6 +260,17 @@ function play(mode: GameMode): void {
   let zones: Zone[] = [];
   let lastRefusal = 0;
   let zoneHere = '';
+  /** Sans compte : changements faits (le serveur en accepte GUEST_LIMIT, puis demande un compte). */
+  let guestChanges = 0;
+  const guestChange = () => {
+    if (!guest) return;
+    guestChanges++;
+    if (guestChanges === GUEST_WARNING)
+      toast(
+        `⚠️ Sans compte, encore ${GUEST_LIMIT - GUEST_WARNING} cubes environ, puis il faudra te connecter (Google ou GitHub, dans le Hub) pour continuer et garder ce que tu construis.`,
+        8000,
+      );
+  };
   const netPill = el('span', { class: 'net-pill', hidden: mode !== 'shared' });
   if (mode === 'shared' && SHARED_URL) {
     const net = new SharedLink(SHARED_URL, hubName(), (m) => onShared(m));
@@ -261,10 +288,19 @@ function play(mode: GameMode): void {
         }
         return null;
       },
-      dig: (i, h) => net.send({ t: 'dig', i, h }),
-      put: (i, b) => net.send({ t: 'put', i, b }),
+      dig: (i, h) => {
+        net.send({ t: 'dig', i, h });
+        guestChange();
+      },
+      put: (i, b) => {
+        net.send({ t: 'put', i, b });
+        guestChange();
+      },
       craft: (r) => net.send({ t: 'craft', r }),
-      use: (i, h) => net.send({ t: 'use', i, h }),
+      use: (i, h) => {
+        net.send({ t: 'use', i, h });
+        guestChange();
+      },
       home: () => net.send({ t: 'home' }),
       move: (x, y, z, a) => net.move(x, y, z, a),
     };
@@ -282,7 +318,7 @@ function play(mode: GameMode): void {
         for (const p of m.peers) g.peerJoin(p);
         if (guest)
           toast(
-            '⚠️ Tu joues sans compte : ce que tu construis ou casses disparaîtra quand tu partiras. Connecte-toi (Google ou GitHub) dans le Hub pour tout garder.',
+            `⚠️ Tu joues sans compte : tu peux casser ou poser ${GUEST_LIMIT} cubes pour essayer, et tout disparaîtra quand tu partiras. Connecte-toi (Google ou GitHub) dans le Hub pour construire sans limite et tout garder.`,
             9000,
           );
         else toast(`Bienvenue ${m.name} ! Tu construis avec les autres Malinos.`);
@@ -400,7 +436,7 @@ function play(mode: GameMode): void {
   // Étape suivie : un changement n'est signalé qu'une fois (son, carte redessinée).
   let tracker = new TutorialTracker(tuto.step);
   function renderTuto(step: number | null) {
-    if (mode !== 'survival' || tuto.done) {
+    if (mode === 'creative' || tuto.done) {
       tutoCard.hidden = true;
       return;
     }
@@ -771,9 +807,9 @@ function play(mode: GameMode): void {
               startScreen();
             },
           },
-          '🔀 Changer de mode',
+          '↩ Accueil du Chantier',
         ),
-        mode === 'survival'
+        mode !== 'creative'
           ? el(
               'button',
               {
@@ -1086,7 +1122,7 @@ function play(mode: GameMode): void {
     (bar.firstChild as HTMLElement).style.width = `${Math.round(g.progress * 100)}%`;
     lockHint.hidden = coarse || g.view !== 'first' || !!document.pointerLockElement || !!openPanel;
     // Tutoriel : on passe à l'étape suivante dès que la consigne est faite.
-    if (mode === 'survival' && !tuto.done) {
+    if (mode !== 'creative' && !tuto.done) {
       const t = tracker.update(tutoState);
       if (t.changed) {
         if (t.progressed) sfx.crafted();

@@ -182,7 +182,7 @@ try {
     const page = await context.newPage();
     page.on('pageerror', (e) => errors.push(`${name} (chantier) — erreur JS : ${e.message}`));
     await page.goto(`${base}chantier/?debug`, { waitUntil: 'networkidle' });
-    await page.getByRole('button', { name: /À plusieurs/ }).click();
+    await page.getByRole('button', { name: /Entrer dans le monde/ }).click();
     return page;
   };
   const zoe = await cube('Zoé');

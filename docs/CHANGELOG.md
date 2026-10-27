@@ -5,6 +5,18 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté et modifié (Chantier des mondes : MalinosLand magique, grottes, un seul monde, PR 72)
+
+- **MalinosLand au loin** : de loin, un mirage pâle dans la brume, au cœur d’un halo étoilé qui
+  attire l’œil ; en approchant du portail, la brume se lève, l’île prend ses couleurs, grandit
+  (elle est plus proche qu’avant) et s’entoure d’étincelles.
+- **Grottes** : de la lave tout en bas (elle brille ; y tomber renvoie au départ, sac intact) et
+  des lacs souterrains par endroits. Un trou creusé à côté de la lave se remplit de lave.
+- **Bruit de l’eau** : « plouf » en entrant, puis des vagues tant qu’on nage.
+- **Un seul mode** : le monde partagé. Les modes solo et créatif ne sont plus proposés (ils
+  restent pour les essais, avec `/chantier/?essai`). Le tutoriel guide aussi dans le monde partagé.
+- **Sans compte** : 60 cubes pour essayer (rappel à 40), puis il faut se connecter.
+
 ### Ajouté (Chantier des mondes : protections et modération, PR 71)
 
 - **Borne de protection** (4 lingots de fer + 1 cristal) : 17 × 17 colonnes autour d’elle à son
@@ -12,7 +24,7 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
   Deux semaines sans visite ni construction : la protection tombe et la maison se défait petit à
   petit.
 - **Sans compte, on construit aussi**, mais tout revient comme avant au départ du joueur
-  (message à l’arrivée, au plus 300 changements par visite).
+  (message à l’arrivée, au plus 300 changements par visite ; 60 depuis la PR 72).
 - **Le monde ne se vide pas** : au-delà de 4 000 cubes retirés, les trous de surface se
   referment peu à peu loin des joueurs ; les galeries profondes restent.
 - **Modération** : annuler la dernière heure d’un joueur, l’exclure une heure, réparer dans une

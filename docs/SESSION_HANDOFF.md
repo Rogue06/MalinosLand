@@ -3,11 +3,10 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 27/10/2026 — Chantier des mondes : PR #70 (eau, feu, matériaux)
-fusionnée et mise en ligne ; en cours : PR 71 (protections et modération). Ensuite : PR 72
-(MalinosLand au loin plus magique, lave et eau dans les grottes, bruit de l’eau, suppression des
-modes solo et créatif, profondeur du monde). Une PR à la fois, présentée au responsable avant la
-suivante.**
+**Dernière mise à jour : 27/10/2026 — Chantier des mondes : PR #71 (protections, modération)
+fusionnée et mise en ligne ; en cours : PR 72 (MalinosLand en mirage, lave et lacs souterrains,
+bruit de l’eau, un seul mode, 60 cubes sans compte). Une PR à la fois, présentée au responsable
+avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -102,6 +101,14 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **27/10 (matin)** — PR #71 fusionnée et **mise en ligne** (accord du responsable). Il demande
+  aussi la brume sur l’image de MalinosLand (nette de loin, peu réaliste) et une limite de « 50
+  ou 60 » cubes sans compte. Branche `feature/chantier-vue-grottes` (PR 72, DEC-049) : mirage et
+  halo, île rapprochée qui se dévoile, lave et lacs souterrains, bruit de l’eau, un seul mode
+  (`?essai` pour les tests), 60 cubes sans compte. Profondeur gardée à 48 (expliqué dans
+  DEC-049). **Suite : attendre « fusionne 72 ».** Idées en réserve : portes, escaliers,
+  échelles, coffres, chat du Chantier, inviter des amis dans sa zone, le passage par le portail.
 
 - **27/10 (fin de nuit)** — PR #70 fusionnée et **mise en ligne** (accord du responsable). Ses
   nouvelles demandes : (1) MalinosLand au loin trop « plat » : brume, point de fuite magique qui

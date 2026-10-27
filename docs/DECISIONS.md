@@ -802,7 +802,7 @@ navigateur.
   par heure jusqu’au terrain de départ.
 - **Visiteurs sans compte** : ils construisent ; chacune de leurs actions est notée (journal),
   et tout est défait à leur départ (case par case, si personne ne l’a retouchée depuis). Au plus
-  300 changements par visite. Les journaux de visiteurs partis sans prévenir (redémarrage du
+  300 changements par visite (60 depuis DEC-049). Les journaux de visiteurs partis sans prévenir (redémarrage du
   serveur) sont défaits par l’entretien horaire.
 - **Équilibre du monde** : au-delà de 4 000 cubes retirés, l’entretien horaire referme 80 trous
   de **surface** par heure, par le fond, dans les tranches non touchées depuis deux jours, hors
@@ -820,3 +820,31 @@ navigateur.
 réveille le Durable Object chaque heure (24 réveils par jour, sans joueurs). Si le serveur
 redémarre avant d’avoir enregistré un journal (au plus quelques minutes), une annulation peut
 être incomplète. Pas encore : inviter d’autres joueurs à construire dans sa zone, chat du Chantier.
+
+## DEC-049 — Chantier des mondes : un seul monde partagé, MalinosLand en mirage (27/10/2026)
+
+**Contexte.** Le responsable veut de l’interaction : seul le monde partagé compte, les modes solo
+et « ressources infinies » n’ont pas lieu d’être. Il trouve MalinosLand au loin trop net et
+toujours pareil jusqu’au portail : il demande une brume, un point de fuite magique qui attire
+l’œil, et une île qui se dévoile en approchant. Il demande aussi de la lave dans les grottes, le
+bruit de l’eau, et une limite pour les joueurs sans compte (« 50 ou 60 cubes »).
+
+**Décision.**
+
+- **Un seul mode proposé** : le monde partagé. Les modes hors ligne restent dans le code, pour
+  les essais et les tests (`/chantier/?essai`), sans être montrés aux joueurs. Le tutoriel guide
+  maintenant dans le monde partagé.
+- **MalinosLand en mirage** : l’île est rapprochée (au-delà du bord nord, plus petite de loin,
+  bien plus grande au portail). Un halo étoilé (le point de fuite) et une brume de la couleur du
+  ciel l’entourent ; leur force dépend de la distance au portail. Tout est dessiné par le code.
+- **Lave** au fond des grottes (sous le niveau 4) et **lacs souterrains** dans certaines
+  régions : générés avec le terrain, calmes comme l’eau (DEC-047). La lave brille par elle-même
+  (sans être une source de lumière, pour rester fluide) et renvoie le joueur au départ.
+- **Sans compte** : 60 changements par visite (au lieu de 300), rappel à 40.
+- **Profondeur** : le monde garde 48 cubes de haut (sous le sol : 10 à 20 couches de roche, avec
+  grottes, fer, cristal et lave ; montagnes jusqu’à 40). L’agrandir décalerait toutes les
+  constructions déjà faites et alourdirait l’affichage ; à revoir si les joueurs manquent de place.
+
+**Conséquences.** Les parties solo déjà commencées ne sont plus accessibles aux joueurs. Les
+grottes changent un peu tout en bas (lave, eau) : une galerie creusée à cet endroit reste telle
+quelle.

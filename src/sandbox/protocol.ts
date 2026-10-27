@@ -48,7 +48,7 @@ export const REFUSAL_TEXT: Record<Refusal, string> = {
   full: 'Le monde partagé a atteint sa limite de constructions pour l’instant.',
   zone: 'Cette zone est protégée par sa propriétaire ou son propriétaire.',
   limit:
-    'Sans compte, tu as atteint la limite de constructions : connecte-toi pour construire plus (et tout garder).',
+    'Sans compte, l’essai est fini : connecte-toi (Google ou GitHub, dans le Hub) pour continuer à construire et tout garder.',
 };
 
 /** Avis du serveur : salle pleine, quota du jour épuisé, connecté ailleurs. */

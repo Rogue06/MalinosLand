@@ -76,7 +76,7 @@ export const CREDIT_MAX = 5;
 /** Part du temps de creusage exigée (le réseau peut rapprocher deux demandes). */
 export const CREDIT_COST = 0.7;
 /** Un visiteur sans compte change au plus ce nombre de cases (tout revient à son départ). */
-export const GUEST_MAX_CHANGES = 300;
+export const GUEST_MAX_CHANGES = 60;
 /** Actions gardées par joueur, pour que les modérateurs puissent les annuler. */
 export const LOG_MAX = 400;
 /** Les modérateurs annulent la dernière heure d'actions ; une exclusion dure une heure. */
