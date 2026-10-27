@@ -3,11 +3,10 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 26/10/2026 — v0.4 (Musée des Malinos) presque terminée : PR 7 à 10,
-aperçu automatique et #60 fusionnés et en ligne ; en cours : PR 11 (maquette du futur Bâtiment
-des créations, nouvelles du musée, stands de nouveau cliquables). Plan :
-[PLAN_EVOLUTION.md](PLAN_EVOLUTION.md). Une PR à la fois, présentée au responsable avant la
-suivante.**
+**Dernière mise à jour : 27/10/2026 — Chantier des mondes (`/chantier/`, en ligne) : PR #66
+fusionnée ; en cours : PR 67 (grand monde 192 × 192, Hub visible au loin). Ensuite : PR 68
+(survie partagée à plusieurs) puis PR 69 (protections, modération). Une PR à la fois, présentée
+au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -102,6 +101,16 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **27/10 (suite)** — PR #66 fusionnée et en ligne. Le responsable veut un **monde plus grand**
+  d’où l’on voit **le Hub au loin** (les deux seront reliés, mais pas avant que le Chantier soit
+  prêt), puis le **multijoueur**. Ses choix : **survie partagée**, **comptes connectés** pour
+  construire, **192 × 192**. Plan annoncé : PR 67 = grand monde par tranches et Hub au loin (solo),
+  PR 68 = serveur de survie partagée (monde et sacs validés par le serveur), PR 69 = protections
+  et modération (retour en arrière, zones protégées). Branche `feature/chantier-grand-monde`
+  (PR 67, DEC-044) : faite et testée (unitaires, e2e, captures). Non mesurée sur vrai matériel
+  (≈ 10 images/s sans carte graphique). Les anciennes parties du Chantier ne sont pas reprises.
+  **Suite : attendre « fusionne 67 », puis PR 68.**
 
 - **27/10** — PR #65 en ligne. Le responsable demande le **multijoueur** dans le Chantier des
   mondes, des **touches réglables**, de **sauter** pour monter un cube, de ne plus devoir recliquer

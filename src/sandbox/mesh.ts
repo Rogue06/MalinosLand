@@ -1,5 +1,7 @@
 import { AIR, BLOCKS, blockDef, type Pattern } from './blocks';
-import { SIZE_X, SIZE_Y, SIZE_Z, type Cell, type VoxelWorld } from './world';
+import { CHUNK, CHUNKS_X, SIZE_X, SIZE_Y, SIZE_Z, type Cell, type VoxelWorld } from './world';
+
+export { CHUNK };
 
 /**
  * Construction des maillages du monde en cubes (logique pure et testée) : seules les faces
@@ -7,8 +9,6 @@ import { SIZE_X, SIZE_Y, SIZE_Z, type Cell, type VoxelWorld } from './world';
  * (ciel, grottes sombres, torches). Le résultat est en repère Three.js : X = x, Y = z (haut),
  * Z = y. Le monde est découpé en tranches de CHUNK × CHUNK colonnes, reconstruites à la demande.
  */
-export const CHUNK = 16;
-
 /** Ordre des motifs dans l'atlas de textures (une case de 16 × 16 pixels par motif). */
 export const PATTERNS: readonly Pattern[] = [
   'grass_top',
@@ -33,14 +33,27 @@ export const PATTERNS: readonly Pattern[] = [
   'furnace_side',
   'furnace_front',
   'torch',
+  'snow',
+  'snow_side',
+  'gravel',
+  'hub_wall',
+  'hub_trim',
+  'hub_floor',
+  'hub_light',
 ];
 const TILE = new Map(PATTERNS.map((p, i) => [p, i]));
 
-/** Lumière : hauteur du ciel par colonne et torches posées. */
+/**
+ * Lumière : hauteur du ciel par colonne (calculée à la demande, -2 : pas encore connue) et
+ * sources de lumière posées (torches, lanternes), rangées par position.
+ */
 export interface Lighting {
+  world: VoxelWorld;
   /** Plus haut cube qui arrête la lumière, par colonne (x + y × SIZE_X). */
   skyTop: Int16Array;
-  torches: readonly Cell[];
+  lights: Map<number, Cell>;
+  /** Tranches déjà parcourues à la recherche de lumières. */
+  scanned: Uint8Array;
 }
 
 /** Lumière dans une grotte ou sous un toit, sans torche (douce : le jeu reste lisible). */
@@ -48,26 +61,79 @@ export const CAVE_LIGHT = 0.3;
 /** Portée d'une torche (cubes). */
 export const TORCH_RANGE = 7;
 
+/** Lumière du monde : rien n'est calculé d'avance, tout l'est à la demande. */
 export function computeLighting(world: VoxelWorld): Lighting {
-  const skyTop = new Int16Array(SIZE_X * SIZE_Y).fill(-1);
-  const torches: Cell[] = [];
-  for (let y = 0; y < SIZE_Y; y++)
-    for (let x = 0; x < SIZE_X; x++)
-      for (let z = SIZE_Z - 1; z >= 0; z--) {
-        const b = world.get(x, y, z);
-        if (b === AIR) continue;
-        const def = blockDef(b);
-        if (def.small) torches.push({ x, y, z });
-        if (!def.seeThrough && skyTop[x + y * SIZE_X] === -1) skyTop[x + y * SIZE_X] = z;
-      }
-  return { skyTop, torches };
+  return {
+    world,
+    skyTop: new Int16Array(SIZE_X * SIZE_Y).fill(-2),
+    lights: new Map(),
+    scanned: new Uint8Array(CHUNKS_X * (SIZE_Y / CHUNK)),
+  };
 }
 
-/** Lumière d'une case vide (0 à 1). */
-export function lightAt(l: Lighting, x: number, y: number, z: number): number {
-  const top = x >= 0 && y >= 0 && x < SIZE_X && y < SIZE_Y ? l.skyTop[x + y * SIZE_X]! : -1;
-  let light = z > top ? 1 : CAVE_LIGHT;
-  for (const t of l.torches) {
+/** Hauteur du ciel d'une colonne (le plus haut cube qui arrête la lumière). */
+function skyTopOf(l: Lighting, x: number, y: number): number {
+  if (x < 0 || y < 0 || x >= SIZE_X || y >= SIZE_Y) return -1;
+  const i = x + y * SIZE_X;
+  if (l.skyTop[i] === -2) {
+    let top = -1;
+    for (let z = SIZE_Z - 1; z >= 0; z--) {
+      const b = l.world.get(x, y, z);
+      if (b !== AIR && !blockDef(b).seeThrough) {
+        top = z;
+        break;
+      }
+    }
+    l.skyTop[i] = top;
+  }
+  return l.skyTop[i]!;
+}
+
+/** Cherche les sources de lumière d'une tranche (une seule fois). */
+export function scanLights(l: Lighting, cx: number, cy: number): void {
+  const ci = cx + CHUNKS_X * cy;
+  if (l.scanned[ci]) return;
+  l.scanned[ci] = 1;
+  for (let z = 0; z < SIZE_Z; z++)
+    for (let y = cy * CHUNK; y < (cy + 1) * CHUNK; y++)
+      for (let x = cx * CHUNK; x < (cx + 1) * CHUNK; x++)
+        if (blockDef(l.world.get(x, y, z)).light) l.lights.set(l.world.index(x, y, z), { x, y, z });
+}
+
+/** Un cube a changé : la colonne et les sources de lumière sont remises à jour. */
+export function updateLighting(l: Lighting, c: Cell): void {
+  l.skyTop[c.x + c.y * SIZE_X] = -2;
+  for (const z of [c.z, c.z + 1]) {
+    const i = l.world.index(c.x, c.y, z);
+    if (z < SIZE_Z && blockDef(l.world.get(c.x, c.y, z)).light) l.lights.set(i, { ...c, z });
+    else l.lights.delete(i);
+  }
+}
+
+/** Sources de lumière qui peuvent éclairer un rectangle de colonnes. */
+function lightsNear(l: Lighting, x0: number, y0: number, x1: number, y1: number): Cell[] {
+  const out: Cell[] = [];
+  for (const t of l.lights.values())
+    if (
+      t.x >= x0 - TORCH_RANGE &&
+      t.x <= x1 + TORCH_RANGE &&
+      t.y >= y0 - TORCH_RANGE &&
+      t.y <= y1 + TORCH_RANGE
+    )
+      out.push(t);
+  return out;
+}
+
+/** Lumière d'une case vide (0 à 1). `near` : sources à prendre en compte (toutes par défaut). */
+export function lightAt(
+  l: Lighting,
+  x: number,
+  y: number,
+  z: number,
+  near: Iterable<Cell> = l.lights.values(),
+): number {
+  let light = z > skyTopOf(l, x, y) ? 1 : CAVE_LIGHT;
+  for (const t of near) {
     const d = Math.abs(t.x - x) + Math.abs(t.y - y) + Math.abs(t.z - z);
     if (d < TORCH_RANGE) light = Math.max(light, 1 - d / (TORCH_RANGE + 1) + 0.05);
   }
@@ -197,6 +263,14 @@ export function buildChunk(
 ): { opaque: MeshData; glass: MeshData } {
   const opaque = emptyMesh();
   const glass = emptyMesh();
+  // Lumières de cette tranche et des voisines, cherchées une fois.
+  const cx = Math.floor(x0 / CHUNK);
+  const cy = Math.floor(y0 / CHUNK);
+  for (let dy = -1; dy <= 1; dy++)
+    for (let dx = -1; dx <= 1; dx++)
+      if (cx + dx >= 0 && cy + dy >= 0 && cx + dx < CHUNKS_X && (cy + dy) * CHUNK < SIZE_Y)
+        scanLights(light, cx + dx, cy + dy);
+  const near = lightsNear(light, x0, y0, x0 + CHUNK - 1, y0 + CHUNK - 1);
   const occludes = (x: number, y: number, z: number) => {
     if (z > maxZ) return false;
     const b = world.get(x, y, z);
@@ -222,7 +296,7 @@ export function buildChunk(
           const pattern =
             f.kind === 'top' ? def.tex.top : f.kind === 'bottom' ? def.tex.bottom : def.tex.side;
           const tile = TILE.get(pattern) ?? 0;
-          const lit = lightAt(light, nx, ny, nz) * f.shade;
+          const lit = lightAt(light, nx, ny, nz, near) * f.shade;
           const base = out.positions.length / 3;
           f.corners.forEach(([cx, cy, cz], i) => {
             // Occlusion ambiante : les deux voisins de côté et le voisin d'angle, devant la face.

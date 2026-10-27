@@ -557,16 +557,17 @@ try {
         const g = window.__chantier();
         const w = g.world;
         let best = null;
-        for (let y = 1; y < 63; y++)
-          for (let x = 1; x < 63; x++)
-            for (let z = 2; z < 31; z++)
+        const s0 = w.spawn;
+        for (let y = s0.y - 30; y < s0.y + 30; y++)
+          for (let x = s0.x - 30; x < s0.x + 30; x++)
+            for (let z = 2; z < 46; z++)
               if (
                 w.get(x, y, z) === 5 &&
                 w.get(x - 1, y, z) === 0 &&
                 w.get(x - 1, y, z + 1) === 0 &&
                 ![0, 6].includes(w.get(x - 1, y, z - 1))
               ) {
-                const d = Math.hypot(x - 32, y - 32);
+                const d = Math.hypot(x - s0.x, y - s0.y);
                 if (!best || d < best.d) best = { x, y, z, d };
               }
         if (!best) return false;

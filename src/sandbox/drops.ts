@@ -1,4 +1,4 @@
-import type { VoxelWorld } from './world';
+import { SIZE_X, SIZE_Y, SIZE_Z, type VoxelWorld } from './world';
 
 /**
  * Objets tombés au sol (logique pure et testée) : quand on casse un cube, un petit cube de la
@@ -83,7 +83,7 @@ export function parseDrops(raw: unknown, isItem: (id: number) => boolean): Drop[
     const [item, x, y, z] = e as number[];
     if (![item, x, y, z].every((v) => typeof v === 'number' && Number.isFinite(v))) continue;
     if (!Number.isInteger(item) || !isItem(item!)) continue;
-    if (x! < 0 || y! < 0 || x! > 64 || y! > 64 || z! < 0 || z! > 40) continue;
+    if (x! < 0 || y! < 0 || x! > SIZE_X || y! > SIZE_Y || z! < 0 || z! > SIZE_Z) continue;
     out.push({ item: item!, x: x!, y: y!, z: z!, vz: 0, age: PICKUP_DELAY });
   }
   return out;
