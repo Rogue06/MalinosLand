@@ -4,6 +4,7 @@
 # Secrets nécessaires (GitHub → Settings → Secrets and variables → Actions) :
 #   CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID,
 #   ACCUEIL_TOKEN (lecture seule du dépôt privé de la page d'accueil, MalinosLand-accueil)
+#   MONDES_TOKEN  (lecture seule du dépôt privé des mondes de jeu, MalinosLand-mondes)
 name: Mise en ligne
 
 on:
@@ -47,8 +48,14 @@ jobs:
             echo "::error::Secret ACCUEIL_TOKEN absent : impossible de récupérer la page d'accueil (dépôt privé MalinosLand-accueil). Voir docs/MISE_EN_LIGNE.md."
             exit 1
           fi
+          # Sans les mondes de jeu, le serveur perdrait le Chantier des mondes : on refuse.
+          if [ -z "$MONDES_TOKEN" ]; then
+            echo "::error::Secret MONDES_TOKEN absent : impossible de récupérer les mondes de jeu (dépôt privé MalinosLand-mondes). Voir docs/MONDES.md."
+            exit 1
+          fi
         env:
           ACCUEIL_TOKEN: ${{ secrets.ACCUEIL_TOKEN }}
+          MONDES_TOKEN: ${{ secrets.MONDES_TOKEN }}
 
       - uses: actions/checkout@v5
 
@@ -66,6 +73,15 @@ jobs:
           cache: npm
       - name: Installer la page d'accueil
         run: node scripts/accueil.mjs accueil-prive && rm -rf accueil-prive
+      # Mondes de jeu (Chantier des mondes…) : dépôt privé, même principe (DEC-050).
+      - name: Récupérer les mondes de jeu (dépôt privé)
+        uses: actions/checkout@v5
+        with:
+          repository: Rogue06/MalinosLand-mondes
+          token: ${{ secrets.MONDES_TOKEN }}
+          path: mondes-prive
+      - name: Installer les mondes de jeu
+        run: node scripts/mondes.mjs mondes-prive && rm -rf mondes-prive
       - run: npm ci
       - run: npm ci
         working-directory: server

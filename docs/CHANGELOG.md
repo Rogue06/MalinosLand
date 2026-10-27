@@ -5,6 +5,13 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Modifié (mondes de jeu dans un dépôt privé)
+
+- Le Chantier des mondes (jeu, serveur, tests, documentation) est désormais développé dans le
+  dépôt privé `MalinosLand-mondes` (DEC-050). Ce dépôt garde le Hub et le serveur commun ;
+  `npm run mondes` installe les mondes (ignorés par Git), la mise en ligne les récupère avec le
+  secret `MONDES_TOKEN`. Sans eux, tout se construit et se teste (sans la page `/chantier/`).
+
 ### Ajouté et modifié (Chantier des mondes : MalinosLand magique, grottes, un seul monde, PR 72)
 
 - **MalinosLand au loin** : de loin, un mirage pâle dans la brume, au cœur d’un halo étoilé qui

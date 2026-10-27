@@ -23,7 +23,7 @@ import { CHANTIER_NAME, originAllowed, visits, WORLD_NAME } from './routes';
 import type { Env } from './WorldRoom';
 
 export { WorldRoom } from './WorldRoom';
-export { ChantierRoom } from './ChantierRoom';
+export { ChantierRoom } from './mondes/ChantierRoom';
 export { originAllowed } from './routes';
 
 export default {

@@ -14,6 +14,8 @@
 // « annotations » (visibles sur la page de la PR et lisibles via l'API).
 import { chromium } from 'playwright-core';
 import { appendFileSync, existsSync, mkdirSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 // Adresse du SITE (page d'accueil) ; le jeu est dans le dossier /jouer/.
 const site = (process.argv[2] || 'http://localhost:4173/').replace(/\/?$/, '/');
@@ -541,69 +543,11 @@ try {
     await back.close();
   });
 
-  await step(
-    'Chantier des mondes : couper un arbre, fabriquer des planches, les poser',
-    async () => {
-      const ch = await browser.newContext({ viewport: { width: 1280, height: 760 } });
-      ch.setDefaultTimeout(TIMEOUT);
-      const p = await ch.newPage();
-      p.on('pageerror', (e) => fail(`chantier — erreur JS : ${e.message}`));
-      await p.goto(`${site}chantier/?debug&essai`, { waitUntil: 'networkidle' });
-      // Le monde partagé demande un serveur : le test joue en mode d'essai hors ligne (?essai).
-      await p.getByText('Essai : survie seul').click();
-      await p.locator('.sandbox-canvas').waitFor();
-      await pollPage(p, () => !!window.__chantier?.(), null, 'partie lancée');
-      // Face au tronc le plus proche du départ, regard droit dessus.
-      const ok = await p.evaluate(() => {
-        const g = window.__chantier();
-        const w = g.world;
-        let best = null;
-        const s0 = w.spawn;
-        for (let y = s0.y - 30; y < s0.y + 30; y++)
-          for (let x = s0.x - 30; x < s0.x + 30; x++)
-            for (let z = 2; z < 46; z++)
-              // Le joueur se tient sur la case x - 2 (pieds à x - 1,5) : elle doit être libre aussi.
-              if (
-                w.get(x, y, z) === 5 &&
-                [x - 1, x - 2].every(
-                  (cx) =>
-                    w.get(cx, y, z) === 0 &&
-                    w.get(cx, y, z + 1) === 0 &&
-                    ![0, 6, 26].includes(w.get(cx, y, z - 1)),
-                )
-              ) {
-                const d = Math.hypot(x - s0.x, y - s0.y);
-                if (!best || d < best.d) best = { x, y, z, d };
-              }
-        if (!best) return false;
-        Object.assign(g.player, { x: best.x - 1.5, y: best.y + 0.5, z: best.z, vz: 0 });
-        g.yaw = 0;
-        g.pitch = -0.35;
-        g.mining = true;
-        return true;
-      });
-      if (!ok) fail('chantier : aucun tronc accessible trouvé');
-      await pollPage(p, () => window.__chantier().inv.count(5) > 0, null, 'tronc récolté');
-      await p.evaluate(() => (window.__chantier().mining = false));
-      await p.keyboard.press('KeyE');
-      await waitUi('.panel', 'Ton sac', p);
-      await p.locator('.recipe').first().getByRole('button', { name: 'Fabriquer' }).click();
-      await pollPage(p, () => window.__chantier().inv.count(4) === 4, null, '4 planches');
-      await p.screenshot({ path: `${outDir}/10-chantier-sac.png` });
-      await p.keyboard.press('Escape');
-      await p.evaluate(() => {
-        const g = window.__chantier();
-        g.inv.assign(4, 0);
-        g.inv.selected = 0;
-        g.pitch = -0.9;
-      });
-      await p.waitForTimeout(300);
-      await p.evaluate(() => window.__chantier().placeOrUse());
-      await pollPage(p, () => window.__chantier().inv.count(4) === 3, null, 'planche posée');
-      await p.screenshot({ path: `${outDir}/10b-chantier-pose.png` });
-      await ch.close();
-    },
-  );
+  // Mondes de jeu (dépôt PRIVÉ MalinosLand-mondes, DEC-050) : leurs étapes, s'ils sont installés.
+  if (existsSync('scripts/mondes/e2e.mjs')) {
+    const mondes = await import(pathToFileURL(resolve('scripts/mondes/e2e.mjs')).href);
+    await mondes.default({ step, browser, site, TIMEOUT, pollPage, waitUi, outDir, fail });
+  }
 
   const fps = await dbg(() => window.__malinosDebug.fps());
   notice(`Images par seconde mesurées (indicatif, sans GPU) : ${fps}`);

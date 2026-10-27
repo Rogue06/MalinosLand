@@ -110,13 +110,17 @@ function homeFallbackPlugin(): Plugin {
 // Import dynamique : pas besoin des types Node pour ce simple test de présence.
 const fs = (await import('node:' + 'fs')) as { existsSync(path: string): boolean };
 const withHome = fs.existsSync('index.html') && fs.existsSync('src/landing/main.ts');
+/** Mondes de jeu (dépôt PRIVÉ MalinosLand-mondes, DEC-050) : leurs pages, s'ils sont installés. */
+const mondes: Record<string, string> = fs.existsSync('chantier/index.html')
+  ? { chantier: 'chantier/index.html' }
+  : {};
 /**
  * Pages construites : la page d'accueil (racine, légère, sans Phaser) si présente, le jeu, et le
  * prototype « Chantier des mondes » (`/chantier/`, page à part, non reliée au jeu : DEC-043).
  */
 const pages: Record<string, string> = withHome
-  ? { accueil: 'index.html', jouer: 'jouer/index.html', chantier: 'chantier/index.html' }
-  : { jouer: 'jouer/index.html', chantier: 'chantier/index.html' };
+  ? { accueil: 'index.html', jouer: 'jouer/index.html', ...mondes }
+  : { jouer: 'jouer/index.html', ...mondes };
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', 'VITE_');

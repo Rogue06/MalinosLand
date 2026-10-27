@@ -3,10 +3,11 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 27/10/2026 — Chantier des mondes : PR #71 (protections, modération)
-fusionnée et mise en ligne ; en cours : PR 72 (MalinosLand en mirage, lave et lacs souterrains,
-bruit de l’eau, un seul mode, 60 cubes sans compte). Une PR à la fois, présentée au responsable
-avant la suivante.**
+**Dernière mise à jour : 27/10/2026 — PR #72 fusionnée et en ligne. Le Chantier des mondes passe
+dans le dépôt privé `MalinosLand-mondes` (DEC-050, [MONDES.md](MONDES.md)) : PR « mondes
+privés » en cours ; le secret `MONDES_TOKEN` est à créer par le responsable avant la prochaine
+mise en ligne. La suite du Chantier se suit dans le dépôt privé (`docs/SESSION_HANDOFF.md`
+là-bas). Une PR à la fois, présentée au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -101,6 +102,16 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **27/10 (midi)** — PR #72 fusionnée et **mise en ligne**. Le responsable veut garder le
+  « Minecraft » privé, et relier plus tard d’autres mini-jeux à MalinosLand : un seul dépôt privé
+  pour tous les mondes (recommandé et accepté), `MalinosLand-mondes`, créé par lui. Branche
+  `feature/mondes-prives` (DEC-050) : le Chantier quitte ce dépôt (copié par `npm run mondes`,
+  ignoré par Git), version « en attente » du serveur sans lui, tests publics avec étapes des
+  mondes facultatives, mise en ligne avec `MONDES_TOKEN`. Testé avec et sans les mondes (unitaires,
+  e2e, intégration, en ligne). Ses prochaines demandes pour le Chantier (galeries, obscurité et
+  torches, or, écoulement, lave au fond et cœurs) sont notées dans le dépôt privé.
+  **Suite : créer `MONDES_TOKEN`, puis « fusionne » cette PR.**
 
 - **27/10 (matin)** — PR #71 fusionnée et **mise en ligne** (accord du responsable). Il demande
   aussi la brume sur l’image de MalinosLand (nette de loin, peu réaliste) et une limite de « 50
