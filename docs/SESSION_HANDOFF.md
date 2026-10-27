@@ -108,8 +108,15 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   protocole), intégration Wrangler (dont redémarrage : le monde est retrouvé), deux navigateurs
   (`npm run test:online`). **Pas testé avec un vrai compte dans le navigateur** (pas de base
   locale) : à essayer en ligne. La mise en ligne créera la classe `ChantierRoom` sur Cloudflare
-  (migration `v2`) : à faire avec l’accord du responsable. **Suite : attendre « fusionne 68 »,
-  puis PR 69** (retour en arrière, zones protégées, modération, chat éventuel).
+  (migration `v2`) : à faire avec l’accord du responsable. **Suite : attendre « fusionne 68 ».**
+  Précision du responsable (27/10) : le « Hub vu de loin » doit être **notre Hub 2D isométrique**
+  (bâtiment, jardin, fontaine, cerisiers, musée…), pas un bâtiment inventé ; les Malinos du Hub
+  rejoindront plus tard le monde en cubes. Il demande aussi, comme dans les jeux de cubes :
+  **eau, feu**, beaucoup plus de **matériaux et recettes** (verre, etc.) pour bâtir maisons et
+  bâtiments communs. Torches invisibles : corrigé dans la PR 68. Nouveau plan : **PR 69** = le
+  vrai Hub en cubes, construit automatiquement depuis `src/content/maps/hub.json` (48 × 38
+  cases, 297 objets, 2 cubes par case) ; **PR 70** = eau, feu, matériaux et recettes ; **PR 71**
+  = protections et modération du monde partagé.
 
 - **27/10 (suite)** — PR #66 fusionnée et en ligne. Le responsable veut un **monde plus grand**
   d’où l’on voit **le Hub au loin** (les deux seront reliés, mais pas avant que le Chantier soit
