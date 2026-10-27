@@ -1,5 +1,5 @@
 import './sandbox.css';
-import { itemDef } from './blocks';
+import { BUCKET, LIGHTER, WATER_BUCKET, itemDef } from './blocks';
 import { SandboxGame, type GameMode, type SharedHooks } from './game';
 import { SHARED_URL, SharedLink } from './online';
 import { REFUSAL_TEXT, fromBase64, unpackChunk, type Down, type SharedNotice } from './protocol';
@@ -90,6 +90,13 @@ const hubName = (): string =>
       ? sanitizeName((raw as Record<string, unknown>).name)
       : null,
   ) ?? 'Visiteur';
+
+/** Ce que fait un objet utilisable, sous la barre rapide. */
+const USE_HINT: Record<number, string> = {
+  [BUCKET]: 'vise l’eau pour remplir le seau',
+  [WATER_BUCKET]: 'verser l’eau',
+  [LIGHTER]: 'allumer un feu sur un cube',
+};
 
 const NOTICE_TEXT: Record<SharedNotice, string> = {
   full: 'Le monde partagé est plein pour l’instant : nouvel essai dans une minute.',
@@ -240,6 +247,7 @@ function play(mode: GameMode): void {
       dig: (i, h) => net.send({ t: 'dig', i, h }),
       put: (i, b) => net.send({ t: 'put', i, b }),
       craft: (r) => net.send({ t: 'craft', r }),
+      use: (i, h) => net.send({ t: 'use', i, h }),
       home: () => net.send({ t: 'home' }),
       move: (x, y, z, a) => net.move(x, y, z, a),
     };
@@ -495,7 +503,9 @@ function play(mode: GameMode): void {
           ? coarse
             ? '⛏ : creuser plus vite'
             : 'creuse plus vite'
-          : 'sert à fabriquer (sac)';
+          : USE_HINT[def.id]
+            ? `${coarse ? '🧱' : 'clic droit'} : ${USE_HINT[def.id]}`
+            : 'sert à fabriquer (sac)';
     heldName.textContent = `${def?.name ?? 'Mains nues'} · ${hint}`;
     touch?.refresh();
     if (openPanel === 'bag') renderBag();

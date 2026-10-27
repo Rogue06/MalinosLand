@@ -559,3 +559,14 @@ button {
   color: var(--sun);
   white-space: nowrap;
 }
+
+/* Tête sous l'eau : un voile bleu par-dessus le monde. */
+.water-veil {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, rgba(40, 110, 190, 0.32), rgba(20, 60, 130, 0.55));
+}
+.water-veil[hidden] {
+  display: none;
+}

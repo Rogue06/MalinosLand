@@ -69,13 +69,42 @@ revoir depuis le menu (« 📘 Revoir le tutoriel »).
 4. Sous terre, dans les **grottes** : du **charbon** (torches, verre et briques au four) et du
    **cristal** (il faut une pioche en pierre), pour la **pioche de cristal** et les blocs
    turquoise. Les grottes et les maisons fermées sont sombres : les **torches** éclairent.
-5. **Construire** : 15 sortes de cubes (herbe, terre, pierre, planches, tronc, feuillage, verre,
-   sable, briques, turquoise, corail, établi, four…), et les torches.
+5. Encore plus bas, avec une pioche en pierre : le **fer**. Au four (avec du charbon), il donne des
+   **lingots** : **pioche en fer**, **seau**, **lanternes**, **bloc de fer**, et le **briquet**
+   (avec un **silex**, caché de temps en temps dans le **gravier**).
+6. Au fond des **lacs** : de l’**argile**, qui donne au four la **terre cuite**, puis des
+   **tuiles** pour les toits.
+7. **Construire** : 27 sortes de cubes. Herbe, terre, pierre, planches et planches foncées,
+   tronc, feuillage, verre, sable, grès, briques, briques de pierre, enduit blanc, terre cuite,
+   tuiles, bloc de fer, lanternes, turquoise, corail, établi, four… et les torches.
 
 ![Le sac et la fabrication](images/chantier-sac.jpg)
 
-12 recettes au total. Une fabrication vérifie tout avant de retirer quoi que ce soit : elle ne
+24 recettes au total. Une fabrication vérifie tout avant de retirer quoi que ce soit : elle ne
 peut ni dupliquer ni perdre d’objets.
+
+![Une petite maison : briques de pierre, enduit blanc, verre, tuiles, lanterne](images/chantier-maison.jpg)
+
+### L’eau et le feu
+
+- **Lacs** dans les plaines, avec leurs plages de sable. On **nage** : on avance plus lentement,
+  on coule doucement, on remonte en gardant **Espace** appuyé ; contre un bord, Espace fait sortir
+  de l’eau. Sous l’eau, tout devient bleu.
+- **Seau** (3 lingots de fer) : clic droit en visant l’eau pour le remplir, clic droit ailleurs
+  pour la verser. L’eau des lacs ne s’épuise pas ; un cube d’eau versé se reprend. On peut
+  construire dans l’eau : un cube posé prend sa place. Si l’on creuse à côté de l’eau, elle vient
+  remplir le trou.
+- **Briquet** (1 lingot + 1 silex) : clic droit sur le dessus d’un cube pour allumer un **feu**
+  qui éclaire et dont les flammes dansent. Un coup l’éteint ; il tombe si l’on casse son cube.
+
+![Un lac vu du rivage](images/chantier-lac.jpg)
+
+![Un feu allumé au briquet et un cube d’eau versé au seau](images/chantier-feu-eau.jpg)
+
+Pour rester simple (et juste à plusieurs), l’eau **ne coule pas** comme dans les jeux de cubes :
+un cube d’eau versé reste un cube ; seule une case creusée à côté de l’eau se remplit. Le feu **ne
+se propage pas** et ne brûle rien : pas de risque de voir disparaître les constructions des
+autres. Il n’y a pas de points de vie.
 
 ## Le monde, le portail et MalinosLand au loin
 
@@ -163,7 +192,8 @@ Le menu « 📊 Mesures » affiche ces chiffres en jouant.
 
 - À plusieurs : pas encore de chat, de zones protégées par joueur ni de retour en arrière (PR
   suivante) ; pas de collisions vérifiées par le serveur (seulement la vitesse).
-- Eau, nuit, monstres, faim, coffres, objets qui s’usent : rien de tout cela pour l’instant.
+- Nuit, monstres, faim, coffres, objets qui s’usent, portes, escaliers, échelles : rien de tout
+  cela pour l’instant. L’eau ne coule pas et le feu ne se propage pas (voir plus haut).
 - La lumière est simplifiée (ciel, ombre sous les toits, torches à portée), pas une vraie
   propagation.
 - Pas encore de passage entre MalinosLand et le Chantier : le portail est là, il s’ouvrira au

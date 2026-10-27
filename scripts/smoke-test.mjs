@@ -561,11 +561,15 @@ try {
         for (let y = s0.y - 30; y < s0.y + 30; y++)
           for (let x = s0.x - 30; x < s0.x + 30; x++)
             for (let z = 2; z < 46; z++)
+              // Le joueur se tient sur la case x - 2 (pieds à x - 1,5) : elle doit être libre aussi.
               if (
                 w.get(x, y, z) === 5 &&
-                w.get(x - 1, y, z) === 0 &&
-                w.get(x - 1, y, z + 1) === 0 &&
-                ![0, 6].includes(w.get(x - 1, y, z - 1))
+                [x - 1, x - 2].every(
+                  (cx) =>
+                    w.get(cx, y, z) === 0 &&
+                    w.get(cx, y, z + 1) === 0 &&
+                    ![0, 6, 26].includes(w.get(cx, y, z - 1)),
+                )
               ) {
                 const d = Math.hypot(x - s0.x, y - s0.y);
                 if (!best || d < best.d) best = { x, y, z, d };

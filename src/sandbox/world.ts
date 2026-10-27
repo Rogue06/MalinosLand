@@ -17,8 +17,12 @@ import {
   SAND,
   SNOW,
   STONE,
+  CLAY,
+  IRON_ORE,
+  WATER,
   blockDef,
-  itemDef,
+  fixed,
+  placeable,
 } from './blocks';
 
 /**
@@ -47,6 +51,8 @@ export const SPAWN_CLEAR = 3;
 /** Point de départ : au sud du centre, face au portail et à MalinosLand, au nord. */
 export const SPAWN_X = 96;
 export const SPAWN_Y = 120;
+/** Niveau de l'eau des lacs (le dessus des plaines les plus basses, sur le sable, est à 13). */
+export const WATER_LEVEL = 13;
 
 /**
  * Le Portail des Malinos, au bout du chemin de gravier, au nord : une place dallée et une arche.
@@ -105,6 +111,13 @@ function onPath(x: number, y: number): boolean {
   return Math.abs(x - SPAWN_X) <= 1 && y >= PORTAL.y0 + PORTAL.d && y < SPAWN_Y - 2;
 }
 
+const lakeNoise = (seed: number, x: number, y: number) => noise2(seed + 33, x, y, 34);
+
+/** Profondeur de la cuvette d'un lac dans une colonne (0 : pas de lac). */
+function lakeDepth(seed: number, x: number, y: number): number {
+  return smooth((lakeNoise(seed, x, y) - 0.6) / 0.14) * 8;
+}
+
 /**
  * Hauteur du sol d'une colonne : plaines, collines, montagnes (sommets enneigés), aplanie en
  * douceur autour du portail, de la dalle de départ et du chemin.
@@ -116,6 +129,8 @@ export function columnHeight(seed: number, x: number, y: number): number {
     noise2(seed + 3, x, y, 5) * 0.1;
   const mount = smooth((noise2(seed + 11, x, y, 52) - 0.55) / 0.3);
   let h = 13 + hills * 9 + mount * mount * 22;
+  // Lacs : des cuvettes dans les plaines, remplies d'eau jusqu'à WATER_LEVEL.
+  h -= lakeDepth(seed, x, y);
   // Le portail est posé sur un plateau ; la dalle et le chemin sur un terrain doux.
   const plaza = smooth(1 - portalDistance(x, y) / 18);
   h = h * (1 - plaza) + PORTAL.z * plaza;
@@ -198,6 +213,10 @@ export function genChunk(seed: number, cx: number, cy: number): Uint8Array {
       const h = columnHeight(seed, x, y);
       const portalNear = portalDistance(x, y) < 6;
       const spawnNear = Math.hypot(x - SPAWN_X, y - SPAWN_Y) < 5;
+      // Lac, ou ses abords : pas de grotte (elle ouvrirait un mur d'eau sous le lac).
+      const lake = lakeNoise(seed, x, y) > 0.54;
+      // Eau du lac au-dessus du fond, jusqu'au niveau de l'eau.
+      for (let z = h + 1; z <= WATER_LEVEL; z++) out[at(lx, ly, z)] = WATER;
       for (let z = 0; z <= h; z++) {
         let b =
           z === 0
@@ -215,13 +234,16 @@ export function genChunk(seed: number, cx: number, cy: number): Uint8Array {
           const r = hash2(x * 31 + z * 7 + seed, y * 17 - z * 3) % 1000;
           if (z < 10 && r < 6) b = CRYSTAL_ORE;
           else if (r < 20) b = COAL_ORE;
+          else if (z < 22 && r < 30) b = IRON_ORE;
           else if (h >= 30 && z > h - 6 && r < 400) b = STONE;
         }
         // Montagnes : la roche affleure sur les pentes hautes.
         if (b === GRASS && h >= 29) b = STONE;
         if (z === h && onPath(x, y)) b = GRAVEL;
+        // Fond des lacs : de l'argile par endroits (terre cuite, tuiles).
+        if (z === h && h < WATER_LEVEL && hash2(x * 13 + seed, y * 29) % 3 === 0) b = CLAY;
         // Grottes : poches creusées sous la surface (jamais sous le portail ni la dalle).
-        if (z >= 2 && z < h - 2 && !portalNear && !spawnNear) {
+        if (z >= 2 && z < h - 2 && !portalNear && !spawnNear && !lake) {
           const c = noise3(seed + 50, x, y, z, 8);
           const d = noise3(seed + 90, x, y, z, 6);
           if (Math.abs(c - 0.5) < 0.055 && d > 0.35) b = AIR;
@@ -342,7 +364,7 @@ export class VoxelWorld {
       }
     const m = this.changes.get(ci);
     for (const [i, b] of m ?? []) {
-      if (blockDef(this.base[i]!).hardness === Infinity) m!.delete(i);
+      if (fixed(this.base[i]!)) m!.delete(i);
       else this.blocks[i] = b;
     }
   }
@@ -401,6 +423,7 @@ export class VoxelWorld {
     const b = this.get(x, y, z);
     if (b === AIR || !this.inBounds(x, y, z)) return 'Il n’y a rien à creuser ici.';
     if (blockDef(b).portal) return this.protectedReason(x, y);
+    if (blockDef(b).fluid) return 'L’eau ne se casse pas : prends-la avec un seau.';
     if (blockDef(b).hardness === Infinity) return 'Ce cube ne se casse pas.';
     if (this.protectedCell(x, y, z)) return this.protectedReason(x, y);
     return null;
@@ -409,9 +432,13 @@ export class VoxelWorld {
   /** Pourquoi on ne peut pas poser ce cube ici (null : possible). */
   placeProblem(x: number, y: number, z: number, block: number): string | null {
     if (!this.inBounds(x, y, z)) return 'Hors de la parcelle.';
-    if (!itemDef(block)?.block) return 'Ce n’est pas un cube.';
+    if (!placeable(block)) return 'Ce n’est pas un cube.';
     const here = this.get(x, y, z);
-    if (here !== AIR) return 'La place est déjà prise.';
+    // Un cube peut prendre la place de l'eau (on construit dans les lacs), pas l'inverse.
+    if (here !== AIR && !(blockDef(here).fluid && block !== WATER))
+      return here === WATER && block === WATER
+        ? 'Il y a déjà de l’eau ici.'
+        : 'La place est déjà prise.';
     if (this.protectedCell(x, y, z)) return this.protectedReason(x, y);
     // Un cube se pose contre un autre (pas de cube flottant tout seul).
     const touching = [
@@ -423,7 +450,7 @@ export class VoxelWorld {
       [0, 0, -1],
     ].some(([dx, dy, dz]) => {
       const n = this.get(x + dx!, y + dy!, z + dz!);
-      return n !== AIR && z + dz! >= 0;
+      return n !== AIR && !blockDef(n).fluid && z + dz! >= 0;
     });
     return touching || z === 0 ? null : 'Pose-le contre un autre cube.';
   }
@@ -432,11 +459,26 @@ export class VoxelWorld {
   dig(x: number, y: number, z: number): number | null {
     if (this.breakProblem(x, y, z)) return null;
     const before = this.get(x, y, z);
-    this.write(this.index(x, y, z), AIR);
-    // Une torche posée sur ce cube tombe avec lui.
+    // L'eau d'à côté (ou de dessus) vient remplir le trou : une case, elle ne coule pas plus loin.
+    const wet = [
+      [1, 0, 0],
+      [-1, 0, 0],
+      [0, 1, 0],
+      [0, -1, 0],
+      [0, 0, 1],
+    ].some(([dx, dy, dz]) => blockDef(this.get(x + dx!, y + dy!, z + dz!)).fluid);
+    this.write(this.index(x, y, z), wet || this.baseAt(x, y, z) === WATER ? WATER : AIR);
+    // Une torche (ou un feu) posée sur ce cube tombe avec lui.
     if (this.get(x, y, z + 1) !== AIR && blockDef(this.get(x, y, z + 1)).small)
       this.write(this.index(x, y, z + 1), AIR);
     return before;
+  }
+
+  /** Cube du terrain de départ à cet endroit (avant toute modification). */
+  baseAt(x: number, y: number, z: number): number {
+    if (!this.inBounds(x, y, z)) return AIR;
+    this.get(x, y, z);
+    return this.base[this.index(x, y, z)]!;
   }
 
   /** Pose un cube. Renvoie false (sans rien changer) si c'est interdit. */
@@ -512,7 +554,7 @@ export class VoxelWorld {
     for (const [index, block] of entries) {
       if (!Number.isInteger(index) || index < 0 || index >= this.blocks.length) continue;
       if (this.chunkOf(index) !== ci) continue;
-      if (block !== AIR && !itemDef(block)?.block) continue;
+      if (block !== AIR && !placeable(block)) continue;
       const c = this.cellOf(index);
       if (this.protectedCell(c.x, c.y, c.z)) continue;
       m.set(index, block);
@@ -522,7 +564,7 @@ export class VoxelWorld {
       for (const i of old?.keys() ?? []) this.blocks[i] = this.base[i]!;
       for (const [i, b] of m) {
         // Un cube incassable du terrain de départ (socle, portail) ne change jamais.
-        if (blockDef(this.base[i]!).hardness === Infinity) m.delete(i);
+        if (fixed(this.base[i]!)) m.delete(i);
         else this.blocks[i] = b;
       }
     }
@@ -555,11 +597,10 @@ export class VoxelWorld {
       const index = i as number;
       const block = b as number;
       if (index < 0 || index >= this.blocks.length) continue;
-      if (block !== AIR && !itemDef(block)?.block) continue;
+      if (block !== AIR && !placeable(block)) continue;
       const c = this.cellOf(index);
       if (this.protectedCell(c.x, c.y, c.z)) continue;
-      const current = this.get(c.x, c.y, c.z);
-      if (blockDef(current).hardness === Infinity) continue;
+      if (fixed(this.get(c.x, c.y, c.z))) continue;
       this.write(index, block, false);
       applied++;
     }
@@ -591,6 +632,8 @@ export function raycast(
   dir: { x: number; y: number; z: number },
   maxDist = 80,
   maxZ = SIZE_Z - 1,
+  /** Voir l'eau (pour la prendre avec un seau) ; sinon on vise à travers. */
+  fluids = false,
 ): RayHit | null {
   let x = Math.floor(origin.x);
   let y = Math.floor(origin.y);
@@ -610,8 +653,10 @@ export function raycast(
   let prev: Cell = { x, y, z };
   let t = 0;
   while (t <= maxDist) {
-    if (world.inBounds(x, y, z) && z <= maxZ && world.get(x, y, z) !== AIR)
-      return { cell: { x, y, z }, before: prev };
+    if (world.inBounds(x, y, z) && z <= maxZ) {
+      const b = world.get(x, y, z);
+      if (b !== AIR && (fluids || !blockDef(b).fluid)) return { cell: { x, y, z }, before: prev };
+    }
     prev = { x, y, z };
     if (tMax.x < tMax.y && tMax.x < tMax.z) {
       x += step.x;

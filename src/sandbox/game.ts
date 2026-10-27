@@ -1,6 +1,21 @@
 import * as THREE from 'three';
 import { VersionedStorage } from '../services/storage';
-import { AIR, ALL_ITEMS, FURNACE, WORKBENCH, blockDef, breakTime, dropOf, itemDef } from './blocks';
+import {
+  AIR,
+  ALL_ITEMS,
+  BUCKET,
+  FIRE,
+  FURNACE,
+  LIGHTER,
+  USABLE,
+  WATER_BUCKET,
+  WORKBENCH,
+  blockDef,
+  breakTime,
+  dropOf,
+  itemDef,
+} from './blocks';
+import { useItem } from './rules';
 import { DEFAULT_BINDINGS, copyBindings, pressed, type Bindings } from './controls';
 import { MAX_DROPS, packDrops, parseDrops, spawnDrop, stepDrops, type Drop } from './drops';
 import {
@@ -59,6 +74,8 @@ export interface SharedHooks {
   dig(index: number, held: number): void;
   put(index: number, block: number): void;
   craft(recipe: number): void;
+  /** Seau ou briquet utilisé sur une case. */
+  use(index: number, held: number): void;
   home(): void;
   move(x: number, y: number, z: number, yaw: number): void;
 }
@@ -190,6 +207,11 @@ export class SandboxGame {
   walked = 0;
   readonly placedTypes = new Set<number>();
   private torchFlames: THREE.InstancedMesh;
+  /** Feux allumés au briquet : deux plans croisés, flammes qui dansent. */
+  private readonly fires: THREE.InstancedMesh;
+  private fireCells: Cell[] = [];
+  /** Voile bleu quand on a la tête sous l'eau. */
+  private readonly waterVeil: HTMLDivElement;
   private mineCell: string | null = null;
   private lastBreak = 0;
   private walkPhase = 0;
@@ -217,6 +239,10 @@ export class SandboxGame {
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.domElement.className = 'sandbox-canvas';
     container.append(this.renderer.domElement);
+    this.waterVeil = document.createElement('div');
+    this.waterVeil.className = 'water-veil';
+    this.waterVeil.hidden = true;
+    container.append(this.waterVeil);
 
     this.scene.background = new THREE.Color('#9fdcf2');
     this.fpCam = new THREE.PerspectiveCamera(72, 1, 0.05, 420);
@@ -287,6 +313,14 @@ export class SandboxGame {
     this.torchSticks.frustumCulled = false;
     this.torchFlames.frustumCulled = false;
     this.scene.add(this.torchSticks, this.torchFlames);
+    this.fires = new THREE.InstancedMesh(
+      fireGeometry(),
+      new THREE.MeshBasicMaterial({ map: tex, alphaTest: 0.3, side: THREE.DoubleSide }),
+      256,
+    );
+    this.fires.count = 0;
+    this.fires.frustumCulled = false;
+    this.scene.add(this.fires);
     this.bits = new THREE.InstancedMesh(
       new THREE.BoxGeometry(0.12, 0.12, 0.12),
       new THREE.MeshBasicMaterial({ color: 0xffffff }),
@@ -533,8 +567,13 @@ export class SandboxGame {
   private rebuildTorches(): void {
     const m = new THREE.Matrix4();
     let n = 0;
+    this.fireCells = [];
     for (const t of this.light.lights.values()) {
       if (n >= 512 || t.z > this.cutZ || !blockDef(this.world.get(t.x, t.y, t.z)).small) continue;
+      if (this.world.get(t.x, t.y, t.z) === FIRE) {
+        if (this.fireCells.length < 256) this.fireCells.push(t);
+        continue;
+      }
       m.makeTranslation(t.x + 0.5, t.z, t.y + 0.5);
       this.torchSticks.setMatrixAt(n, m);
       this.torchFlames.setMatrixAt(n, m);
@@ -586,6 +625,7 @@ export class SandboxGame {
     if (this.shared && !this.shared.canBuild()) return this.events.toast(this.shared.whyNot());
     const held = this.inv.held();
     if (held === null) return this.events.toast('Choisis un cube dans ta barre (1 à 9).');
+    if (USABLE.includes(held)) return this.useHeld(held, t);
     if (!itemDef(held)?.block)
       return this.events.toast(
         `${itemDef(held)?.name} ne se pose pas : choisis un cube dans ta barre (1 à 9).`,
@@ -605,6 +645,26 @@ export class SandboxGame {
     this.placedTypes.add(held);
     sfx.placed(blockDef(held).sound ?? 'soft');
     this.changedCell(c);
+    this.events.changed();
+  }
+
+  /** Seau (prendre ou verser de l'eau) ou briquet (allumer un feu). */
+  private useHeld(held: number, t: RayHit): void {
+    // Seau vide : on vise l'eau elle-même ; sinon, la case devant la face visée.
+    const c = held === BUCKET ? t.cell : t.before;
+    if (held === WATER_BUCKET && occupies(this.player, c))
+      return this.events.toast('Recule d’un pas pour verser l’eau.');
+    const index = this.world.index(c.x, c.y, c.z);
+    const result = useItem(this.world, this.inv, held, index, {
+      consume: this.mode !== 'creative',
+    });
+    if ('problem' in result) return this.events.toast(result.problem);
+    this.world.clearUndo();
+    this.shared?.use(index, held);
+    this.jab = 1;
+    if (held === LIGHTER) sfx.hit('wood');
+    else sfx.placed('soft');
+    if (result.changes.length > 0) this.changedCell(c);
     this.events.changed();
   }
 
@@ -1024,6 +1084,7 @@ export class SandboxGame {
       { x: dir.x, y: dir.z, z: dir.y },
       reach,
       this.cutZ,
+      this.inv.held() === BUCKET,
     );
     if (hit && this.view === 'iso') {
       const c = hit.cell;
@@ -1137,6 +1198,21 @@ export class SandboxGame {
     if (first) this.placeFpCamera();
     else this.placeIsoCamera();
     this.scene.fog = first ? this.fog : null;
+    // Sous l'eau : tout devient bleu et proche.
+    const eye = this.world.get(
+      Math.floor(this.player.x),
+      Math.floor(this.player.y),
+      Math.floor(this.player.z + EYE),
+    );
+    const under = first && blockDef(eye).fluid === true;
+    if (this.waterVeil.hidden === under) this.waterVeil.hidden = !under;
+    this.fog.color.set(under ? '#2b6fae' : '#9fdcf2');
+    (this.scene.background as THREE.Color).set(under ? '#2b6fae' : '#9fdcf2');
+    if (under) {
+      this.fog.near = 0;
+      this.fog.far = 16;
+    } else this.setViewDistance(this.viewChunks);
+    this.animateFires();
     // L'île et son pont sont des repères de première personne ; vus de dessus (iso), ils gêneraient.
     this.vista.visible = first;
     this.bridge.visible = first;
@@ -1200,6 +1276,19 @@ export class SandboxGame {
     this.fpCam.aspect = r.width / Math.max(1, r.height);
     this.fpCam.updateProjectionMatrix();
   };
+
+  /** Les flammes dansent : chaque feu change un peu de taille, à son rythme. */
+  private animateFires(): void {
+    const m = new THREE.Matrix4();
+    const t = performance.now() / 1000;
+    this.fireCells.forEach((c, i) => {
+      const k = 0.85 + Math.sin(t * 9 + c.x * 1.3 + c.y * 0.7) * 0.12;
+      m.makeScale(1, k, 1).setPosition(c.x + 0.5, c.z, c.y + 0.5);
+      this.fires.setMatrixAt(i, m);
+    });
+    this.fires.count = this.fireCells.length;
+    this.fires.instanceMatrix.needsUpdate = true;
+  }
 
   // ------------------------------------------------------------------ portail et MalinosLand
 
@@ -1381,6 +1470,7 @@ export class SandboxGame {
     document.removeEventListener('pointerlockchange', this.onLockChange);
     this.renderer.dispose();
     this.renderer.domElement.remove();
+    this.waterVeil.remove();
   }
 }
 
@@ -1428,6 +1518,32 @@ function makeHand(): { arm: THREE.Mesh; cube: THREE.Mesh; pick: THREE.Group } {
  * le ciel), largeur, et position de la pointe de l'île dans l'image (part de la largeur).
  */
 const VISTA = { x: 96, y: -150, z: 84, width: 190, tipX: 0.06 };
+
+/** Un feu : deux plans croisés avec le motif des flammes de l'atlas. */
+function fireGeometry(): THREE.BufferGeometry {
+  const tile = PATTERNS.indexOf('fire');
+  const n = PATTERNS.length;
+  const plane = (rot: number) => {
+    const g = new THREE.PlaneGeometry(0.95, 0.95).translate(0, 0.475, 0).rotateY(rot);
+    const uv = g.getAttribute('uv') as THREE.BufferAttribute;
+    for (let i = 0; i < uv.count; i++) uv.setX(i, (tile + uv.getX(i)) / n);
+    return g;
+  };
+  const a = plane(Math.PI / 4);
+  const b = plane(-Math.PI / 4);
+  const merged = new THREE.BufferGeometry();
+  for (const name of ['position', 'uv'] as const) {
+    const x = a.getAttribute(name).array as Float32Array;
+    const y = b.getAttribute(name).array as Float32Array;
+    const all = new Float32Array(x.length + y.length);
+    all.set(x);
+    all.set(y, x.length);
+    merged.setAttribute(name, new THREE.BufferAttribute(all, name === 'uv' ? 2 : 3));
+  }
+  const ia = Array.from(a.getIndex()!.array);
+  merged.setIndex([...ia, ...ia.map((i) => i + 4)]);
+  return merged;
+}
 
 /** Remous du portail : bandes turquoise et violettes dessinées par le code. */
 function portalTexture(): THREE.CanvasTexture {

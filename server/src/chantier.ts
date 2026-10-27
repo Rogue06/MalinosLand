@@ -17,6 +17,7 @@
 import { AIR, breakTime, dropOf } from '../../src/sandbox/blocks';
 import { Inventory, RECIPES, stationsNear } from '../../src/sandbox/inventory';
 import { occupies, SPRINT_SPEED } from '../../src/sandbox/player';
+import { useItem } from '../../src/sandbox/rules';
 import {
   decodeUp,
   encode,
@@ -243,6 +244,8 @@ export class ChantierHub {
         return this.put(conn, msg);
       case 'craft':
         return this.craft(conn, msg.r);
+      case 'use':
+        return this.use(conn, msg);
       case 'home':
         return this.home(conn);
     }
@@ -440,7 +443,8 @@ export class ChantierHub {
     const above = c.z + 1 < SIZE_Z ? this.world.index(c.x, c.y, c.z + 1) : -1;
     const aboveBefore = above >= 0 ? this.world.get(c.x, c.y, c.z + 1) : AIR;
     if (this.world.dig(c.x, c.y, c.z) === null) return this.refuse(conn, 'rule', m.i);
-    const changes = [m.i, AIR];
+    // La case devient de l'air, ou de l'eau si un lac est à côté (voir VoxelWorld.dig).
+    const changes = [m.i, this.world.get(c.x, c.y, c.z)];
     if (above >= 0 && aboveBefore !== AIR && this.world.get(c.x, c.y, c.z + 1) === AIR)
       changes.push(above, AIR);
     const drop = dropOf(block, held);
@@ -470,6 +474,23 @@ export class ChantierHub {
     d.inv = inv.stacks();
     conn.save();
     this.commit([m.i, m.b]);
+    this.send([conn], { t: 'inv', c: d.inv });
+    this.remember(d);
+  }
+
+  /** Seau (prendre ou verser de l'eau) ou briquet (allumer un feu). */
+  private use(conn: ChantierConn, m: Extract<Up, { t: 'use' }>): void {
+    const d = conn.data;
+    if (!d.account) return this.refuse(conn, 'guest', m.i);
+    if (!this.inReach(d, m.i)) return this.refuse(conn, 'far', m.i);
+    if (!this.roomForEdit()) return this.refuse(conn, 'full', m.i);
+    const inv = this.bag(d);
+    if (!inv.has(m.h)) return this.refuse(conn, 'missing', m.i);
+    const result = useItem(this.world, inv, m.h, m.i);
+    if ('problem' in result) return this.refuse(conn, 'rule', m.i);
+    d.inv = inv.stacks();
+    conn.save();
+    if (result.changes.length > 0) this.commit(result.changes.flat());
     this.send([conn], { t: 'inv', c: d.inv });
     this.remember(d);
   }

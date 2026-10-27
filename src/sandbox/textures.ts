@@ -244,6 +244,111 @@ const DRAW: Record<
       px(TEX - 1, i, hex('#2b3352'));
     }
   },
+  // Eau : bleue, à demi transparente (les reflets bougent avec la lumière du ciel).
+  water: (px, r) => {
+    for (let y = 0; y < TEX; y++)
+      for (let x = 0; x < TEX; x++) {
+        const wave = (x + Math.round(Math.sin(y * 0.9) * 2)) % 8 === 0;
+        const a = wave ? 0.72 : 0.58;
+        const n = parseInt(wave ? '6fb6ec' : '3f8fd8', 16);
+        const k = 1 + (r() - 0.5) * 0.12;
+        px(
+          x,
+          y,
+          `rgba(${Math.round(((n >> 16) & 255) * k)},${Math.round(((n >> 8) & 255) * k)},${Math.round((n & 255) * k)},${a})`,
+        );
+      }
+  },
+  // Flammes (icône ; dans le monde, le feu est dessiné à part et bouge).
+  fire: (px, r, clear) => {
+    for (let y = 0; y < TEX; y++) for (let x = 0; x < TEX; x++) clear(x, y);
+    for (let x = 1; x < TEX - 1; x++) {
+      const h = 6 + Math.floor(Math.abs(Math.sin(x * 1.7)) * 7 + r() * 2);
+      for (let y = TEX - h; y < TEX; y++) {
+        const t = (y - (TEX - h)) / h;
+        px(x, y, hex(t < 0.3 ? '#ffe9a3' : t < 0.65 ? '#ffb347' : '#ff6a2b', (r() - 0.5) * 0.1));
+      }
+    }
+  },
+  iron_ore: (px, r) => {
+    DRAW.stone(px, r, () => {});
+    speckle(px, r, '#d9a88a', 6, 2);
+    speckle(px, r, '#b07a5a', 4);
+  },
+  clay: (px, r) => {
+    noise(px, r, '#9aa7b8', 0.06);
+    speckle(px, r, '#b3bfce', 8);
+  },
+  terracotta: (px, r) => {
+    noise(px, r, '#c9744e', 0.05);
+    speckle(px, r, '#b0603d', 6);
+  },
+  roof_tiles: (px, r) => {
+    noise(px, r, '#b0503a', 0.06);
+    // Rangées de tuiles arrondies, décalées d'une rangée à l'autre.
+    for (let row = 0; row < 4; row++)
+      for (let x = 0; x < TEX; x++) {
+        const y = row * 4 + 3;
+        px(x, y, hex('#7d3526'));
+        if ((x + row * 2) % 4 === 0) {
+          px(x, y - 1, hex('#7d3526'));
+          px(x, y - 2, hex('#8d3f2d'));
+        } else px(x, y - 3, hex('#c96a50', (r() - 0.5) * 0.1));
+      }
+  },
+  stone_bricks: (px, r) => {
+    noise(px, r, '#7f8799', 0.07);
+    for (let x = 0; x < TEX; x++) {
+      px(x, 7, hex('#5b6375'));
+      px(x, 15, hex('#5b6375'));
+    }
+    for (let y = 0; y < 7; y++) px(7, y, hex('#5b6375'));
+    for (let y = 8; y < 15; y++) {
+      px(0, y, hex('#5b6375'));
+      px(15, y, hex('#5b6375'));
+    }
+    speckle(px, r, '#959dae', 6);
+  },
+  sandstone: (px, r) => {
+    noise(px, r, '#e3c88a', 0.05);
+    for (const y of [4, 9, 13]) for (let x = 0; x < TEX; x++) px(x, y, hex('#cdb071'));
+  },
+  sandstone_top: (px, r) => {
+    noise(px, r, '#e3c88a', 0.05);
+    speckle(px, r, '#d2b677', 10);
+  },
+  dark_planks: (px, r) => {
+    noise(px, r, '#7a5233', 0.06);
+    for (let y = 0; y < TEX; y += 4) for (let x = 0; x < TEX; x++) px(x, y, hex('#4f331f'));
+    for (let row = 0; row < 4; row++) {
+      const seam = (row * 5 + 9) % TEX;
+      for (let y = row * 4 + 1; y < row * 4 + 4; y++) px(seam, y, hex('#4f331f'));
+    }
+  },
+  lantern: (px, r) => {
+    noise(px, r, '#3a3f4d', 0.05);
+    for (let y = 3; y < 13; y++)
+      for (let x = 3; x < 13; x++) px(x, y, hex('#ffd36e', (r() - 0.5) * 0.1));
+    for (let y = 5; y < 11; y++) for (let x = 5; x < 11; x++) px(x, y, hex('#fff3c4'));
+    for (let i = 3; i < 13; i++) {
+      px(i, 7, hex('#3a3f4d'));
+      px(7, i, hex('#3a3f4d'));
+    }
+  },
+  iron_block: (px, r) => {
+    noise(px, r, '#d8dde6', 0.04);
+    for (let i = 0; i < TEX; i++) {
+      px(i, 0, hex('#aeb6c4'));
+      px(0, i, hex('#aeb6c4'));
+      px(i, TEX - 1, hex('#9aa2b2'));
+      px(TEX - 1, i, hex('#9aa2b2'));
+    }
+    for (let i = 3; i < 13; i += 3) px(i, i, hex('#f4f6fa'));
+  },
+  plaster: (px, r) => {
+    noise(px, r, '#f1ece2', 0.03);
+    speckle(px, r, '#e2dccf', 8);
+  },
   torch: (px, _r, clear) => {
     for (let y = 0; y < TEX; y++) for (let x = 0; x < TEX; x++) clear(x, y);
     for (let y = 6; y < 16; y++) {
