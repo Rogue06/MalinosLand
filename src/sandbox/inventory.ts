@@ -1,4 +1,20 @@
 import {
+  BUCKET,
+  CLAY,
+  DARK_PLANKS,
+  FLINT,
+  GRAVEL,
+  IRON_BLOCK,
+  IRON_INGOT,
+  IRON_ORE,
+  IRON_PICK,
+  LANTERN,
+  LIGHTER,
+  PLASTER,
+  ROOF_TILES,
+  SANDSTONE,
+  STONE_BRICKS,
+  TERRACOTTA,
   BRICK,
   COAL,
   CORAL,
@@ -119,6 +135,76 @@ export const RECIPES: readonly Recipe[] = [
     ],
     station: 'workbench',
   },
+  // Matériaux de construction (maisons, bâtiments communs). Toujours ajoutés à la fin : le
+  // numéro d'une recette est ce que le jeu envoie au serveur.
+  {
+    id: 'lingot-fer',
+    out: [IRON_INGOT, 1],
+    needs: [
+      [IRON_ORE, 1],
+      [COAL, 1],
+    ],
+    station: 'furnace',
+  },
+  {
+    id: 'pioche-fer',
+    out: [IRON_PICK, 1],
+    needs: [
+      [IRON_INGOT, 3],
+      [STICK, 2],
+    ],
+    station: 'workbench',
+  },
+  { id: 'seau', out: [BUCKET, 1], needs: [[IRON_INGOT, 3]], station: 'workbench' },
+  {
+    id: 'briquet',
+    out: [LIGHTER, 1],
+    needs: [
+      [IRON_INGOT, 1],
+      [FLINT, 1],
+    ],
+    station: null,
+  },
+  {
+    id: 'lanterne',
+    out: [LANTERN, 2],
+    needs: [
+      [IRON_INGOT, 1],
+      [TORCH, 2],
+    ],
+    station: 'workbench',
+  },
+  { id: 'bloc-fer', out: [IRON_BLOCK, 1], needs: [[IRON_INGOT, 4]], station: 'workbench' },
+  { id: 'briques-pierre', out: [STONE_BRICKS, 4], needs: [[STONE, 4]], station: 'workbench' },
+  { id: 'gres', out: [SANDSTONE, 2], needs: [[SAND, 4]], station: 'workbench' },
+  {
+    id: 'planches-foncees',
+    out: [DARK_PLANKS, 4],
+    needs: [
+      [PLANKS, 4],
+      [COAL, 1],
+    ],
+    station: 'workbench',
+  },
+  {
+    id: 'enduit',
+    out: [PLASTER, 4],
+    needs: [
+      [SAND, 2],
+      [GRAVEL, 2],
+    ],
+    station: 'workbench',
+  },
+  {
+    id: 'terre-cuite',
+    out: [TERRACOTTA, 2],
+    needs: [
+      [CLAY, 2],
+      [COAL, 1],
+    ],
+    station: 'furnace',
+  },
+  { id: 'tuiles', out: [ROOF_TILES, 4], needs: [[TERRACOTTA, 3]], station: 'workbench' },
 ];
 
 export const STATION_LABEL: Record<Station, string> = {

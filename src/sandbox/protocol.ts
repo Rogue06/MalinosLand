@@ -1,5 +1,5 @@
 import { sanitizeName } from '../core/text';
-import { AIR, BLOCKS, itemDef } from './blocks';
+import { AIR, BLOCKS, USABLE, itemDef, placeable } from './blocks';
 import { MAX_STACK, RECIPES } from './inventory';
 import { CHUNK, CHUNKS_X, CHUNKS_Y, SIZE_X, SIZE_Y, SIZE_Z } from './world';
 
@@ -54,6 +54,8 @@ export type Up =
   | { t: 'put'; i: number; b: number }
   /** Fabriquer la recette numéro `r` (voir RECIPES). */
   | { t: 'craft'; r: number }
+  /** Utiliser un seau ou le briquet sur la case `i` (voir src/sandbox/rules.ts). */
+  | { t: 'use'; i: number; h: number }
   /** Revenir au départ (coincé, tombé). */
   | { t: 'home' };
 
@@ -139,6 +141,9 @@ export function decodeUp(raw: unknown): Up | null {
       return { t: 'put', i: r.i, b: r.b };
     case 'craft':
       return int(r.r, 0, RECIPES.length - 1) ? { t: 'craft', r: r.r } : null;
+    case 'use':
+      if (!int(r.i, 0, CELLS - 1) || !USABLE.includes(r.h as number)) return null;
+      return { t: 'use', i: r.i, h: r.h as number };
     case 'home':
       return { t: 'home' };
     default:
@@ -233,9 +238,9 @@ export function decodeDown(raw: unknown): Down | null {
 
 export const encode = (msg: Up | Down): string => JSON.stringify(msg);
 
-/** Cube qu'on peut trouver dans une modification (air, ou cube que l'on pose). */
+/** Cube qu'on peut trouver dans une modification (air, cube que l'on pose, eau, feu). */
 export function validBlock(b: unknown): b is number {
-  return b === AIR || (int(b, 1, 255) && !!itemDef(b)?.block);
+  return b === AIR || (int(b, 1, 255) && placeable(b));
 }
 
 // ------------------------------------------------------------------ tranches

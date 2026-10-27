@@ -756,3 +756,27 @@ dans le monde des cubes, et inversement.
 quand le Hub change (elle ne montre pas les joueurs en direct). Les numéros des cubes du Hub
 servent maintenant au portail : les sauvegardes et le monde partagé restent valables. Le terrain
 change seulement autour de l’ancien Hub (zone protégée, où personne n’avait pu construire).
+
+## DEC-047 — Chantier des mondes : eau calme, feu qui ne se propage pas (27/10/2026)
+
+**Contexte.** Le responsable veut, comme dans les jeux de cubes, de l’**eau**, du **feu** et
+beaucoup plus de **matériaux** pour bâtir maisons et bâtiments communs. Dans ces jeux, l’eau
+coule et se répand, et le feu se propage et détruit le bois. Dans un monde partagé tenu par un
+serveur gratuit (quelques millisecondes de calcul par message), une eau qui coule demande une
+simulation continue, et un feu qui se propage détruirait les constructions des autres.
+
+**Décision.**
+
+- **Eau calme** : les lacs sont générés avec le terrain ; un seau prend et verse un cube d’eau ;
+  l’eau des lacs ne s’épuise pas. Seule règle de « coulée » : une case creusée à côté de l’eau se
+  remplit (une case, pas plus). Tout se décide au moment d’une action : rien à simuler entre deux.
+- **Feu décoratif** : allumé au briquet sur le dessus d’un cube, il éclaire et s’éteint d’un coup ;
+  il ne se propage pas et ne détruit rien.
+- Les règles des seaux et du briquet sont dans `src/sandbox/rules.ts`, partagées par le jeu et le
+  serveur (nouveau message `use`). Les nouvelles recettes sont ajoutées **à la fin** de la liste :
+  leur numéro est ce que le jeu envoie au serveur.
+- Les lacs changent un peu le terrain de départ (cuvettes) : une construction faite avant à
+  l’endroit d’un lac reste en place, entourée d’eau.
+
+**Conséquences.** Aucune dépendance. Une eau qui coule ou un feu qui se propage pourront être
+étudiés plus tard, avec la modération du monde partagé.

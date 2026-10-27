@@ -40,6 +40,19 @@ export const PATTERNS: readonly Pattern[] = [
   'portal_trim',
   'portal_floor',
   'portal_light',
+  'water',
+  'fire',
+  'iron_ore',
+  'clay',
+  'terracotta',
+  'roof_tiles',
+  'stone_bricks',
+  'sandstone',
+  'sandstone_top',
+  'dark_planks',
+  'lantern',
+  'iron_block',
+  'plaster',
 ];
 const TILE = new Map(PATTERNS.map((p, i) => [p, i]));
 
@@ -284,6 +297,8 @@ export function buildChunk(
         const def = BLOCKS[b]!;
         if (def.small) continue; // torches : dessinées à part
         const out = def.translucent ? glass : opaque;
+        // Dessus d'une étendue d'eau : rien de liquide juste au-dessus.
+        const surface = !!def.fluid && (z + 1 > maxZ || !blockDef(world.get(x, y, z + 1)).fluid);
         for (const f of FACES) {
           const nx = x + f.d[0];
           const ny = y + f.d[1];
@@ -314,8 +329,8 @@ export function buildChunk(
             const side2 = at(0, s2);
             const level = side1 && side2 ? 3 : +side1 + +side2 + +at(s1, s2);
             const v = lit * AO[level]!;
-            // Repère Three.js : X = x, Y = z, Z = y.
-            out.positions.push(x + cx, z + cz, y + cy);
+            // Repère Three.js : X = x, Y = z, Z = y. Surface de l'eau un peu plus basse.
+            out.positions.push(x + cx, z + (cz === 1 && surface ? 0.875 : cz), y + cy);
             out.colors.push(v, v, v);
             const u = [0, 1, 1, 0][i]!;
             const w = [0, 0, 1, 1][i]!;

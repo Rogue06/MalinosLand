@@ -3,10 +3,10 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 27/10/2026 — Chantier des mondes : PR #68 (survie partagée)
-fusionnée et mise en ligne ; en cours : PR 69 (MalinosLand en île flottante au loin, portail).
-Ensuite : PR 70 (eau, feu, matériaux et recettes), puis protections et modération du monde
-partagé. Une PR à la fois, présentée au responsable avant la suivante.**
+**Dernière mise à jour : 27/10/2026 — Chantier des mondes : PR #69 (MalinosLand au loin,
+portail) fusionnée et mise en ligne ; en cours : PR 70 (eau, feu, matériaux et recettes).
+Ensuite : protections et modération du monde partagé. Une PR à la fois, présentée au
+responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -101,6 +101,15 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **27/10 (nuit)** — PR #69 fusionnée et **mise en ligne** (accord du responsable), workflow
+  réussi. Branche `feature/chantier-eau-feu-materiaux` (PR 70, DEC-047) : lacs et nage, seau,
+  feu au briquet, fer, argile, silex, 8 nouveaux cubes de construction, 12 recettes (ajoutées à
+  la fin : numéros stables pour le serveur), message `use` côté serveur. Eau calme et feu qui ne
+  se propage pas (choix expliqué dans DEC-047). Testé : unitaires (dont
+  `tests/sandbox-materials.test.ts`), intégration Wrangler, e2e (le test du Chantier vérifie
+  maintenant la case où il place le joueur). **Suite : attendre « fusionne 70 », puis
+  protections et modération du monde partagé.**
 
 - **27/10 (soir)** — PR #68 fusionnée et **mise en ligne** (accord du responsable), workflow
   réussi : la classe `ChantierRoom` est créée sur Cloudflare. Le responsable précise : depuis le

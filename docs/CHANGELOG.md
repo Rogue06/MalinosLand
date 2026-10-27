@@ -5,6 +5,18 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (Chantier des mondes : eau, feu et matériaux, PR 70)
+
+- **Lacs** avec plages ; on **nage** (plus lent, on coule doucement, Espace pour remonter et
+  sortir de l’eau) ; vue bleue sous l’eau. **Seau** pour prendre et verser l’eau ; l’eau remplit
+  le trou d’une case creusée à côté d’elle ; on construit dans l’eau.
+- **Feu** allumé au **briquet** sur un cube : il éclaire, ses flammes dansent, un coup l’éteint.
+  Il ne se propage pas.
+- **Fer** (minerai sous terre, lingots au four), **argile** au fond des lacs, **silex** dans le
+  gravier. Nouveaux cubes : planches foncées, briques de pierre, grès, enduit blanc, terre cuite,
+  tuiles, bloc de fer, lanternes. Pioche en fer, seau, briquet : **12 nouvelles recettes** (24 en
+  tout). Tout fonctionne aussi dans le monde partagé (vérifié par le serveur).
+
 ### Ajouté et modifié (Chantier des mondes : MalinosLand au loin et portail, PR 69)
 
 - **MalinosLand flotte au loin** dans le ciel du monde des cubes : le vrai jeu en 2D isométrique

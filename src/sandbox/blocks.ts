@@ -34,7 +34,20 @@ export type Pattern =
   | 'portal_stone'
   | 'portal_trim'
   | 'portal_floor'
-  | 'portal_light';
+  | 'portal_light'
+  | 'water'
+  | 'fire'
+  | 'iron_ore'
+  | 'clay'
+  | 'terracotta'
+  | 'roof_tiles'
+  | 'stone_bricks'
+  | 'sandstone'
+  | 'sandstone_top'
+  | 'dark_planks'
+  | 'lantern'
+  | 'iron_block'
+  | 'plaster';
 
 export interface BlockDef {
   id: number;
@@ -65,6 +78,10 @@ export interface BlockDef {
   light?: boolean;
   /** Fait partie du Portail des Malinos (protégé : on ne le casse pas). */
   portal?: boolean;
+  /** Liquide (eau) : on le traverse en nageant, on le prend avec un seau, on ne le casse pas. */
+  fluid?: boolean;
+  /** Ne va jamais dans le sac (le feu : on l'allume avec un briquet). */
+  noItem?: boolean;
   /** Bruit des coups (voir src/sandbox/sfx.ts). */
   sound?: 'soft' | 'wood' | 'stone' | 'glass';
 }
@@ -95,14 +112,34 @@ export const PORTAL_TRIM = 22;
 export const PORTAL_GLASS = 23;
 export const PORTAL_FLOOR = 24;
 export const PORTAL_LIGHT = 25;
+export const WATER = 26;
+export const FIRE = 27;
+export const IRON_ORE = 28;
+export const CLAY = 29;
+export const TERRACOTTA = 30;
+export const ROOF_TILES = 31;
+export const STONE_BRICKS = 32;
+export const SANDSTONE = 33;
+export const DARK_PLANKS = 34;
+export const LANTERN = 35;
+export const IRON_BLOCK = 36;
+export const PLASTER = 37;
 
 /** Objets qui ne sont pas des cubes. */
 export const STICK = 100;
 export const WOOD_PICK = 101;
 export const STONE_PICK = 102;
 export const CRYSTAL_PICK = 103;
+export const IRON_PICK = 104;
 export const COAL = 110;
 export const CRYSTAL = 111;
+export const IRON_INGOT = 112;
+export const FLINT = 113;
+export const BUCKET = 114;
+export const WATER_BUCKET = 115;
+export const LIGHTER = 116;
+/** Objets qui s'utilisent d'un clic droit (seaux, briquet) au lieu de se poser. */
+export const USABLE: readonly number[] = [BUCKET, WATER_BUCKET, LIGHTER];
 
 const cube = (
   id: number,
@@ -199,6 +236,36 @@ export const BLOCKS: readonly BlockDef[] = [
     portal: true,
     light: true,
   }),
+  // Eau : lacs et étangs ; on nage dedans, on la prend et on la verse avec un seau.
+  cube(WATER, 'Eau', 'water', '#3f8fd8', Infinity, {
+    drop: null,
+    solid: false,
+    seeThrough: true,
+    translucent: true,
+    fluid: true,
+  }),
+  // Feu : s'allume au briquet sur un cube, éclaire ; un coup l'éteint. Il ne se propage pas.
+  cube(FIRE, 'Feu', 'fire', '#ff8a3c', 0, {
+    drop: null,
+    solid: false,
+    seeThrough: true,
+    small: true,
+    light: true,
+    noItem: true,
+  }),
+  cube(IRON_ORE, 'Minerai de fer', 'iron_ore', '#b08a6a', 4.5, { tier: 2, sound: 'stone' }),
+  cube(CLAY, 'Argile', 'clay', '#9aa7b8', 0.6),
+  cube(TERRACOTTA, 'Terre cuite', 'terracotta', '#c9744e', 1.25, { sound: 'stone' }),
+  cube(ROOF_TILES, 'Tuiles', 'roof_tiles', '#b0503a', 1.5, { sound: 'stone' }),
+  cube(STONE_BRICKS, 'Briques de pierre', 'stone_bricks', '#7f8799', 3, { sound: 'stone' }),
+  cube(SANDSTONE, 'Grès', 'sandstone', '#e3c88a', 0.8, {
+    tex: { top: 'sandstone_top', side: 'sandstone', bottom: 'sandstone_top' },
+    sound: 'stone',
+  }),
+  cube(DARK_PLANKS, 'Planches foncées', 'dark_planks', '#7a5233', 1.5, { sound: 'wood' }),
+  cube(LANTERN, 'Lanterne', 'lantern', '#ffd36e', 1, { light: true, sound: 'glass' }),
+  cube(IRON_BLOCK, 'Bloc de fer', 'iron_block', '#d8dde6', 5, { tier: 2, sound: 'stone' }),
+  cube(PLASTER, 'Enduit blanc', 'plaster', '#f1ece2', 1, { sound: 'stone' }),
 ];
 
 export function blockDef(id: number): BlockDef {
@@ -244,14 +311,27 @@ const OTHER_ITEMS: readonly ItemDef[] = [
     block: false,
     tool: { tier: 3, speed: 6 },
   },
+  {
+    id: IRON_PICK,
+    name: 'Pioche en fer',
+    color: '#d8dde6',
+    glyph: '⛏',
+    block: false,
+    tool: { tier: 2, speed: 4.8 },
+  },
   { id: COAL, name: 'Charbon', color: '#2f3442', glyph: '●', block: false },
   { id: CRYSTAL, name: 'Cristal', color: '#5fe3d0', glyph: '◆', block: false },
+  { id: IRON_INGOT, name: 'Lingot de fer', color: '#c9ced8', glyph: '▬', block: false },
+  { id: FLINT, name: 'Silex', color: '#4a4f5c', glyph: '◆', block: false },
+  { id: BUCKET, name: 'Seau', color: '#aeb6c4', glyph: '◡', block: false },
+  { id: WATER_BUCKET, name: 'Seau d’eau', color: '#3f8fd8', glyph: '◡', block: false },
+  { id: LIGHTER, name: 'Briquet', color: '#ff8a3c', glyph: '✦', block: false },
 ];
 
 export function itemDef(id: number): ItemDef | null {
   if (id > AIR && id < BLOCKS.length) {
     const b = BLOCKS[id]!;
-    if (b.hardness === Infinity) return null;
+    if (b.hardness === Infinity || b.noItem) return null;
     return { id, name: b.name, color: b.color, glyph: '', block: true };
   }
   return OTHER_ITEMS.find((i) => i.id === id) ?? null;
@@ -271,9 +351,28 @@ export function breakTime(block: number, held: number | null): number {
   return b.hardness / (tool?.speed ?? 1);
 }
 
-/** Ce que rapporte un cube cassé avec l'objet tenu (null : rien, outil trop faible). */
-export function dropOf(block: number, held: number | null): number | null {
+/** Chance qu'un gravier donne un silex (pour le briquet). */
+export const FLINT_CHANCE = 0.15;
+
+/**
+ * Ce que rapporte un cube cassé avec l'objet tenu (null : rien, outil trop faible). `roll`
+ * (0 à 1) : tirage au sort, pour le silex caché dans le gravier.
+ */
+export function dropOf(block: number, held: number | null, roll = Math.random()): number | null {
   const b = blockDef(block);
   const tier = held !== null ? (itemDef(held)?.tool?.tier ?? 0) : 0;
-  return tier >= b.tier ? b.drop : null;
+  if (tier < b.tier) return null;
+  if (block === GRAVEL && roll < FLINT_CHANCE) return FLINT;
+  return b.drop;
+}
+
+/** Ce qu'on peut trouver posé dans le monde : un cube du sac, l'eau (seau) ou le feu (briquet). */
+export function placeable(block: number): boolean {
+  return !!itemDef(block)?.block || block === WATER || block === FIRE;
+}
+
+/** Cube fixe du terrain de départ (socle, dalle, portail) : il ne change jamais. L'eau, si. */
+export function fixed(block: number): boolean {
+  const b = blockDef(block);
+  return b.hardness === Infinity && !b.fluid;
 }

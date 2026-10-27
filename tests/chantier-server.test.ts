@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { AIR, DIRT, LOG, PLANKS, STONE, WORKBENCH } from '../src/sandbox/blocks';
+import { AIR, DIRT, FIRE, LIGHTER, LOG, PLANKS, STONE, WORKBENCH } from '../src/sandbox/blocks';
 import { RECIPES } from '../src/sandbox/inventory';
 import { decodeDown, encode, type Down, type Up } from '../src/sandbox/protocol';
 import { SIZE_Z, VoxelWorld } from '../src/sandbox/world';
@@ -182,6 +182,28 @@ describe('Chantier partagé : serveur', () => {
     s.send(alice, { t: 'craft', r: pick });
     expect(alice.of('no').at(-1)?.why).toBe('missing');
     expect(w.get(0, 0, 0)).not.toBe(WORKBENCH);
+  });
+
+  it('briquet : le serveur allume le feu pour tous ; un visiteur ne peut pas', async () => {
+    const saves = new Map<string, PlayerSave>();
+    const s = setup({ saves });
+    const w = s.hub.world;
+    saves.set(ALICE_ID, {
+      inv: [[LIGHTER, 1]],
+      x: w.spawn.x + 0.5,
+      y: w.spawn.y + 0.5,
+      z: w.spawn.z,
+    });
+    const alice = await s.join(ALICE);
+    const zoe = await s.join(null, 'Zoé');
+    const x = w.spawn.x + 3;
+    const y = w.spawn.y;
+    const spot = w.index(x, y, w.surface(x, y) + 1);
+    s.send(zoe, { t: 'use', i: spot, h: LIGHTER });
+    expect(zoe.of('no').at(-1)?.why).toBe('guest');
+    s.send(alice, { t: 'use', i: spot, h: LIGHTER });
+    expect(zoe.of('set').at(-1)?.e).toEqual([spot, FIRE]);
+    expect(alice.of('inv').at(-1)?.c).toEqual([[LIGHTER, 1]]);
   });
 
   it('un déplacement trop rapide est refusé : le joueur est replacé', async () => {

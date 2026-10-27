@@ -1,3 +1,4 @@
+import { blockDef } from './blocks';
 import type { VoxelWorld } from './world';
 
 /**
@@ -18,6 +19,12 @@ export const GRAVITY = 30;
 export const JUMP_SPEED = 8.6;
 /** Au-delà, on retombe… sur la dalle de départ. */
 export const FALL_LIMIT = -8;
+/** Dans l'eau : plus lent, on coule doucement, on remonte en nageant (saut maintenu). */
+export const SWIM_FACTOR = 0.55;
+export const SWIM_UP = 3.4;
+export const SINK_SPEED = 2.2;
+/** Coup de jambes pour sortir de l'eau contre un bord. */
+export const SWIM_HOP = 6.4;
 
 export interface PlayerState {
   x: number;
@@ -57,6 +64,13 @@ export function collides(world: VoxelWorld, x: number, y: number, z: number): bo
   return false;
 }
 
+/** Le personnage a-t-il de l'eau à hauteur de taille ? */
+export function inWater(world: VoxelWorld, p: { x: number; y: number; z: number }): boolean {
+  return (
+    blockDef(world.get(Math.floor(p.x), Math.floor(p.y), Math.floor(p.z + 0.4))).fluid === true
+  );
+}
+
 /** Une case est-elle occupée par le corps du personnage (pour refuser d'y poser un cube) ? */
 export function occupies(p: PlayerState, cell: { x: number; y: number; z: number }): boolean {
   return (
@@ -81,20 +95,21 @@ export function stepPlayer(p: PlayerState, input: MoveInput, dt: number, world: 
 
 function subStep(p: PlayerState, input: MoveInput, dt: number, world: VoxelWorld): void {
   const sneak = !!input.sneak && !input.fly;
-  const speed = input.fly
-    ? FLY_SPEED
-    : sneak
-      ? SNEAK_SPEED
-      : input.sprint
-        ? SPRINT_SPEED
-        : WALK_SPEED;
+  const water = !input.fly && inWater(world, p);
+  const speed =
+    (input.fly ? FLY_SPEED : sneak ? SNEAK_SPEED : input.sprint ? SPRINT_SPEED : WALK_SPEED) *
+    (water ? SWIM_FACTOR : 1);
   const len = Math.hypot(input.wish.x, input.wish.y);
   const k = len > 1 ? 1 / len : 1;
   const dx = input.wish.x * k * speed * dt;
   const dy = input.wish.y * k * speed * dt;
 
+  let blocked = false;
   if (input.fly) {
     p.vz = input.jump ? FLY_SPEED : input.down ? -FLY_SPEED : 0;
+  } else if (water) {
+    // On nage : on coule lentement, on remonte avec le saut.
+    p.vz = input.jump ? SWIM_UP : Math.max(p.vz - GRAVITY * 0.3 * dt, -SINK_SPEED);
   } else {
     if (input.jump && p.onGround) {
       p.vz = JUMP_SPEED;
@@ -114,17 +129,23 @@ function subStep(p: PlayerState, input: MoveInput, dt: number, world: VoxelWorld
       if (sneak && p.onGround && !collides(world, nx, ny, p.z - 0.05)) continue;
       p.x = nx;
       p.y = ny;
-    } else if (
-      input.autoStep &&
-      p.onGround &&
-      !collides(world, nx, ny, Math.floor(p.z + EPS) + 1) &&
-      !collides(world, p.x, p.y, Math.floor(p.z + EPS) + 1)
-    ) {
-      p.z = Math.floor(p.z + EPS) + 1;
-      p.x = nx;
-      p.y = ny;
+    } else {
+      blocked = true;
+      if (
+        input.autoStep &&
+        p.onGround &&
+        !collides(world, nx, ny, Math.floor(p.z + EPS) + 1) &&
+        !collides(world, p.x, p.y, Math.floor(p.z + EPS) + 1)
+      ) {
+        p.z = Math.floor(p.z + EPS) + 1;
+        p.x = nx;
+        p.y = ny;
+      }
     }
   }
+
+  // Contre un bord, en nageant vers le haut : un coup de jambes pour sortir de l'eau.
+  if (water && blocked && input.jump) p.vz = SWIM_HOP;
 
   // Axe z : on tombe jusqu'au sol, on se cogne au plafond.
   const nz = p.z + p.vz * dt;
