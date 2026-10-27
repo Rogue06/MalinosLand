@@ -19,6 +19,7 @@ import {
   WORKBENCH,
   itemDef,
 } from './blocks';
+import type { VoxelWorld } from './world';
 
 /**
  * Inventaire et fabrication du « Chantier des mondes » (logique pure et testée). Une recette
@@ -125,6 +126,27 @@ export const STATION_LABEL: Record<Station, string> = {
   furnace: 'un four',
 };
 
+/** Ateliers (établi, four) à portée d'un joueur dont les pieds sont en (x, y, z). */
+export function stationsNear(
+  world: Pick<VoxelWorld, 'get'>,
+  x: number,
+  y: number,
+  z: number,
+): Set<Station> {
+  const out = new Set<Station>();
+  const px = Math.floor(x);
+  const py = Math.floor(y);
+  const pz = Math.floor(z);
+  for (let cz = pz - 2; cz <= pz + 3; cz++)
+    for (let cy = py - 4; cy <= py + 4; cy++)
+      for (let cx = px - 4; cx <= px + 4; cx++) {
+        const b = world.get(cx, cy, cz);
+        if (b === WORKBENCH) out.add('workbench');
+        if (b === FURNACE) out.add('furnace');
+      }
+  return out;
+}
+
 export class Inventory {
   readonly counts = new Map<number, number>();
   /** Objets rangés dans la barre rapide (null : case vide). */
@@ -197,6 +219,30 @@ export class Inventory {
     for (const [item, n] of recipe.needs) this.remove(item, n);
     this.add(recipe.out[0], recipe.out[1]);
     return true;
+  }
+
+  /**
+   * Remplace le contenu du sac par celui que garde le serveur (monde partagé). La barre rapide
+   * garde l'ordre choisi ; un objet parti libère sa case, un nouveau prend la première libre.
+   */
+  setCounts(stacks: ReadonlyArray<readonly [number, number]>): void {
+    this.counts.clear();
+    for (const [item, n] of stacks)
+      if (itemDef(item) && n > 0) this.counts.set(item, Math.min(MAX_STACK, n));
+    for (let i = 0; i < HOTBAR_SIZE; i++) {
+      const id = this.hotbar[i];
+      if (id !== null && id !== undefined && !this.has(id)) this.hotbar[i] = null;
+    }
+    for (const item of this.counts.keys()) {
+      if (this.hotbar.includes(item)) continue;
+      const free = this.hotbar.indexOf(null);
+      if (free >= 0) this.hotbar[free] = item;
+    }
+  }
+
+  /** Contenu du sac sous forme compacte (serveur). */
+  stacks(): Array<[number, number]> {
+    return [...this.counts];
   }
 
   toJSON(): { counts: Array<[number, number]>; hotbar: Array<number | null>; selected: number } {

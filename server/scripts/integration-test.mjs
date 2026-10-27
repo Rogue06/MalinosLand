@@ -3,7 +3,10 @@
 // répond à la vérification des comptes.
 // Usage : cd server && npm run test:integration
 import { spawn } from 'node:child_process';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { createServer } from 'node:http';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const PORT = 8788;
 const BASE = `http://127.0.0.1:${PORT}`;
@@ -59,46 +62,73 @@ const fakeDb = createServer(async (req, res) => {
   res.end(JSON.stringify([ACCOUNT]));
 }).listen(DB_PORT, '127.0.0.1');
 
-const server = spawn(
-  'npx',
-  [
-    'wrangler',
-    'dev',
-    '--port',
-    String(PORT),
-    '--ip',
-    '127.0.0.1',
-    '--var',
-    `ALLOWED_ORIGINS:${ORIGIN}`,
-    '--var',
-    'MAX_PLAYERS_PER_ROOM:3',
-    '--var',
-    `SUPABASE_URL:http://127.0.0.1:${DB_PORT}`,
-    '--var',
-    'SUPABASE_KEY:sb_publishable_test_0123456789',
-  ],
-  {
-    cwd: new URL('..', import.meta.url),
-    env: { ...process.env, WRANGLER_SEND_METRICS: 'false' },
-    detached: true,
-  },
-);
+// Stockage des Durable Objects dans un dossier temporaire : chaque essai repart de zéro, et le
+// monde du Chantier doit survivre à un redémarrage du serveur.
+const PERSIST = mkdtempSync(join(tmpdir(), 'malinos-do-'));
+const launch = () =>
+  spawn(
+    'npx',
+    [
+      'wrangler',
+      'dev',
+      '--port',
+      String(PORT),
+      '--ip',
+      '127.0.0.1',
+      '--var',
+      `ALLOWED_ORIGINS:${ORIGIN}`,
+      '--var',
+      'MAX_PLAYERS_PER_ROOM:3',
+      '--var',
+      `SUPABASE_URL:http://127.0.0.1:${DB_PORT}`,
+      '--var',
+      'SUPABASE_KEY:sb_publishable_test_0123456789',
+      '--persist-to',
+      PERSIST,
+    ],
+    {
+      cwd: new URL('..', import.meta.url),
+      env: { ...process.env, WRANGLER_SEND_METRICS: 'false' },
+      detached: true,
+    },
+  );
 let logs = '';
-server.stdout.on('data', (d) => (logs += d));
-server.stderr.on('data', (d) => (logs += d));
-const stop = () => {
-  fakeDb.close();
+let server;
+const start = () => {
+  server = launch();
+  server.stdout.on('data', (d) => (logs += d));
+  server.stderr.on('data', (d) => (logs += d));
+};
+const kill = () => {
   try {
     process.kill(-server.pid, 'SIGTERM');
   } catch {
     /* déjà arrêté */
   }
 };
+const stop = () => {
+  fakeDb.close();
+  kill();
+  rmSync(PERSIST, { recursive: true, force: true });
+};
+const waitUp = async () => {
+  for (let i = 0; i < 90; i++) {
+    await sleep(1000);
+    if (
+      await fetch(`${BASE}/health`)
+        .then((r) => r.ok)
+        .catch(() => false)
+    )
+      return true;
+  }
+  return false;
+};
+start();
 
 /** Client WebSocket qui mémorise les messages reçus. */
-function client(origin = ORIGIN, protocols = undefined) {
+function client(origin = ORIGIN, protocols = undefined, path = '/ws') {
   return new Promise((resolve) => {
-    const ws = new WebSocket(`ws://127.0.0.1:${PORT}/ws`, {
+    const ws = new WebSocket(`ws://127.0.0.1:${PORT}${path}`, {
       headers: { Origin: origin },
       ...(protocols ? { protocols } : {}),
     });
@@ -300,6 +330,67 @@ try {
   check(!!guest && guest.v === undefined, 'un jeton refusé par la base = simple visiteur');
 
   for (const x of [a, d, g, evil]) x.ws.close();
+
+  // Chantier des mondes partagé (DEC-045) : un visiteur regarde, un compte construit.
+  const visitor = await client(ORIGIN, ['malinos.v1'], '/chantier');
+  visitor.ws.send(JSON.stringify({ t: 'hi', name: 'Zoé' }));
+  await sleep(600);
+  const vw = of(visitor, 'welcome')[0];
+  check(
+    vw?.build === false && vw?.name === 'Zoé',
+    'chantier : un visiteur entre sans pouvoir construire',
+  );
+  const builder = await client(ORIGIN, ['malinos.v1', `jwt.${VALID_TOKEN}`], '/chantier');
+  builder.ws.send(JSON.stringify({ t: 'hi', name: 'Usurpateur' }));
+  await sleep(600);
+  const bw = of(builder, 'welcome')[0];
+  check(
+    bw?.build === true &&
+      bw?.name === 'Élodie' &&
+      of(visitor, 'join').some((m) => m.name === 'Élodie'),
+    'chantier : un compte connecté entre avec son pseudo et peut construire',
+  );
+  // Une colonne près du départ : le serveur refuse l'air et la distance, casse la surface.
+  const cell = (x, y, z) => x + 192 * (y + 192 * z);
+  visitor.ws.send(JSON.stringify({ t: 'dig', i: cell(100, 120, 20), h: 0 }));
+  await sleep(1600);
+  for (let z = 30; z >= 10; z--)
+    builder.ws.send(JSON.stringify({ t: 'dig', i: cell(100, 120, z), h: 0 }));
+  await sleep(800);
+  check(
+    of(visitor, 'no').some((m) => m.why === 'guest'),
+    'chantier : le serveur refuse qu’un visiteur casse un cube',
+  );
+  const broken = of(visitor, 'set').find((m) => m.e[1] === 0);
+  check(
+    !!broken && of(builder, 'inv').some((m) => m.c.length === 1 && m.c[0][1] === 1),
+    'chantier : un cube cassé par le compte disparaît chez tous, la récolte va dans son sac',
+  );
+  const late = await client(ORIGIN, ['malinos.v1'], '/chantier');
+  late.ws.send(JSON.stringify({ t: 'hi', name: 'Léo' }));
+  await sleep(600);
+  check(of(late, 'chunk').length >= 1, 'chantier : un nouvel arrivant reçoit les modifications');
+  builder.ws.close();
+  await sleep(400);
+  check(
+    of(visitor, 'left').some((m) => m.id === bw?.id),
+    'chantier : les autres voient partir le joueur',
+  );
+  for (const x of [visitor, late]) x.ws.close();
+  // Les modifications sont enregistrées par lots (quelques secondes) : on redémarre le serveur.
+  await sleep(6500);
+  kill();
+  await sleep(1500);
+  start();
+  check(await waitUp(), 'chantier : le serveur redémarre');
+  const after = await client(ORIGIN, ['malinos.v1'], '/chantier');
+  after.ws.send(JSON.stringify({ t: 'hi', name: 'Léo' }));
+  await sleep(800);
+  check(
+    of(after, 'chunk').length >= 1,
+    'chantier : le monde partagé est retrouvé après un redémarrage du serveur',
+  );
+  after.ws.close();
 } catch (err) {
   errors.push(err.message);
   console.error(logs.slice(-3000));

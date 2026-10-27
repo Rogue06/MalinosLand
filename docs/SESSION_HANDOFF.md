@@ -3,10 +3,9 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 27/10/2026 — Chantier des mondes (`/chantier/`, en ligne) : PR #66
-fusionnée ; en cours : PR 67 (grand monde 192 × 192, Hub visible au loin). Ensuite : PR 68
-(survie partagée à plusieurs) puis PR 69 (protections, modération). Une PR à la fois, présentée
-au responsable avant la suivante.**
+**Dernière mise à jour : 27/10/2026 — Chantier des mondes : PR #67 (grand monde, Hub au loin)
+fusionnée et mise en ligne ; en cours : PR 68 (survie partagée à plusieurs). Ensuite : PR 69
+(protections, modération). Une PR à la fois, présentée au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -101,6 +100,16 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **27/10 (fin)** — PR #67 fusionnée puis **mise en ligne** (demande du responsable : « déploie ce
+  qui a été fait »), workflow réussi. Branche `feature/chantier-multijoueur` (PR 68, DEC-045) :
+  mode « À plusieurs » du Chantier, Durable Object `ChantierRoom` (`/chantier`), serveur qui
+  vérifie tout, sacs des comptes gardés, visiteurs spectateurs. Testé : unitaires (serveur et
+  protocole), intégration Wrangler (dont redémarrage : le monde est retrouvé), deux navigateurs
+  (`npm run test:online`). **Pas testé avec un vrai compte dans le navigateur** (pas de base
+  locale) : à essayer en ligne. La mise en ligne créera la classe `ChantierRoom` sur Cloudflare
+  (migration `v2`) : à faire avec l’accord du responsable. **Suite : attendre « fusionne 68 »,
+  puis PR 69** (retour en arrière, zones protégées, modération, chat éventuel).
 
 - **27/10 (suite)** — PR #66 fusionnée et en ligne. Le responsable veut un **monde plus grand**
   d’où l’on voit **le Hub au loin** (les deux seront reliés, mais pas avant que le Chantier soit

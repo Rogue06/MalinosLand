@@ -46,6 +46,11 @@ export const TURNSTILE_SITEKEY: string | null =
   /^[A-Za-z0-9_-]{10,}$/.test(turnstileKey)
     ? turnstileKey
     : null;
+/**
+ * Clé de stockage de la session du compte dans le navigateur (partagée par le jeu et le Chantier
+ * des mondes : même site, même connexion).
+ */
+export const AUTH_STORAGE_KEY = 'malinos-auth';
 /** Les comptes n'ont de sens qu'en ligne. */
 export const ACCOUNTS_ENABLED = !!(REALTIME_URL && SUPABASE_URL && SUPABASE_KEY);
 

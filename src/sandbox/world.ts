@@ -321,7 +321,8 @@ export class VoxelWorld {
     return { x, y, z };
   }
 
-  private chunkOf(index: number): number {
+  /** Tranche (0 à CHUNKS_X × CHUNKS_Y - 1) d'une case du monde. */
+  chunkOf(index: number): number {
     const c = this.cellOf(index);
     return Math.floor(c.x / CHUNK) + CHUNKS_X * Math.floor(c.y / CHUNK);
   }
@@ -344,7 +345,11 @@ export class VoxelWorld {
         this.base.set(row, dst);
         this.blocks.set(row, dst);
       }
-    for (const [i, b] of this.changes.get(ci) ?? []) this.blocks[i] = b;
+    const m = this.changes.get(ci);
+    for (const [i, b] of m ?? []) {
+      if (blockDef(this.base[i]!).hardness === Infinity) m!.delete(i);
+      else this.blocks[i] = b;
+    }
   }
 
   /**
@@ -488,6 +493,45 @@ export class VoxelWorld {
     let n = 0;
     for (const m of this.changes.values()) n += m.size;
     return n;
+  }
+
+  /** Tranches qui ont des modifications. */
+  changedChunks(): number[] {
+    return [...this.changes].filter(([, m]) => m.size > 0).map(([ci]) => ci);
+  }
+
+  /** Modifications d'une tranche (indice → cube). */
+  chunkChanges(ci: number): ReadonlyMap<number, number> {
+    return this.changes.get(ci) ?? new Map();
+  }
+
+  /**
+   * Remplace les modifications d'une tranche, **sans calculer le terrain** (monde partagé : le
+   * serveur se réveille et relit ses tranches ; le navigateur reçoit celles du serveur). Une
+   * tranche déjà calculée est remise à jour. Cases hors de la tranche, cubes inconnus ou zone
+   * protégée : ignorés. Renvoie le nombre de modifications gardées.
+   */
+  setChunkChanges(ci: number, entries: ReadonlyMap<number, number>): number {
+    const old = this.changes.get(ci);
+    const m = new Map<number, number>();
+    for (const [index, block] of entries) {
+      if (!Number.isInteger(index) || index < 0 || index >= this.blocks.length) continue;
+      if (this.chunkOf(index) !== ci) continue;
+      if (block !== AIR && !itemDef(block)?.block) continue;
+      const c = this.cellOf(index);
+      if (this.protectedCell(c.x, c.y, c.z)) continue;
+      m.set(index, block);
+    }
+    this.changes.set(ci, m);
+    if (this.generated[ci]) {
+      for (const i of old?.keys() ?? []) this.blocks[i] = this.base[i]!;
+      for (const [i, b] of m) {
+        // Un cube incassable du terrain de départ (socle, Hub) ne change jamais.
+        if (blockDef(this.base[i]!).hardness === Infinity) m.delete(i);
+        else this.blocks[i] = b;
+      }
+    }
+    return m.size;
   }
 
   /** Modifications par rapport au terrain de départ : ce qu'on sauvegarde. */

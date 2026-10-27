@@ -150,7 +150,7 @@ const MAX_STRIKES = 30;
 /** Taille maximale de la file d'attente d'une salle (au-delà : « salle pleine »). */
 export const MAX_QUEUE = 50;
 
-function take(b: Bucket, capacity: number, perSecond: number, now: number): boolean {
+export function take(b: Bucket, capacity: number, perSecond: number, now: number): boolean {
   const elapsed = Math.max(0, now - b.at) / 1000;
   b.tokens = Math.min(capacity, b.tokens + elapsed * perSecond);
   b.at = now;

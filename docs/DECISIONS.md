@@ -699,3 +699,35 @@ d’un coup.
 **Conséquences.** Aucune dépendance, aucune ressource en ligne. Version de sauvegarde 2 : les
 parties du petit monde ne sont pas reprises. Fluidité à confirmer sur une vraie machine et un vrai
 téléphone (≈ 10 images/s mesurées sans carte graphique).
+
+## DEC-045 — Chantier des mondes à plusieurs : survie partagée tenue par le serveur (27/10/2026)
+
+**Contexte.** Le responsable veut le multijoueur dans le Chantier des mondes. Ses choix (27/10) :
+**survie partagée** (un seul monde commun, le sac de chacun gardé), **comptes connectés** pour
+construire (les visiteurs regardent). Contraintes : offre gratuite de Cloudflare (quelques
+millisecondes de calcul par message, 100 000 requêtes et 100 000 lignes écrites par jour), et
+aucun joueur ne doit pouvoir tricher (cubes rares créés de rien, constructions dans le Hub…).
+
+**Décision.**
+
+- Un second **Durable Object**, `ChantierRoom` (adresse `/chantier` du même Worker), séparé du
+  Hub : une panne ou une surcharge de l’un ne touche pas l’autre. Même vérification des comptes
+  (jeton dans les sous-protocoles, base Supabase), même hibernation des WebSockets.
+- **Le serveur décide de tout** avec les mêmes règles que le jeu (`src/sandbox/`, logique pure
+  réutilisée telle quelle) : il recalcule le terrain de départ à partir de la graine, une tranche
+  à la fois et seulement là où l’on joue (DEC-044), et vérifie portée, temps pour casser selon
+  l’outil, sac, atelier, zone protégée et vitesse. Le navigateur montre l’action tout de suite
+  et se corrige si le serveur refuse.
+- **Stockage** : seulement les modifications (une ligne par tranche, binaire compact de 3 octets
+  par case) et, par compte, le sac et la position. Écritures regroupées par une alarme 5 s après
+  la première modification.
+- **Quotas** : budget de messages propre au Chantier (300 000 par jour), 20 joueurs à la fois,
+  60 000 modifications au plus ; budget épuisé : pause jusqu’au lendemain.
+- Écartés : un monde par joueur (pas « partagé ») ; la base Supabase pour les cubes (trop
+  d’écritures, quotas mensuels) ; faire confiance au navigateur (triche immédiate).
+
+**Conséquences.** Aucune dépendance. Une nouvelle classe de Durable Object (migration `v2` dans
+`server/wrangler.toml`), créée sur le compte Cloudflare à la prochaine mise en ligne du serveur
+(avec l’accord du responsable). Durée gratuite partagée avec le Hub, à surveiller. Reste pour la
+suite (PR 69) : retour en arrière, zones protégées, modération, chat éventuel, nettoyage des
+sacs des comptes supprimés.

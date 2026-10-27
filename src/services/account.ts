@@ -1,4 +1,4 @@
-import { ACCOUNTS_ENABLED, SUPABASE_KEY, SUPABASE_URL } from '../config';
+import { ACCOUNTS_ENABLED, AUTH_STORAGE_KEY, SUPABASE_KEY, SUPABASE_URL } from '../config';
 import { Store } from '../core/store';
 import { sanitizeName } from '../core/text';
 import { accountPlayerId, accountUuid, ROLES, type Role } from '../multiplayer/protocol';
@@ -50,7 +50,7 @@ export const accountStore = new Store<AccountState>({
 });
 
 /** Clé de stockage de la session : sa présence évite de charger Supabase pour les visiteurs. */
-const STORAGE_KEY = 'malinos-auth';
+const STORAGE_KEY = AUTH_STORAGE_KEY;
 
 let clients: Promise<SupabaseClients> | null = null;
 /** Clients Supabase, chargés à la première utilisation (aussi pour les visiteurs). */

@@ -3,7 +3,14 @@ import { VersionedStorage } from '../services/storage';
 import { AIR, ALL_ITEMS, FURNACE, WORKBENCH, blockDef, breakTime, dropOf, itemDef } from './blocks';
 import { DEFAULT_BINDINGS, copyBindings, pressed, type Bindings } from './controls';
 import { MAX_DROPS, packDrops, parseDrops, spawnDrop, stepDrops, type Drop } from './drops';
-import { HOTBAR_SIZE, Inventory, MAX_STACK, type Station } from './inventory';
+import {
+  HOTBAR_SIZE,
+  Inventory,
+  MAX_STACK,
+  RECIPES,
+  stationsNear,
+  type Station,
+} from './inventory';
 import { PATTERNS } from './mesh';
 import {
   CHUNK,
@@ -14,6 +21,7 @@ import {
   type MeshData,
 } from './mesh';
 import { EYE, FALL_LIMIT, HEIGHT, occupies, respawn, stepPlayer, type PlayerState } from './player';
+import type { SharedPeer } from './protocol';
 import { sfx } from './sfx';
 import { buildAtlas } from './textures';
 import {
@@ -35,7 +43,33 @@ import {
  * construction en cubes) et **isométrique** (comme le Hub, avec coupe automatique sous terre).
  */
 export type ViewMode = 'first' | 'iso';
-export type GameMode = 'survival' | 'creative';
+/** `shared` : survie partagée, un seul monde pour tous, tenu par le serveur (DEC-045). */
+export type GameMode = 'survival' | 'creative' | 'shared';
+
+/**
+ * Branchement réseau du monde partagé (main.ts) : le jeu montre tout de suite ce que fait le
+ * joueur, puis le serveur confirme ou corrige (il renvoie l'état réel de la case et le sac).
+ */
+export interface SharedHooks {
+  /** Compte connecté et serveur joignable. */
+  canBuild(): boolean;
+  /** Pourquoi on ne peut pas construire (visiteur, hors ligne). */
+  whyNot(): string;
+  dig(index: number, held: number): void;
+  put(index: number, block: number): void;
+  craft(recipe: number): void;
+  home(): void;
+  move(x: number, y: number, z: number, yaw: number): void;
+}
+
+/** Un autre joueur du monde partagé. */
+interface Peer {
+  name: string;
+  body: THREE.Group;
+  label: THREE.Sprite;
+  target: { x: number; y: number; z: number; a: number };
+  phase: number;
+}
 
 /** Portée des mains (cubes). */
 export const REACH = 5;
@@ -88,6 +122,11 @@ export class SandboxGame {
   autoStep = false;
   /** Touches choisies par le joueur (voir src/sandbox/controls.ts). */
   bindings: Bindings = copyBindings(DEFAULT_BINDINGS);
+  /** Monde partagé : branchement réseau (null : partie solo). */
+  shared: SharedHooks | null = null;
+  private readonly peers = new Map<string, Peer>();
+  /** Modifications reçues du serveur : lumière et dessin à refaire (une fois, à l'image suivante). */
+  private relight = false;
   /** Objets tombés au sol, à ramasser. */
   drops: Drop[] = [];
   private readonly dropMeshes = new Map<Drop, THREE.Mesh>();
@@ -284,6 +323,8 @@ export class SandboxGame {
   }
 
   private load(): void {
+    // Monde partagé : tout vient du serveur (terrain, sac, position).
+    if (this.mode === 'shared') return;
     const data = store.read<SaveData>(this.key(), SAVE_VERSION, (raw) =>
       typeof raw === 'object' && raw !== null ? (raw as SaveData) : null,
     );
@@ -312,6 +353,7 @@ export class SandboxGame {
   /** Enregistre dans le navigateur (seulement les modifications du terrain). */
   save(): boolean {
     this.dirty = false;
+    if (this.mode === 'shared') return true;
     const ok = store.write(this.key(), SAVE_VERSION, {
       edits: this.world.edits(),
       ...(this.mode === 'survival' ? { inv: this.inv.toJSON(), drops: packDrops(this.drops) } : {}),
@@ -331,6 +373,7 @@ export class SandboxGame {
 
   /** Efface ce monde et recommence (le terrain de départ revient). */
   restart(): void {
+    if (this.mode === 'shared') return;
     store.remove(this.key());
     this.world.reset();
     this.inv = new Inventory();
@@ -460,18 +503,21 @@ export class SandboxGame {
 
   /** Ateliers à portée (établi, four) pour la fabrication. */
   stations(): Set<Station> {
-    const out = new Set<Station>();
-    const px = Math.floor(this.player.x);
-    const py = Math.floor(this.player.y);
-    const pz = Math.floor(this.player.z);
-    for (let z = pz - 2; z <= pz + 3; z++)
-      for (let y = py - 4; y <= py + 4; y++)
-        for (let x = px - 4; x <= px + 4; x++) {
-          const b = this.world.get(x, y, z);
-          if (b === WORKBENCH) out.add('workbench');
-          if (b === FURNACE) out.add('furnace');
-        }
-    return out;
+    return stationsNear(this.world, this.player.x, this.player.y, this.player.z);
+  }
+
+  /** Fabrique une recette (monde partagé : le serveur la refait et renvoie le sac). */
+  craft(recipe: number): boolean {
+    const r = RECIPES[recipe];
+    if (!r) return false;
+    if (this.shared && !this.shared.canBuild()) {
+      this.events.toast(this.shared.whyNot());
+      return false;
+    }
+    if (!this.inv.craft(r, this.stations())) return false;
+    this.shared?.craft(recipe);
+    this.dirty = true;
+    return true;
   }
 
   private changedCell(c: Cell): void {
@@ -490,6 +536,7 @@ export class SandboxGame {
       this.events.openInventory();
       return;
     }
+    if (this.shared && !this.shared.canBuild()) return this.events.toast(this.shared.whyNot());
     const held = this.inv.held();
     if (held === null) return this.events.toast('Choisis un cube dans ta barre (1 à 9).');
     if (!itemDef(held)?.block)
@@ -502,10 +549,11 @@ export class SandboxGame {
     const problem = this.world.placeProblem(c.x, c.y, c.z, held);
     if (problem) return this.events.toast(problem);
     this.world.place(c.x, c.y, c.z, held);
-    if (this.mode === 'survival') {
+    if (this.mode !== 'creative') {
       this.inv.remove(held, 1);
       this.world.clearUndo();
     }
+    this.shared?.put(this.world.index(c.x, c.y, c.z), held);
     this.jab = 1;
     this.placedTypes.add(held);
     sfx.placed(blockDef(held).sound ?? 'soft');
@@ -651,6 +699,7 @@ export class SandboxGame {
 
   respawn(): void {
     respawn(this.player, this.world);
+    this.shared?.home();
   }
 
   setView(v: ViewMode): void {
@@ -829,6 +878,11 @@ export class SandboxGame {
   };
 
   private update(dt: number): void {
+    if (this.relight) {
+      this.relight = false;
+      this.light = computeLighting(this.world);
+      this.rebuildAll();
+    }
     this.drainQueue();
     this.cullChunks();
     const wish = this.wish();
@@ -849,7 +903,7 @@ export class SandboxGame {
       this.world,
     );
     this.walked += Math.hypot(this.player.x - before.x, this.player.y - before.y);
-    if (this.player.z < FALL_LIMIT) respawn(this.player, this.world);
+    if (this.player.z < FALL_LIMIT) this.respawn();
     const moving = Math.hypot(wish.x, wish.y) > 0.01;
     if (moving) this.walkPhase += dt * 9;
     if (moving && this.view === 'iso') this.yaw = Math.atan2(wish.y, wish.x);
@@ -865,10 +919,11 @@ export class SandboxGame {
         this.player,
         this.world,
         dt,
-        (item) => this.inv.count(item) < MAX_STACK,
+        // Monde partagé : le serveur a déjà mis la récolte dans le sac ; ici, juste le « pop ».
+        (item) => this.mode === 'shared' || this.inv.count(item) < MAX_STACK,
       );
       for (const item of picked) {
-        this.inv.add(item, 1);
+        if (this.mode !== 'shared') this.inv.add(item, 1);
         sfx.pop();
       }
       if (picked.length > 0) {
@@ -876,6 +931,9 @@ export class SandboxGame {
         this.events.changed();
       }
     }
+
+    this.shared?.move(this.player.x, this.player.y, this.player.z, this.yaw);
+    this.updatePeers(dt);
 
     this.saveTimer += dt;
     if (this.dirty && this.saveTimer > 4) {
@@ -947,7 +1005,10 @@ export class SandboxGame {
       this.progress = 0;
       // Le premier coup part vite : bras déjà levé.
       this.strike = 0.3;
-      const problem = this.world.breakProblem(t.cell.x, t.cell.y, t.cell.z);
+      const problem =
+        this.shared?.canBuild() === false
+          ? this.shared.whyNot()
+          : this.world.breakProblem(t.cell.x, t.cell.y, t.cell.z);
       if (problem) {
         this.events.toast(problem);
         this.mining = false;
@@ -976,9 +1037,10 @@ export class SandboxGame {
     this.progress = 0;
     this.mineCell = null;
     if (broken === null) return;
+    this.shared?.dig(this.world.index(t.cell.x, t.cell.y, t.cell.z), held ?? 0);
     sfx.broken(blockDef(broken).sound ?? 'soft');
     this.burst(t.cell, blockDef(broken).color);
-    if (this.mode === 'survival') {
+    if (this.mode !== 'creative') {
       this.world.clearUndo();
       const drop = dropOf(broken, held);
       if (drop !== null) {
@@ -1088,6 +1150,120 @@ export class SandboxGame {
     this.fpCam.updateProjectionMatrix();
   };
 
+  // ------------------------------------------------------------------ monde partagé
+
+  /** Arrivée (ou retour après une coupure) : on repart de ce que dit le serveur. */
+  welcome(x: number, y: number, z: number, inv: ReadonlyArray<readonly [number, number]>): void {
+    this.world.reset();
+    this.inv.setCounts(inv);
+    Object.assign(this.player, { x, y, z, vz: 0 });
+    this.drops = [];
+    this.clearPeers();
+    this.relight = true;
+    this.events.changed();
+  }
+
+  /** Modifications d'une tranche envoyées par le serveur (à l'arrivée). */
+  applyChunk(ci: number, changes: ReadonlyMap<number, number>): void {
+    this.world.setChunkChanges(ci, changes);
+    this.relight = true;
+  }
+
+  /** Cases changées (par soi, confirmé, ou par un autre joueur ; ou refus : état réel). */
+  applySet(entries: readonly number[]): void {
+    for (let k = 0; k + 1 < entries.length; k += 2) {
+      const index = entries[k]!;
+      const block = entries[k + 1]!;
+      const c = this.world.cellOf(index);
+      const before = this.world.get(c.x, c.y, c.z);
+      if (before === block) continue;
+      this.world.write(index, block, false);
+      // Un autre joueur casse un cube près de soi : on voit les éclats.
+      const near = Math.hypot(c.x - this.player.x, c.y - this.player.y) < 24;
+      if (block === AIR && near) this.burst(c, blockDef(before).color);
+      this.changedCell(c);
+    }
+  }
+
+  /** Le sac tel que le garde le serveur. */
+  setInventory(stacks: ReadonlyArray<readonly [number, number]>): void {
+    this.inv.setCounts(stacks);
+    this.events.changed();
+  }
+
+  /** Le serveur replace le joueur (départ, déplacement refusé). */
+  teleport(x: number, y: number, z: number): void {
+    Object.assign(this.player, { x, y, z, vz: 0 });
+  }
+
+  /** Un joueur arrive (ou se présente à nouveau). */
+  peerJoin(p: SharedPeer): void {
+    const known = this.peers.get(p.id);
+    if (known) {
+      known.target = { x: p.x, y: p.y, z: p.z, a: p.a };
+      return;
+    }
+    const body = makeAvatar(peerColors(p.id));
+    const label = makeLabel(p.name, p.v);
+    label.position.y = 2.35;
+    body.add(label);
+    body.position.set(p.x, p.z, p.y);
+    this.scene.add(body);
+    this.peers.set(p.id, { name: p.name, body, label, target: { ...p }, phase: 0 });
+  }
+
+  peerMove(id: string, x: number, y: number, z: number, a: number): void {
+    const peer = this.peers.get(id);
+    if (peer) peer.target = { x, y, z, a };
+  }
+
+  peerLeft(id: string): void {
+    const peer = this.peers.get(id);
+    if (!peer) return;
+    this.scene.remove(peer.body);
+    (peer.label.material as THREE.SpriteMaterial).map?.dispose();
+    this.peers.delete(id);
+  }
+
+  clearPeers(): void {
+    for (const id of [...this.peers.keys()]) this.peerLeft(id);
+  }
+
+  /** Joueurs visibles (et leur pseudo), pour l'interface et les tests. */
+  peerNames(): string[] {
+    return [...this.peers.values()].map((p) => p.name);
+  }
+
+  /** Dernières positions connues des autres joueurs (tests de bout en bout). */
+  peerPositions(): Array<{ name: string; x: number; y: number; z: number }> {
+    return [...this.peers.values()].map((p) => ({ name: p.name, ...p.target }));
+  }
+
+  /** Les autres joueurs glissent vers leur dernière position connue et marchent. */
+  private updatePeers(dt: number): void {
+    const k = 1 - Math.exp(-dt * 12);
+    for (const peer of this.peers.values()) {
+      const b = peer.body;
+      const t = peer.target;
+      const dx = t.x - b.position.x;
+      const dy = t.y - b.position.z;
+      const moving = Math.hypot(dx, dy) > 0.05;
+      b.position.set(
+        b.position.x + dx * k,
+        b.position.y + (t.z - b.position.y) * k,
+        b.position.z + dy * k,
+      );
+      b.rotation.y = -t.a + Math.PI / 2;
+      peer.phase = moving ? peer.phase + dt * 9 : 0;
+      const swing = Math.sin(peer.phase) * 0.6;
+      const [legL, legR, armL, armR] = b.userData.limbs as THREE.Object3D[];
+      legL!.rotation.x = swing;
+      legR!.rotation.x = -swing;
+      armL!.rotation.x = -swing * 0.8;
+      armR!.rotation.x = swing * 0.8;
+    }
+  }
+
   /** Chiffres pour le panneau des mesures (prototype). */
   stats(): { fps: number; triangles: number; calls: number } {
     return {
@@ -1099,6 +1275,7 @@ export class SandboxGame {
 
   dispose(): void {
     this.running = false;
+    this.clearPeers();
     this.save();
     window.removeEventListener('resize', this.resize);
     document.removeEventListener('visibilitychange', this.onHide);
@@ -1148,8 +1325,58 @@ function makeHand(): { arm: THREE.Mesh; cube: THREE.Mesh; pick: THREE.Group } {
   return { arm, cube, pick };
 }
 
+interface AvatarColors {
+  jacket: string;
+  sleeve: string;
+  hair: string;
+}
+
+const PEER_COLORS: readonly AvatarColors[] = [
+  { jacket: '#ff8a6a', sleeve: '#d96a4c', hair: '#2b1d16' },
+  { jacket: '#6c8cff', sleeve: '#4f6bd6', hair: '#d9b27a' },
+  { jacket: '#ffc857', sleeve: '#d9a63c', hair: '#5a3a26' },
+  { jacket: '#b58cff', sleeve: '#8f69d6', hair: '#1d1d24' },
+  { jacket: '#5fd38a', sleeve: '#43a86a', hair: '#8a4b2a' },
+  { jacket: '#ff7fb6', sleeve: '#d65f93', hair: '#3b2a20' },
+];
+
+/** Couleurs d'un autre joueur, toujours les mêmes pour lui. */
+function peerColors(id: string): AvatarColors {
+  let h = 0;
+  for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return PEER_COLORS[h % PEER_COLORS.length]!;
+}
+
+/** Pseudo au-dessus d'un joueur (dessiné dans une image : aucun HTML). */
+function makeLabel(name: string, verified: boolean): THREE.Sprite {
+  const canvas = document.createElement('canvas');
+  canvas.width = 256;
+  canvas.height = 64;
+  const ctx = canvas.getContext('2d');
+  if (ctx) {
+    ctx.font = '600 30px system-ui, sans-serif';
+    const text = verified ? name : `${name} (visiteur)`;
+    const w = Math.min(248, ctx.measureText(text).width + 24);
+    ctx.fillStyle = 'rgba(20, 26, 43, 0.72)';
+    ctx.beginPath();
+    ctx.roundRect((256 - w) / 2, 10, w, 44, 14);
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 128, 33, 232);
+  }
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthWrite: false }));
+  sprite.scale.set(1.6, 0.4, 1);
+  return sprite;
+}
+
 /** Petit Malino en cubes (vue isométrique) : jambes, veste turquoise, tête et cheveux. */
-function makeAvatar(): THREE.Group {
+function makeAvatar(
+  colors: AvatarColors = { jacket: '#22b5a6', sleeve: '#1f9284', hair: '#3b2a20' },
+): THREE.Group {
   const g = new THREE.Group();
   const mat = (c: string) => new THREE.MeshBasicMaterial({ color: c });
   const box = (w: number, h: number, d: number, c: string) =>
@@ -1165,14 +1392,14 @@ function makeAvatar(): THREE.Group {
   };
   const legL = limb(-0.13, 0.75, 0.24, 0.75, '#2a3150');
   const legR = limb(0.13, 0.75, 0.24, 0.75, '#2a3150');
-  const body = box(0.56, 0.62, 0.32, '#22b5a6');
+  const body = box(0.56, 0.62, 0.32, colors.jacket);
   body.position.y = 1.06;
   g.add(body);
-  const armL = limb(-0.37, 1.34, 0.18, 0.6, '#1f9284');
-  const armR = limb(0.37, 1.34, 0.18, 0.6, '#1f9284');
+  const armL = limb(-0.37, 1.34, 0.18, 0.6, colors.sleeve);
+  const armR = limb(0.37, 1.34, 0.18, 0.6, colors.sleeve);
   const head = box(0.46, 0.44, 0.44, '#f1c9a5');
   head.position.y = 1.6;
-  const hair = box(0.5, 0.16, 0.48, '#3b2a20');
+  const hair = box(0.5, 0.16, 0.48, colors.hair);
   hair.position.y = 1.86;
   const eyeL = box(0.07, 0.07, 0.02, '#141a2b');
   eyeL.position.set(-0.1, 1.62, 0.23);

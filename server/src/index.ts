@@ -2,6 +2,7 @@
  * Serveur temps réel de MalinosLand (Cloudflare Worker).
  *   GET /health  → état du service
  *   GET /ws      → connexion WebSocket au monde (Durable Object « WorldRoom »)
+ *   GET /chantier → connexion WebSocket au Chantier des mondes partagé (« ChantierRoom »)
  *   GET /visits  → historique des connexions, pour le responsable du site seulement
  *   POST /embed-check → vérification d'une démo du musée, pour les modérateurs (embed.ts)
  *   GET /demo/:id → visionneuse isolée d'une démo du musée (embed.ts)
@@ -12,10 +13,11 @@ import { ACCOUNT_HEADER, encodeAccountHeader, readProtocols, verifyAccount } fro
 import { browserCapture } from './capture';
 import { demoPage, embedCheck } from './embed';
 import { previewImage, previewRoute } from './preview';
-import { originAllowed, visits, WORLD_NAME } from './routes';
+import { CHANTIER_NAME, originAllowed, visits, WORLD_NAME } from './routes';
 import type { Env } from './WorldRoom';
 
 export { WorldRoom } from './WorldRoom';
+export { ChantierRoom } from './ChantierRoom';
 export { originAllowed } from './routes';
 
 export default {
@@ -24,7 +26,7 @@ export default {
     if (url.pathname === '/health') {
       return Response.json({ ok: true, service: 'malinosland-realtime' });
     }
-    if (url.pathname === '/ws') {
+    if (url.pathname === '/ws' || url.pathname === '/chantier') {
       if (request.headers.get('Upgrade') !== 'websocket') {
         return new Response('Connexion WebSocket attendue', { status: 426 });
       }
@@ -37,8 +39,10 @@ export default {
       const headers = new Headers(request.headers);
       headers.delete(ACCOUNT_HEADER);
       if (account) headers.set(ACCOUNT_HEADER, encodeAccountHeader(account));
-      const stub = env.WORLD.get(env.WORLD.idFromName(WORLD_NAME));
-      return stub.fetch(new Request(request, { headers }));
+      const forward = new Request(request, { headers });
+      if (url.pathname === '/chantier')
+        return env.CHANTIER.get(env.CHANTIER.idFromName(CHANTIER_NAME)).fetch(forward);
+      return env.WORLD.get(env.WORLD.idFromName(WORLD_NAME)).fetch(forward);
     }
     if (url.pathname === '/visits') return visits(request, env);
     if (url.pathname === '/embed-check') return embedCheck(request, env);
