@@ -731,3 +731,28 @@ aucun joueur ne doit pouvoir tricher (cubes rares créés de rien, constructions
 (avec l’accord du responsable). Durée gratuite partagée avec le Hub, à surveiller. Reste pour la
 suite (PR 69) : retour en arrière, zones protégées, modération, chat éventuel, nettoyage des
 sacs des comptes supprimés.
+
+## DEC-046 — Chantier des mondes : MalinosLand en île flottante, et un portail (27/10/2026)
+
+**Contexte.** Le Hub reconstruit en cubes (DEC-044) n’était pas ce que voulait le responsable :
+depuis le monde des cubes, il veut voir **le vrai MalinosLand en 2D isométrique**, au loin, car
+plus tard un **passage** (TP ou idée originale) permettra aux joueurs de MalinosLand de basculer
+dans le monde des cubes, et inversement.
+
+**Décision.**
+
+- **MalinosLand est une image du vrai jeu** : capture du Hub sans interface, fond rendu
+  transparent, île rocheuse dessinée dessous (`scripts/malinosland-vista.mjs`,
+  `npm run chantier:vue`), en WebP de 2048 px (≈ 200 Ko). Elle est affichée comme un panneau
+  toujours tourné vers le joueur, très loin au nord et haut dans le ciel, hors brume : de partout,
+  on voit le monde 2D flotter au-dessus du monde des cubes.
+- **Portail des Malinos** au bout du chemin (à la place du Hub en cubes) : place protégée, arche
+  avec une surface chatoyante, et un pont de lumière jusqu’à la pointe de l’île. C’est là que le
+  passage s’ouvrira (palier B4) ; pour l’instant, traverser l’arche affiche « bientôt ».
+- Écartés : reconstruire le Hub en cubes (pas le vrai MalinosLand) ; faire tourner le vrai jeu
+  (Phaser, 1,3 Mo) dans le Chantier pour l’afficher en direct (trop lourd pour le moment).
+
+**Conséquences.** Une image de ≈ 200 Ko de plus, chargée seulement par `/chantier/`, à refaire
+quand le Hub change (elle ne montre pas les joueurs en direct). Les numéros des cubes du Hub
+servent maintenant au portail : les sauvegardes et le monde partagé restent valables. Le terrain
+change seulement autour de l’ancien Hub (zone protégée, où personne n’avait pu construire).

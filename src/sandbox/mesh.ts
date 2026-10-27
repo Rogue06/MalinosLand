@@ -36,10 +36,10 @@ export const PATTERNS: readonly Pattern[] = [
   'snow',
   'snow_side',
   'gravel',
-  'hub_wall',
-  'hub_trim',
-  'hub_floor',
-  'hub_light',
+  'portal_stone',
+  'portal_trim',
+  'portal_floor',
+  'portal_light',
 ];
 const TILE = new Map(PATTERNS.map((p, i) => [p, i]));
 

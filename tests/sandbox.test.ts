@@ -10,9 +10,10 @@ import {
   GLASS,
   GRASS,
   GRAVEL,
-  HUB_FLOOR,
-  HUB_GLASS,
-  HUB_WALL,
+  PORTAL_FLOOR,
+  PORTAL_LIGHT,
+  PORTAL_TRIM,
+  PORTAL_STONE,
   LOG,
   PAD,
   PLANKS,
@@ -60,7 +61,8 @@ import {
   type PlayerState,
 } from '../src/sandbox/player';
 import {
-  HUB,
+  PORTAL,
+  PORTAL_GATE,
   MAX_UNDO,
   SPAWN_X,
   SPAWN_Y,
@@ -135,26 +137,28 @@ describe('Chantier des mondes : le terrain', () => {
     expect(w.placeProblem(4, 4, w.surface(4, 4) + 1, STICK)).toMatch(/pas un cube/);
   });
 
-  it('le Hub des Malinos au loin : présent, protégé, entrée vitrée, chemin de gravier', () => {
+  it('le Portail des Malinos au bout du chemin : arche, place protégée, lanternes', () => {
     const w = new VoxelWorld(1);
-    const floor = w.get(HUB.x0 + 10, HUB.y0 + 10, HUB.z);
-    expect(floor).toBe(HUB_FLOOR);
-    // La tour dépasse tout : on la voit de loin.
-    let tower = 0;
-    for (let y = HUB.y0; y < HUB.y0 + HUB.d; y++)
-      for (let x = HUB.x0; x < HUB.x0 + HUB.w; x++) tower = Math.max(tower, w.surface(x, y));
-    expect(tower).toBeGreaterThanOrEqual(HUB.z + 24);
+    expect(w.get(PORTAL.x0 + 3, PORTAL.y0 + 3, PORTAL.z)).toBe(PORTAL_FLOOR);
+    const gx = Math.floor(PORTAL_GATE.x);
+    const gy = Math.floor(PORTAL_GATE.y);
+    const half = (PORTAL_GATE.width + 1) / 2;
+    // Deux piliers et un linteau ; l'ouverture est libre (on passe dedans).
+    expect(w.get(gx - half, gy, PORTAL.z + 1)).toBe(PORTAL_STONE);
+    expect(w.get(gx + half, gy, PORTAL.z + 5)).not.toBe(AIR);
+    expect(w.get(gx, gy, PORTAL.z + PORTAL_GATE.height + 1)).toBe(PORTAL_TRIM);
+    for (let z = PORTAL.z + 1; z <= PORTAL.z + PORTAL_GATE.height; z++)
+      expect(w.get(gx, gy, z)).toBe(AIR);
+    expect(w.get(gx, gy, PORTAL.z + PORTAL_GATE.height + 2)).toBe(PORTAL_LIGHT);
     // Incassable, et on ne construit pas tout contre.
-    const wallX = HUB.x0 + 4;
-    const wallY = HUB.y0 + HUB.d - 5;
-    expect(w.get(wallX, wallY, HUB.z + 1)).toBe(HUB_WALL);
-    expect(w.breakProblem(wallX, wallY, HUB.z + 1)).toMatch(/Hub des Malinos/);
-    expect(w.placeProblem(HUB.x0 - 1, HUB.y0 + 5, HUB.z + 1, STONE)).toMatch(/Hub des Malinos/);
-    // Entrée vitrée en face du point de départ ; chemin de gravier jusqu'à elle.
-    expect(w.get(SPAWN_X, HUB.y0 + HUB.d - 5, HUB.z + 2)).toBe(HUB_GLASS);
+    expect(w.breakProblem(gx - half, gy, PORTAL.z + 1)).toMatch(/Portail des Malinos/);
+    expect(w.placeProblem(PORTAL.x0 - 1, PORTAL.y0 + 5, PORTAL.z + 1, STONE)).toMatch(
+      /Portail des Malinos/,
+    );
+    // Le chemin de gravier mène du départ jusqu'au portail, bien au nord.
     expect(w.get(SPAWN_X, SPAWN_Y - 20, w.surface(SPAWN_X, SPAWN_Y - 20))).toBe(GRAVEL);
-    // Le Hub est au nord, à bonne distance du départ.
-    expect(SPAWN_Y - (HUB.y0 + HUB.d)).toBeGreaterThan(50);
+    expect(gx).toBe(SPAWN_X);
+    expect(SPAWN_Y - (PORTAL.y0 + PORTAL.d)).toBeGreaterThan(50);
   });
 
   it('tranches calculées séparément : bords raccord (arbres à cheval compris)', () => {

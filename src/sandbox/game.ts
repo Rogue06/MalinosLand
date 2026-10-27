@@ -21,13 +21,14 @@ import {
   type MeshData,
 } from './mesh';
 import { EYE, FALL_LIMIT, HEIGHT, occupies, respawn, stepPlayer, type PlayerState } from './player';
+import vistaUrl from './assets/malinosland.webp';
 import type { SharedPeer } from './protocol';
 import { sfx } from './sfx';
 import { buildAtlas } from './textures';
 import {
   CHUNKS_X,
-  HUB,
-  HUB_BEACON,
+  PORTAL,
+  PORTAL_GATE,
   SIZE_X,
   SIZE_Y,
   SIZE_Z,
@@ -151,7 +152,7 @@ export class SandboxGame {
   private readonly renderer: THREE.WebGLRenderer;
   private readonly scene = new THREE.Scene();
   private readonly fog = new THREE.Fog('#9fdcf2', 60, 7 * CHUNK);
-  /** Distance de vue, en tranches de 16 cubes (le Hub reste toujours visible au loin). */
+  /** Distance de vue, en tranches de 16 cubes (le portail reste toujours visible au loin). */
   viewChunks = 7;
   /** Tranches à (re)construire, les plus proches d'abord, quelques-unes par image. */
   private readonly queue = new Set<string>();
@@ -172,8 +173,12 @@ export class SandboxGame {
   private torchSticks: THREE.InstancedMesh;
   /** Éclats d'un cube cassé : petits cubes qui retombent (purement décoratif). */
   private readonly bits: THREE.InstancedMesh;
-  /** Faisceau au-dessus de la tour du Hub : le repère qu'on voit de loin, à travers la brume. */
-  private readonly beacon = new THREE.Group();
+  /** MalinosLand (le jeu en 2D isométrique), île flottante au loin, et son pont de lumière. */
+  private readonly vista: THREE.Sprite;
+  private readonly bridge: THREE.Mesh;
+  /** Surface chatoyante dans l'arche du portail. */
+  private readonly portalSurface: THREE.Mesh;
+  private portalNotice = 0;
   private bitList: Array<{ p: THREE.Vector3; v: THREE.Vector3; life: number; color: THREE.Color }> =
     [];
   /** Coup de pioche en cours : phase de 0 à 1 (le bruit part à l'impact, IMPACT). */
@@ -290,25 +295,59 @@ export class SandboxGame {
     this.bits.count = 0;
     this.bits.frustumCulled = false;
     this.scene.add(this.bits);
-    for (const [width, opacity] of [
-      [0.9, 0.55],
-      [2.4, 0.18],
+    // MalinosLand au loin : l'image du vrai Hub, toujours tournée vers le joueur, hors brume.
+    const vistaTex = new THREE.TextureLoader().load(vistaUrl, (t) => {
+      const img = t.image as { width: number; height: number };
+      this.vista.scale.set(VISTA.width, (VISTA.width * img.height) / img.width, 1);
+    });
+    vistaTex.colorSpace = THREE.SRGBColorSpace;
+    this.vista = new THREE.Sprite(
+      new THREE.SpriteMaterial({ map: vistaTex, fog: false, depthWrite: false }),
+    );
+    this.vista.position.set(VISTA.x, VISTA.z, VISTA.y);
+    this.vista.scale.set(VISTA.width, VISTA.width * 0.75, 1);
+    this.scene.add(this.vista);
+    // Pont de lumière : du haut de l'arche jusqu'à la pointe de l'île (le futur passage). Un
+    // cœur vif et un halo large : on le voit même de très loin.
+    this.bridge = new THREE.Mesh();
+    for (const [radius, opacity] of [
+      [0.6, 0.55],
+      [2.2, 0.16],
     ] as const) {
-      const beam = new THREE.Mesh(
-        new THREE.BoxGeometry(width, 70, width).translate(0, 35, 0),
+      const ray = new THREE.Mesh(
+        new THREE.CylinderGeometry(radius, radius, 1, 12, 1, true).translate(0, 0.5, 0),
         new THREE.MeshBasicMaterial({
           color: 0x7ff0e0,
           transparent: true,
           opacity,
           depthWrite: false,
           fog: false,
+          side: THREE.DoubleSide,
           blending: THREE.AdditiveBlending,
         }),
       );
-      this.beacon.add(beam);
+      ray.frustumCulled = false;
+      this.bridge.add(ray);
     }
-    this.beacon.position.set(HUB_BEACON.x, HUB_BEACON.z, HUB_BEACON.y);
-    this.scene.add(this.beacon);
+    this.bridge.frustumCulled = false;
+    this.scene.add(this.bridge);
+    this.portalSurface = new THREE.Mesh(
+      new THREE.PlaneGeometry(PORTAL_GATE.width, PORTAL_GATE.height),
+      new THREE.MeshBasicMaterial({
+        map: portalTexture(),
+        transparent: true,
+        opacity: 0.85,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+      }),
+    );
+    this.portalSurface.position.set(
+      PORTAL_GATE.x,
+      PORTAL_GATE.z + PORTAL_GATE.height / 2,
+      PORTAL_GATE.y,
+    );
+    this.scene.add(this.portalSurface);
 
     this.light = computeLighting(this.world);
     this.rebuildAll();
@@ -450,15 +489,18 @@ export class SandboxGame {
     if (this.queue.size === 0) this.rebuildTorches();
   }
 
-  /** Tranches trop lointaines cachées (le Hub reste visible : c'est le repère au loin). */
+  /** Tranches trop lointaines cachées (le portail reste visible : c'est le repère au loin). */
   private cullChunks(): void {
     const max = (this.viewChunks + 0.5) * CHUNK;
     for (const [k, meshes] of this.chunks) {
       const [x, y] = k.split(',').map(Number) as [number, number];
       const d = Math.hypot(x + CHUNK / 2 - this.player.x, y + CHUNK / 2 - this.player.y);
-      const hub =
-        x < HUB.x0 + HUB.w && x + CHUNK > HUB.x0 && y < HUB.y0 + HUB.d && y + CHUNK > HUB.y0;
-      const visible = this.view === 'iso' || hub || d <= max;
+      const portal =
+        x < PORTAL.x0 + PORTAL.w &&
+        x + CHUNK > PORTAL.x0 &&
+        y < PORTAL.y0 + PORTAL.d &&
+        y + CHUNK > PORTAL.y0;
+      const visible = this.view === 'iso' || portal || d <= max;
       for (const m of meshes) m.visible = visible;
     }
   }
@@ -937,6 +979,7 @@ export class SandboxGame {
       }
     }
 
+    this.checkPortal();
     this.shared?.move(this.player.x, this.player.y, this.player.z, this.yaw);
     this.updatePeers(dt);
 
@@ -1094,9 +1137,12 @@ export class SandboxGame {
     if (first) this.placeFpCamera();
     else this.placeIsoCamera();
     this.scene.fog = first ? this.fog : null;
-    // Le faisceau sert de repère en première personne ; vu de dessus (iso), il gênerait.
-    this.beacon.visible = first;
-    this.beacon.rotation.y = performance.now() / 4000;
+    // L'île et son pont sont des repères de première personne ; vus de dessus (iso), ils gêneraient.
+    this.vista.visible = first;
+    this.bridge.visible = first;
+    if (first) this.aimBridge();
+    const map = (this.portalSurface.material as THREE.MeshBasicMaterial).map!;
+    map.offset.set(0, -(performance.now() / 6000) % 1);
 
     // Personnage : visible en vue isométrique, la main en première personne.
     this.avatar.visible = !first;
@@ -1154,6 +1200,53 @@ export class SandboxGame {
     this.fpCam.aspect = r.width / Math.max(1, r.height);
     this.fpCam.updateProjectionMatrix();
   };
+
+  // ------------------------------------------------------------------ portail et MalinosLand
+
+  /**
+   * Oriente le pont de lumière vers la pointe de l'île. L'image est toujours tournée vers le
+   * joueur : sa pointe se calcule avec les axes de la caméra.
+   */
+  private aimBridge(): void {
+    const right = new THREE.Vector3().setFromMatrixColumn(this.fpCam.matrixWorld, 0);
+    const up = new THREE.Vector3().setFromMatrixColumn(this.fpCam.matrixWorld, 1);
+    const tip = this.vista.position
+      .clone()
+      .addScaledVector(right, this.vista.scale.x * VISTA.tipX)
+      .addScaledVector(up, -this.vista.scale.y * 0.5);
+    const start = new THREE.Vector3(
+      PORTAL_GATE.x,
+      PORTAL_GATE.z + PORTAL_GATE.height + 2,
+      PORTAL_GATE.y,
+    );
+    const dir = tip.sub(start);
+    this.bridge.position.copy(start);
+    this.bridge.scale.set(1, dir.length(), 1);
+    this.bridge.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
+    // Le pont « respire » doucement.
+    const pulse = 1 + Math.sin(performance.now() / 700) * 0.15;
+    this.bridge.children.forEach((ray, i) => {
+      (ray as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>).material.opacity =
+        (i === 0 ? 0.55 : 0.16) * pulse;
+    });
+  }
+
+  /** Le joueur traverse l'arche : le passage n'est pas encore ouvert. */
+  private checkPortal(): void {
+    const p = this.player;
+    const inside =
+      Math.abs(p.x - PORTAL_GATE.x) < PORTAL_GATE.width / 2 &&
+      Math.abs(p.y - PORTAL_GATE.y) < 0.7 &&
+      p.z >= PORTAL_GATE.z - 0.5 &&
+      p.z < PORTAL_GATE.z + PORTAL_GATE.height;
+    const now = performance.now();
+    if (!inside || now - this.portalNotice < 6000) return;
+    this.portalNotice = now;
+    sfx.crafted();
+    this.events.toast(
+      '🌀 Ce portail mènera à MalinosLand, l’île que tu vois flotter au loin. Le passage ouvrira bientôt !',
+    );
+  }
 
   // ------------------------------------------------------------------ monde partagé
 
@@ -1328,6 +1421,38 @@ function makeHand(): { arm: THREE.Mesh; cube: THREE.Mesh; pick: THREE.Group } {
   pick.scale.setScalar(0.55);
   pick.position.set(0.02, -0.02, -0.04);
   return { arm, cube, pick };
+}
+
+/**
+ * MalinosLand vu du Chantier : centre de l'image (bien au-delà du bord nord du monde, haut dans
+ * le ciel), largeur, et position de la pointe de l'île dans l'image (part de la largeur).
+ */
+const VISTA = { x: 96, y: -150, z: 84, width: 190, tipX: 0.06 };
+
+/** Remous du portail : bandes turquoise et violettes dessinées par le code. */
+function portalTexture(): THREE.CanvasTexture {
+  const c = document.createElement('canvas');
+  c.width = 64;
+  c.height = 128;
+  const g = c.getContext('2d');
+  if (g) {
+    for (let y = 0; y < 128; y++) {
+      const t = (Math.sin((y / 128) * Math.PI * 6) + 1) / 2;
+      g.fillStyle = `rgba(${Math.round(70 + 90 * t)}, ${Math.round(200 - 60 * t)}, ${Math.round(210 + 40 * t)}, ${0.35 + 0.35 * t})`;
+      g.fillRect(0, y, 64, 1);
+    }
+    // Quelques étincelles qui montent avec les remous.
+    for (let i = 0; i < 24; i++) {
+      g.fillStyle = 'rgba(255, 255, 255, 0.28)';
+      g.fillRect(Math.floor(Math.random() * 32) * 2, Math.floor(Math.random() * 64) * 2, 2, 2);
+    }
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.magFilter = THREE.NearestFilter;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
 
 interface AvatarColors {

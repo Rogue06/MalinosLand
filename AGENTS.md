@@ -67,6 +67,7 @@ npm run format              # mise en forme Prettier
 npm run build && npm run preview   # version de production sur http://localhost:4173
 npm run test:e2e            # test de bout en bout dans Chrome (avec « preview » lancé)
 npm run docs:screenshots    # régénère docs/images/ (avec « preview » lancé)
+npm run chantier:vue        # refait l’image de MalinosLand vue du Chantier (avec « preview »)
 npm run server:install      # dépendances du serveur temps réel (dossier server/)
 npm run server:dev          # serveur temps réel local (Wrangler) sur ws://localhost:8787/ws
 npm --prefix server run test:integration   # tests du serveur dans le vrai moteur Cloudflare

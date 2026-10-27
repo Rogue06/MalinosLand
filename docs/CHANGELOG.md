@@ -5,6 +5,15 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté et modifié (Chantier des mondes : MalinosLand au loin et portail, PR 69)
+
+- **MalinosLand flotte au loin** dans le ciel du monde des cubes : le vrai jeu en 2D isométrique
+  (Hub, jardin, musée…), posé sur une île, très loin au nord et visible de partout.
+- Au bout du chemin, le **Portail des Malinos** remplace le Hub en cubes : place dallée,
+  lanternes, arche à la surface chatoyante, **pont de lumière** jusqu’à l’île. Traverser l’arche
+  annonce que le passage vers MalinosLand ouvrira bientôt.
+- `npm run chantier:vue` refait l’image de MalinosLand à partir du jeu quand le Hub change.
+
 ### Ajouté (Chantier des mondes : à plusieurs, PR 68)
 
 - **Mode « À plusieurs »** : la survie douce dans **un seul monde pour tous** les Malinos.

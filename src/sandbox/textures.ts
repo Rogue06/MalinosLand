@@ -212,7 +212,7 @@ const DRAW: Record<
     speckle(px, r, '#7d776f', 14, 2);
     speckle(px, r, '#cbc5bc', 10);
   },
-  hub_wall: (px, r) => {
+  portal_stone: (px, r) => {
     noise(px, r, '#2b3352', 0.06);
     // Joints de grands panneaux, comme les murs du Hub.
     for (let i = 0; i < TEX; i++) {
@@ -220,21 +220,21 @@ const DRAW: Record<
       px(TEX - 1, i, hex('#1f2740'));
     }
   },
-  hub_trim: (px, r) => {
+  portal_trim: (px, r) => {
     noise(px, r, '#22b5a6', 0.05);
     for (let i = 0; i < TEX; i++) {
       px(i, 0, hex('#5fe3d0'));
       px(i, TEX - 1, hex('#1f9284'));
     }
   },
-  hub_floor: (px, r) => {
+  portal_floor: (px, r) => {
     noise(px, r, '#e6dccb', 0.04);
     for (let i = 0; i < TEX; i++) {
       px(i, 0, hex('#cbbfa9'));
       px(0, i, hex('#cbbfa9'));
     }
   },
-  hub_light: (px, r) => {
+  portal_light: (px, r) => {
     noise(px, r, '#ffd36e', 0.05);
     for (let y = 4; y < 12; y++) for (let x = 4; x < 12; x++) px(x, y, hex('#fff3c4'));
     for (let i = 0; i < TEX; i++) {
