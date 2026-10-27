@@ -53,6 +53,7 @@ export const PATTERNS: readonly Pattern[] = [
   'lantern',
   'iron_block',
   'plaster',
+  'borne',
 ];
 const TILE = new Map(PATTERNS.map((p, i) => [p, i]));
 

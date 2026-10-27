@@ -85,5 +85,9 @@ suppression de compte en un clic (cascade en base), export des données, consent
   zone protégée, vitesse). Le serveur garde, pour chaque compte, son sac et sa position (aucun
   pseudo ni donnée personnelle) ; ils restent si le compte est supprimé (nettoyage prévu avec la
   modération du Chantier).
+- Chantier, zones et modération (DEC-048) : une zone protégée, une exclusion ou une annulation
+  sont décidées par le serveur ; le statut de modérateur vient de la base (`role` = `mod`) ou du
+  responsable du site (`is_site_owner`, vérifié par le Worker à la connexion), jamais du
+  navigateur. Les actions d’un visiteur sans compte sont défaites à son départ.
 - Seule la clé **publique** Supabase est utilisée (jeu, serveur, workflows). Les clés `secret` /
   `service_role` et les « Client secret » OAuth restent dans les tableaux de bord.

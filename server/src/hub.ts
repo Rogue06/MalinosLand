@@ -48,6 +48,8 @@ export interface Account {
   id: string;
   name: string;
   role?: Role | null;
+  /** Modérateur ou responsable du site (Chantier des mondes : outils de modération). */
+  staff?: boolean;
 }
 
 /** Données d'une connexion, enregistrées avec la WebSocket (« attachment »). */

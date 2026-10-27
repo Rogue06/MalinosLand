@@ -51,6 +51,8 @@ describe('Chantier partagé : protocole', () => {
         id: 'g0123456789abcde',
         name: 'Zoé',
         build: false,
+        guest: true,
+        staff: false,
         inv: [[DIRT, 2]],
         x: 1,
         y: 2,

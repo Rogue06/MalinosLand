@@ -3,10 +3,11 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 27/10/2026 — Chantier des mondes : PR #69 (MalinosLand au loin,
-portail) fusionnée et mise en ligne ; en cours : PR 70 (eau, feu, matériaux et recettes).
-Ensuite : protections et modération du monde partagé. Une PR à la fois, présentée au
-responsable avant la suivante.**
+**Dernière mise à jour : 27/10/2026 — Chantier des mondes : PR #70 (eau, feu, matériaux)
+fusionnée et mise en ligne ; en cours : PR 71 (protections et modération). Ensuite : PR 72
+(MalinosLand au loin plus magique, lave et eau dans les grottes, bruit de l’eau, suppression des
+modes solo et créatif, profondeur du monde). Une PR à la fois, présentée au responsable avant la
+suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -101,6 +102,20 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **27/10 (fin de nuit)** — PR #70 fusionnée et **mise en ligne** (accord du responsable). Ses
+  nouvelles demandes : (1) MalinosLand au loin trop « plat » : brume, point de fuite magique qui
+  attire l’œil de loin, île qui se dévoile en approchant du portail (le voile du portail est
+  « top ») ; (2) lave (et eau) dans les grottes, comme dans les jeux de cubes ; (3) borne de
+  protection liée au compte, maison abandonnée 2 semaines qui se défait petit à petit ;
+  joueurs sans compte prévenus, leurs constructions défaites à leur départ ; le monde ne doit pas
+  se vider (refermer peu à peu les trous, garder un peu les galeries) ; (4) **supprimer les modes
+  solo et créatif** : seul le monde partagé compte ; montagnes et galeries assez profondes pour
+  bâtir ; (5) bruit d’eau quand on nage. Branche `feature/chantier-protections` (PR 71, DEC-048) :
+  point (3) et la modération. Testé : unitaires (`tests/chantier-server.test.ts`), intégration
+  Wrangler (visiteur défait à son départ), deux navigateurs. **Pas testé avec de vrais comptes
+  ni un vrai modérateur dans le navigateur.** **Suite : attendre « fusionne 71 », puis PR 72**
+  (points 1, 2, 4, 5).
 
 - **27/10 (nuit)** — PR #69 fusionnée et **mise en ligne** (accord du responsable), workflow
   réussi. Branche `feature/chantier-eau-feu-materiaux` (PR 70, DEC-047) : lacs et nage, seau,

@@ -474,6 +474,15 @@ export class VoxelWorld {
     return before;
   }
 
+  /** Remet une case comme au départ (efface sa modification) ; renvoie le cube retrouvé. */
+  revert(index: number): number {
+    const c = this.cellOf(index);
+    this.get(c.x, c.y, c.z);
+    const base = this.base[index]!;
+    this.write(index, base, false);
+    return base;
+  }
+
   /** Cube du terrain de départ à cet endroit (avant toute modification). */
   baseAt(x: number, y: number, z: number): number {
     if (!this.inBounds(x, y, z)) return AIR;

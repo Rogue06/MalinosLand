@@ -1,8 +1,9 @@
 import './sandbox.css';
-import { BUCKET, LIGHTER, WATER_BUCKET, itemDef } from './blocks';
+import { BORNE, BUCKET, LIGHTER, WATER_BUCKET, itemDef } from './blocks';
 import { SandboxGame, type GameMode, type SharedHooks } from './game';
 import { SHARED_URL, SharedLink } from './online';
 import { REFUSAL_TEXT, fromBase64, unpackChunk, type Down, type SharedNotice } from './protocol';
+import { ZONE_RADIUS, blockingZone, daysLeft, zoneAt, zoneProblem, type Zone } from './zones';
 import { sanitizeName } from '../core/text';
 import { HOTBAR_SIZE, RECIPES, STATION_LABEL } from './inventory';
 import { ALL_ITEMS } from './blocks';
@@ -103,6 +104,7 @@ const NOTICE_TEXT: Record<SharedNotice, string> = {
   maintenance:
     'Le monde partagé fait une pause jusqu’à demain (le quota gratuit du jour est atteint). Les modes solo restent ouverts.',
   duplicate: 'Tu joues déjà au monde partagé dans un autre onglet.',
+  kicked: 'Un modérateur t’a exclu du monde partagé pour une heure.',
 };
 
 // ------------------------------------------------------------------ écran d'accueil
@@ -214,12 +216,12 @@ function play(mode: GameMode): void {
   root.replaceChildren(stage, hud);
   const toastBox = el('div', { class: 'toasts', 'aria-live': 'polite' });
   let toastTimer = 0;
-  const toast = (text: string) => {
+  const toast = (text: string, ms = 2600) => {
     toastBox.replaceChildren(el('div', { class: 'toast' }, text));
     clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => toastBox.replaceChildren(), 2600);
+    toastTimer = window.setTimeout(() => toastBox.replaceChildren(), ms);
   };
-  let openPanel: 'bag' | 'menu' | 'keys' | null = null;
+  let openPanel: 'bag' | 'menu' | 'keys' | 'mod' | null = null;
   /** Réglage d'une touche en cours : la prochaine touche appuyée lui est donnée. */
   let waitingFor: Action | null = null;
 
@@ -236,7 +238,12 @@ function play(mode: GameMode): void {
 
   // ---- Monde partagé : le serveur décide, le jeu montre tout de suite puis se corrige.
   let build = false;
+  let guest = false;
+  let staff = false;
+  let myId = '';
+  let zones: Zone[] = [];
   let lastRefusal = 0;
+  let zoneHere = '';
   const netPill = el('span', { class: 'net-pill', hidden: mode !== 'shared' });
   if (mode === 'shared' && SHARED_URL) {
     const net = new SharedLink(SHARED_URL, hubName(), (m) => onShared(m));
@@ -244,6 +251,16 @@ function play(mode: GameMode): void {
     const hooks: SharedHooks = {
       canBuild: () => build && net.online,
       whyNot: () => (net.online ? REFUSAL_TEXT.guest : 'Connexion au monde partagé…'),
+      // Prévu ici pour un message clair ; le serveur revérifie tout.
+      editProblem: (x, y, block) => {
+        const zone = blockingZone(zones, { id: myId, staff }, x, y);
+        if (zone) return `🛡️ Cette zone est protégée par ${zone.name}.`;
+        if (block === BORNE) {
+          if (guest) return 'Il faut être connecté à ton compte pour protéger une zone.';
+          return zoneProblem(zones, myId, x, y);
+        }
+        return null;
+      },
       dig: (i, h) => net.send({ t: 'dig', i, h }),
       put: (i, b) => net.send({ t: 'put', i, b }),
       craft: (r) => net.send({ t: 'craft', r }),
@@ -258,12 +275,34 @@ function play(mode: GameMode): void {
     switch (m.t) {
       case 'welcome':
         build = m.build;
+        guest = m.guest;
+        staff = m.staff;
+        myId = m.id;
         g.welcome(m.x, m.y, m.z, m.inv);
         for (const p of m.peers) g.peerJoin(p);
+        if (guest)
+          toast(
+            '⚠️ Tu joues sans compte : ce que tu construis ou casses disparaîtra quand tu partiras. Connecte-toi (Google ou GitHub) dans le Hub pour tout garder.',
+            9000,
+          );
+        else toast(`Bienvenue ${m.name} ! Tu construis avec les autres Malinos.`);
+        break;
+      case 'zones': {
+        const mine = (list: Zone[]) => list.filter((z) => z.owner === myId).length;
+        if (mine(m.z) > mine(zones))
+          toast(
+            `🛡️ Ta zone est protégée (${2 * ZONE_RADIUS + 1} × ${2 * ZONE_RADIUS + 1} cubes autour de la borne). Reviens au moins une fois toutes les deux semaines pour la garder.`,
+            7000,
+          );
+        zones = m.z;
+        g.setZones(zones);
+        break;
+      }
+      case 'done':
         toast(
-          build
-            ? `Bienvenue ${m.name} ! Tu construis avec les autres Malinos.`
-            : 'Tu visites le monde partagé. Connecte-toi à ton compte dans le Hub pour construire.',
+          m.a === 'kick'
+            ? 'Joueur exclu du monde partagé pour une heure.'
+            : `Annulé : ${m.n} cube${m.n > 1 ? 's' : ''} remis en état.`,
         );
         break;
       case 'chunk': {
@@ -290,7 +329,12 @@ function play(mode: GameMode): void {
         break;
       case 'no':
         // Un refus à la fois (le serveur renvoie aussi l'état réel de la case et le sac).
-        if (performance.now() - lastRefusal > 1500) toast(REFUSAL_TEXT[m.why]);
+        if (performance.now() - lastRefusal > 1500)
+          toast(
+            m.why === 'zone' && m.who
+              ? `🛡️ Cette zone est protégée par ${m.who}.`
+              : REFUSAL_TEXT[m.why],
+          );
         lastRefusal = performance.now();
         break;
       case 'pos':
@@ -307,7 +351,7 @@ function play(mode: GameMode): void {
     if (mode !== 'shared' || !link) return;
     const n = g.peerNames().length + 1;
     const text = link.online
-      ? `🌍 En ligne · ${n} joueur${n > 1 ? 's' : ''}${build ? '' : ' · visiteur'}`
+      ? `🌍 En ligne · ${n} joueur${n > 1 ? 's' : ''}${guest ? ' · sans compte' : ''}${staff ? ' · 🛡️' : ''}`
       : '🌍 Connexion…';
     if (netPill.textContent !== text) netPill.textContent = text;
     netPill.classList.toggle('offline', !link.online);
@@ -747,14 +791,9 @@ function play(mode: GameMode): void {
               '📘 Revoir le tutoriel',
             )
           : null,
+        mode === 'shared' ? sharedMenu() : null,
         mode === 'shared'
-          ? build
-            ? null
-            : el(
-                'a',
-                { class: 'menu-btn', href: '../jouer/' },
-                '🔑 Se connecter dans le Hub pour construire',
-              )
+          ? null
           : el(
               'button',
               {
@@ -780,7 +819,7 @@ function play(mode: GameMode): void {
     );
   }
 
-  function showPanel(p: 'bag' | 'menu' | 'keys') {
+  function showPanel(p: 'bag' | 'menu' | 'keys' | 'mod') {
     openPanel = p;
     waitingFor = null;
     g.keys.clear();
@@ -788,7 +827,101 @@ function play(mode: GameMode): void {
     g.releasePointer();
     if (p === 'bag') renderBag();
     else if (p === 'keys') renderKeys();
+    else if (p === 'mod') renderMod();
     else renderMenu();
+  }
+
+  /** Monde partagé, dans le menu : compte, zones protégées, modération. */
+  function sharedMenu(): HTMLElement {
+    const mine = zones.filter((z) => z.owner === myId);
+    const now = Date.now();
+    return el(
+      'div',
+      { class: 'menu-info' },
+      guest
+        ? el(
+            'p',
+            {},
+            '⚠️ Sans compte, ce que tu construis ou casses disparaît quand tu pars. ',
+            el('a', { href: '../jouer/' }, 'Se connecter dans le Hub'),
+            ' (Google ou GitHub) pour tout garder.',
+          )
+        : el(
+            'p',
+            {},
+            mine.length
+              ? `🛡️ ${mine
+                  .map((z) => `Ta zone (${z.x}, ${z.y}) : encore ${daysLeft(z, now)} jours`)
+                  .join(
+                    ' · ',
+                  )}. Chaque visite ou construction dans la zone renouvelle sa protection.`
+              : `🛡️ Protège ta maison avec une borne de protection (4 lingots de fer + 1 cristal, à l’établi) : ${2 * ZONE_RADIUS + 1} × ${2 * ZONE_RADIUS + 1} cubes autour d’elle sont à toi. Sans visite pendant deux semaines, elle s’éteint et la maison se défait peu à peu.`,
+          ),
+      staff
+        ? el(
+            'button',
+            { class: 'menu-btn', type: 'button', onclick: () => showPanel('mod') },
+            '🛡️ Modération',
+          )
+        : null,
+    );
+  }
+
+  /** Modération : annuler la dernière heure d'un joueur, ou l'exclure une heure. */
+  function renderMod() {
+    const players = g.peerList();
+    panel.replaceChildren(
+      el(
+        'div',
+        { class: 'panel narrow', role: 'dialog', 'aria-label': 'Modération' },
+        el(
+          'header',
+          {},
+          el('h2', {}, '🛡️ Modération'),
+          el('button', { class: 'tool', type: 'button', onclick: () => closePanel() }, '✕'),
+        ),
+        el(
+          'p',
+          { class: 'muted' },
+          'Annuler défait ce que le joueur a changé dans la dernière heure (si personne ne l’a retouché depuis). Exclure le déconnecte pour une heure. Dans les zones protégées, tu peux aussi réparer toi-même.',
+        ),
+        ...(players.length
+          ? players.map((p) =>
+              el(
+                'div',
+                { class: 'mod-row' },
+                el('strong', {}, p.name),
+                el(
+                  'button',
+                  {
+                    class: 'tool',
+                    type: 'button',
+                    onclick: () => {
+                      if (confirm(`Annuler la dernière heure de ${p.name} ?`))
+                        link?.send({ t: 'mod', a: 'undo', target: p.id });
+                    },
+                  },
+                  '↶ Annuler 1 h',
+                ),
+                el(
+                  'button',
+                  {
+                    class: 'tool',
+                    type: 'button',
+                    onclick: () => {
+                      if (confirm(`Exclure ${p.name} pour une heure ?`)) {
+                        link?.send({ t: 'mod', a: 'kick', target: p.id });
+                        closePanel();
+                      }
+                    },
+                  },
+                  '⛔ Exclure 1 h',
+                ),
+              ),
+            )
+          : [el('p', {}, 'Personne d’autre n’est connecté pour l’instant.')]),
+      ),
+    );
   }
 
   /** Ferme le panneau et rend la souris au jeu tout de suite (pas besoin de recliquer). */
@@ -965,6 +1098,19 @@ function play(mode: GameMode): void {
       }
     }
     renderNet();
+    // Entrée dans une zone protégée : on dit à qui elle est.
+    if (mode === 'shared') {
+      const zone = zoneAt(zones, g.player.x, g.player.y);
+      if ((zone?.id ?? '') !== zoneHere) {
+        zoneHere = zone?.id ?? '';
+        if (zone)
+          toast(
+            zone.owner === myId
+              ? '🛡️ Tu entres dans ta zone protégée.'
+              : `🛡️ Zone protégée de ${zone.name}.`,
+          );
+      }
+    }
     if (!stats.hidden) {
       const s = g.stats();
       stats.textContent = `${s.fps} images/s · ${s.triangles.toLocaleString('fr-FR')} triangles · ${s.calls} dessins · JavaScript chargé : ${jsKo} Ko`;

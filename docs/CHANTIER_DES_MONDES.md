@@ -141,10 +141,14 @@ Un seul monde pour tous les Malinos, le même grand monde que la survie douce (m
 départ, même portail et MalinosLand au loin). Choix du responsable (27/10) :
 
 - **Connecté à son compte** (le compte du Hub : Google ou GitHub, même site, même connexion), on
-  **construit** : casser, poser, fabriquer. Le **sac** et la position de chacun sont gardés par
-  le serveur : on les retrouve d’un appareil à l’autre.
-- **Sans compte**, on **visite** : on se promène et on regarde les autres construire (son pseudo
-  du Hub s’affiche, avec « visiteur »). Menu → « 🔑 Se connecter dans le Hub pour construire ».
+  **construit pour de bon** : casser, poser, fabriquer. Le **sac** et la position de chacun sont
+  gardés par le serveur : on les retrouve d’un appareil à l’autre.
+- **Sans compte**, on construit aussi, mais **rien n’est gardé** : quand on part, tout ce qu’on a
+  cassé ou posé revient comme avant (au plus 300 changements par visite). Un message le dit à
+  l’arrivée, et le menu propose de se connecter dans le Hub.
+
+![Sans compte : le message à l’arrivée](images/chantier-sans-compte.jpg)
+
 - On voit les autres joueurs (un petit Malino en cubes, d’une couleur à lui, avec son pseudo),
   leurs constructions et les éclats des cubes qu’ils cassent. En haut : « 🌍 En ligne · 3
   joueurs ».
@@ -159,8 +163,35 @@ le joueur ; si le serveur refuse, la case et le sac reviennent à leur état ré
 
 Limites (offre gratuite) : **20 joueurs** à la fois ; un budget de messages par jour à côté de
 celui du Hub. S’il est épuisé, le monde partagé fait une pause jusqu’au lendemain (les modes solo
-restent ouverts). Pas encore de chat dans le Chantier (le chat est dans le Hub), ni d’outils de
-modération ou de retour en arrière : ce sera la PR suivante (protections et modération).
+restent ouverts). Pas encore de chat dans le Chantier (le chat est dans le Hub).
+
+### Protéger sa maison : la borne de protection
+
+- La **borne de protection** se fabrique à l’établi (4 lingots de fer + 1 cristal). Posée par un
+  joueur connecté à son compte, elle protège les **17 × 17 colonnes** autour d’elle, sur toute la
+  hauteur : personne d’autre n’y casse ni n’y pose rien. Quatre fins piliers violets marquent
+  les coins de la zone ; en y entrant, un message dit à qui elle est.
+- **Deux zones** par compte au plus, pas collées à une autre zone, ni au portail, ni à la dalle
+  de départ (lieux communs). Casser sa borne retire la protection (on récupère la borne).
+- **Deux semaines** sans visite ni construction dans la zone : la borne s’éteint, puis la maison
+  **se défait petit à petit** (quelques cubes par heure) jusqu’au terrain de départ. Chaque
+  visite renouvelle la protection ; le menu indique les jours qui restent.
+
+![Une borne de protection, les piliers violets aux coins de la zone](images/chantier-zone.jpg)
+
+### Un monde qui ne se vide pas
+
+Quand beaucoup de cubes ont été retirés du monde (plus de 4 000), les **trous de surface se
+referment peu à peu** (80 cases par heure au plus, par le fond), seulement dans les endroits que
+personne n’a touchés depuis deux jours, hors des zones protégées et loin des joueurs. Les
+**galeries creusées en profondeur restent**.
+
+### Modération
+
+Les modérateurs (et le responsable du site) ont un bouton « 🛡️ Modération » dans le menu :
+**annuler** ce qu’un joueur a changé dans la dernière heure (si personne ne l’a retouché depuis),
+ou **l’exclure** du monde partagé pour une heure. Ils peuvent aussi réparer eux-mêmes dans une
+zone protégée. Tout est vérifié par le serveur, jamais seulement dans l’interface.
 
 ## Sauvegarde et limites gratuites
 

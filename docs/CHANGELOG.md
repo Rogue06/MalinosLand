@@ -5,6 +5,21 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (Chantier des mondes : protections et modération, PR 71)
+
+- **Borne de protection** (4 lingots de fer + 1 cristal) : 17 × 17 colonnes autour d’elle à son
+  propriétaire (compte), deux zones par compte, piliers violets aux coins, message en entrant.
+  Deux semaines sans visite ni construction : la protection tombe et la maison se défait petit à
+  petit.
+- **Sans compte, on construit aussi**, mais tout revient comme avant au départ du joueur
+  (message à l’arrivée, au plus 300 changements par visite).
+- **Le monde ne se vide pas** : au-delà de 4 000 cubes retirés, les trous de surface se
+  referment peu à peu loin des joueurs ; les galeries profondes restent.
+- **Modération** : annuler la dernière heure d’un joueur, l’exclure une heure, réparer dans une
+  zone protégée (modérateurs et responsable du site, vérifié par le serveur).
+- Serveur : entretien du monde toutes les heures ; enregistrements espacés pour rester sous le
+  quota gratuit d’écritures.
+
 ### Ajouté (Chantier des mondes : eau, feu et matériaux, PR 70)
 
 - **Lacs** avec plages ; on **nage** (plus lent, on coule doucement, Espace pour remonter et
