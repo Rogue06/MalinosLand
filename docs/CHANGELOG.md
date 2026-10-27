@@ -20,6 +20,8 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 ### Corrigé (Chantier des mondes)
 
 - Une carte de tutoriel vide restait affichée en mode créatif.
+- **Torches invisibles** dans le grand monde (la lumière était là, pas la torche) : Three.js les
+  croyait hors de l’écran. Même correction pour les éclats des cubes cassés.
 
 ### Ajouté et modifié (Chantier des mondes : grand monde et Hub au loin, PR 67)
 

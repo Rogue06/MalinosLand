@@ -277,6 +277,10 @@ export class SandboxGame {
       new THREE.MeshBasicMaterial({ color: 0xffd36e }),
       512,
     );
+    // Instances dispersées dans tout le monde : leur zone de visibilité, calculée une seule fois
+    // au départ (autour du coin du monde), les cacherait à tort. On les dessine toujours.
+    this.torchSticks.frustumCulled = false;
+    this.torchFlames.frustumCulled = false;
     this.scene.add(this.torchSticks, this.torchFlames);
     this.bits = new THREE.InstancedMesh(
       new THREE.BoxGeometry(0.12, 0.12, 0.12),
@@ -284,6 +288,7 @@ export class SandboxGame {
       96,
     );
     this.bits.count = 0;
+    this.bits.frustumCulled = false;
     this.scene.add(this.bits);
     for (const [width, opacity] of [
       [0.9, 0.55],
