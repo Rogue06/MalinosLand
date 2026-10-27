@@ -91,6 +91,16 @@ de fournisseur = écrire un nouveau transport et/ou migrer un dump Postgres.
   d’environ 2 millions de messages WebSocket entrants par jour (100 000 requêtes par jour, un
   message entrant compté pour 1/20 de requête ; vérifié le 21/10/2026). Niveaux : > 70 % ralentir (400 ms), > 90 % ralentir fortement et couper les émotes
   (1 s), 100 % **maintenance** (plus de mouvements relayés, nouvelles connexions refusées).
+- ✅ **Chantier des mondes partagé** (DEC-045) : un second Durable Object, avec son propre
+  compteur : `CHANTIER_DAILY_BUDGET = 300 000` messages par jour (15 % du quota). Avec le Hub,
+  85 % du quota gratuit au plus. Budget épuisé : le monde partagé fait une pause jusqu’au
+  lendemain (les modes solo restent ouverts). 20 joueurs à la fois au plus. Stockage : une ligne
+  par tranche modifiée et une par compte, écrites par lots (au plus une fois toutes les 5 s),
+  soit au plus ≈ 17 000 écritures par jour et par tranche en chantier continu (limite gratuite :
+  100 000 lignes écrites par jour). **Point d’attention** : la durée gratuite (≈ 28 h d’objet
+  éveillé par jour) est partagée entre le Hub et le Chantier ; les deux très actifs en même
+  temps plus de 14 h par jour la dépasseraient (au-delà : erreurs, jamais de facture). À
+  surveiller dans le tableau de bord de Cloudflare.
 - ✅ Hibernation des WebSockets : le serveur ne consomme pas de temps de calcul quand personne ne
   parle ; les « ping » de maintien de connexion reçoivent une réponse automatique non facturée.
 - ✅ Plafond de 40 joueurs par salle, puis **file d’attente** (50 places par salle) : le joueur

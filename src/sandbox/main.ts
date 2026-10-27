@@ -1,6 +1,9 @@
 import './sandbox.css';
 import { itemDef } from './blocks';
-import { SandboxGame, type GameMode } from './game';
+import { SandboxGame, type GameMode, type SharedHooks } from './game';
+import { SHARED_URL, SharedLink } from './online';
+import { REFUSAL_TEXT, fromBase64, unpackChunk, type Down, type SharedNotice } from './protocol';
+import { sanitizeName } from '../core/text';
 import { HOTBAR_SIZE, RECIPES, STATION_LABEL } from './inventory';
 import { ALL_ITEMS } from './blocks';
 import { VersionedStorage } from '../services/storage';
@@ -77,12 +80,31 @@ void (
 const keyName = (b: Bindings, a: Action) => keyLabel(b[a][0] ?? '', layout);
 const coarse = matchMedia('(pointer: coarse)').matches;
 let game: SandboxGame | null = null;
+/** Connexion au monde partagé (null : partie solo). */
+let link: SharedLink | null = null;
+
+/** Pseudo du personnage du Hub (pour un visiteur ; un compte garde le sien sur le serveur). */
+const hubName = (): string =>
+  store.read<string>('profile', 1, (raw) =>
+    typeof raw === 'object' && raw !== null
+      ? sanitizeName((raw as Record<string, unknown>).name)
+      : null,
+  ) ?? 'Visiteur';
+
+const NOTICE_TEXT: Record<SharedNotice, string> = {
+  full: 'Le monde partagé est plein pour l’instant : nouvel essai dans une minute.',
+  maintenance:
+    'Le monde partagé fait une pause jusqu’à demain (le quota gratuit du jour est atteint). Les modes solo restent ouverts.',
+  duplicate: 'Tu joues déjà au monde partagé dans un autre onglet.',
+};
 
 // ------------------------------------------------------------------ écran d'accueil
 
 function startScreen(): void {
   game?.dispose();
   game = null;
+  link?.close();
+  link = null;
   root.replaceChildren(
     el(
       'section',
@@ -92,7 +114,7 @@ function startScreen(): void {
       el(
         'p',
         { class: 'lead' },
-        'Creuse, récolte, fabrique tes outils et construis ce que tu veux. Ta partie est gardée dans ce navigateur.',
+        'Creuse, récolte, fabrique tes outils et construis ce que tu veux. Seul, ta partie est gardée dans ce navigateur ; à plusieurs, le monde est commun et gardé par le serveur.',
       ),
       el(
         'div',
@@ -108,6 +130,15 @@ function startScreen(): void {
           '🎨',
           'Créatif',
           'Tous les cubes à volonté, casse en un clic, vole avec F. Construis sans limite (un monde à part).',
+        ),
+        modeButton(
+          'shared',
+          '🌍',
+          'À plusieurs',
+          SHARED_URL
+            ? 'Un seul monde pour tous les Malinos, en survie douce. Connecté à ton compte, tu construis avec les autres ; sans compte, tu visites.'
+            : 'Bientôt : le serveur du monde partagé n’est pas configuré ici.',
+          !SHARED_URL,
         ),
       ),
       el(
@@ -152,10 +183,16 @@ function startScreen(): void {
   );
 }
 
-function modeButton(mode: GameMode, icon: string, title: string, text: string): HTMLElement {
+function modeButton(
+  mode: GameMode,
+  icon: string,
+  title: string,
+  text: string,
+  disabled = false,
+): HTMLElement {
   return el(
     'button',
-    { class: 'mode', type: 'button', onclick: () => play(mode) },
+    { class: 'mode', type: 'button', disabled, onclick: () => play(mode) },
     el('span', { class: 'mode-icon', 'aria-hidden': 'true' }, icon),
     el('strong', {}, title),
     el('span', {}, text),
@@ -189,6 +226,84 @@ function play(mode: GameMode): void {
     },
   });
   g.bindings = readBindings();
+
+  // ---- Monde partagé : le serveur décide, le jeu montre tout de suite puis se corrige.
+  let build = false;
+  let lastRefusal = 0;
+  const netPill = el('span', { class: 'net-pill', hidden: mode !== 'shared' });
+  if (mode === 'shared' && SHARED_URL) {
+    const net = new SharedLink(SHARED_URL, hubName(), (m) => onShared(m));
+    link = net;
+    const hooks: SharedHooks = {
+      canBuild: () => build && net.online,
+      whyNot: () => (net.online ? REFUSAL_TEXT.guest : 'Connexion au monde partagé…'),
+      dig: (i, h) => net.send({ t: 'dig', i, h }),
+      put: (i, b) => net.send({ t: 'put', i, b }),
+      craft: (r) => net.send({ t: 'craft', r }),
+      home: () => net.send({ t: 'home' }),
+      move: (x, y, z, a) => net.move(x, y, z, a),
+    };
+    g.shared = hooks;
+  }
+
+  function onShared(m: Down) {
+    switch (m.t) {
+      case 'welcome':
+        build = m.build;
+        g.welcome(m.x, m.y, m.z, m.inv);
+        for (const p of m.peers) g.peerJoin(p);
+        toast(
+          build
+            ? `Bienvenue ${m.name} ! Tu construis avec les autres Malinos.`
+            : 'Tu visites le monde partagé. Connecte-toi à ton compte dans le Hub pour construire.',
+        );
+        break;
+      case 'chunk': {
+        const bytes = fromBase64(m.d);
+        const changes = bytes ? unpackChunk(m.c, bytes) : null;
+        if (changes) g.applyChunk(m.c, changes);
+        break;
+      }
+      case 'set':
+        g.applySet(m.e);
+        break;
+      case 'inv':
+        g.setInventory(m.c);
+        break;
+      case 'join':
+        g.peerJoin(m);
+        toast(`${m.name} arrive dans le monde partagé.`);
+        break;
+      case 'p':
+        g.peerMove(m.id, m.x, m.y, m.z, m.a);
+        break;
+      case 'left':
+        g.peerLeft(m.id);
+        break;
+      case 'no':
+        // Un refus à la fois (le serveur renvoie aussi l'état réel de la case et le sac).
+        if (performance.now() - lastRefusal > 1500) toast(REFUSAL_TEXT[m.why]);
+        lastRefusal = performance.now();
+        break;
+      case 'pos':
+        g.teleport(m.x, m.y, m.z);
+        break;
+      case 'notice':
+        toast(NOTICE_TEXT[m.code]);
+        break;
+      case 'rate':
+        break;
+    }
+  }
+  function renderNet() {
+    if (mode !== 'shared' || !link) return;
+    const n = g.peerNames().length + 1;
+    const text = link.online
+      ? `🌍 En ligne · ${n} joueur${n > 1 ? 's' : ''}${build ? '' : ' · visiteur'}`
+      : '🌍 Connexion…';
+    if (netPill.textContent !== text) netPill.textContent = text;
+    netPill.classList.toggle('offline', !link.online);
+  }
   g.setViewDistance(
     store.read<number>('chantier-vue', 1, (v) => (typeof v === 'number' ? v : null)) ?? 7,
   );
@@ -219,7 +334,7 @@ function play(mode: GameMode): void {
 
   // ---- Tutoriel (survie douce) : une carte en haut à gauche, jamais bloquante.
   let tuto = readTuto();
-  const tutoCard = el('section', { class: 'tuto', 'aria-live': 'polite' });
+  const tutoCard = el('section', { class: 'tuto', 'aria-live': 'polite', hidden: true });
   const tutoState: TutorialState = {
     get looked() {
       return g.looked;
@@ -320,6 +435,7 @@ function play(mode: GameMode): void {
     rotL,
     rotR,
     el('button', { class: 'tool', type: 'button', onclick: () => showPanel('menu') }, '☰ Menu'),
+    netPill,
   );
 
   const crosshair = el('div', { class: 'crosshair', 'aria-hidden': 'true' });
@@ -360,7 +476,7 @@ function play(mode: GameMode): void {
         else s.canvas.getContext('2d')?.clearRect(0, 0, s.canvas.width, s.canvas.height);
       }
       const n = item !== null ? g.inv.count(item) : 0;
-      s.count.textContent = item !== null && mode === 'survival' && n > 1 ? String(n) : '';
+      s.count.textContent = item !== null && mode !== 'creative' && n > 1 ? String(n) : '';
       s.b.classList.toggle('selected', i === g.inv.selected);
       s.b.title = item !== null ? (itemDef(item)?.name ?? '') : 'Case vide';
     });
@@ -406,14 +522,14 @@ function play(mode: GameMode): void {
             },
           },
           c,
-          el('span', { class: 'slot-count' }, mode === 'survival' ? String(g.inv.count(id)) : ''),
+          el('span', { class: 'slot-count' }, mode !== 'creative' ? String(g.inv.count(id)) : ''),
           el('span', { class: 'slot-name' }, itemDef(id)?.name ?? ''),
         );
       }),
     );
     const stations = g.stations();
     const recipes =
-      mode === 'survival'
+      mode !== 'creative'
         ? el(
             'div',
             { class: 'recipes' },
@@ -425,7 +541,7 @@ function play(mode: GameMode): void {
                 ? `À côté de toi : ${[...stations].map((s) => STATION_LABEL[s]).join(' et ')}.`
                 : 'Pose un établi près de toi pour fabriquer des outils.',
             ),
-            ...RECIPES.map((r) => {
+            ...RECIPES.map((r, index) => {
               const problem = g.inv.craftProblem(r, stations);
               const out = el('canvas', { class: 'slot-icon small' });
               drawIcon(out, g.atlas, r.out[0]);
@@ -452,7 +568,7 @@ function play(mode: GameMode): void {
                     title: problem ?? 'Fabriquer',
                     disabled: !!problem,
                     onclick: () => {
-                      if (g.inv.craft(r, g.stations())) {
+                      if (g.craft(index)) {
                         sfx.crafted();
                         toast(`Fabriqué : ${r.out[1]} × ${itemDef(r.out[0])?.name ?? ''}`);
                         g.save();
@@ -477,7 +593,7 @@ function play(mode: GameMode): void {
         el(
           'header',
           {},
-          el('h2', {}, mode === 'survival' ? '🎒 Ton sac' : '🎨 Tous les cubes'),
+          el('h2', {}, mode !== 'creative' ? '🎒 Ton sac' : '🎨 Tous les cubes'),
           el('button', { class: 'tool', type: 'button', onclick: () => closePanel() }, '✕'),
         ),
         el(
@@ -621,20 +737,30 @@ function play(mode: GameMode): void {
               '📘 Revoir le tutoriel',
             )
           : null,
-        el(
-          'button',
-          {
-            class: 'menu-btn danger',
-            type: 'button',
-            onclick: () => {
-              if (confirm('Effacer ce monde et recommencer ? Tes constructions seront perdues.')) {
-                g.restart();
-                closePanel();
-              }
-            },
-          },
-          '🗑 Recommencer ce monde',
-        ),
+        mode === 'shared'
+          ? build
+            ? null
+            : el(
+                'a',
+                { class: 'menu-btn', href: '../jouer/' },
+                '🔑 Se connecter dans le Hub pour construire',
+              )
+          : el(
+              'button',
+              {
+                class: 'menu-btn danger',
+                type: 'button',
+                onclick: () => {
+                  if (
+                    confirm('Effacer ce monde et recommencer ? Tes constructions seront perdues.')
+                  ) {
+                    g.restart();
+                    closePanel();
+                  }
+                },
+              },
+              '🗑 Recommencer ce monde',
+            ),
         el(
           'a',
           { class: 'menu-btn', href: '../jouer/', onclick: () => g.save() },
@@ -828,6 +954,7 @@ function play(mode: GameMode): void {
         renderTuto(t.step);
       }
     }
+    renderNet();
     if (!stats.hidden) {
       const s = g.stats();
       stats.textContent = `${s.fps} images/s · ${s.triangles.toLocaleString('fr-FR')} triangles · ${s.calls} dessins · JavaScript chargé : ${jsKo} Ko`;
@@ -838,6 +965,7 @@ function play(mode: GameMode): void {
   refresh();
   if (mode === 'creative')
     toast('Créatif : tous les cubes sont dans ta barre et dans le sac (E). F pour voler.');
+  else if (mode === 'shared') toast('Connexion au monde partagé…');
   else if (tuto.done) toast('Content de te revoir ! Ta partie a été gardée.');
 }
 

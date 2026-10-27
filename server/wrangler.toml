@@ -11,10 +11,19 @@ compatibility_flags = ["nodejs_compat"]
 name = "WORLD"
 class_name = "WorldRoom"
 
+# Chantier des mondes partagé (DEC-045) : un seul monde en cubes pour tous.
+[[durable_objects.bindings]]
+name = "CHANTIER"
+class_name = "ChantierRoom"
+
 # L'offre gratuite n'accepte que les Durable Objects à stockage SQLite.
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["WorldRoom"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["ChantierRoom"]
 
 # Musée : aperçus automatiques des projets (DEC-040), offres gratuites.
 # Navigateur de Cloudflare pour les captures (10 minutes par jour, sans frais au-delà : erreur).
@@ -33,6 +42,10 @@ ALLOWED_ORIGINS = "http://localhost:5173,http://localhost:4173"
 MAX_PLAYERS_PER_ROOM = "40"
 # 70 % des ≈ 2 millions de messages WebSocket entrants gratuits par jour.
 DAILY_MESSAGE_BUDGET = "1400000"
+# Chantier des mondes partagé : 20 joueurs à la fois, 300 000 messages par jour (15 % du quota
+# gratuit ; avec le Hub, 85 % au total).
+CHANTIER_MAX_PLAYERS = "20"
+CHANTIER_DAILY_BUDGET = "300000"
 # Comptes joueurs (Supabase). Vides en local : tout le monde joue en visiteur. Remplis à la mise en
 # ligne (adresse du projet et clé PUBLIQUE « publishable » : ce ne sont pas des secrets).
 SUPABASE_URL = ""

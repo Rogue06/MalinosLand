@@ -14,6 +14,8 @@ export interface RoutesEnv extends SupabaseConfig {
 
 /** Une seule instance de monde pour commencer (voir docs/REALTIME_NETWORK.md). */
 export const WORLD_NAME = 'monde-1';
+/** Le Chantier des mondes partagé : une seule instance, un seul monde pour tous. */
+export const CHANTIER_NAME = 'chantier-1';
 
 export function originAllowed(origin: string | null, allowed: string): boolean {
   const list = allowed

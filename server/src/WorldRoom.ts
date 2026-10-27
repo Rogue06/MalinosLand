@@ -1,4 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
+import type { ChantierRoom } from './ChantierRoom';
 import hub from '../../src/content/maps/hub.json';
 import studio from '../../src/content/maps/studio.json';
 import { HOME_EXIT, MAX_PER_HOME } from '../../src/content/rooms';
@@ -24,6 +25,12 @@ import { VisitLog, type VisitRow, type VisitStore } from './visits';
 
 export interface Env extends SupabaseConfig {
   WORLD: DurableObjectNamespace<WorldRoom>;
+  /** Chantier des mondes partagé (DEC-045). */
+  CHANTIER: DurableObjectNamespace<ChantierRoom>;
+  /** Joueurs à la fois dans le Chantier partagé. */
+  CHANTIER_MAX_PLAYERS?: string;
+  /** Budget quotidien de messages du Chantier (à côté de celui du Hub, sous le quota gratuit). */
+  CHANTIER_DAILY_BUDGET?: string;
   /** Origines autorisées, séparées par des virgules (« * » : toutes, à réserver au développement). */
   ALLOWED_ORIGINS: string;
   MAX_PLAYERS_PER_ROOM: string;

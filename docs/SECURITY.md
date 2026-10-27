@@ -80,5 +80,10 @@ suppression de compte en un clic (cascade en base), export des données, consent
 - Jeton de connexion : jamais dans une URL ; vérifié par la base pour le serveur temps réel.
 - Identité garantie par le serveur : identifiant et pseudo du compte imposés, marque ✓ ajoutée
   par le serveur uniquement ; en-tête interne Worker → Durable Object toujours réécrit.
+- Chantier des mondes partagé (DEC-045) : seuls les comptes vérifiés construisent ; chaque
+  action est revérifiée par le serveur avec les règles du jeu (portée, temps pour casser, sac,
+  zone protégée, vitesse). Le serveur garde, pour chaque compte, son sac et sa position (aucun
+  pseudo ni donnée personnelle) ; ils restent si le compte est supprimé (nettoyage prévu avec la
+  modération du Chantier).
 - Seule la clé **publique** Supabase est utilisée (jeu, serveur, workflows). Les clés `secret` /
   `service_role` et les « Client secret » OAuth restent dans les tableaux de bord.

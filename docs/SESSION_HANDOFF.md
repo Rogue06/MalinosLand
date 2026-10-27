@@ -3,10 +3,9 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 27/10/2026 — Chantier des mondes (`/chantier/`, en ligne) : PR #66
-fusionnée ; en cours : PR 67 (grand monde 192 × 192, Hub visible au loin). Ensuite : PR 68
-(survie partagée à plusieurs) puis PR 69 (protections, modération). Une PR à la fois, présentée
-au responsable avant la suivante.**
+**Dernière mise à jour : 27/10/2026 — Chantier des mondes : PR #67 (grand monde, Hub au loin)
+fusionnée et mise en ligne ; en cours : PR 68 (survie partagée à plusieurs). Ensuite : PR 69
+(protections, modération). Une PR à la fois, présentée au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -101,6 +100,23 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **27/10 (fin)** — PR #67 fusionnée puis **mise en ligne** (demande du responsable : « déploie ce
+  qui a été fait »), workflow réussi. Branche `feature/chantier-multijoueur` (PR 68, DEC-045) :
+  mode « À plusieurs » du Chantier, Durable Object `ChantierRoom` (`/chantier`), serveur qui
+  vérifie tout, sacs des comptes gardés, visiteurs spectateurs. Testé : unitaires (serveur et
+  protocole), intégration Wrangler (dont redémarrage : le monde est retrouvé), deux navigateurs
+  (`npm run test:online`). **Pas testé avec un vrai compte dans le navigateur** (pas de base
+  locale) : à essayer en ligne. La mise en ligne créera la classe `ChantierRoom` sur Cloudflare
+  (migration `v2`) : à faire avec l’accord du responsable. **Suite : attendre « fusionne 68 ».**
+  Précision du responsable (27/10) : le « Hub vu de loin » doit être **notre Hub 2D isométrique**
+  (bâtiment, jardin, fontaine, cerisiers, musée…), pas un bâtiment inventé ; les Malinos du Hub
+  rejoindront plus tard le monde en cubes. Il demande aussi, comme dans les jeux de cubes :
+  **eau, feu**, beaucoup plus de **matériaux et recettes** (verre, etc.) pour bâtir maisons et
+  bâtiments communs. Torches invisibles : corrigé dans la PR 68. Nouveau plan : **PR 69** = le
+  vrai Hub en cubes, construit automatiquement depuis `src/content/maps/hub.json` (48 × 38
+  cases, 297 objets, 2 cubes par case) ; **PR 70** = eau, feu, matériaux et recettes ; **PR 71**
+  = protections et modération du monde partagé.
 
 - **27/10 (suite)** — PR #66 fusionnée et en ligne. Le responsable veut un **monde plus grand**
   d’où l’on voit **le Hub au loin** (les deux seront reliés, mais pas avant que le Chantier soit

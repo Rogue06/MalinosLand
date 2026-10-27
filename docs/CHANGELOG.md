@@ -5,6 +5,24 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (Chantier des mondes : à plusieurs, PR 68)
+
+- **Mode « À plusieurs »** : la survie douce dans **un seul monde pour tous** les Malinos.
+  Connecté à son compte, on construit avec les autres ; le sac et la position sont gardés par le
+  serveur. Sans compte, on visite. On voit les autres joueurs (pseudo, couleur), leurs
+  constructions et les cubes qu’ils cassent ; « 🌍 En ligne · N joueurs » en haut.
+- Le **serveur vérifie tout** avec les règles du jeu : zone protégée, portée, temps pour casser
+  selon l’outil, objets du sac, atelier à côté, vitesse. En cas de refus, la case et le sac
+  reviennent à leur état réel.
+- Serveur : nouveau Durable Object `ChantierRoom` (adresse `/chantier`), modifications
+  enregistrées par lots, budget de messages propre (300 000 par jour), 20 joueurs à la fois.
+
+### Corrigé (Chantier des mondes)
+
+- Une carte de tutoriel vide restait affichée en mode créatif.
+- **Torches invisibles** dans le grand monde (la lumière était là, pas la torche) : Three.js les
+  croyait hors de l’écran. Même correction pour les éclats des cubes cassés.
+
 ### Ajouté et modifié (Chantier des mondes : grand monde et Hub au loin, PR 67)
 
 - **Monde neuf fois plus grand** : 192 × 192 cubes au sol et 48 de haut, avec collines, forêts,
