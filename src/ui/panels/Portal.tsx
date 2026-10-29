@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import { MONDES_INSTALLED } from '../../config';
 import { hash2 } from '../../core/random';
+import { playRift } from '../../services/audio';
 import { panelStore } from '../../state';
 import { CHANTIER_URL, WORLD_SHIFT_MS } from '../../world/portal';
 import { Modal } from './Modal';
@@ -50,8 +51,11 @@ function WorldShift() {
  */
 export function PortalPanel() {
   const [leaving, setLeaving] = useState(false);
+  // La faille s'ouvre : un chœur cristallin ; on la franchit : un grand souffle.
+  useEffect(() => playRift('open'), []);
   useEffect(() => {
     if (!leaving) return;
+    playRift('go');
     const timer = window.setTimeout(() => location.assign(CHANTIER_URL), WORLD_SHIFT_MS);
     return () => window.clearTimeout(timer);
   }, [leaving]);

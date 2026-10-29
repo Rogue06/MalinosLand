@@ -140,6 +140,58 @@ export function playSound(kind: 'message' | 'mention'): void {
   }
 }
 
+/**
+ * Faille entre les mondes (borne du Chantier des mondes, DEC-051) :
+ * - `open` : la faille s'ouvre (l'écran de la borne ondule) : un chœur cristallin qui frémit ;
+ * - `go` : on la franchit : un grand souffle qui s'envole et une pluie de notes claires, pendant
+ *   que l'écran se défait en cubes (≈ 2 s).
+ */
+export function playRift(kind: 'open' | 'go'): void {
+  if (!settingsStore.get().sounds) return;
+  const c = audio();
+  if (!c || c.state !== 'running' || !master) return;
+  const t = c.currentTime + 0.01;
+  // Un léger écho, pour l'impression d'espace.
+  const echo = c.createDelay(1);
+  echo.delayTime.value = 0.23;
+  const feedback = c.createGain();
+  feedback.gain.value = 0.35;
+  const out = c.createGain();
+  out.gain.value = 1;
+  out.connect(master);
+  out.connect(echo).connect(feedback).connect(echo);
+  echo.connect(master);
+  setTimeout(() => out.disconnect(), 4500);
+  if (kind === 'open') {
+    // Accord de quinte et d'octave qui scintille (petits glissés de hauteur).
+    [523.25, 783.99, 1046.5, 1567.98].forEach((f, k) =>
+      tone(f, t + k * 0.07, 1.4, { type: 'sine', gain: 0.05, to: f * 1.015, out }),
+    );
+    return;
+  }
+  // Grand souffle filtré qui monte (du grave à l'aigu)…
+  const src = c.createBufferSource();
+  src.buffer = noiseBuffer(c, 2.2);
+  const band = c.createBiquadFilter();
+  band.type = 'bandpass';
+  band.Q.value = 3;
+  band.frequency.setValueAtTime(180, t);
+  band.frequency.exponentialRampToValueAtTime(4200, t + 1.7);
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(0.5, t + 0.5);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 2.1);
+  src.connect(band).connect(g).connect(out);
+  src.start(t);
+  src.stop(t + 2.2);
+  // …une note grave qui s'envole…
+  tone(70, t, 1.8, { type: 'sawtooth', gain: 0.06, to: 1100, out });
+  // …et une pluie de notes claires, comme des cubes qui tombent en place.
+  [1046.5, 1318.5, 1568, 2093, 1760, 2637].forEach((f, k) =>
+    tone(f, t + 0.45 + k * 0.17, 0.5, { type: 'triangle', gain: 0.06, out }),
+  );
+}
+
 function noiseBuffer(c: AudioContext, seconds: number): AudioBuffer {
   const buf = c.createBuffer(1, Math.floor(c.sampleRate * seconds), c.sampleRate);
   const data = buf.getChannelData(0);
