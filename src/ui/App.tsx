@@ -18,6 +18,7 @@ import { CarnetPanel } from './panels/Carnet';
 import { MuseumPanel } from './panels/Museum';
 import { CreationsPanel, ProjectPanel } from './panels/MuseumVisit';
 import { QuizPanel } from './panels/Quiz';
+import { PortalPanel } from './panels/Portal';
 import { ElevatorPanel, HomePanel } from './panels/Homes';
 import {
   AvatarPanel,
@@ -70,6 +71,8 @@ function ActivePanel() {
       return <CreationsPanel />;
     case 'project':
       return <ProjectPanel />;
+    case 'portal':
+      return <PortalPanel />;
     default:
       return null;
   }

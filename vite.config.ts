@@ -126,6 +126,8 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', 'VITE_');
   return {
     base: './',
+    // Les mondes de jeu sont-ils construits avec le site ? (sinon, la borne du Chantier le dit)
+    define: { __MONDES__: JSON.stringify(!!mondes.chantier) },
     plugins: [
       securityPlugin(env.VITE_REALTIME_URL, env.VITE_SUPABASE_URL, !!env.VITE_TURNSTILE_SITEKEY),
       ...(withHome ? [] : [homeFallbackPlugin()]),

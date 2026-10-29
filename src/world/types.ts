@@ -51,6 +51,7 @@ export interface ZoneDef {
 /** Identifiants des panneaux d'interface ouvrables depuis le monde. */
 export const PANEL_IDS = [
   'welcome',
+  'portal',
   'roadmap',
   'elevator',
   'tips',
@@ -166,6 +167,13 @@ export interface CatalogEntry {
   light?: { color: number; radius: number; z: number; dx?: number; dy?: number };
   /** Animation légère de flottement (robot). */
   hover?: boolean;
+  /**
+   * Ampoules de chapiteau qui clignotent en chenillard, comme une borne d'arcade des années 80
+   * (positions en orientation canonique : x, y, hauteur). Immobiles si l'on réduit les animations.
+   */
+  marquee?: ReadonlyArray<readonly [number, number, number]>;
+  /** Hauteur du nom flottant (par défaut 1,5) : plus haut, il ne cache pas les ampoules. */
+  labelZ?: number;
   /** Les murs voisins se raccordent visuellement à cet objet (ascenseur…). */
   connectsWalls?: boolean;
 }

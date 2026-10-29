@@ -720,6 +720,55 @@ export const OBJECT_ART: Record<string, ObjectArt> = {
       fit: 0.52,
     });
   },
+  /**
+   * Borne du Chantier des mondes : caisson indigo à bandes néon (rose, cyan), l'écran montre un
+   * petit monde en cubes et le portail turquoise. Ses ampoules sont animées par WorldRenderer.
+   */
+  arcade_chantier(b) {
+    const body = '#1b1340';
+    const pink = '#ff4fa3';
+    const cyan = '#3ff0ff';
+    box(b, 0.15, 0.22, 0, 0.7, 0.62, 1.55, body, {
+      decals: [
+        // Flanc : deux bandes néon (style années 80).
+        decal('px', 0, 0.6, 1, 0.64, pink),
+        decal('px', 0, 0.67, 1, 0.7, cyan),
+        decal('px', 0, 0.2, 1, 0.23, pink),
+        // Écran : ciel, collines d'herbe, terre, un arbre, de la pierre, le portail.
+        decal('py', 0.12, 0.5, 0.88, 0.82, '#7fd3ff'),
+        decal('py', 0.12, 0.5, 0.88, 0.6, '#9b6a43'),
+        decal('py', 0.12, 0.6, 0.88, 0.64, '#6cbf5a'),
+        decal('py', 0.18, 0.64, 0.3, 0.7, '#6cbf5a'),
+        decal('py', 0.22, 0.7, 0.26, 0.74, '#8a5a36'),
+        decal('py', 0.18, 0.74, 0.3, 0.8, '#4fa35a'),
+        decal('py', 0.46, 0.64, 0.58, 0.69, '#8b93a6'),
+        decal('py', 0.66, 0.64, 0.84, 0.78, P.tealLight),
+        decal('py', 0.7, 0.64, 0.8, 0.74, '#e9fffb'),
+        // Fronton lumineux, bandes néon et monnayeur.
+        decal('py', 0.06, 0.86, 0.94, 0.98, pink),
+        decal('py', 0, 0, 0.05, 0.84, pink),
+        decal('py', 0.95, 0, 1, 0.84, cyan),
+        decal('py', 0.32, 0.06, 0.68, 0.3, '#2a1f5c'),
+        decal('py', 0.44, 0.15, 0.56, 0.2, P.sun),
+      ],
+    });
+    box(b, 0.15, 0.62, 0.78, 0.7, 0.3, 0.1, '#2a1f5c', {
+      decals: [
+        decal('top', 0.5, 0.3, 0.62, 0.55, pink),
+        decal('top', 0.68, 0.3, 0.8, 0.55, cyan),
+        decal('top', 0.84, 0.3, 0.94, 0.55, P.sun),
+      ],
+    });
+    b.cylinder(0.32, 0.77, 0.88, 0.025, 0.1, P.metal);
+    b.disc(0.32, 0.77, 0.98, 0.045, '#ff3355');
+    b.text({ x: 0.5, y: 0.845, z: 1.45 }, 'py', 'MONDES', {
+      size: 5,
+      color: '#fff7c2',
+      weight: 900,
+      fit: 0.52,
+      glow: pink,
+    });
+  },
   mirror(b) {
     box(b, 0.14, 0.42, 0, 0.72, 0.12, 1.65, P.woodLight, {
       decals: [
