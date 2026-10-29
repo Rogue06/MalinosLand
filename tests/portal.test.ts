@@ -50,3 +50,11 @@ describe('Hub : borne du Chantier des mondes (DEC-051)', () => {
     );
   });
 });
+
+describe('Hub : bruitage de la faille', () => {
+  it('sans son possible (ici, pas de navigateur), la faille reste silencieuse sans erreur', async () => {
+    const { playRift } = await import('../src/services/audio');
+    expect(() => playRift('open')).not.toThrow();
+    expect(() => playRift('go')).not.toThrow();
+  });
+});

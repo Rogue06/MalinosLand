@@ -5,6 +5,12 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (bruitage de la faille entre les mondes)
+
+- La borne du Chantier des mondes a sa voix : un chœur cristallin quand la faille s’ouvre, puis
+  un grand souffle qui s’envole et une pluie de notes claires quand on la franchit (sons
+  fabriqués par le code, comme les autres ; coupés si les sons sont désactivés).
+
 ### Ajouté (la borne du Chantier des mondes, DEC-051)
 
 - **Salle de jeux** : une troisième borne d’arcade, indigo à bandes néon, dont les ampoules

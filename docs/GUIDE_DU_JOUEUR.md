@@ -146,7 +146,7 @@ Tes scores restent dans ton navigateur. Les autres jeux se jouent encore « pour
 
 La **borne du Chantier des mondes**, indigo à bandes néon, se repère de loin : ses ampoules
 clignotent comme celles des salles d’arcade des années 80. Joue dessus : une **faille
-spatio-temporelle** s’ouvre et la borne te demande si tu es prêt. Accepte, l’écran se défait en
+spatio-temporelle** s’ouvre et la borne te demande si tu es prêt. Accepte : dans un grand souffle, l’écran se défait en
 cubes… et tu atterris dans le **Chantier des mondes**, un monde en cubes que les Malinos bâtissent
 ensemble. Pour revenir, passe le Portail des Malinos, au bout du chemin de gravier : tu
 réapparais devant la borne.
