@@ -5,6 +5,14 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Modifié (bulles de chat)
+
+- Les messages **« Tout le monde »** s’affichent aussi dans une bulle au-dessus de celui qui parle
+  (dans la même salle), pas seulement « Autour ».
+- Bulles plus jolies : ombre douce, liseré turquoise (« Autour ») ou violet avec un 🌍 (« Tout le
+  monde »), apparition d’un petit bond et effacement en douceur, durée selon la longueur du
+  message, émojis seuls en grand, messages très longs coupés proprement.
+
 ### Ajouté (bruitage de la faille entre les mondes)
 
 - La borne du Chantier des mondes a sa voix : un chœur cristallin quand la faille s’ouvre, puis

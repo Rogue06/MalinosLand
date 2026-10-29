@@ -773,7 +773,7 @@ export class WorldScene extends Phaser.Scene {
         this.openStand(it.slot);
         break;
       case 'emote':
-        this.avatar.say(it.emoji, 3500);
+        this.avatar.say(it.emoji, 'local', 3500);
         pushToast(it.text, it.emoji);
         if ((EMOTES as readonly string[]).includes(it.emoji))
           this.net?.sendEmote(it.emoji as Emote);
@@ -932,7 +932,8 @@ export class WorldScene extends Phaser.Scene {
       });
       return;
     }
-    if (scope === 'local') this.avatar.say(text);
+    // Une bulle au-dessus de soi, pour « Autour » comme pour « Tout le monde ».
+    this.avatar.say(text, scope);
     const role = this.selfRole();
     pushChat({
       from: nameWithBadge(profile?.name ?? 'Moi', role),
@@ -945,7 +946,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   private playEmote(emoji: Emote): void {
-    this.avatar.say(emoji, 3000);
+    this.avatar.say(emoji, 'local', 3000);
     this.net?.sendEmote(emoji);
   }
 
@@ -1177,7 +1178,8 @@ export class WorldScene extends Phaser.Scene {
       // « Autour de moi » : trop loin, on ne l'entend pas (le serveur filtre déjà en ligne ; ici
       // pour la démo entre onglets).
       if (scope === 'local' && !this.withinEarshot(peer)) return;
-      if (scope === 'local') this.remotes.get(peer.id)?.view.say(text);
+      // Bulle au-dessus de celui qui parle, s'il est dans la même salle (« Tout le monde » aussi).
+      this.remotes.get(peer.id)?.view.say(text, scope);
       const mention = mentions(text, profileStore.get()?.name ?? '');
       pushChat({
         from: nameWithBadge(displayName(peer.name, peer.verified), peer.role),
@@ -1200,7 +1202,7 @@ export class WorldScene extends Phaser.Scene {
       this.updatePresence();
     });
     on('emote', ({ peer, emote }) => {
-      if (!isHidden(peer.id)) this.remotes.get(peer.id)?.view.say(emote, 3000);
+      if (!isHidden(peer.id)) this.remotes.get(peer.id)?.view.say(emote, 'local', 3000);
     });
     on('queue', ({ pos }) => {
       if (pos === 0) {
@@ -1411,7 +1413,7 @@ export class WorldScene extends Phaser.Scene {
     if (av.dancing && !this.wasDancing) this.startDancing(time);
     if (av.dancing && time > this.danceNoteAt) {
       this.danceNoteAt = time + 5000;
-      av.say('🎶', 1800);
+      av.say('🎶', 'local', 1800);
     }
     this.wasDancing = av.dancing;
     this.updateDanceFloors(delta, av.dancing);

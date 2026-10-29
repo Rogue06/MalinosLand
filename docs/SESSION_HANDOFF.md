@@ -102,6 +102,12 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
 
 ## Dernières sessions
 
+- **30/10** — Côté Chantier (dépôt privé) : accueil rêveur, musique champêtre avec oiseaux,
+  volumes, souris reprise sans clic, retour par la faille (en ligne). Ici : branche
+  `feature/bulles-chat` (bulles aussi pour « Tout le monde », plus jolies). **Suite demandée** :
+  un chat dans le Chantier des mondes, puis plus tard la voix (à étudier : coût d’un relais,
+  « appuyer pour parler », modération).
+
 - **29/10** — Le Chantier (dépôt privé) a reçu ses profondeurs, l’écoulement et les cœurs (en
   ligne), puis son portail vers MalinosLand (fusionné, pas encore en ligne). Ici : branche
   `feature/portail-hub`, la borne d’arcade de la salle de jeux (DEC-051). **Suite** : présenter
