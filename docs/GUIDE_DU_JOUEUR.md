@@ -137,12 +137,25 @@ fruitiers jusqu’au **potager partagé**.
 
 ![Salle de jeux](images/salle-de-jeux.jpg)
 
-Au nord du parc : deux bornes d’arcade, une table de ping-pong, un baby-foot, une table d’échecs,
+Au nord du parc : trois bornes d’arcade, une table de ping-pong, un baby-foot, une table d’échecs,
 des poufs et des jeux de société. La **borne turquoise** accueille le **Quiz IA des Malinos** :
 5 questions sur l’IA et le numérique, avec une explication après chaque réponse. Joue le **défi
 de la semaine** (les mêmes questions pour tous, nouvelles chaque lundi) ou une **partie libre**.
 Tes scores restent dans ton navigateur. Les autres jeux se jouent encore « pour de faux » : les
 **mini-jeux à plusieurs** arrivent avec la v0.5.
+
+La **borne du Chantier des mondes**, indigo à bandes néon, se repère de loin : ses ampoules
+clignotent comme celles des salles d’arcade des années 80. Joue dessus : une **faille
+spatio-temporelle** s’ouvre et la borne te demande si tu es prêt. Accepte, l’écran se défait en
+cubes… et tu atterris dans le **Chantier des mondes**, un monde en cubes que les Malinos bâtissent
+ensemble. Pour revenir, passe le Portail des Malinos, au bout du chemin de gravier : tu
+réapparais devant la borne.
+
+![La borne du Chantier des mondes, la nuit](images/borne-chantier.jpg)
+
+![La faille entre les mondes](images/faille-entre-les-mondes.jpg)
+
+![Le changement de monde](images/changement-de-monde.jpg)
 
 ### Le jour et la nuit
 

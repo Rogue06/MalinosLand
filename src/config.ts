@@ -66,3 +66,10 @@ export const PRIVACY_NOTE = REALTIME_URL
       : 'Ton personnage est enregistré dans ce navigateur.')
   : 'Version hors ligne : ton personnage est enregistré uniquement dans ce navigateur. ' +
     'Aucun compte, aucune donnée envoyée sur Internet.';
+
+declare const __MONDES__: boolean | undefined;
+/**
+ * Les mondes de jeu (dépôt privé, DEC-050) sont construits avec ce site : la borne du Chantier
+ * des mondes y mène. Sans eux (développement du dépôt public seul), elle annonce « bientôt ».
+ */
+export const MONDES_INSTALLED = typeof __MONDES__ !== 'undefined' && __MONDES__;

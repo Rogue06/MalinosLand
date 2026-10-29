@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { hash2 } from '../core/random';
 import { project, TILE_W } from '../core/iso';
+import { rotatePoint } from '../core/rotation';
 import type { WorldModel, WorldObject } from '../world/WorldModel';
 import { staticDepth, type DepthBox } from '../world/depth';
 import type { FloorType, WallType } from '../world/types';
@@ -15,6 +16,10 @@ const DEPTH_LIGHT_POOL = -4e6;
 const DEPTH_GLOW = 1e7;
 /** Opacité des halos de lumière en plein jour. */
 const HALO_ALPHA = 0.22;
+/** Couleurs des ampoules d'une borne d'arcade : rose, jaune, cyan, violet. */
+const MARQUEE_COLORS = [0xff4fa3, 0xffd34d, 0x3ff0ff, 0xb46bff];
+/** Pas du chenillard des ampoules (ms). */
+const MARQUEE_STEP = 230;
 const POOL_ALPHA = 0.2;
 
 export interface RenderedObject {
@@ -201,6 +206,7 @@ export class WorldRenderer {
         if (shadow) this.place(shadow, obj.x, obj.y).setDepth(DEPTH_SHADOW).setAlpha(0.7);
         const light = obj.entry.light;
         if (light && glow) this.addLight(glow, obj, light);
+        if (obj.entry.marquee && glow) this.addMarquee(glow, obj, obj.entry.marquee);
         if (obj.entry.hover && !this.opts.reducedMotion) {
           this.scene.tweens.add({
             targets: image,
@@ -244,8 +250,51 @@ export class WorldRenderer {
     this.lights.push({ halo: haloImg, pool: poolImg });
   }
 
+  /**
+   * Ampoules de chapiteau (borne d'arcade des années 80) : quatre couleurs qui s'allument et
+   * s'éteignent l'une après l'autre, en chenillard. Immobiles si l'on réduit les animations.
+   */
+  private addMarquee(
+    glow: TextureInfo,
+    obj: WorldObject,
+    bulbs: NonNullable<WorldObject['entry']['marquee']>,
+  ): void {
+    const [fw, fd] = obj.entry.footprint;
+    bulbs.forEach(([u, v, z], i) => {
+      const r = rotatePoint(u, v, obj.rot, fw, fd);
+      const p = project(obj.x + r.x, obj.y + r.y, z);
+      const color = MARQUEE_COLORS[i % MARQUEE_COLORS.length]!;
+      const image = (size: number, blend: Phaser.BlendModes, alpha: number) =>
+        this.track(
+          this.scene.add
+            .image(p.x, p.y, glow.key, glow.frame)
+            .setDisplaySize(TILE_W * size, TILE_W * size)
+            .setTint(color)
+            .setBlendMode(blend)
+            .setAlpha(alpha)
+            .setDepth(DEPTH_GLOW),
+        );
+      // Un halo coloré, et l'ampoule elle-même : un point net et vif.
+      const halo = image(0.3, Phaser.BlendModes.ADD, 0.9);
+      const core = image(0.09, Phaser.BlendModes.NORMAL, 1);
+      if (this.opts.reducedMotion) return;
+      // Clignotement franc, allumé ou éteint, décalé d'une couleur à l'autre : à tout instant,
+      // à peu près la moitié des ampoules brillent et la lumière semble courir.
+      this.scene.tweens.add({
+        targets: [halo, core],
+        alpha: 0.08,
+        duration: 70,
+        hold: MARQUEE_STEP * 2,
+        repeatDelay: MARQUEE_STEP * 2,
+        delay: (i % MARQUEE_COLORS.length) * MARQUEE_STEP,
+        yoyo: true,
+        repeat: -1,
+      });
+    });
+  }
+
   private addLabel(obj: WorldObject): void {
-    const p = project(obj.x + obj.w / 2, obj.y + obj.d / 2, 1.5);
+    const p = project(obj.x + obj.w / 2, obj.y + obj.d / 2, obj.entry.labelZ ?? 1.5);
     const label = this.scene.add
       .text(p.x, p.y, obj.label ?? '', {
         fontFamily: 'system-ui, sans-serif',

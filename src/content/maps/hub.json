@@ -1365,6 +1365,13 @@
       "variant": 1
     },
     {
+      "type": "arcade_chantier",
+      "x": 40,
+      "y": 1,
+      "id": "arcade-chantier",
+      "label": "Chantier des mondes"
+    },
+    {
       "type": "bookshelf",
       "x": 39,
       "y": 1,

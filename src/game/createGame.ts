@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { LOCAL_ART_PREVIEW } from '../config';
 import { renderProfile, settingsStore } from '../services/settings';
+import { pushToast } from '../state';
+import { CHANTIER_ARRIVAL, fromChantier, withoutOrigin } from '../world/portal';
 import { WorldScene } from './scenes/WorldScene';
 
 /**
@@ -40,7 +42,15 @@ export async function createGame(parent: HTMLElement, selfId: string): Promise<P
     banner: false,
     audio: { noAudio: true },
   });
-  game.scene.add('world', WorldScene, true, { selfId, preview, spawn: preview?.spawn });
+  // Retour du Chantier des mondes (son portail) : on réapparaît devant la borne de la salle de
+  // jeux. L'adresse est nettoyée, pour qu'un rechargement ne refasse pas l'arrivée.
+  const back = fromChantier(location.search);
+  if (back) {
+    history.replaceState(history.state, '', withoutOrigin(location.href));
+    pushToast('De retour à MalinosLand, devant la borne du Chantier des mondes !', '🌀', 6000);
+  }
+  const spawn = preview?.spawn ?? (back ? CHANTIER_ARRIVAL : undefined);
+  game.scene.add('world', WorldScene, true, { selfId, preview, spawn });
 
   const onResize = () => {
     const s = size();

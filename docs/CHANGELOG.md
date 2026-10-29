@@ -5,6 +5,13 @@ Format inspiré de [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/). Ver
 
 ## [Non publié]
 
+### Ajouté (la borne du Chantier des mondes, DEC-051)
+
+- **Salle de jeux** : une troisième borne d’arcade, indigo à bandes néon, dont les ampoules
+  clignotent en chenillard (style arcade des années 80). Jouer dessus ouvre une **faille entre les
+  mondes** : si l’on est prêt, l’écran se défait en cubes et l’on atterrit dans le **Chantier des
+  mondes**. Au retour (son Portail des Malinos), on réapparaît devant la borne.
+
 ### Modifié (mondes de jeu dans un dépôt privé)
 
 - Le Chantier des mondes (jeu, serveur, tests, documentation) est désormais développé dans le

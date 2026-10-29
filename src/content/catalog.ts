@@ -386,6 +386,26 @@ export const CATALOG: Record<string, CatalogEntry> = {
     },
     light: { color: 0xc17bff, radius: 1.1, z: 1.4 },
   },
+  // Borne du Chantier des mondes (DEC-051) : la faille vers le monde en cubes. Un chapiteau
+  // d'ampoules qui clignotent (style arcade américaine des années 80) attire l'œil.
+  arcade_chantier: {
+    name: 'Borne du Chantier des mondes',
+    category: 'tech',
+    footprint: [1, 1],
+    blocking: true,
+    defaultInteraction: {
+      kind: 'panel',
+      label: 'Franchir la faille vers le monde des cubes',
+      panel: 'portal',
+    },
+    light: { color: 0x5fe3d0, radius: 1.4, z: 1.4 },
+    labelZ: 2.2,
+    marquee: [
+      // Le long du fronton, puis de chaque côté de l'écran.
+      ...[0.18, 0.31, 0.44, 0.56, 0.69, 0.82].map((x) => [x, 0.86, 1.6] as const),
+      ...[1.32, 1.08, 0.84].flatMap((z) => [[0.13, 0.86, z] as const, [0.87, 0.86, z] as const]),
+    ],
+  },
   mirror: {
     name: 'Miroir',
     category: 'decor',

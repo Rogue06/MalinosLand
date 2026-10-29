@@ -3,11 +3,10 @@
 > À lire en premier par toute nouvelle session (humaine ou IA). Mettre à jour à la fin de chaque
 > tâche importante.
 
-**Dernière mise à jour : 27/10/2026 — PR #72 fusionnée et en ligne. Le Chantier des mondes passe
-dans le dépôt privé `MalinosLand-mondes` (DEC-050, [MONDES.md](MONDES.md)) : PR « mondes
-privés » en cours ; le secret `MONDES_TOKEN` est à créer par le responsable avant la prochaine
-mise en ligne. La suite du Chantier se suit dans le dépôt privé (`docs/SESSION_HANDOFF.md`
-là-bas). Une PR à la fois, présentée au responsable avant la suivante.**
+**Dernière mise à jour : 29/10/2026 — PR « borne du Chantier des mondes » (DEC-051) : dans la
+salle de jeux, une borne d’arcade aux ampoules clignotantes ouvre une faille vers le Chantier des
+mondes ; au retour, on réapparaît devant elle. Côté Chantier (dépôt privé) : le portail mène déjà
+à MalinosLand (M-004, fusionné). Une PR à la fois, présentée au responsable avant la suivante.**
 
 > Nouvelle session ? Les consignes sont dans [`AGENTS.md`](../AGENTS.md) ; le mode d’emploi pour
 > reprendre sur un autre ordinateur ou un autre outil est dans
@@ -102,6 +101,11 @@ réussis. Captures dans `docs/images/prototype-voxel-*.png`. Atelier absent du b
   **à supprimer depuis GitHub** (le proxy des sessions Claude interdit leur suppression).
 
 ## Dernières sessions
+
+- **29/10** — Le Chantier (dépôt privé) a reçu ses profondeurs, l’écoulement et les cœurs (en
+  ligne), puis son portail vers MalinosLand (fusionné, pas encore en ligne). Ici : branche
+  `feature/portail-hub`, la borne d’arcade de la salle de jeux (DEC-051). **Suite** : présenter
+  la PR, puis refaire l’image de MalinosLand vue du Chantier (`npm run chantier:vue`, dépôt privé).
 
 - **27/10 (midi)** — PR #72 fusionnée et **mise en ligne**. Le responsable veut garder le
   « Minecraft » privé, et relier plus tard d’autres mini-jeux à MalinosLand : un seul dépôt privé

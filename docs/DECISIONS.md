@@ -876,3 +876,30 @@ isométrique) reste open source ici.
 l’historique de ce dépôt (et des copies ont pu être faites) ; seule la suite est privée. Le code
 envoyé aux navigateurs reste lisible, même compacté. La documentation détaillée du Chantier est
 dans le dépôt privé ; [MONDES.md](MONDES.md) explique l’organisation.
+
+## DEC-051 — Une borne d’arcade relie MalinosLand au Chantier des mondes (29/10/2026)
+
+**Contexte.** Le Chantier des mondes (dépôt privé, DEC-050) a désormais son Portail des Malinos
+qui mène au Hub (décision M-004 du dépôt privé). Le responsable veut l’entrée côté Hub dans la
+**salle de jeux**, sur une **borne d’arcade** : un message demande si l’on est prêt à franchir
+une « faille spatio-temporelle », puis une animation de changement de monde. La borne doit
+attirer l’œil avec des **lumières clignotantes**, style arcade américaine des années 80.
+
+**Décision.**
+
+- Nouvel objet `arcade_chantier` (`src/content/catalog.ts`, dessin dans
+  `src/game/art/objects.ts`) : caisson indigo à bandes néon, écran avec un petit monde en cubes,
+  fronton « MONDES ». Placé en (40, 1) dans la salle de jeux.
+- Ampoules de chapiteau (`marquee` dans le catalogue, `WorldRenderer.addMarquee`) : un point net
+  et un halo par ampoule, quatre couleurs qui clignotent franchement en chenillard. Immobiles si
+  l’on réduit les animations.
+- Panneau `portal` (`src/ui/panels/Portal.tsx`) : le joueur choisit « Je suis prêt » ou « Pas
+  maintenant » ; rien ne se passe sans son accord. L’écran se défait en cubes pendant 1,9 s, puis
+  `../chantier/?depuis=hub`.
+- Retour (`?depuis=chantier`) : le joueur réapparaît devant la borne (`src/world/portal.ts`) et
+  l’adresse est nettoyée (un rechargement ne refait pas l’arrivée).
+- Sans les mondes installés (dépôt public seul), la borne existe mais annonce « bientôt »
+  (`MONDES_INSTALLED`, défini au moment de la construction).
+
+**Conséquences.** Le Chantier n’est plus une page à part, sans lien avec le jeu. L’image de
+MalinosLand vue du Chantier sera refaite pour qu’on y voie la nouvelle borne.
