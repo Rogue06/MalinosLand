@@ -1,7 +1,9 @@
 import Phaser from 'phaser';
 import type { AvatarAppearance } from '../../content/avatars';
 import { GOLD_TITLE, nameWithBadge } from '../../content/roles';
-import type { Role } from '../../multiplayer/protocol';
+import type { ChatScope, Role } from '../../multiplayer/protocol';
+import { bubbleDuration, bubbleText, isEmojiOnly } from '../../core/bubble';
+import { settingsStore } from '../../services/settings';
 import { project, Z_PX, type Facing } from '../../core/iso';
 import { AVATAR_FACINGS, SIT_HEIGHT, frameName, type AvatarPose } from '../art/characters';
 import type { TextureFactory } from '../textures';
@@ -186,17 +188,42 @@ export class AvatarView {
     }
   }
 
-  /** Affiche une bulle au-dessus de la tête. Le texte est rendu tel quel (jamais interprété). */
-  say(text: string, durationMs = 6000): void {
+  /**
+   * Affiche une bulle au-dessus de la tête (« Autour » ou « Tout le monde »), le temps de la lire.
+   * Le texte est rendu tel quel (jamais interprété).
+   */
+  say(text: string, scope: ChatScope = 'local', durationMs = bubbleDuration(text)): void {
     this.clearBubble();
     if (this.hidden) return;
-    this.bubble = createBubble(this.scene, text);
-    this.bubbleTimer = this.scene.time.delayedCall(durationMs, () => this.clearBubble());
+    const still = settingsStore.get().reducedMotion;
+    const bubble = createBubble(this.scene, text, scope);
+    this.bubble = bubble;
+    // Elle apparaît d'un petit bond, puis s'efface en douceur.
+    if (!still) {
+      bubble.setScale(0.6).setAlpha(0);
+      this.scene.tweens.add({
+        targets: bubble,
+        scale: 1,
+        alpha: 1,
+        duration: 220,
+        ease: 'Back.easeOut',
+      });
+    }
+    this.bubbleTimer = this.scene.time.delayedCall(durationMs, () => {
+      if (still || this.bubble !== bubble) return this.clearBubble();
+      this.scene.tweens.add({
+        targets: bubble,
+        alpha: 0,
+        duration: 350,
+        onComplete: () => this.bubble === bubble && this.clearBubble(),
+      });
+    });
   }
 
   private clearBubble(): void {
     this.bubbleTimer?.remove(false);
     this.bubbleTimer = null;
+    if (this.bubble) this.scene.tweens.killTweensOf(this.bubble);
     this.bubble?.destroy();
     this.bubble = null;
   }
@@ -211,26 +238,63 @@ export class AvatarView {
 }
 
 /** Bulle de discussion (texte brut, jamais interprété comme du HTML). */
-export function createBubble(scene: Phaser.Scene, text: string): Phaser.GameObjects.Container {
+/** Couleur du liseré : turquoise pour « Autour », violet pour « Tout le monde ». */
+const BUBBLE_ACCENT: Record<ChatScope, number> = { local: 0x22b5a6, global: 0x7b6cf6 };
+
+/**
+ * Bulle de chat : fond clair, ombre douce, liseré coloré selon la portée du message, petite
+ * pointe vers le personnage ; un 🌍 au coin pour « Tout le monde ». Un ou deux émojis seuls
+ * s'affichent en grand.
+ */
+export function createBubble(
+  scene: Phaser.Scene,
+  raw: string,
+  scope: ChatScope = 'local',
+): Phaser.GameObjects.Container {
+  const text = bubbleText(raw);
+  const big = isEmojiOnly(text);
   const t = scene.add
     .text(0, 0, text, {
       fontFamily: 'system-ui, sans-serif',
-      fontSize: Array.from(text).length <= 2 ? '22px' : '12px',
+      fontSize: big ? '24px' : '13px',
       color: '#1f2740',
-      wordWrap: { width: 170, useAdvancedWrap: true },
+      wordWrap: { width: 190, useAdvancedWrap: true },
       align: 'center',
+      lineSpacing: 2,
       resolution: 2,
     })
     .setOrigin(0.5, 1);
-  const pad = 7;
-  const w = t.width + pad * 2;
-  const h = t.height + pad * 2;
+  const padX = 10;
+  const padY = 7;
+  const w = Math.max(t.width + padX * 2, 34);
+  const h = t.height + padY * 2;
+  const r = Math.min(12, h / 2);
+  const accent = BUBBLE_ACCENT[scope];
   const bg = scene.add.graphics();
-  bg.fillStyle(0xffffff, 0.96);
-  bg.fillRoundedRect(-w / 2, -h, w, h, 9);
-  bg.fillTriangle(-6, 0, 6, 0, 0, 7);
-  bg.lineStyle(1, 0x1f2740, 0.15);
-  bg.strokeRoundedRect(-w / 2, -h, w, h, 9);
-  t.setPosition(0, -pad);
-  return scene.add.container(0, 0, [bg, t]).setDepth(DEPTH_OVERLAY + 1);
+  // Ombre douce sous la bulle.
+  bg.fillStyle(0x0d1630, 0.18);
+  bg.fillRoundedRect(-w / 2 + 1, -h + 3, w, h, r);
+  // Corps, liseré et pointe.
+  bg.fillStyle(0xffffff, 0.97);
+  bg.fillRoundedRect(-w / 2, -h, w, h, r);
+  bg.fillTriangle(-7, -1, 7, -1, 0, 8);
+  bg.lineStyle(2, accent, 0.9);
+  bg.strokeRoundedRect(-w / 2, -h, w, h, r);
+  bg.lineBetween(-7, 0, 0, 8);
+  bg.lineBetween(7, 0, 0, 8);
+  // Le haut de la pointe, pour cacher le liseré du bas de la bulle à cet endroit.
+  bg.fillStyle(0xffffff, 0.97);
+  bg.fillRect(-6, -2.5, 12, 3);
+  t.setPosition(0, -padY);
+  const parts: Phaser.GameObjects.GameObject[] = [bg, t];
+  if (scope === 'global') {
+    const chip = scene.add.graphics();
+    chip.fillStyle(accent, 1);
+    chip.fillCircle(-w / 2 + 2, -h + 2, 9);
+    const globe = scene.add
+      .text(-w / 2 + 2, -h + 2, '🌍', { fontSize: '11px', resolution: 2 })
+      .setOrigin(0.5, 0.5);
+    parts.push(chip, globe);
+  }
+  return scene.add.container(0, 0, parts).setDepth(DEPTH_OVERLAY + 1);
 }

@@ -74,8 +74,15 @@ Tous les messages arrivent dans le même fil. Au-dessus, **« À : »** indique 
 
 - **🌍 Tout le monde** (choix par défaut) : tous les Malinos connectés ;
 - **📍 Autour** : seulement les Malinos à moins de **8 cases** de toi (environ la largeur du hall
-  d’accueil), avec une bulle au-dessus de ta tête. Le nombre à côté indique combien de Malinos
-  te liront. Ces messages sont marqués 📍 dans le fil.
+  d’accueil). Le nombre à côté indique combien de Malinos te liront. Ces messages sont marqués 📍
+  dans le fil.
+
+Dans les deux cas, ton message s’affiche aussi dans une **bulle au-dessus de ta tête** (et celui
+des autres au-dessus de la leur, s’ils sont dans la même salle) : liseré **turquoise** pour
+« Autour », **violet** avec un petit 🌍 pour « Tout le monde ». La bulle apparaît d’un petit bond,
+reste le temps de la lire, puis s’efface ; un ou deux émojis seuls s’affichent en grand.
+
+![Bulles de chat : « Tout le monde » (violet) et « Autour » (turquoise)](images/bulles-chat.jpg)
 
 ## 4. Visite du Hub
 
