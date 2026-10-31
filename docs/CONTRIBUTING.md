@@ -1,5 +1,10 @@
 # Contribuer à MalinosLand
 
+> **Important.** Ce dépôt est figé : c’est la base de MalinosLand, qui n’évoluera plus ici, et les
+> pull requests n’y sont plus acceptées. Le guide ci-dessous reste pour celles et ceux qui
+> reprennent cette base de leur côté. Pour contribuer à l’avenir à un MalinosLand étendu, un projet
+> en parallèle pourra être créé (voir le [README](../README.md)).
+
 Merci de vouloir aider ! MalinosLand est construit **par la communauté**. Tu n’as pas besoin d’être
 développeur pour participer. Si un mot te semble obscur, regarde le [glossaire](GLOSSAIRE.md).
 

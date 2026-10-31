@@ -10,6 +10,13 @@
 
 </div>
 
+> **À propos de ce dépôt.** J’ai créé cette base de MalinosLand (le monde en 2D isométrique) et
+> je la laisse ici en open source, sous licence AGPL : vous pouvez la consulter et la reprendre.
+> **Elle n’évoluera plus dans ce dépôt** et les contributions n’y sont plus acceptées. Le jeu en
+> ligne ([malinosland.pages.dev](https://malinosland.pages.dev)) continue d’avancer à part : il
+> contient donc bien plus de contenu que ce dépôt. Si, à l’avenir, vous souhaitez contribuer pour
+> étendre le projet, on pourra créer un projet en parallèle.
+
 ## C’est quoi, MalinosLand ?
 
 MalinosLand est un **petit monde en 3D isométrique** (vu de trois quarts, comme une maquette),
@@ -23,7 +30,7 @@ des versions, on pourra y montrer ses projets, avoir son propre logement et part
 Trois promesses :
 
 - 🆓 **Gratuit pour toujours** : pas d’abonnement, rien à acheter, aucune publicité.
-- 🤝 **Construit ensemble** : le code est public, chacun peut proposer des idées ou des améliorations.
+- 🤝 **Pour la communauté** : chacun peut proposer des idées, depuis le jeu.
 - 🪶 **Léger** : pensé pour fonctionner sur des ordinateurs modestes.
 
 > **Où en est-on ?** C’est encore un **prototype** : on se promène, on personnalise son avatar,
